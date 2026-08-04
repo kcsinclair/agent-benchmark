@@ -1,0 +1,108 @@
+**scheduler.py**
+```python
+"""
+scheduler.py
+
+Weighted interval scheduling (O(n log n))
+
+The public entry point is ``best_schedule`` which receives a list of jobs
+``[(start, end, weight), ...]`` and returns a pair
+
+    (maximum_total_weight, list_of_original_indices)
+
+The list of indices is sorted by the job's start time (ties broken by the
+original index).  The algorithm runs in O(n log n) time and uses only the
+standard library.
+"""
+
+from __future__ import annotations
+
+import bisect
+from typing import List, Tuple
+
+
+def best_schedule(jobs: List[Tuple[float, float, float]]) -> Tuple[float, List[int]]:
+    """
+    Compute an optimal (maximum‑weight) set of non‑overlapping jobs.
+
+    Parameters
+    ----------
+    jobs : list of (start, end, weight)
+        ``start < end`` and ``weight > 0`` are guaranteed.
+
+    Returns
+    -------
+    (total_weight, chosen_indices) : (float, list[int])
+        * ``total_weight`` – the maximum achievable sum of weights.
+        * ``chosen_indices`` – indices into the original ``jobs`` list that
+          realise the optimum.  The indices are sorted by the job's start
+          time; ties are broken by the original index.
+    """
+    n = len(jobs)
+    if n == 0:
+        return 0.0, []
+
+    # ------------------------------------------------------------------
+    # 1.  Attach original indices and sort by finishing time.
+    # ------------------------------------------------------------------
+    # each element: (start, end, weight, original_index)
+    jobs_with_idx = [(s, e, w, i) for i, (s, e, w) in enumerate(jobs)]
+    jobs_sorted = sorted(jobs_with_idx, key=lambda x: x[1])   # sort by end
+
+    starts = [s for s, _e, _w, _i in jobs_sorted]
+    ends   = [e for _s, e, _w, _i in jobs_sorted]
+    weights = [w for _s, _e, w, _i in jobs_sorted]
+    orig_idx = [i for _s, _e, _w, i in jobs_sorted]
+
+    # ------------------------------------------------------------------
+    # 2.  For each job i find the last job that finishes not later than
+    #     its start time (binary search on the sorted end times).
+    # ------------------------------------------------------------------
+    # p[i] = index of the last compatible job, or -1 if none exists.
+    p = [-1] * n
+    for i in range(n):
+        # bisect_right returns the insertion point to keep ends sorted.
+        # Subtract 1 to get the index of the last end <= start_i.
+        j = bisect.bisect_right(ends, starts[i]) - 1
+        p[i] = j
+
+    # ------------------------------------------------------------------
+    # 3.  Dynamic programming.
+    #     dp[i] – optimal weight using the first i jobs (i from 0..n).
+    # ------------------------------------------------------------------
+    dp = [0.0] * (n + 1)          # dp[0] = 0
+    take = [False] * n           # take[i] == True  → job i is chosen
+
+    for i in range(1, n + 1):
+        # job index in the sorted order is i-1
+        incl = weights[i - 1]
+        if p[i - 1] != -1:
+            incl += dp[p[i - 1] + 1]   # +1 because dp is 1‑based
+        excl = dp[i - 1]
+
+        if incl > excl:
+            dp[i] = incl
+            take[i - 1] = True
+        else:
+            dp[i] = excl
+            take[i - 1] = False
+
+    # ------------------------------------------------------------------
+    # 4.  Reconstruct the chosen jobs.
+    # ------------------------------------------------------------------
+    chosen: List[int] = []
+    i = n - 1
+    while i >= 0:
+        if take[i]:
+            chosen.append(orig_idx[i])   # store original index
+            i = p[i]                     # jump to the last compatible job
+        else:
+            i -= 1
+
+    # The reconstruction yields indices in reverse order of the sorted list.
+    # The specification requires them sorted by start time (ties by index).
+    chosen.sort(key=lambda idx: (jobs[idx][0], idx))
+
+    total_weight = dp[n]
+    return total_weight, chosen
+```

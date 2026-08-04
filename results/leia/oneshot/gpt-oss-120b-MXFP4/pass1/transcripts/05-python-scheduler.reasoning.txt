@@ -1,0 +1,47 @@
+We need to write solution for weighted interval scheduling O(n log n). Need to return total weight and list of original indices sorted by start time (tie by index). Approach: sort jobs by end time (or start?). Classic DP: sort by end time, compute p[i] = last job before i that doesn't overlap (end <= start_i). DP[i] = max(DP[i-1], weight_i + DP[p[i]]). Then reconstruct.
+
+We need to output indices sorted by start time (tie by index). After reconstruction we have list of selected jobs (original indices). We can sort them by start then index.
+
+Complexities: n up to 200k, O(n log n). Use binary search for p[i] using list of end times.
+
+Implementation details:
+
+- Input jobs list of tuples (start, end, weight). We'll enumerate to keep original index.
+
+- Create list of (end, start, weight, idx). Sort by end ascending, tie by start maybe not needed.
+
+- Build arrays: ends = [end_i], starts = [start_i], weights = [weight_i], idxs = [orig_idx].
+
+- Compute p using bisect_right on ends: for each i, find rightmost j < i with ends[j] <= start_i. Use bisect_right(ends, start_i) - 1.
+
+- DP array of floats length n+1 (dp[0]=0). Also keep decision array: take[i]=True if we take job i-1 (since dp index offset). Or we can store predecessor.
+
+- For i from 1..n: option1 = dp[i-1]; option2 = weights[i-1] + dp[p[i-1]+1] (since p is index in 0..i-2). Choose max; store decision.
+
+- After DP, reconstruct: i=n; selected=[]; while i>0: if take[i]: selected.append(idxs[i-1]); i = p[i-1]+1 else i-=1.
+
+- Then sort selected by start time (need start values). We have start list; we can map idx->start. Use original jobs list to get start.
+
+- Return (dp[n], selected_sorted).
+
+Edge Cases: floating weights; dp values float.
+
+Complexities fine.
+
+Potential recursion limit: we use iteration.
+
+Make sure to import bisect.
+
+Testing with example.
+
+Also need to ensure tie-breaking for sorting selected indices: sort by (jobs[idx][0], idx). Provide stable.
+
+Implementation details: Use typing.
+
+Write docstring.
+
+Make sure module has no side effects.
+
+Potential memory: dp length 200001 fine.
+
+Now produce final answer.

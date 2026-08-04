@@ -1,0 +1,46 @@
+{
+  "wall_seconds": 699.6,
+  "settings": {
+    "temperature": 0.0,
+    "max_tokens": 16384,
+    "think": "off",
+    "repeat": 3,
+    "reasoning_effort": "",
+    "server": "http://leia.packsin.com:7442"
+  },
+  "results": [
+    {
+      "model": "gpt-oss-120b-MXFP4",
+      "load_seconds": 59.3,
+      "passes": [
+        {
+          "pass": 1,
+          "dir": "/Users/keith/Library/Mobile Documents/com~apple~CloudDocs/Projects/agent-coding-test/runs/gpt-oss-120b-MXFP4/pass1",
+          "generate_seconds": 190.7,
+          "wall_seconds": 190.7,
+          "trouble": [],
+          "score": 68,
+          "max": 68
+        },
+        {
+          "pass": 2,
+          "dir": "/Users/keith/Library/Mobile Documents/com~apple~CloudDocs/Projects/agent-coding-test/runs/gpt-oss-120b-MXFP4/pass2",
+          "generate_seconds": 240.9,
+          "wall_seconds": 240.9,
+          "trouble": [],
+          "score": 68,
+          "max": 68
+        },
+        {
+          "pass": 3,
+          "dir": "/Users/keith/Library/Mobile Documents/com~apple~CloudDocs/Projects/agent-coding-test/runs/gpt-oss-120b-MXFP4/pass3",
+          "generate_seconds": 198.6,
+          "wall_seconds": 198.6,
+          "trouble": [],
+          "score": 68,
+          "max": 68
+        }
+      ]
+    }
+  ]
+}

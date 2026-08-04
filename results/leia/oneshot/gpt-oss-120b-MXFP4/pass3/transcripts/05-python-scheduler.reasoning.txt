@@ -1,0 +1,110 @@
+We need to write solution: weighted interval scheduling O(n log n). Need to return total weight and list of original indices sorted by start time (tie by index). Approach: sort jobs by end time (or start?). Classic DP: sort by end time, compute p[i] = last job before i that doesn't overlap (end <= start_i). DP[i] = max(DP[i-1], weight_i + DP[p[i]]). Then reconstruct chosen indices.
+
+We need to output indices sorted by start time (tie by index). After reconstruction we have set of indices; we can sort them accordingly.
+
+Implementation details: n up to 200k, O(n log n). Use bisect on list of end times.
+
+Edge Cases: floating times; use <= for compatibility (touch allowed). So p[i] is index of last job with end <= start_i.
+
+Implementation steps:
+
+- If jobs empty: return (0.0, []).
+
+- Create list of tuples (start, end, weight, original_index). Keep original index.
+
+- Sort by end ascending, then maybe start for tie? Not needed but stable.
+
+- Build arrays: starts, ends, weights, orig_idx.
+
+- Compute array 'p' using bisect_right on ends: for each i, find rightmost j < i with ends[j] <= starts[i]; using bisect_right(ends, starts[i]) - 1.
+
+- DP array of length n+1 (dp[0]=0). Use float.
+
+- For i from 1..n: idx = i-1 in sorted arrays. Option1 = dp[i-1]; Option2 = weights[idx] + dp[p[idx]+1] (since dp index offset). Choose max; store decision maybe bool.
+
+- To reconstruct: start from i=n, while i>0: if dp[i]==dp[i-1] (within tolerance?) then i-=1 else include job idx = i-1, add orig_idx, then i = p[idx]+1.
+
+- Use tolerance for float equality? Since weights are floats, but addition may cause rounding. Use > with small epsilon: if dp[i] > dp[i-1] + 1e-12 then taken else not. Or compare dp[i] == dp[i-1] maybe fine if same values from same computation; but due to floating rounding may differ. Use epsilon.
+
+- After reconstruct, we have list of original indices unsorted; sort by start time then index. Need start times from original jobs list. So we can sort using key lambda idx: (jobs[idx][0], idx). Return total weight dp[n] (float) and sorted list.
+
+Complexities O(n log n). Memory O(n).
+
+Edge Cases: large n recursion not used.
+
+Implementation details: Use bisect from bisect module.
+
+Testing with example.
+
+Let's craft code.
+
+Potential pitfalls: p array length n; for jobs where no compatible previous, p = -1.
+
+Implementation:
+
+```
+def best_schedule(jobs):
+    if not jobs:
+        return (0.0, [])
+    enriched = [(s, e, w, i) for i, (s, e, w) in enumerate(jobs)]
+    enriched.sort(key=lambda x: (x[1], x[0]))  # sort by end then start
+    starts = [s for s, e, w, i in enriched]
+    ends = [e for s, e, w, i in enriched]
+    weights = [w for s, e, w, i in enriched]
+    orig = [i for s, e, w, i in enriched]
+
+    import bisect
+    p = [0]*len(jobs)
+    for idx in range(len(jobs)):
+        # find rightmost end <= start[idx]
+        j = bisect.bisect_right(ends, starts[idx]) - 1
+        p[idx] = j
+    n = len(jobs)
+    dp = [0.0]*(n+1)
+    take = [False]*n
+    for i in range(1, n+1):
+        w = weights[i-1]
+        incl = w + dp[p[i-1]+1]  # if p=-1 then dp[0]
+        excl = dp[i-1]
+        if incl > excl + 1e-12:
+            dp[i] = incl
+            take[i-1] = True
+        else:
+            dp[i] = excl
+            take[i-1] = False
+    # reconstruct
+    chosen = []
+    i = n
+    while i > 0:
+        if take[i-1]:
+            chosen.append(orig[i-1])
+            i = p[i-1] + 1
+        else:
+            i -= 1
+    # sort chosen by start then index
+    chosen.sort(key=lambda idx: (jobs[idx][0], idx))
+    total = dp[n]
+    return (total, chosen)
+```
+
+But note: we used take array based on decision at each i; but this may not be correct because decision may depend on later decisions? Actually DP decision is local: if incl > excl then we take job i-1; else not. That's fine for reconstruction using p.
+
+Edge Cases: When incl == excl within epsilon, we can choose not to take (any optimal). That's fine.
+
+Potential memory: dp length 200001 fine.
+
+Testing quickly.
+
+Let's run mental test with example.
+
+Will produce total 13.0 and chosen indices maybe [2,6] sorted by start: job2 start 0, job6 start 6 -> [2,6] correct.
+
+Potential issue: Sorting by end then start ensures stable order for ties; but p calculation uses ends list sorted accordingly.
+
+Complexities fine.
+
+Now produce final answer: Provide scheduler.py with function and docstring maybe.
+
+Also ensure module has no side effects.
+
+Let's craft final output.

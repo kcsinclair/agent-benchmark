@@ -1,0 +1,144 @@
+```python
+"""
+Weighted Interval Scheduling at Scale.
+
+Provides best_schedule(jobs) which returns the maximum weight and the indices
+of an optimal non-overlapping subset of jobs.
+"""
+
+from __future__ import annotations
+import bisect
+from typing import List, Tuple
+
+
+def best_schedule(jobs: list[tuple[float, float, float]]) -> tuple[float, list[int]]:
+    """
+    Solve the weighted interval scheduling problem.
+
+    Args:
+        jobs: A list of (start, end, weight) tuples.
+
+    Returns:
+        A tuple (total_weight, chosen_indices) where total_weight is the
+        maximum achievable sum of weights and chosen_indices are the indices
+        into the input list of one optimal subset, sorted by start time.
+    """
+    n = len(jobs)
+    if n == 0:
+        return (0.0, [])
+
+    # Create a list of (start, end, weight, original_index)
+    # We'll sort by end time for the DP.
+    indexed_jobs = []
+    for i, (s, e, w) in enumerate(jobs):
+        indexed_jobs.append((s, e, w, i))
+
+    # Sort by end time. If end times are equal, sort by start time.
+    # This ensures a consistent ordering for the DP.
+    indexed_jobs.sort(key=lambda x: (x[1], x[0]))
+
+    # Extract sorted data for easier access
+    # sorted_jobs[i] = (start, end, weight, original_index)
+    sorted_jobs = indexed_jobs
+
+    # DP arrays
+    # dp[i] = max weight using a subset of the first i jobs (sorted by end time)
+    # We use 1-based indexing for dp for convenience, where dp[0] = 0.
+    # dp[i] corresponds to considering sorted_jobs[0]...sorted_jobs[i-1]
+    
+    # To achieve O(n log n), we need to efficiently find the latest job that
+    # doesn't overlap with the current job.
+    # Since jobs are sorted by end time, for job i (0-indexed in sorted_jobs),
+    # we want the largest index j < i such that sorted_jobs[j].end <= sorted_jobs[i].start.
+    # We can use binary search on the end times.
+
+    # Precompute end times for binary search
+    end_times = [job[1] for job in sorted_jobs]
+    
+    # dp[i] will store the max weight considering the first i jobs (sorted_jobs[0]...sorted_jobs[i-1])
+    # dp[0] = 0
+    # dp[i+1] = max(dp[i], weight_i + dp[p(i)+1]) where p(i) is the index of the latest non-overlapping job
+    # Actually, let's define dp[i] as the max weight using a subset of sorted_jobs[0]...sorted_jobs[i-1].
+    # So dp[0] = 0.
+    # For job i (0-indexed in sorted_jobs), which is the i-th job in the sorted list:
+    #   Option 1: Don't include job i. Max weight = dp[i]
+    #   Option 2: Include job i. Max weight = weight_i + dp[p(i)+1] where p(i) is the index of the latest job
+    #             that ends <= start_i. If no such job exists, p(i) = -1, so we add dp[0] = 0.
+    #   dp[i+1] = max(dp[i], weight_i + dp[p(i)+1])
+    
+    # We also need to track choices for reconstruction.
+    # choice[i] = True if we included job i (sorted_jobs[i]) in the optimal solution for dp[i+1]
+    #            False otherwise.
+    
+    dp = [0.0] * (n + 1)
+    # To reconstruct, we can store whether we took the job or not.
+    # took[i] = True if sorted_jobs[i] was included in the optimal solution for dp[i+1]
+    took = [False] * n
+    
+    for i in range(n):
+        start_i, end_i, weight_i, _ = sorted_jobs[i]
+        
+        # Find the latest job j < i such that end_j <= start_i
+        # We search in end_times[0...i-1] for the rightmost value <= start_i
+        # bisect_right returns the insertion point to maintain sorted order.
+        # bisect_right(end_times[:i], start_i) gives the index where start_i would be inserted.
+        # All elements before this index are <= start_i.
+        # So the index of the last such element is idx - 1.
+        # But we're searching in the full end_times list, so we need to limit the search range.
+        
+        # Using bisect_right on the entire end_times list with hi=i
+        idx = bisect.bisect_right(end_times, start_i, hi=i)
+        # idx is the number of jobs in sorted_jobs[0...i-1] that end <= start_i
+        # The latest such job is at index idx-1 in sorted_jobs.
+        # The dp value for considering jobs up to and including that job is dp[idx].
+        # Because dp[k] is the max weight using the first k jobs (sorted_jobs[0]...sorted_jobs[k-1]).
+        # If idx=0, no job ends <= start_i, so we add dp[0]=0.
+        
+        include_weight = weight_i + dp[idx]
+        exclude_weight = dp[i]
+        
+        if include_weight >= exclude_weight:
+            dp[i+1] = include_weight
+            took[i] = True
+        else:
+            dp[i+1] = exclude_weight
+            took[i] = False
+
+    # Reconstruct the solution
+    # We start from the last job and work backwards.
+    chosen_indices = []
+    i = n - 1
+    while i >= 0:
+        if took[i]:
+            # Job i was included
+            chosen_indices.append(sorted_jobs[i][3])  # original index
+            # Find the latest non-overlapping job before i
+            start_i, _, _, _ = sorted_jobs[i]
+            idx = bisect.bisect_right(end_times, start_i, hi=i)
+            # The next job to consider is idx-1
+            i = idx - 1
+        else:
+            i -= 1
+
+    # The chosen_indices are collected in reverse order of end time (since we went backwards).
+    # We need to sort them by start time (break ties by index ascending).
+    # Let's get the start times for these indices from the original jobs list.
+    # Actually, the problem says "sorted by the job's start time (break ties by index ascending)".
+    # So we need to sort the chosen_indices based on the start time of the corresponding job in the original list.
+    
+    # Create a list of (start_time, original_index) for chosen jobs
+    chosen_with_starts = []
+    for idx in chosen_indices:
+        s, _, _ = jobs[idx]
+        chosen_with_starts.append((s, idx))
+    
+    # Sort by start time, then by index
+    chosen_with_starts.sort(key=lambda x: (x[0], x[1]))
+    
+    # Extract just the indices
+    sorted_chosen_indices = [idx for _, idx in chosen_with_starts]
+    
+    total_weight = dp[n]
+    
+    return (total_weight, sorted_chosen_indices)
+```

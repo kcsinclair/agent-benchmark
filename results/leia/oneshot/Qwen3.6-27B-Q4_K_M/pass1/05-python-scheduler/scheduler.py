@@ -1,0 +1,150 @@
+"""
+Weighted Interval Scheduling at Scale.
+
+Provides best_schedule(jobs) which returns the maximum weight and the indices
+of an optimal non-overlapping subset of jobs.
+"""
+
+from __future__ import annotations
+import bisect
+from typing import List, Tuple
+
+
+def best_schedule(jobs: list[tuple[float, float, float]]) -> tuple[float, list[int]]:
+    """
+    Solve the weighted interval scheduling problem.
+    
+    Args:
+        jobs: List of (start, end, weight) tuples.
+        
+    Returns:
+        A tuple (total_weight, chosen_indices) where total_weight is the
+        maximum achievable sum of weights and chosen_indices are the indices
+        into the input list of one optimal subset, sorted by start time.
+    """
+    n = len(jobs)
+    if n == 0:
+        return (0.0, [])
+    
+    # Create a list of (start, end, weight, original_index)
+    indexed_jobs = [(jobs[i][0], jobs[i][1], jobs[i][2], i) for i in range(n)]
+    
+    # Sort by end time (primary), then start time (secondary), then index (tertiary)
+    # This allows us to process jobs in order of completion
+    indexed_jobs.sort(key=lambda x: (x[1], x[0], x[3]))
+    
+    # Extract sorted end times for binary search
+    end_times = [job[1] for job in indexed_jobs]
+    
+    # dp[i] = maximum weight achievable using jobs from indexed_jobs[0..i]
+    # We'll use a list where dp[i] corresponds to the max weight considering
+    # the first i+1 jobs in sorted order.
+    
+    # To reconstruct the solution, we need to track which jobs were chosen.
+    # We'll store for each job whether it was included in the optimal solution
+    # up to that point.
+    
+    # dp[i] = max weight using subset of first i+1 jobs (indexed_jobs[0] to indexed_jobs[i])
+    # For each job i, we have two choices:
+    # 1. Don't include job i: dp[i] = dp[i-1] (if i > 0, else 0)
+    # 2. Include job i: dp[i] = weight_i + dp[p(i)] where p(i) is the largest index
+    #    such that indexed_jobs[p(i)].end <= indexed_jobs[i].start
+    
+    # We'll use iterative DP with a list for dp values and another for reconstruction.
+    
+    dp = [0.0] * n
+    # choice[i] = True if job i is included in the optimal solution for dp[i]
+    # We'll store the predecessor index for reconstruction
+    # pred[i] = index of the last job in the optimal solution before job i if job i is included
+    #          or -1 if job i is not included (meaning we take dp[i-1])
+    # Actually, let's store: if we include job i, what's the index of the previous job in the chain?
+    # For reconstruction, we need to know for each i, whether job i was chosen, and if so,
+    # what was the previous job in the optimal chain.
+    
+    # Let's use a different approach for reconstruction:
+    # include[i] = True if job i is part of the optimal solution ending at or before i
+    # But this is tricky. Let's store the decision explicitly.
+    
+    # decision[i] = 'include' or 'exclude'
+    # If 'include', then the previous job in the chain is p(i)
+    # If 'exclude', then the solution is the same as for i-1
+    
+    # For reconstruction, we can backtrack from the last job.
+    
+    # Let's store:
+    # dp[i] = max weight
+    # prev[i] = if job i is included, the index of the previous job in the optimal chain (or -1 if none)
+    #           if job i is not included, we don't need this for direct backtracking, but we need to know
+    #           that we should look at i-1.
+    
+    # Alternative: store a "parent" pointer for reconstruction.
+    # Let's define:
+    # take[i] = True if job i is included in the optimal solution for dp[i]
+    # If take[i] is True, then the previous job in the chain is p(i)
+    # If take[i] is False, then the optimal solution for dp[i] is the same as dp[i-1]
+    
+    take = [False] * n
+    # For jobs that are taken, store the index of the previous job in the chain
+    # prev_in_chain[i] = p(i) if take[i] is True, else undefined
+    prev_in_chain = [-1] * n
+    
+    for i in range(n):
+        start_i, end_i, weight_i, _ = indexed_jobs[i]
+        
+        # Find the latest job that ends <= start_i
+        # We need the largest index j < i such that end_times[j] <= start_i
+        # bisect_right gives us the insertion point, so we subtract 1
+        j = bisect.bisect_right(end_times, start_i, 0, i) - 1
+        
+        # Option 1: Don't include job i
+        if i == 0:
+            exclude_val = 0.0
+        else:
+            exclude_val = dp[i - 1]
+        
+        # Option 2: Include job i
+        if j >= 0:
+            include_val = weight_i + dp[j]
+        else:
+            include_val = weight_i
+        
+        if include_val >= exclude_val:
+            dp[i] = include_val
+            take[i] = True
+            prev_in_chain[i] = j
+        else:
+            dp[i] = exclude_val
+            take[i] = False
+            prev_in_chain[i] = -1  # Not used
+    
+    # The maximum weight is dp[n-1]
+    total_weight = dp[n - 1]
+    
+    # Reconstruct the solution
+    chosen_indices = []
+    i = n - 1
+    while i >= 0:
+        if take[i]:
+            # Job i is included
+            orig_idx = indexed_jobs[i][3]
+            chosen_indices.append(orig_idx)
+            i = prev_in_chain[i]
+        else:
+            # Job i is not included, move to previous
+            i -= 1
+    
+    # chosen_indices are in reverse order of inclusion (from last to first in sorted order)
+    # We need to sort by start time, then by original index for ties
+    # Since indexed_jobs is sorted by end time, the reconstruction gives us jobs
+    # in reverse order of their end times. We need to sort by start time.
+    
+    # Get the actual jobs for the chosen indices
+    chosen_jobs = [(jobs[idx][0], jobs[idx][1], idx) for idx in chosen_indices]
+    
+    # Sort by start time, then by original index
+    chosen_jobs.sort(key=lambda x: (x[0], x[2]))
+    
+    # Extract just the indices
+    chosen_indices = [job[2] for job in chosen_jobs]
+    
+    return (total_weight, chosen_indices)

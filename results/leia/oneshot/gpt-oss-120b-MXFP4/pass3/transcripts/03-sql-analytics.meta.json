@@ -1,0 +1,16 @@
+{
+  "model": "gpt-oss-120b-MXFP4",
+  "finish_reason": "stop",
+  "mode": "think=off",
+  "temperature": 0.0,
+  "max_tokens": 16384,
+  "usage": {
+    "completion_tokens": 946,
+    "prompt_tokens": 685,
+    "total_tokens": 1631,
+    "prompt_tokens_details": {
+      "cached_tokens": 60
+    }
+  },
+  "seconds": 20.4
+}

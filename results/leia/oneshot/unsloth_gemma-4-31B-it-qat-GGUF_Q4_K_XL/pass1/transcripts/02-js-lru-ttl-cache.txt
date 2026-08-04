@@ -1,0 +1,119 @@
+```javascript
+/**
+ * LruTtlCache implements a Least Recently Used cache with Time-To-Live (TTL) support.
+ * It leverages the fact that JavaScript Map maintains insertion order, allowing
+ * O(1) amortized operations for LRU logic.
+ */
+export class LruTtlCache {
+  #capacity;
+  #defaultTtlMs;
+  #now;
+  #cache;
+
+  constructor({ capacity, defaultTtlMs = Infinity, now = () => Date.now() }) {
+    if (!Number.isInteger(capacity) || capacity < 1) {
+      throw new RangeError('Capacity must be an integer >= 1');
+    }
+    this.#capacity = capacity;
+    this.#defaultTtlMs = defaultTtlMs;
+    this.#now = now;
+    this.#cache = new Map();
+  }
+
+  /**
+   * Internal helper to check if an entry is expired.
+   */
+  #isExpired(expiry) {
+    if (expiry === Infinity) return false;
+    return this.#now() >= expiry;
+  }
+
+  /**
+   * Internal helper to remove expired entries to free up space.
+   * Since we only care about capacity during 'set', we can purge 
+   * any expired items found in the map.
+   */
+  #purgeExpired() {
+    for (const [key, entry] of this.#cache.entries()) {
+      if (this.#isExpired(entry.expiry)) {
+        this.#cache.delete(key);
+      }
+    }
+  }
+
+  set(key, value, ttlMs) {
+    // If key exists, delete it first to refresh position in Map (LRU)
+    if (this.#cache.has(key)) {
+      this.#cache.delete(key);
+    }
+
+    const ttl = ttlMs !== undefined ? ttlMs : this.#defaultTtlMs;
+    const expiry = ttl === Infinity ? Infinity : this.#now() + ttl;
+
+    // If the entry is already expired (ttl <= 0), we don't store it
+    if (expiry !== Infinity && this.#isExpired(expiry)) {
+      return this;
+    }
+
+    // Handle capacity
+    if (this.#cache.size >= this.#capacity) {
+      this.#purgeExpired();
+      
+      // If still over capacity, evict the Least Recently Used (first item in Map)
+      if (this.#cache.size >= this.#capacity) {
+        const oldestKey = this.#cache.keys().next().value;
+        this.#cache.delete(oldestKey);
+      }
+    }
+
+    this.#cache.set(key, { value, expiry });
+    return this;
+  }
+
+  get(key) {
+    const entry = this.#cache.get(key);
+    if (!entry) return undefined;
+
+    if (this.#isExpired(entry.expiry)) {
+      this.#cache.delete(key);
+      return undefined;
+    }
+
+    // Refresh recency: delete and re-insert
+    this.#cache.delete(key);
+    this.#cache.set(key, entry);
+
+    return entry.value;
+  }
+
+  has(key) {
+    const entry = this.#cache.get(key);
+    if (!entry) return false;
+
+    if (this.#isExpired(entry.expiry)) {
+      this.#cache.delete(key);
+      return false;
+    }
+
+    return true;
+  }
+
+  delete(key) {
+    return this.#cache.delete(key);
+  }
+
+  get size() {
+    // We must purge expired entries to return the count of "live" entries
+    this.#purgeExpired();
+    return this.#cache.size;
+  }
+
+  keys() {
+    // Purge expired first to ensure only live keys are returned
+    this.#purgeExpired();
+    // Map order is insertion order (LRU is oldest to newest).
+    // Requirement: Most Recently Used to Least Recently Used.
+    return Array.from(this.#cache.keys()).reverse();
+  }
+}
+```

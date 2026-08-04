@@ -1,0 +1,167 @@
+export class LruTtlCache {
+  constructor({ capacity, defaultTtlMs = Infinity, now = () => Date.now() }) {
+    if (!Number.isInteger(capacity) || capacity < 1) {
+      throw new RangeError('capacity must be an integer >= 1');
+    }
+
+    this._capacity = capacity;
+    this._defaultTtlMs = defaultTtlMs;
+    this._now = now;
+    // Map stores: key -> { value, expiry }
+    // Map iteration order is insertion order, which we maintain for LRU
+    this._map = new Map();
+  }
+
+  _isExpired(expiry) {
+    if (expiry === Infinity) return false;
+    return this._now() >= expiry;
+  }
+
+  _getExpiry(ttlMs) {
+    if (ttlMs === Infinity || ttlMs === undefined || ttlMs === null) {
+      return this._defaultTtlMs === Infinity ? Infinity : this._now() + this._defaultTtlMs;
+    }
+    return this._now() + ttlMs;
+  }
+
+  _purgeExpired() {
+    // We need to remove expired entries. Since we can't iterate and delete safely
+    // in a simple loop without issues, we'll collect keys to delete.
+    // However, for O(1) amortized, we should be careful. 
+    // The problem says get/set/has/delete should be O(1) amortized.
+    // size() and keys() might need to purge, which could be O(n) in worst case,
+    // but amortized over operations it's acceptable if we don't purge everything every time.
+    // Actually, the constraint is on get, set, has, delete. size and keys are not constrained to O(1).
+    // But let's try to be efficient.
+    
+    // For size() and keys(), we need to ensure only live entries are counted/returned.
+    // We can purge lazily or eagerly. Eagerly in size/keys is fine since they are not O(1) constrained.
+    // For get/set/has/delete, we only purge the specific entry if expired.
+  }
+
+  set(key, value, ttlMs) {
+    const expiry = this._getExpiry(ttlMs);
+    
+    // If the key already exists, we need to update it.
+    // But first, let's handle the case where the new entry is already expired.
+    if (this._isExpired(expiry)) {
+      // If it's already expired, we can delete it if it exists, and not add it.
+      // But the spec says "Setting an existing key updates its value, its expiry, and makes it the most recently used."
+      // If the entry is expired, it's effectively not in the cache.
+      // Let's check if the key exists and is expired.
+      if (this._map.has(key)) {
+        const existing = this._map.get(key);
+        if (this._isExpired(existing.expiry)) {
+          this._map.delete(key);
+        }
+      }
+      // If it's already expired, we don't add it.
+      return this;
+    }
+
+    // If the key exists, delete it first to update its position (LRU)
+    if (this._map.has(key)) {
+      this._map.delete(key);
+    }
+
+    // Check capacity
+    while (this._map.size >= this._capacity) {
+      // Evict expired entries first
+      let evicted = false;
+      // We need to find an expired entry. Since Map iteration is in insertion order,
+      // the oldest entries are at the beginning.
+      // We can iterate and delete the first expired entry we find.
+      for (const [k, v] of this._map) {
+        if (this._isExpired(v.expiry)) {
+          this._map.delete(k);
+          evicted = true;
+          break;
+        }
+      }
+      if (!evicted) {
+        // Evict the least recently used (first entry in Map)
+        const firstKey = this._map.keys().next().value;
+        this._map.delete(firstKey);
+      }
+    }
+
+    this._map.set(key, { value, expiry });
+    return this;
+  }
+
+  get(key) {
+    if (!this._map.has(key)) {
+      return undefined;
+    }
+
+    const entry = this._map.get(key);
+    if (this._isExpired(entry.expiry)) {
+      this._map.delete(key);
+      return undefined;
+    }
+
+    // Update LRU: delete and re-insert to move to end
+    this._map.delete(key);
+    this._map.set(key, entry);
+    return entry.value;
+  }
+
+  has(key) {
+    if (!this._map.has(key)) {
+      return false;
+    }
+
+    const entry = this._map.get(key);
+    if (this._isExpired(entry.expiry)) {
+      this._map.delete(key);
+      return false;
+    }
+
+    return true;
+  }
+
+  delete(key) {
+    if (!this._map.has(key)) {
+      return false;
+    }
+    this._map.delete(key);
+    return true;
+  }
+
+  get size() {
+    // Purge expired entries and return count
+    // We need to remove all expired entries
+    const expiredKeys = [];
+    for (const [k, v] of this._map) {
+      if (this._isExpired(v.expiry)) {
+        expiredKeys.push(k);
+      }
+    }
+    for (const k of expiredKeys) {
+      this._map.delete(k);
+    }
+    return this._map.size;
+  }
+
+  keys() {
+    // Purge expired entries first
+    const expiredKeys = [];
+    for (const [k, v] of this._map) {
+      if (this._isExpired(v.expiry)) {
+        expiredKeys.push(k);
+      }
+    }
+    for (const k of expiredKeys) {
+      this._map.delete(k);
+    }
+
+    // Return keys in order from most recently used to least recently used
+    // Map iteration is in insertion order, which is LRU order (newest at end)
+    // So we need to reverse it
+    const keys = [];
+    for (const k of this._map.keys()) {
+      keys.push(k);
+    }
+    return keys.reverse();
+  }
+}

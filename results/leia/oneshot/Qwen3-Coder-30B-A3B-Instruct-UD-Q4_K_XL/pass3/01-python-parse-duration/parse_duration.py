@@ -1,0 +1,77 @@
+import re
+
+def parse_duration(text: str) -> float:
+    if not isinstance(text, str):
+        raise TypeError("Input must be a string")
+    
+    text = text.strip()
+    if not text:
+        raise ValueError("Empty string is not a valid duration")
+    
+    # Check for leading minus sign
+    negative = False
+    if text.startswith('-'):
+        negative = True
+        text = text[1:].lstrip()
+    
+    if not text:
+        raise ValueError("Missing components after minus sign")
+    
+    # Define valid units and their conversion factors to seconds
+    unit_map = {
+        'h': 3600.0,
+        'm': 60.0,
+        's': 1.0,
+        'ms': 0.001
+    }
+    
+    # Regular expression to match components
+    pattern = r'(\d+(?:\.\d+)?)\s*(h|m|s|ms)'
+    matches = re.findall(pattern, text)
+    
+    if not matches:
+        raise ValueError("Invalid duration format")
+    
+    # Check if all characters were consumed
+    consumed = 0
+    for match in matches:
+        consumed += len(match[0]) + len(match[1])
+    
+    # Check for any remaining characters that aren't whitespace
+    remaining = text[consumed:].strip()
+    if remaining:
+        raise ValueError("Invalid characters in duration string")
+    
+    # Validate order and uniqueness
+    seen_units = set()
+    last_unit = None
+    
+    total_seconds = 0.0
+    
+    for number_str, unit in matches:
+        # Validate number format
+        try:
+            number = float(number_str)
+            if number < 0:
+                raise ValueError("Numbers must be non-negative")
+        except ValueError:
+            raise ValueError("Invalid number format")
+        
+        # Check unit order
+        if last_unit and unit_map[last_unit] <= unit_map[unit]:
+            raise ValueError("Units must be in descending order")
+        
+        # Check for repeated units
+        if unit in seen_units:
+            raise ValueError("Each unit may appear at most once")
+        
+        seen_units.add(unit)
+        last_unit = unit
+        
+        # Add to total
+        total_seconds += number * unit_map[unit]
+    
+    if negative:
+        total_seconds = -total_seconds
+    
+    return total_seconds

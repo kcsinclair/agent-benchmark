@@ -1,0 +1,374 @@
+**Solution Explanation**
+
+We have to execute a slice of `Task`s
+
+```go
+type Task func(ctx context.Context) (any, error)
+```
+
+with at most `workers` tasks running at the same time and return the
+results in the same order as the input slice.
+
+The required behaviour can be summarised as
+
+* **ordering** – results[i] is the value returned by tasks[i];
+* **bounded concurrency** – never more than `workers` tasks run
+  simultaneously;
+* **validation** – `workers < 1` is an error, empty task list returns an
+  empty result;
+* **fail‑fast** – the first task that returns a non‑nil error stops the
+  whole run:
+  * the returned error is that first error,
+  * tasks that have not started must never start,
+  * already‑started tasks receive a cancelled context,
+  * `Run` waits for those started tasks before returning;
+* **parent context cancellation** – the same handling as a task error,
+  but the returned error is `ctx.Err()` (or a wrapper).
+
+Only the Go standard library may be used, no busy‑waiting loops and the
+code must be race‑free.
+
+
+
+--------------------------------------------------------------------
+
+#### 1.  High‑level design
+
+* **Job channel** – a channel of *jobs* (`index` + `Task`) is used to
+  feed work to a fixed pool of worker goroutines.
+* **Worker pool** – exactly `workers` goroutines read from the channel,
+  execute the task and store the result at the proper index.
+* **Cancellation** – a derived context `runCtx` (`context.WithCancel`)
+  is created from the caller’s `ctx`.  
+  *When the first task fails or the parent context is cancelled we call
+  `cancelAll()`.*
+* **Fail‑fast signalling** – a `sync.Once` together with a variable
+  `firstErr` records the first error that occurs.
+* **Stopping the feeder** – the goroutine that sends jobs to the channel
+  stops as soon as `runCtx` is done (error or parent cancellation) and
+  closes the channel, so workers eventually exit.
+* **Skipping already‑queued jobs** – after a worker receives a job it
+  checks `runCtx.Done()` *before* invoking the task. If the context is
+  already cancelled the task is simply ignored, guaranteeing that a task
+  that has not started never runs.
+
+All synchronisation is done with channels, `sync.WaitGroup`,
+`sync.Once` and the standard `context` package – no busy‑waiting.
+
+
+
+--------------------------------------------------------------------
+
+#### 2.  Algorithm (pseudocode)
+
+```
+Run(ctx, tasks, workers):
+    if workers < 1          → return error
+    if len(tasks) == 0      → return nil, nil
+
+    runCtx, cancelAll = WithCancel(ctx)
+    defer cancelAll()
+
+    results = make([]any, len(tasks))
+
+    type job { idx int; fn Task }
+    jobs = make(chan job)               // unbuffered, but we use select when sending
+
+    var wg sync.WaitGroup
+    var once sync.Once
+    var firstErr error
+
+    worker := function():
+        defer wg.Done()
+        for j := range jobs {
+            // do not start a task if the run has been cancelled
+            select {
+            case <-runCtx.Done():
+                continue          // skip this job
+            default:
+            }
+
+            v, err := j.fn(runCtx)
+            if err != nil {
+                once.Do(func() {
+                    firstErr = err
+                    cancelAll()   // abort the whole run
+                })
+                continue
+            }
+            results[j.idx] = v
+        }
+
+    start `workers` goroutines running worker()
+    wg.Add(workers)
+
+    // feeder goroutine
+    go func() {
+        defer close(jobs)
+        for i, t := range tasks {
+            select {
+            case <-runCtx.Done():
+                return                // stop feeding new jobs
+            case jobs <- job{idx: i, fn: t}:
+            }
+        }
+    }()
+
+    wg.Wait()                     // wait for all workers to finish
+
+    if firstErr != nil {
+        return nil, firstErr
+    }
+    if err := ctx.Err(); err != nil {
+        return nil, err
+    }
+    return results, nil
+```
+
+--------------------------------------------------------------------
+
+#### 3.  Correctness Proof  
+
+We prove that the implementation satisfies all required semantics.
+
+---
+
+##### Lemma 1 (Bounded concurrency)
+
+At any moment at most `workers` tasks are executing.
+
+**Proof.** Exactly `workers` goroutines are started (`worker`).  
+Each goroutine executes at most one task at a time, because the loop
+receives a job, possibly skips it, then calls the task function and only
+after the call returns it proceeds to the next iteration.  
+No other goroutine calls a task. ∎
+
+
+
+##### Lemma 2 (Ordering on success)
+
+If `Run` returns without error, `results[i]` equals the value returned by
+`tasks[i]` for every `i`.
+
+**Proof.** When a task finishes without error the worker stores the
+value in `results[j.idx]`, where `j.idx` is the original index of that
+task. The slice `results` is pre‑allocated with length `len(tasks)`, so
+every index exists.  
+If `Run` returns without error, `firstErr` is `nil`; therefore no task
+error caused early cancellation and every started task stored its
+result. The feeder sends exactly one job for each input task, and the
+channel is closed only after all jobs have been sent, so every task is
+received by some worker. Consequently each `results[i]` is filled with
+the correct value. ∎
+
+
+
+##### Lemma 3 (Validation)
+
+*If `workers < 1` the function returns an error without running any task.*  
+*If `len(tasks) == 0` the function returns an empty slice and nil error.*
+
+**Proof.** The implementation checks `workers < 1` first and returns
+immediately. No goroutine is started, therefore no task runs.  
+If `len(tasks) == 0` the function returns `nil, nil` before any other
+code is executed. ∎
+
+
+
+##### Lemma 4 (Fail‑fast – first error)
+
+Assume some task `t_k` returns a non‑nil error `e`.  
+Let `t_f` be the *first* task (in real time) that returns an error.
+Then `Run` returns `(nil, e_f)` where `e_f` is the error returned by
+`t_f`.
+
+**Proof.**  
+When a worker receives an error it executes `once.Do` which stores the
+error in `firstErr` and calls `cancelAll()`. Because `sync.Once` guarantees
+the function runs exactly once, the *first* error that reaches a worker
+wins and is stored in `firstErr`. All later errors are ignored by the
+`once.Do`. After storing the error the context `runCtx` is cancelled,
+so:
+
+* the feeder stops sending new jobs (select on `runCtx.Done()`),
+* workers that have not yet started a task skip it (the `select` before
+  invoking the task).
+
+Thus no task that has not started will ever be executed.  
+`Run` waits for all workers to finish (`wg.Wait()`) and finally returns
+`nil, firstErr`. By construction `firstErr` is exactly the first error
+encountered. ∎
+
+
+
+##### Lemma 5 (Parent context cancellation)
+
+If the parent `ctx` is cancelled while `Run` is in progress, `Run`
+returns `(nil, ctx.Err())` (or a wrapper) and no new task starts after
+cancellation.
+
+**Proof.** `runCtx` is derived from `ctx`. When `ctx` is cancelled,
+`runCtx.Done()` is closed. The feeder’s select detects this and returns,
+closing the `jobs` channel, so no further jobs are sent. Workers that
+receive a job after cancellation see `runCtx.Done()` in their pre‑task
+select and skip the task. The already‑running tasks receive a cancelled
+context because they use `runCtx`. After all workers exit, `Run` checks
+`ctx.Err()` and returns it (or a wrapper). ∎
+
+
+
+##### Lemma 6 (No goroutine leaks)
+
+All goroutines started by `Run` terminate before `Run` returns.
+
+**Proof.**  
+*Workers* – each worker exits the `for range jobs` loop when the `jobs`
+channel is closed. The feeder closes the channel exactly once, after it
+finishes sending or aborts because `runCtx` is done. Therefore every
+worker eventually reaches the end of its function and calls `wg.Done()`.  
+
+*Feeder* – the feeder goroutine returns either after sending all jobs
+or when `runCtx` is done; in both cases it executes `defer close(jobs)`.  
+
+`Run` calls `wg.Wait()` which blocks until all workers have called
+`Done()`. Consequently when `Run` returns, the feeder and all workers
+have terminated – no leaks. ∎
+
+
+
+##### Theorem (Run satisfies the specification)
+
+The implementation of `Run` fulfills all six required semantics.
+
+**Proof.**  
+*Ordering* – Lemma&nbsp;2.  
+*Bounded concurrency* – Lemma&nbsp;1.  
+*Validation* – Lemma&nbsp;3.  
+*Fail fast* – Lemma&nbsp;4.  
+*Context cancellation* – Lemma&nbsp;5.  
+*No leaks* – Lemma&nbsp;6. ∎
+
+
+
+--------------------------------------------------------------------
+
+#### 4.  Complexity Analysis  
+
+*Let* `n = len(tasks)`.
+
+* **Time** – Each task is executed exactly once, so the total work is
+  `Θ( Σ time(task_i) )`. The overhead of the pool is `O(n)` for sending
+  jobs and receiving results.
+* **Space** – The result slice holds `n` values: `O(n)`.  
+  The channel holds at most one pending job per worker (because we use a
+  `select` when sending), i.e. `O(workers)`.  
+  Additional constant‑size structures (`sync.WaitGroup`, `sync.Once`,
+  etc.) are negligible.
+
+Overall: **O(n)** additional memory, **linear** time in the sum of the
+task runtimes.
+
+
+
+--------------------------------------------------------------------
+
+#### 5.  Reference Implementation (`pool.go`)
+
+```go
+package main
+
+import (
+	"context"
+	"errors"
+	"sync"
+)
+
+// Task is one unit of work.
+type Task func(ctx context.Context) (any, error)
+
+// Run executes tasks with at most `workers` running concurrently and returns
+// their results in the same order as the input slice.
+func Run(ctx context.Context, tasks []Task, workers int) ([]any, error) {
+	// validation
+	if workers < 1 {
+		return nil, errors.New("workers must be >= 1")
+	}
+	if len(tasks) == 0 {
+		return nil, nil
+	}
+
+	// runCtx can be cancelled when the first error appears or when the
+	// parent context is cancelled.
+	runCtx, cancelAll := context.WithCancel(ctx)
+	defer cancelAll()
+
+	type job struct {
+		idx int
+		fn  Task
+	}
+	jobs := make(chan job)
+
+	results := make([]any, len(tasks))
+
+	var wg sync.WaitGroup
+	var once sync.Once
+	var firstErr error
+
+	worker := func() {
+		defer wg.Done()
+		for j := range jobs {
+			// Do not start a task if the run has already been cancelled.
+			select {
+			case <-runCtx.Done():
+				continue // skip this job
+			default:
+			}
+
+			val, err := j.fn(runCtx)
+			if err != nil {
+				once.Do(func() {
+					firstErr = err
+					cancelAll()
+				})
+				continue
+			}
+			results[j.idx] = val
+		}
+	}
+
+	// start the fixed pool
+	wg.Add(workers)
+	for i := 0; i < workers; i++ {
+		go worker()
+	}
+
+	// feeder goroutine
+	go func() {
+		defer close(jobs)
+		for i, t := range tasks {
+			select {
+			case <-runCtx.Done():
+				return // stop feeding new jobs
+			case jobs <- job{idx: i, fn: t}:
+			}
+		}
+	}()
+
+	// wait for all workers to finish
+	wg.Wait()
+
+	// propagate the first error, if any
+	if firstErr != nil {
+		return nil, firstErr
+	}
+	// propagate parent context cancellation
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
+	return results, nil
+}
+```
+
+The file contains only the required package‑level identifiers (`Task`,
+`Run`) and uses only the Go standard library. It follows the design and
+proof presented above and complies with all constraints of the problem.

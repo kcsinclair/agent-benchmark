@@ -1,0 +1,8 @@
+.DS_Store
+
+# graders import submissions in place, so bytecode lands inside solutions/ and results/
+__pycache__/
+*.py[cod]
+
+# backup of the pre-portability run_all.sh, kept locally only
+*.orig

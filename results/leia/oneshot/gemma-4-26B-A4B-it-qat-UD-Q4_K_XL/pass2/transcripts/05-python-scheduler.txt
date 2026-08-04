@@ -1,0 +1,94 @@
+```python
+import bisect
+
+def best_schedule(jobs: list[tuple[float, float, float]]) -> tuple[float, list[int]]:
+    """
+    Solves the Weighted Interval Scheduling problem in O(n log n) time.
+    
+    Args:
+        jobs: A list of tuples (start, end, weight).
+        
+    Returns:
+        A tuple (total_weight, chosen_indices) where chosen_indices is a list
+        of original indices of the jobs in the optimal subset, sorted by start time.
+    """
+    if not jobs:
+        return 0.0, []
+
+    # We need to keep track of original indices to return them at the end.
+    # Format: (end, start, weight, original_index)
+    indexed_jobs = []
+    for i, (s, e, w) in enumerate(jobs):
+        indexed_jobs.append((e, s, w, i))
+
+    # Sort jobs by end time to facilitate dynamic programming.
+    # O(n log n)
+    indexed_jobs.sort()
+
+    n = len(indexed_jobs)
+    # dp[i] will store the maximum weight achievable using a subset of the first i jobs.
+    dp = [0.0] * (n + 1)
+    # parent[i] will store the index (in indexed_jobs) of the job that was 
+    # included to achieve the max weight at dp[i]. -1 if no job was included.
+    parent = [-1] * (n + 1)
+    # prev_idx[i] stores the index of the last compatible job before job i.
+    prev_idx = [-1] * n
+
+    # Extract end times for binary search
+    end_times = [job[0] for job in indexed_jobs]
+
+    for i in range(n):
+        e_i, s_i, w_i, idx_i = indexed_jobs[i]
+        
+        # Find the rightmost job that ends before or at the start time of the current job.
+        # bisect_right finds the insertion point for s_i in end_times to maintain order.
+        # Since we want end <= s_i, bisect_right gives us the index after the last valid job.
+        idx = bisect.bisect_right(end_times, s_i) - 1
+        
+        # If such a job exists and its end time is <= current start time
+        # Note: bisect_right on end_times with s_i finds the index where we could 
+        # insert s_i while maintaining order. If end_times[idx] == s_i, it's compatible.
+        # However, we must ensure idx is not the current job itself (though end_times[i] > s_i)
+        # and that the job found is actually compatible.
+        if idx >= 0:
+            # Check if the job at 'idx' actually ends <= s_i. 
+            # bisect_right handles the logic, but we must ensure we don't pick the current job.
+            # Since we sorted by end time and s_i < e_i, idx will always be < i.
+            prev_idx[i] = idx
+            
+        # Option 1: Include current job
+        weight_if_included = w_i + (dp[idx + 1] if idx >= 0 else 0.0)
+        
+        # Option 2: Exclude current job
+        weight_if_excluded = dp[i] # dp[i] is the max weight using first i jobs (0-indexed)
+        
+        if weight_if_included > weight_if_excluded:
+            dp[i + 1] = weight_if_included
+            parent[i + 1] = i # Mark that job i was included to get dp[i+1]
+        else:
+            dp[i + 1] = weight_if_excluded
+            parent[i + 1] = -1 # Mark that job i was not included
+
+    # Backtrack to find the chosen indices
+    chosen_indices = []
+    curr = n
+    while curr > 0:
+        job_idx = parent[curr]
+        if job_idx != -1:
+            # Job was included
+            original_idx = indexed_jobs[job_idx][3]
+            chosen_indices.append(original_idx)
+            # Move to the job that was compatible before this one
+            curr = prev_idx[job_idx] + 1 if prev_idx[job_idx] != -1 else 0
+        else:
+            # Job was not included, move to the previous DP state
+            curr -= 1
+
+    # The problem requires indices sorted by start time.
+    # Since we backtracked, they are in reverse order of end times.
+    # We sort them based on the start time of the original jobs.
+    chosen_indices.sort(key=lambda x: jobs[x][0])
+    
+    return dp[n], chosen_indices
+
+```

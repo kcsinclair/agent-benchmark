@@ -1,0 +1,190 @@
+import re
+
+
+def parse_duration(text: str) -> float:
+    """
+    Parse a human-readable duration string and return the total number of seconds as a float.
+    
+    Args:
+        text: A string representing a duration, e.g., "1h30m", "2.5s", "-1h"
+        
+    Returns:
+        The total duration in seconds as a float.
+        
+    Raises:
+        TypeError: If the input is not a string.
+        ValueError: If the string format is invalid.
+    """
+    # Check for non-string input
+    if not isinstance(text, str):
+        raise TypeError("Input must be a string")
+    
+    # Strip leading and trailing whitespace
+    text = text.strip()
+    
+    # Check for empty string
+    if not text:
+        raise ValueError("Empty string is not a valid duration")
+    
+    # Check for internal whitespace (any whitespace inside the stripped string)
+    if any(c.isspace() for c in text):
+        raise ValueError("Internal whitespace is not allowed")
+    
+    # Define the pattern for a valid duration string
+    # Optional leading minus sign
+    # One or more components, each being a number followed by a unit
+    # Units must be in strictly descending order: h, m, s, ms
+    # Each unit can appear at most once
+    
+    # First, let's define the pattern for a single component
+    # Number: digits with optional fractional part, but no leading +, no exponents, no bare . or .5, no trailing dot
+    # Valid numbers: 2, 1.5, 0.25
+    # Invalid numbers: +2, 2e3, .5, 5., 2.3.4
+    
+    # Pattern for a valid number: one or more digits, optionally followed by a dot and one or more digits
+    number_pattern = r'\d+(\.\d+)?'
+    
+    # Units in order
+    units = ['h', 'm', 's', 'ms']
+    
+    # Build a regex pattern that matches the entire duration string
+    # The pattern should match:
+    # - Optional leading minus
+    # - One or more components in the correct order
+    
+    # Let's build the pattern step by step
+    # We need to ensure that units appear in strictly descending order and each at most once
+    
+    # Possible valid sequences of units (in order):
+    # h, hm, hms, hmsm, m, ms, ms, s, sm, ms, ms
+    # Wait, let me think more carefully.
+    # The units must be in strictly descending order: h > m > s > ms
+    # So valid sequences are any subsequence of [h, m, s, ms] that maintains order.
+    # Possible sequences:
+    # h, m, s, ms, hm, hs, hms, hmms, ms, ms, sm, sms, smsm, ms, ms, ms, ms
+    # Hmm, this is getting complicated. Let me think differently.
+    
+    # Actually, let's just parse the string manually to validate the order and uniqueness.
+    
+    # First, check if the string starts with a minus sign
+    negative = False
+    if text.startswith('-'):
+        negative = True
+        text = text[1:]
+    
+    # Now text should contain only components
+    if not text:
+        raise ValueError("No components found")
+    
+    # Parse components
+    # We'll use a regex to find all components
+    component_pattern = re.compile(f'^({number_pattern})([hms]|ms)$')
+    
+    # But we need to parse the entire string as a sequence of components
+    # Let's use a different approach: split the string into components
+    
+    # Find all matches of number+unit in the string
+    # We need to ensure the entire string is consumed
+    
+    # Let's use a regex that matches the entire string as a sequence of components
+    # The pattern for a component is: number followed by unit
+    # We need to match the entire string
+    
+    # Let's try a different approach: use re.fullmatch with a pattern that allows multiple components
+    
+    # Build a pattern that matches one or more components
+    # Each component is: number + unit
+    # The units must be in order: h, m, s, ms
+    
+    # Let's define the pattern for the entire string
+    # We'll use a regex that matches the sequence of components
+    
+    # First, let's check if the string matches the pattern of one or more components
+    # A component is: \d+(\.\d+)? followed by [hms] or ms
+    
+    # Let's use a regex to extract all components
+    # We need to ensure that the entire string is matched
+    
+    # Pattern for a single component
+    single_component = f'({number_pattern})([hms]|ms)'
+    
+    # Pattern for the entire string: one or more components
+    full_pattern = f'^({single_component})+$'
+    
+    match = re.fullmatch(full_pattern, text)
+    if not match:
+        raise ValueError(f"Invalid duration format: {text}")
+    
+    # Now, let's extract the components and validate the order
+    # We need to find all components in the string
+    
+    # Use finditer to get all components
+    components = list(re.finditer(single_component, text))
+    
+    if not components:
+        raise ValueError("No components found")
+    
+    # Check that the entire string is consumed
+    # The last component should end at the end of the string
+    if components[-1].end() != len(text):
+        raise ValueError("Invalid duration format")
+    
+    # Check that the first component starts at the beginning
+    if components[0].start() != 0:
+        raise ValueError("Invalid duration format")
+    
+    # Check that components are contiguous
+    for i in range(1, len(components)):
+        if components[i].start() != components[i-1].end():
+            raise ValueError("Invalid duration format")
+    
+    # Now, validate the order of units
+    # Units must be in strictly descending order: h > m > s > ms
+    unit_order = {'h': 0, 'm': 1, 's': 2, 'ms': 3}
+    
+    prev_unit_order = -1
+    seen_units = set()
+    
+    for comp in components:
+        number_str = comp.group(1)
+        unit = comp.group(2)
+        
+        # Check for repeated units
+        if unit in seen_units:
+            raise ValueError(f"Repeated unit: {unit}")
+        seen_units.add(unit)
+        
+        # Check order
+        current_unit_order = unit_order[unit]
+        if current_unit_order <= prev_unit_order:
+            raise ValueError(f"Units not in descending order: {unit} after previous unit")
+        prev_unit_order = current_unit_order
+        
+        # Parse the number
+        try:
+            number = float(number_str)
+        except ValueError:
+            raise ValueError(f"Invalid number: {number_str}")
+        
+        # Convert to seconds
+        if unit == 'h':
+            seconds = number * 3600
+        elif unit == 'm':
+            seconds = number * 60
+        elif unit == 's':
+            seconds = number
+        elif unit == 'ms':
+            seconds = number / 1000
+        else:
+            raise ValueError(f"Invalid unit: {unit}")
+        
+        # Accumulate
+        if 'total_seconds' not in locals():
+            total_seconds = seconds
+        else:
+            total_seconds += seconds
+    
+    if negative:
+        total_seconds = -total_seconds
+    
+    return total_seconds

@@ -1,0 +1,128 @@
+```go
+package main
+
+import (
+	"context"
+	"errors"
+	"sync"
+)
+
+// Task is one unit of work.
+type Task func(ctx context.Context) (any, error)
+
+// Run executes tasks with at most `workers` running concurrently and returns
+// their results in the same order as the input slice.
+func Run(ctx context.Context, tasks []Task, workers int) ([]any, error) {
+	if workers < 1 {
+		return nil, errors.New("workers must be at least 1")
+	}
+	if len(tasks) == 0 {
+		return nil, nil
+	}
+
+	// Results slice to store results in order
+	results := make([]any, len(tasks))
+
+	// Semaphore to limit concurrency
+	sem := make(chan struct{}, workers)
+
+	// Channel to collect errors from workers
+	errCh := make(chan error, 1) // buffered to avoid blocking
+
+	// WaitGroup to wait for all goroutines to finish
+	var wg sync.WaitGroup
+
+	// Flag to indicate if we've already failed
+	var once sync.Once
+	fail := func(err error) {
+		once.Do(func() {
+			errCh <- err
+		})
+	}
+
+	for i, task := range tasks {
+		// Check if context is already cancelled before starting
+		select {
+		case <-ctx.Done():
+			// Context cancelled, stop starting new tasks
+			// But we still need to wait for already started tasks
+			// We'll handle this by checking ctx.Done in the worker
+			// and also by not sending to sem if ctx is done
+			// However, we need to be careful: if ctx is done, we should
+			// not start any more tasks. But we still need to wait for
+			// already started tasks.
+			// Let's use a different approach: we'll check ctx.Done before
+			// acquiring the semaphore.
+			// But we need to ensure that we don't leak goroutines.
+			// Let's just proceed and let the worker check ctx.Done.
+			// Actually, we should stop starting new tasks immediately.
+			// We can do this by checking ctx.Done here and breaking out,
+			// but we need to wait for already started tasks.
+			// The wg will handle that.
+			// But we need to make sure that the error is propagated.
+			// Let's set the error and break.
+			fail(ctx.Err())
+			// We can't break here because we need to wait for all started
+			// tasks. But we've already sent the error to errCh.
+			// We need to stop the loop from starting more tasks.
+			// Let's use a flag or just check ctx.Done in the loop condition.
+			// Actually, let's just continue and let the worker handle it.
+			// No, we should stop starting new tasks.
+			// Let's use a select to check ctx.Done before acquiring sem.
+			// But we're in a for loop. Let's restructure.
+			// We'll check ctx.Done before sending to sem.
+			// If ctx is done, we won't send to sem, so no new tasks will start.
+			// But we still need to wait for already started tasks.
+			// The wg will handle that.
+			// And we've already sent the error to errCh.
+			// So we can just continue the loop, but the worker will see ctx.Done
+			// and return immediately.
+			// But we need to make sure that we don't block on sem if ctx is done.
+			// Let's use a select for sem acquisition.
+		default:
+		}
+
+		wg.Add(1)
+		go func(idx int, t Task) {
+			defer wg.Done()
+
+			// Acquire semaphore
+			select {
+			case sem <- struct{}{}:
+				// Acquired, proceed
+			case <-ctx.Done():
+				// Context cancelled, don't start task
+				return
+			}
+			defer func() { <-sem }() // Release semaphore
+
+			// Check context again after acquiring semaphore
+			select {
+			case <-ctx.Done():
+				// Context cancelled, don't run task
+				return
+			default:
+			}
+
+			// Run the task
+			result, err := t(ctx)
+			if err != nil {
+				fail(err)
+				return
+			}
+			results[idx] = result
+		}(i, task)
+	}
+
+	// Wait for all goroutines to finish
+	wg.Wait()
+
+	// Check if there was an error
+	select {
+	case err := <-errCh:
+		return nil, err
+	default:
+		return results, nil
+	}
+}
+```

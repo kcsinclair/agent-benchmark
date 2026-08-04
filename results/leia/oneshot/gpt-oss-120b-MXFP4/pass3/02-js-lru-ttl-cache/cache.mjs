@@ -1,0 +1,147 @@
+//  LRU Cache with per‑entry TTL
+//  ---------------------------------------------------------------
+//  Implements the API required by the problem statement.
+//  ---------------------------------------------------------------
+
+export class LruTtlCache {
+  /**
+   * @param {Object} opts
+   * @param {number} opts.capacity          – integer ≥ 1
+   * @param {number} [opts.defaultTtlMs=Infinity] – default TTL in ms
+   * @param {function} [opts.now=()=>Date.now()] – clock function
+   */
+  constructor({ capacity, defaultTtlMs = Infinity, now = () => Date.now() }) {
+    if (!Number.isInteger(capacity) || capacity < 1) {
+      throw new RangeError('capacity must be an integer ≥ 1');
+    }
+    this._capacity = capacity;
+    this._defaultTtlMs = defaultTtlMs;
+    this._now = now;
+
+    /** @type {Map<any,{value:any,expiry:number}>} */
+    this._map = new Map(); // insertion order = recency (newest at the end)
+  }
+
+  // -----------------------------------------------------------------
+  // internal helpers
+  // -----------------------------------------------------------------
+  _expiryFromTtl(ttlMs) {
+    if (ttlMs === Infinity) return Infinity;
+    return this._now() + ttlMs;
+  }
+
+  _isExpired(entry) {
+    const { expiry } = entry;
+    return expiry !== Infinity && this._now() >= expiry;
+  }
+
+  /** Remove *all* expired entries from the map. */
+  _purgeExpired() {
+    for (const [k, entry] of this._map) {
+      if (this._isExpired(entry)) this._map.delete(k);
+    }
+  }
+
+  /** Ensure the cache respects its capacity after an insertion. */
+  _evictIfNeeded() {
+    // 1️⃣  Remove any expired entries first.
+    this._purgeExpired();
+
+    // 2️⃣  If still too big, evict the least‑recently‑used entries.
+    while (this._map.size > this._capacity) {
+      // Map iteration starts with the oldest (least recent) key.
+      const lruKey = this._map.keys().next().value;
+      this._map.delete(lruKey);
+    }
+  }
+
+  // -----------------------------------------------------------------
+  // public API
+  // -----------------------------------------------------------------
+  /**
+   * Insert or replace a value.
+   * @param {*} key
+   * @param {*} value
+   * @param {number} [ttlMs] – overrides the default TTL for this entry
+   * @returns {this}
+   */
+  set(key, value, ttlMs) {
+    const ttl = ttlMs !== undefined ? ttlMs : this._defaultTtlMs;
+
+    // ttl ≤ 0 → entry is already expired → behave as a no‑op (remove any old entry)
+    if (ttl <= 0) {
+      this._map.delete(key);
+      return this;
+    }
+
+    const expiry = this._expiryFromTtl(ttl);
+
+    // Remove existing entry first so that the new one becomes the most recent.
+    this._map.delete(key);
+    this._map.set(key, { value, expiry });
+
+    this._evictIfNeeded();
+    return this;
+  }
+
+  /**
+   * Retrieve a value and mark it as most‑recently used.
+   * @param {*} key
+   * @returns {*} value or undefined
+   */
+  get(key) {
+    const entry = this._map.get(key);
+    if (!entry) return undefined;
+
+    if (this._isExpired(entry)) {
+      this._map.delete(key);
+      return undefined;
+    }
+
+    // Move to the most‑recent position.
+    this._map.delete(key);
+    this._map.set(key, entry);
+    return entry.value;
+  }
+
+  /**
+   * Test presence without affecting recency.
+   * @param {*} key
+   * @returns {boolean}
+   */
+  has(key) {
+    const entry = this._map.get(key);
+    if (!entry) return false;
+
+    if (this._isExpired(entry)) {
+      this._map.delete(key);
+      return false;
+    }
+    return true;
+  }
+
+  /**
+   * Remove an entry.
+   * @param {*} key
+   * @returns {boolean} true if something was removed
+   */
+  delete(key) {
+    return this._map.delete(key);
+  }
+
+  /** Number of live (non‑expired) entries. */
+  get size() {
+    this._purgeExpired();
+    return this._map.size;
+  }
+
+  /**
+   * Array of live keys ordered from most‑recently used to least‑recently used.
+   * @returns {Array<any>}
+   */
+  keys() {
+    this._purgeExpired();
+    const keys = Array.from(this._map.keys()); // least → most
+    return keys.reverse(); // most → least
+  }
+}

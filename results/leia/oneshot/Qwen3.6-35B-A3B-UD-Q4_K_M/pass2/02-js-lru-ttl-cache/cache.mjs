@@ -1,0 +1,167 @@
+export class LruTtlCache {
+  constructor({ capacity, defaultTtlMs = Infinity, now = () => Date.now() }) {
+    if (!Number.isInteger(capacity) || capacity < 1) {
+      throw new RangeError('capacity must be an integer >= 1');
+    }
+    this._capacity = capacity;
+    this._defaultTtlMs = defaultTtlMs;
+    this._now = now;
+    // Map stores: key -> { value, expiry }
+    // Map preserves insertion order, which we use for LRU:
+    // - When we access (get/set) a key, we delete and re-insert to move it to the end (most recent)
+    // - The beginning of the map is the least recently used
+    this._map = new Map();
+  }
+
+  _isExpired(expiry) {
+    if (expiry === Infinity) return false;
+    return this._now() >= expiry;
+  }
+
+  _purgeExpired() {
+    // We need to remove all expired entries.
+    // Since we can't iterate and delete safely in a simple way without issues,
+    // let's collect keys to delete first.
+    const now = this._now();
+    const keysToDelete = [];
+    for (const [key, data] of this._map) {
+      if (data.expiry !== Infinity && now >= data.expiry) {
+        keysToDelete.push(key);
+      }
+    }
+    for (const key of keysToDelete) {
+      this._map.delete(key);
+    }
+  }
+
+  _evictIfNeeded() {
+    // Evict expired entries first
+    this._purgeExpired();
+    // If still over capacity, evict LRU entries (from the beginning of the map)
+    while (this._map.size > this._capacity) {
+      // Get the first key (least recently used)
+      const firstKey = this._map.keys().next().value;
+      this._map.delete(firstKey);
+    }
+  }
+
+  set(key, value, ttlMs) {
+    const now = this._now();
+    let expiry;
+    if (ttlMs === undefined || ttlMs === null) {
+      expiry = this._defaultTtlMs === Infinity ? Infinity : now + this._defaultTtlMs;
+    } else {
+      expiry = ttlMs === Infinity ? Infinity : now + ttlMs;
+    }
+
+    // If the key already exists, we need to update it.
+    // To maintain LRU order, we delete and re-insert.
+    if (this._map.has(key)) {
+      this._map.delete(key);
+    }
+
+    // Before inserting, we should evict if needed.
+    // But first, let's check if this new entry would be expired immediately.
+    // If ttlMs is 0 or negative, expiry <= now, so it's expired.
+    // We still insert it? No, the spec says "Setting an existing key updates its value, its expiry, and makes it the most recently used."
+    // But if it's expired, should we store it? Let's think about the semantics.
+    // The spec says: "An entry is expired when now() >= expiryTime (expiry instant itself counts as expired), except Infinity never expires."
+    // And "ttlMs of 0 or negative means the entry is already expired."
+    // If we set an entry that is already expired, it should probably not be stored, or stored but immediately expired.
+    // Let's check: if expiry <= now and expiry !== Infinity, the entry is expired.
+    // Should we store it? The get/has/delete operations would treat it as expired.
+    // But storing it would count towards capacity? The spec says size must not count expired entries.
+    // And eviction happens when growing beyond capacity.
+    // I think the cleanest approach: if the entry is expired (expiry <= now and not Infinity), don't store it.
+    // But wait, what if someone sets an entry with ttlMs=0? It's immediately expired. Should it be stored?
+    // Let's re-read: "Setting an existing key updates its value, its expiry, and makes it the most recently used."
+    // It doesn't say to skip storing if expired. But if we store it, it will be immediately expired.
+    // And size() won't count it. And it might take up space in the map.
+    // However, for simplicity and correctness, let's just store it and let the expiration logic handle it.
+    // But this could cause issues with capacity: if we store an expired entry, it takes up a slot.
+    // The spec says: "When a set would grow the cache beyond capacity, evict expired entries first; if still over capacity, evict the least recently used entry."
+    // So expired entries are evicted first. If we store an expired entry, it will be evicted in the next purge.
+    // But if capacity is 1, and we set an expired entry, then set a valid entry, the expired entry would be evicted first.
+    // Hmm, this is tricky. Let me think about it differently.
+    // Actually, I think the safest approach is: if the entry is expired (expiry <= now and not Infinity), don't store it at all.
+    // Because storing an expired entry serves no purpose and could cause confusion.
+    // Let's check the spec again: "ttlMs of 0 or negative means the entry is already expired."
+    // It doesn't explicitly say to not store it. But logically, if it's already expired, there's no point in storing it.
+    // I'll go with: if the entry is expired, don't store it. Return this anyway.
+
+    if (expiry !== Infinity && now >= expiry) {
+      // Entry is already expired, don't store it.
+      return this;
+    }
+
+    this._map.set(key, { value, expiry });
+
+    // Now evict if needed
+    this._evictIfNeeded();
+
+    return this;
+  }
+
+  get(key) {
+    // First, check if the key exists
+    if (!this._map.has(key)) {
+      return undefined;
+    }
+
+    const data = this._map.get(key);
+
+    // Check if expired
+    if (this._isExpired(data.expiry)) {
+      // Remove the expired entry
+      this._map.delete(key);
+      return undefined;
+    }
+
+    // Update LRU order: delete and re-insert
+    this._map.delete(key);
+    this._map.set(key, data);
+
+    return data.value;
+  }
+
+  has(key) {
+    if (!this._map.has(key)) {
+      return false;
+    }
+
+    const data = this._map.get(key);
+
+    // Check if expired
+    if (this._isExpired(data.expiry)) {
+      // Remove the expired entry
+      this._map.delete(key);
+      return false;
+    }
+
+    return true;
+  }
+
+  delete(key) {
+    if (this._map.has(key)) {
+      this._map.delete(key);
+      return true;
+    }
+    return false;
+  }
+
+  get size() {
+    // Purge expired entries and return the count
+    this._purgeExpired();
+    return this._map.size;
+  }
+
+  keys() {
+    // Purge expired entries first
+    this._purgeExpired();
+    // Return keys in order from most recently used to least recently used
+    // Map iteration order is insertion order, with most recent at the end
+    // So we need to reverse the order
+    const keys = Array.from(this._map.keys());
+    return keys.reverse();
+  }
+}

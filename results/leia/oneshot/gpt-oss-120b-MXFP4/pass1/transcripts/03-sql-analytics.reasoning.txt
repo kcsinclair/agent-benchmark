@@ -1,0 +1,56 @@
+We need to output four SQL queries. Provide each as separate file content. Since we cannot create files, we can output them with headings. Provide the SELECT statements.
+
+Let's craft each query.
+
+q1: revenue per customer with completed orders. Need to join customers, orders (status='completed'), order_items, products. Compute sum(quantity*unit_price). Group by customer. Use ROUND(...,2). Order by revenue desc, name asc.
+
+SQL:
+
+SELECT c.name AS customer_name,
+       ROUND(SUM(oi.quantity * p.unit_price), 2) AS revenue
+FROM customers c
+JOIN orders o ON o.customer_id = c.id AND o.status = 'completed'
+JOIN order_items oi ON oi.order_id = o.id
+JOIN products p ON p.id = oi.product_id
+GROUP BY c.id, c.name
+HAVING revenue > 0? Not needed; only customers with at least one completed order, but if revenue zero (maybe zero quantity) still counts? Probably not needed. Use ORDER BY revenue DESC, customer_name ASC;
+
+But need to reference alias in ORDER BY; SQLite allows alias.
+
+q2: top 3 products by units sold. Need sum quantity across completed orders. Join order_items, orders (status='completed'), products. Group by product. Order by units_sold desc, product_name asc. Limit 3.
+
+SELECT p.name AS product_name,
+       SUM(oi.quantity) AS units_sold
+FROM products p
+JOIN order_items oi ON oi.product_id = p.id
+JOIN orders o ON o.id = oi.order_id AND o.status = 'completed'
+GROUP BY p.id, p.name
+HAVING units_sold > 0
+ORDER BY units_sold DESC, product_name ASC
+LIMIT 3;
+
+q3: customers with no orders at all. Use NOT EXISTS or LEFT JOIN with orders and filter where order.id IS NULL.
+
+SELECT c.name AS customer_name,
+       c.country
+FROM customers c
+LEFT JOIN orders o ON o.customer_id = c.id
+WHERE o.id IS NULL
+ORDER BY customer_name ASC;
+
+q4: monthly revenue for 2025. Need month string '2025-01' etc. Use strftime('%Y-%m', o.ordered_at) as month. Filter year 2025 and status completed. Compute sum revenue. Only months with non-zero revenue. Order by month.
+
+SELECT strftime('%Y-%m', o.ordered_at) AS month,
+       ROUND(SUM(oi.quantity * p.unit_price), 2) AS revenue
+FROM orders o
+JOIN order_items oi ON oi.order_id = o.id
+JOIN products p ON p.id = oi.product_id
+WHERE o.status = 'completed'
+  AND strftime('%Y', o.ordered_at) = '2025'
+GROUP BY month
+HAVING revenue <> 0
+ORDER BY month ASC;
+
+Make sure alias revenue used in HAVING; SQLite allows.
+
+Now produce final answer with four code blocks labeled file names.

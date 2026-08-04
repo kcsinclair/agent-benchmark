@@ -1,0 +1,58 @@
+We need to produce four SQL queries.
+
+q1: revenue per customer with at least one completed order. Need to join customers, orders (status='completed'), order_items, products. Compute sum(quantity*unit_price). Group by customer. Use ROUND(...,2). Order by revenue desc, name asc.
+
+SQL:
+
+SELECT c.name AS customer_name,
+       ROUND(SUM(oi.quantity * p.unit_price), 2) AS revenue
+FROM customers c
+JOIN orders o ON o.customer_id = c.id AND o.status = 'completed'
+JOIN order_items oi ON oi.order_id = o.id
+JOIN products p ON p.id = oi.product_id
+GROUP BY c.id, c.name
+HAVING revenue > 0? Not needed; at least one completed order ensures sum maybe zero if price zero but okay. Order.
+
+q2: top 3 products by units sold (quantity sum) across completed orders. Need product name, sum(quantity). Group by product. Order by units_sold desc, product_name asc. Limit 3.
+
+SQL:
+
+SELECT p.name AS product_name,
+       SUM(oi.quantity) AS units_sold
+FROM products p
+JOIN order_items oi ON oi.product_id = p.id
+JOIN orders o ON o.id = oi.order_id
+WHERE o.status = 'completed'
+GROUP BY p.id, p.name
+HAVING units_sold > 0
+ORDER BY units_sold DESC, product_name ASC
+LIMIT 3;
+
+q3: customers with no orders at all. Use NOT EXISTS or LEFT JOIN with orders is null.
+
+SELECT c.name AS customer_name,
+       c.country
+FROM customers c
+LEFT JOIN orders o ON o.customer_id = c.id
+WHERE o.id IS NULL
+ORDER BY customer_name ASC;
+
+q4: monthly revenue for 2025. Need month string '2025-01' etc. Compute revenue per month from completed orders where ordered_at in 2025. Use strftime('%Y-%m', o.ordered_at) as month. Filter year 2025. Sum revenue. Only months with non-zero revenue. Round to 2 decimals.
+
+SQL:
+
+SELECT strftime('%Y-%m', o.ordered_at) AS month,
+       ROUND(SUM(oi.quantity * p.unit_price), 2) AS revenue
+FROM orders o
+JOIN order_items oi ON oi.order_id = o.id
+JOIN products p ON p.id = oi.product_id
+WHERE o.status = 'completed'
+  AND strftime('%Y', o.ordered_at) = '2025'
+GROUP BY month
+HAVING revenue <> 0
+ORDER BY month ASC;
+
+Make sure alias revenue used in HAVING; SQLite allows alias in HAVING? Yes, can use alias. Or use SUM... >0.
+
+Now produce four files with just the SELECT statements.
+

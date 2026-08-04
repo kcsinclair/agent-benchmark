@@ -1,0 +1,781 @@
+{
+  "wall_seconds": 3544.2,
+  "track": "agent",
+  "settings": {
+    "temperature": 0.0,
+    "max_tokens": 8192,
+    "max_turns": 12,
+    "think": "off",
+    "repeat": 1,
+    "server": "http://leia.packsin.com:7442"
+  },
+  "results": [
+    {
+      "model": "unsloth/gemma-4-31B-it-qat-GGUF:Q4_K_XL",
+      "track": "agent",
+      "load_seconds": 15.9,
+      "passes": [
+        {
+          "pass": 1,
+          "dir": "/Users/keith/Library/Mobile Documents/com~apple~CloudDocs/Projects/agent-coding-test/runs-agent/unsloth_gemma-4-31B-it-qat-GGUF_Q4_K_XL",
+          "problems": [
+            {
+              "problem": "01-python-parse-duration",
+              "turns": 2,
+              "tool_calls": 1,
+              "bad_calls": 0,
+              "files": [
+                "parse_duration.py"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 609,
+              "stop": "stopped after 2 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "seconds": 61.8,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "02-js-lru-ttl-cache",
+              "turns": 3,
+              "tool_calls": 2,
+              "bad_calls": 0,
+              "files": [
+                "cache.mjs",
+                "cache.mjs"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 1424,
+              "stop": "stopped after 3 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "seconds": 137.4,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "03-sql-analytics",
+              "turns": 2,
+              "tool_calls": 4,
+              "bad_calls": 0,
+              "files": [
+                "q1.sql",
+                "q2.sql",
+                "q3.sql",
+                "q4.sql"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 415,
+              "stop": "stopped after 2 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "seconds": 44.7,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "04-go-worker-pool",
+              "turns": 2,
+              "tool_calls": 1,
+              "bad_calls": 0,
+              "files": [
+                "pool.go"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 667,
+              "stop": "stopped after 2 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "seconds": 66.7,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "05-python-scheduler",
+              "turns": 3,
+              "tool_calls": 2,
+              "bad_calls": 0,
+              "files": [
+                "scheduler.py",
+                "scheduler.py"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 1987,
+              "stop": "stopped after 3 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "seconds": 190.8,
+              "missing": [],
+              "extra": []
+            }
+          ],
+          "seconds": 501.4,
+          "score": 65,
+          "max": 68
+        }
+      ]
+    },
+    {
+      "model": "gpt-oss-120b-MXFP4",
+      "track": "agent",
+      "load_seconds": 136.1,
+      "passes": [
+        {
+          "pass": 1,
+          "dir": "/Users/keith/Library/Mobile Documents/com~apple~CloudDocs/Projects/agent-coding-test/runs-agent/gpt-oss-120b-MXFP4",
+          "problems": [
+            {
+              "problem": "01-python-parse-duration",
+              "turns": 2,
+              "tool_calls": 1,
+              "bad_calls": 0,
+              "files": [
+                "parse_duration.py"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 1866,
+              "stop": "stopped after 2 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "seconds": 43.3,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "02-js-lru-ttl-cache",
+              "turns": 2,
+              "tool_calls": 1,
+              "bad_calls": 0,
+              "files": [
+                "cache.mjs"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 2300,
+              "stop": "stopped after 2 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "seconds": 51.8,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "03-sql-analytics",
+              "turns": 5,
+              "tool_calls": 4,
+              "bad_calls": 0,
+              "files": [
+                "q1.sql",
+                "q2.sql",
+                "q3.sql",
+                "q4.sql"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 1478,
+              "stop": "stopped after 5 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "seconds": 34.9,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "04-go-worker-pool",
+              "turns": 3,
+              "tool_calls": 2,
+              "bad_calls": 0,
+              "files": [
+                "pool.go",
+                "pool.go"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 4748,
+              "stop": "stopped after 3 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "seconds": 105.8,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "05-python-scheduler",
+              "turns": 2,
+              "tool_calls": 1,
+              "bad_calls": 0,
+              "files": [
+                "scheduler.py"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 2316,
+              "stop": "stopped after 2 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "seconds": 52.4,
+              "missing": [],
+              "extra": []
+            }
+          ],
+          "seconds": 288.2,
+          "score": 68,
+          "max": 68
+        }
+      ]
+    },
+    {
+      "model": "gemma-4-26B-A4B-it-qat-UD-Q4_K_XL",
+      "track": "agent",
+      "load_seconds": 66.0,
+      "passes": [
+        {
+          "pass": 1,
+          "dir": "/Users/keith/Library/Mobile Documents/com~apple~CloudDocs/Projects/agent-coding-test/runs-agent/gemma-4-26B-A4B-it-qat-UD-Q4_K_XL",
+          "problems": [
+            {
+              "problem": "01-python-parse-duration",
+              "turns": 12,
+              "tool_calls": 12,
+              "bad_calls": 0,
+              "files": [
+                "parse_duration.py",
+                "parse_duration.py",
+                "parse_duration.py",
+                "parse_duration.py",
+                "parse_duration.py",
+                "parse_duration.py",
+                "parse_duration.py",
+                "parse_duration.py",
+                "parse_duration.py",
+                "parse_duration.py",
+                "parse_duration.py",
+                "parse_duration.py"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 8672,
+              "stop": "hit the 12 turn limit",
+              "prose_only": false,
+              "native_calls": 0,
+              "seconds": 150.2,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "02-js-lru-ttl-cache",
+              "turns": 12,
+              "tool_calls": 12,
+              "bad_calls": 2,
+              "files": [
+                "cache.mjs",
+                "cache.mjs_v2",
+                "cache.mjs",
+                "cache.mjs_final",
+                "cache.mjs",
+                "cache.mjs",
+                "cache.mjs",
+                "cache.mjs",
+                "cache.mjs",
+                "cache.mjs"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 12657,
+              "stop": "hit the 12 turn limit",
+              "prose_only": false,
+              "native_calls": 0,
+              "seconds": 224.0,
+              "missing": [],
+              "extra": [
+                "cache.mjs_final",
+                "cache.mjs_v2"
+              ]
+            },
+            {
+              "problem": "03-sql-analytics",
+              "turns": 5,
+              "tool_calls": 4,
+              "bad_calls": 0,
+              "files": [
+                "q1.sql",
+                "q2.sql",
+                "q3.sql",
+                "q4.sql"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 510,
+              "stop": "stopped after 5 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "seconds": 9.8,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "04-go-worker-pool",
+              "turns": 12,
+              "tool_calls": 12,
+              "bad_calls": 0,
+              "files": [
+                "pool.go",
+                "pool.go",
+                "pool.go",
+                "pool.go",
+                "pool.go",
+                "pool.go",
+                "pool.go",
+                "pool.go",
+                "pool.go",
+                "pool.go",
+                "pool.go",
+                "pool.go"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 7797,
+              "stop": "hit the 12 turn limit",
+              "prose_only": false,
+              "native_calls": 0,
+              "seconds": 135.2,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "05-python-scheduler",
+              "turns": 2,
+              "tool_calls": 1,
+              "bad_calls": 0,
+              "files": [
+                "scheduler.py"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 2352,
+              "stop": "stopped after 2 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "seconds": 38.2,
+              "missing": [],
+              "extra": []
+            }
+          ],
+          "seconds": 557.4,
+          "score": 68,
+          "max": 68
+        }
+      ]
+    },
+    {
+      "model": "Qwen3-Coder-30B-A3B-Instruct-UD-Q4_K_XL",
+      "track": "agent",
+      "load_seconds": 12.7,
+      "passes": [
+        {
+          "pass": 1,
+          "dir": "/Users/keith/Library/Mobile Documents/com~apple~CloudDocs/Projects/agent-coding-test/runs-agent/Qwen3-Coder-30B-A3B-Instruct-UD-Q4_K_XL",
+          "problems": [
+            {
+              "problem": "01-python-parse-duration",
+              "turns": 11,
+              "tool_calls": 10,
+              "bad_calls": 0,
+              "files": [
+                "parse_duration.py",
+                "test_parse_duration.py",
+                "test_parse_duration.py",
+                "test_parse_duration.py",
+                "parse_duration.py",
+                "parse_duration.py",
+                "simple_test.py",
+                "simple_test.py",
+                "parse_duration.py"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 5238,
+              "stop": "stopped after 11 turn(s)",
+              "prose_only": false,
+              "native_calls": 1,
+              "seconds": 70.3,
+              "missing": [],
+              "extra": [
+                "simple_test.py",
+                "test_parse_duration.py"
+              ]
+            },
+            {
+              "problem": "02-js-lru-ttl-cache",
+              "turns": 3,
+              "tool_calls": 2,
+              "bad_calls": 0,
+              "files": [
+                "cache.mjs"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 1050,
+              "stop": "stopped after 3 turn(s)",
+              "prose_only": false,
+              "native_calls": 2,
+              "seconds": 13.5,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "03-sql-analytics",
+              "turns": 6,
+              "tool_calls": 5,
+              "bad_calls": 0,
+              "files": [
+                "q1.sql",
+                "q2.sql",
+                "q3.sql",
+                "q4.sql"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 551,
+              "stop": "stopped after 6 turn(s)",
+              "prose_only": false,
+              "native_calls": 4,
+              "seconds": 8.0,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "04-go-worker-pool",
+              "turns": 2,
+              "tool_calls": 1,
+              "bad_calls": 0,
+              "files": [
+                "pool.go"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 657,
+              "stop": "stopped after 2 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "seconds": 8.6,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "05-python-scheduler",
+              "turns": 5,
+              "tool_calls": 4,
+              "bad_calls": 0,
+              "files": [
+                "scheduler.py",
+                "scheduler.py"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 2535,
+              "stop": "stopped after 5 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "seconds": 33.2,
+              "missing": [],
+              "extra": []
+            }
+          ],
+          "seconds": 133.6,
+          "score": 57,
+          "max": 68
+        }
+      ]
+    },
+    {
+      "model": "Qwen3.6-35B-A3B-UD-Q4_K_M",
+      "track": "agent",
+      "load_seconds": 22.2,
+      "passes": [
+        {
+          "pass": 1,
+          "dir": "/Users/keith/Library/Mobile Documents/com~apple~CloudDocs/Projects/agent-coding-test/runs-agent/Qwen3.6-35B-A3B-UD-Q4_K_M",
+          "problems": [
+            {
+              "problem": "01-python-parse-duration",
+              "turns": 12,
+              "tool_calls": 12,
+              "bad_calls": 0,
+              "files": [
+                "parse_duration.py",
+                "test_parse_duration.py",
+                "run_tests.py",
+                "run_tests.py",
+                "run_tests.py",
+                "run_tests.py",
+                "run_tests.py",
+                "run_tests.py",
+                "run_tests.py",
+                "run_tests.py",
+                "run_tests.py"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 5240,
+              "stop": "hit the 12 turn limit",
+              "prose_only": false,
+              "native_calls": 0,
+              "seconds": 95.2,
+              "missing": [],
+              "extra": [
+                "run_tests.py",
+                "test_parse_duration.py"
+              ]
+            },
+            {
+              "problem": "02-js-lru-ttl-cache",
+              "turns": 4,
+              "tool_calls": 3,
+              "bad_calls": 0,
+              "files": [
+                "cache.mjs"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 1363,
+              "stop": "stopped after 4 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "seconds": 25.1,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "03-sql-analytics",
+              "turns": 2,
+              "tool_calls": 4,
+              "bad_calls": 0,
+              "files": [
+                "q1.sql",
+                "q2.sql",
+                "q3.sql",
+                "q4.sql"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 581,
+              "stop": "stopped after 2 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "seconds": 10.9,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "04-go-worker-pool",
+              "turns": 12,
+              "tool_calls": 12,
+              "bad_calls": 0,
+              "files": [
+                "pool.go",
+                "pool.go",
+                "pool.go",
+                "pool.go",
+                "pool.go",
+                "pool.go",
+                "pool.go",
+                "pool.go",
+                "pool.go",
+                "pool.go"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 11860,
+              "stop": "hit the 12 turn limit",
+              "prose_only": false,
+              "native_calls": 0,
+              "seconds": 216.9,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "05-python-scheduler",
+              "turns": 12,
+              "tool_calls": 12,
+              "bad_calls": 0,
+              "files": [
+                "scheduler.py",
+                "test_scheduler.py",
+                "test_scheduler.py",
+                "test_scheduler.py",
+                "test_scheduler.py",
+                "test_scheduler.py",
+                "test_scheduler.py",
+                "test_scheduler.py",
+                "test_scheduler.py",
+                "test_scheduler.py"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 4786,
+              "stop": "hit the 12 turn limit",
+              "prose_only": false,
+              "native_calls": 0,
+              "seconds": 87.1,
+              "missing": [],
+              "extra": [
+                "test_scheduler.py"
+              ]
+            }
+          ],
+          "seconds": 435.2,
+          "score": 65,
+          "max": 68
+        }
+      ]
+    },
+    {
+      "model": "Qwen3.6-27B-Q4_K_M",
+      "track": "agent",
+      "load_seconds": 65.6,
+      "passes": [
+        {
+          "pass": 1,
+          "dir": "/Users/keith/Library/Mobile Documents/com~apple~CloudDocs/Projects/agent-coding-test/runs-agent/Qwen3.6-27B-Q4_K_M",
+          "problems": [
+            {
+              "problem": "01-python-parse-duration",
+              "turns": 9,
+              "tool_calls": 8,
+              "bad_calls": 0,
+              "files": [
+                "parse_duration.py",
+                "parse_duration.py",
+                "test_parse_duration.py",
+                "parse_duration.py",
+                "test_parse_duration.py",
+                "parse_duration.py"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 4656,
+              "stop": "stopped after 9 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "seconds": 400.6,
+              "missing": [],
+              "extra": [
+                "test_parse_duration.py"
+              ]
+            },
+            {
+              "problem": "02-js-lru-ttl-cache",
+              "turns": 3,
+              "tool_calls": 2,
+              "bad_calls": 0,
+              "files": [
+                "cache.mjs"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 1059,
+              "stop": "stopped after 3 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "seconds": 95.2,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "03-sql-analytics",
+              "turns": 7,
+              "tool_calls": 9,
+              "bad_calls": 0,
+              "files": [
+                "q1.sql",
+                "q2.sql",
+                "q3.sql",
+                "q4.sql"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 799,
+              "stop": "stopped after 7 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "seconds": 71.0,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "04-go-worker-pool",
+              "turns": 5,
+              "tool_calls": 4,
+              "bad_calls": 0,
+              "files": [
+                "pool.go",
+                "pool.go"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 1964,
+              "stop": "stopped after 5 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "seconds": 171.8,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "05-python-scheduler",
+              "turns": 12,
+              "tool_calls": 12,
+              "bad_calls": 0,
+              "files": [
+                "scheduler.py",
+                "test_scheduler.py",
+                "run_test.py",
+                "test_main.py",
+                "run_tests.py",
+                "run_all.py",
+                "test_run.py",
+                "test_exec.py",
+                "test_go.py",
+                "test_go2.py",
+                "test_go3.py",
+                "test_go4.py"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 6491,
+              "stop": "hit the 12 turn limit",
+              "prose_only": false,
+              "native_calls": 0,
+              "seconds": 543.3,
+              "missing": [],
+              "extra": [
+                "run_all.py",
+                "run_test.py",
+                "run_tests.py",
+                "test_exec.py",
+                "test_go.py",
+                "test_go2.py",
+                "test_go3.py",
+                "test_go4.py",
+                "test_main.py",
+                "test_run.py",
+                "test_scheduler.py"
+              ]
+            }
+          ],
+          "seconds": 1281.9,
+          "score": 67,
+          "max": 68
+        }
+      ]
+    }
+  ]
+}

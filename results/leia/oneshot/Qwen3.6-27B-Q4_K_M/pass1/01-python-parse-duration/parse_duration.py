@@ -1,0 +1,187 @@
+import re
+
+
+def parse_duration(text: str) -> float:
+    """
+    Parse a human-readable duration string and return the total number of seconds as a float.
+    
+    Args:
+        text: A string representing a duration, e.g., "1h30m", "2.5s", "-1h"
+        
+    Returns:
+        The total duration in seconds as a float.
+        
+    Raises:
+        TypeError: If the input is not a string.
+        ValueError: If the string doesn't match the expected format.
+    """
+    # Check for non-string input
+    if not isinstance(text, str):
+        raise TypeError("Input must be a string")
+    
+    # Strip leading and trailing whitespace
+    text = text.strip()
+    
+    # Check for empty string
+    if not text:
+        raise ValueError("Empty string is not a valid duration")
+    
+    # Check for internal whitespace (after stripping)
+    if ' ' in text or '\t' in text or '\n' in text or '\r' in text:
+        raise ValueError("Internal whitespace is not allowed")
+    
+    # Define the pattern for a valid duration string
+    # Optional leading minus sign
+    # Then one or more components in strictly descending order: h, m, s, ms
+    # Each component is a number (digits with optional fractional part, no leading +, no exponents, no bare . or .5, no trailing dot)
+    # Units must appear in order: h, m, s, ms, each at most once
+    
+    # First, check if the string matches the overall pattern
+    # The pattern should match:
+    # - Optional minus sign
+    # - One or more components in order: h, m, s, ms
+    # - Each component: number followed by unit
+    
+    # Let's define the pattern more carefully
+    # A number is: one or more digits, optionally followed by a dot and one or more digits
+    # But no trailing dot, no bare dot, no leading +, no exponents
+    
+    # Pattern for a valid number: \d+(\.\d+)?
+    # This ensures:
+    # - At least one digit before the optional decimal point
+    # - If there's a decimal point, at least one digit after it
+    # - No trailing dot (since \d+ is required after the dot)
+    # - No bare dot (since \d+ is required before the dot)
+    
+    number_pattern = r'\d+(\.\d+)?'
+    
+    # The full pattern should match:
+    # - Optional minus sign
+    # - One or more components in strictly descending order: h, m, s, ms
+    # - Each component: number followed by unit
+    
+    # We need to ensure that units appear in order and each at most once
+    # Possible valid sequences:
+    # h, hm, hms, hmsm, hmms, hmsms, ms, s, sm, sms, m, ms, s, ms
+    
+    # Actually, let's think about this more carefully. The units must be in strictly descending order:
+    # h > m > s > ms
+    # So valid sequences are any subset of {h, m, s, ms} in that order.
+    # For example: h, hm, hms, hmsm, hmms, hmsms, ms, s, sm, sms, m, ms, s, ms
+    
+    # Let's build a regex that matches all valid combinations
+    # The pattern should be:
+    # - Optional minus sign
+    # - Then one or more components, where each component is a number followed by a unit
+    # - The units must be in order: h, m, s, ms
+    
+    # We can use a regex that matches:
+    # - Optional minus sign
+    # - Then a sequence of components where each component is a number followed by a unit
+    # - The units must be in order: h, m, s, ms
+    
+    # Let's define the pattern as:
+    # ^-?(?:h_component)?(?:m_component)?(?:s_component)?(?:ms_component)?$
+    # But we need at least one component
+    
+    # Actually, let's use a different approach. We'll parse the string manually.
+    
+    # First, check if the string starts with a minus sign
+    negative = False
+    if text.startswith('-'):
+        negative = True
+        text = text[1:]
+    
+    # Check if the string is empty after removing the minus sign
+    if not text:
+        raise ValueError("Empty string is not a valid duration")
+    
+    # Now, parse the components
+    # We'll use a regex to find all components
+    # Each component is a number followed by a unit
+    
+    # Define the pattern for a component
+    component_pattern = re.compile(r'^(' + number_pattern + r')(h|m|s|ms)$')
+    
+    # We need to parse the string from left to right, extracting components
+    # The units must be in order: h, m, s, ms
+    
+    # Let's define the order of units
+    unit_order = {'h': 0, 'm': 1, 's': 2, 'ms': 3}
+    
+    # Parse the components
+    components = []
+    remaining = text
+    
+    while remaining:
+        # Try to match a component at the beginning of the remaining string
+        match = re.match(r'^(' + number_pattern + r')(h|m|s|ms)', remaining)
+        if not match:
+            raise ValueError(f"Invalid component in duration string: '{text}'")
+        
+        number_str = match.group(1)
+        unit = match.group(2)
+        
+        # Validate the number
+        # Check for leading zeros (except for "0" or "0.xxx")
+        if len(number_str) > 1 and number_str[0] == '0' and number_str[1] != '.':
+            raise ValueError(f"Invalid number '{number_str}' in duration string")
+        
+        # Check for trailing dot (already handled by the regex, but let's be safe)
+        if number_str.endswith('.'):
+            raise ValueError(f"Invalid number '{number_str}' in duration string")
+        
+        # Check for bare dot or .5 (already handled by the regex, but let's be safe)
+        if number_str.startswith('.'):
+            raise ValueError(f"Invalid number '{number_str}' in duration string")
+        
+        # Convert the number to a float
+        try:
+            number = float(number_str)
+        except ValueError:
+            raise ValueError(f"Invalid number '{number_str}' in duration string")
+        
+        # Check for negative numbers (shouldn't happen since we stripped the leading minus)
+        if number < 0:
+            raise ValueError(f"Negative number '{number_str}' in duration string")
+        
+        # Check for NaN or Inf
+        if number != number or number == float('inf') or number == float('-inf'):
+            raise ValueError(f"Invalid number '{number_str}' in duration string")
+        
+        components.append((number, unit))
+        remaining = remaining[match.end():]
+    
+    # Check if we have at least one component
+    if not components:
+        raise ValueError("No components found in duration string")
+    
+    # Check if the units are in strictly descending order
+    for i in range(len(components) - 1):
+        unit1 = components[i][1]
+        unit2 = components[i + 1][1]
+        if unit_order[unit1] >= unit_order[unit2]:
+            raise ValueError(f"Units must be in strictly descending order: '{unit1}' before '{unit2}'")
+    
+    # Check if any unit is repeated
+    units = [unit for _, unit in components]
+    if len(units) != len(set(units)):
+        raise ValueError("Repeated unit in duration string")
+    
+    # Calculate the total duration in seconds
+    total_seconds = 0.0
+    for number, unit in components:
+        if unit == 'h':
+            total_seconds += number * 3600
+        elif unit == 'm':
+            total_seconds += number * 60
+        elif unit == 's':
+            total_seconds += number
+        elif unit == 'ms':
+            total_seconds += number / 1000
+    
+    # Apply the negative sign if present
+    if negative:
+        total_seconds = -total_seconds
+    
+    return total_seconds

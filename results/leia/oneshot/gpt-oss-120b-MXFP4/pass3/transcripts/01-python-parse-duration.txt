@@ -1,0 +1,138 @@
+**File: `parse_duration.py`**
+
+```python
+"""
+parse_duration.py
+
+A tiny module that parses human‑readable duration strings and returns the total
+number of seconds as a float.
+
+The public API consists of a single function:
+
+    parse_duration(text: str) -> float
+
+The implementation follows the specification given in the problem statement.
+"""
+
+import re
+from typing import Final
+
+# --------------------------------------------------------------------------- #
+# Regular expression for a valid decimal number (no leading dot, no trailing
+# dot, no exponent, no sign).  Examples that match:  "0", "12", "3.5", "0.25".
+# --------------------------------------------------------------------------- #
+_NUMBER_RE: Final = re.compile(r'\d+(?:\.\d+)?')
+
+# Mapping of unit to its order (smaller value = larger unit) and to the factor
+# that converts the unit to seconds.
+_UNIT_ORDER: Final = {
+    'h': 0,
+    'm': 1,
+    's': 2,
+    'ms': 3,
+}
+_UNIT_FACTOR: Final = {
+    'h': 3600.0,
+    'm': 60.0,
+    's': 1.0,
+    'ms': 0.001,
+}
+
+
+def parse_duration(text: str) -> float:
+    """
+    Parse a duration string and return the total number of seconds.
+
+    Parameters
+    ----------
+    text : str
+        Human‑readable duration, e.g. ``"1h30m"``, ``"-250ms"``, ``"90s"``.
+
+    Returns
+    -------
+    float
+        The duration expressed in seconds.  The sign of the result reflects a
+        leading minus sign in the input.
+
+    Raises
+    ------
+    TypeError
+        If *text* is not a string.
+    ValueError
+        If the string does not conform to the required format.
+    """
+    # ------------------------------------------------------------------- #
+    # 1. Basic type check and whitespace handling
+    # ------------------------------------------------------------------- #
+    if not isinstance(text, str):
+        raise TypeError("parse_duration expects a string")
+
+    # Strip leading/trailing whitespace (allowed)
+    stripped = text.strip()
+    if not stripped:
+        raise ValueError("empty duration string")
+
+    # No internal whitespace is allowed
+    if any(ch.isspace() for ch in stripped):
+        raise ValueError("whitespace inside duration string is not allowed")
+
+    # ------------------------------------------------------------------- #
+    # 2. Detect optional leading minus sign
+    # ------------------------------------------------------------------- #
+    sign = 1
+    if stripped[0] == '-':
+        sign = -1
+        stripped = stripped[1:]
+        if not stripped:
+            raise ValueError("duration string contains only a minus sign")
+
+    # ------------------------------------------------------------------- #
+    # 3. Parse components sequentially
+    # ------------------------------------------------------------------- #
+    idx = 0
+    total_seconds = 0.0
+    last_order = -1          # ensures strictly increasing order
+    seen_units = set()       # to detect duplicates
+    length = len(stripped)
+
+    while idx < length:
+        # ---- number ---------------------------------------------------- #
+        num_match = _NUMBER_RE.match(stripped, idx)
+        if not num_match:
+            raise ValueError(f"expected number at position {idx}")
+
+        number_str = num_match.group()
+        try:
+            number_val = float(number_str)
+        except ValueError:   # should never happen because regex guarantees format
+            raise ValueError(f"invalid numeric value '{number_str}'")
+
+        idx = num_match.end()
+
+        # ---- unit ------------------------------------------------------ #
+        if stripped.startswith('ms', idx):
+            unit = 'ms'
+            idx += 2
+        elif idx < length and stripped[idx] in ('h', 'm', 's'):
+            unit = stripped[idx]
+            idx += 1
+        else:
+            raise ValueError(f"expected unit after number at position {idx}")
+
+        # ---- validation of order and duplication ---------------------- #
+        if unit in seen_units:
+            raise ValueError(f"unit '{unit}' appears more than once")
+        order = _UNIT_ORDER[unit]
+        if order <= last_order:
+            raise ValueError(f"units not in descending order (found '{unit}' after a larger unit)")
+        seen_units.add(unit)
+        last_order = order
+
+        # ---- accumulate ------------------------------------------------ #
+        total_seconds += number_val * _UNIT_FACTOR[unit]
+
+    # At least one component must have been parsed; the loop would be empty
+    # only if the input string was empty, which we already rejected.
+    # ------------------------------------------------------------------- #
+    return sign * total_seconds
+```

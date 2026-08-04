@@ -1,0 +1,104 @@
+"""
+Weighted interval scheduling – O(n log n) solution.
+
+The public entry point is ``best_schedule`` which receives a list of
+(start, end, weight) tuples and returns the maximum total weight together
+with one optimal set of original indices (sorted by start time, then by
+index).
+
+The implementation follows the classic DP on jobs sorted by finishing
+time and uses binary search (bisect) to find the predecessor of each job.
+All work is done iteratively, so the recursion limit is never touched.
+"""
+
+from __future__ import annotations
+from bisect import bisect_right
+from typing import List, Tuple
+
+
+def best_schedule(jobs: List[Tuple[float, float, float]]) -> Tuple[float, List[int]]:
+    """
+    Return the maximum total weight of a non‑overlapping subset of *jobs*
+    and a list of the chosen original indices.
+
+    Parameters
+    ----------
+    jobs : list of (start, end, weight)
+        ``start < end`` and ``weight > 0`` are guaranteed.
+
+    Returns
+    -------
+    (total_weight, chosen_indices) : (float, list[int])
+        *total_weight* is the optimum sum of weights.
+        *chosen_indices* are indices into the original *jobs* list,
+        sorted by the job's start time (ties broken by the index itself).
+
+    The algorithm runs in O(n log n) time and O(n) additional memory.
+    """
+    if not jobs:
+        return 0.0, []
+
+    # ------------------------------------------------------------------
+    # 1.  Attach original indices and sort by finishing time.
+    # ------------------------------------------------------------------
+    enriched = [(s, e, w, i) for i, (s, e, w) in enumerate(jobs)]
+    # primary key = end time, secondary = start (any stable order works)
+    enriched.sort(key=lambda x: (x[1], x[0]))
+
+    starts: List[float] = [s for s, e, w, i in enriched]
+    ends:   List[float] = [e for s, e, w, i in enriched]
+    weights:List[float] = [w for s, e, w, i in enriched]
+    orig_idx: List[int] = [i for s, e, w, i in enriched]
+
+    n = len(jobs)
+
+    # ------------------------------------------------------------------
+    # 2.  For each job i find the last job that finishes not later than
+    #     its start time (the classic “p(i)” value).
+    # ------------------------------------------------------------------
+    # p[i] = index of predecessor (in the sorted order) or -1 if none.
+    p: List[int] = [-1] * n
+    for i in range(n):
+        # bisect_right returns the insertion point to keep ends sorted.
+        # Subtract 1 to get the rightmost end <= starts[i].
+        j = bisect_right(ends, starts[i]) - 1
+        p[i] = j
+
+    # ------------------------------------------------------------------
+    # 3.  Dynamic programming.
+    #     dp[k] = optimal weight using the first k jobs of the sorted list.
+    # ------------------------------------------------------------------
+    dp: List[float] = [0.0] * (n + 1)          # dp[0] = 0
+    take: List[bool] = [False] * n            # decision for each job
+
+    EPS = 1e-12                               # tolerance for float compare
+    for k in range(1, n + 1):
+        idx = k - 1                            # job index in the sorted arrays
+        incl = weights[idx] + dp[p[idx] + 1]   # +1 because dp is 1‑based
+        excl = dp[k - 1]
+
+        if incl > excl + EPS:                  # strictly better (within tolerance)
+            dp[k] = incl
+            take[idx] = True
+        else:
+            dp[k] = excl
+            take[idx] = False
+
+    # ------------------------------------------------------------------
+    # 4.  Reconstruct one optimal set of jobs.
+    # ------------------------------------------------------------------
+    chosen: List[int] = []
+    k = n
+    while k > 0:
+        if take[k - 1]:
+            chosen.append(orig_idx[k - 1])     # store original index
+            k = p[k - 1] + 1                    # jump to predecessor
+        else:
+            k -= 1
+
+    # The reconstruction yields indices in reverse order of the sorted list.
+    # The required output order is by start time (then by index).
+    chosen.sort(key=lambda i: (jobs[i][0], i))
+
+    total_weight = dp[n]
+    return total_weight, chosen

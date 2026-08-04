@@ -1,0 +1,92 @@
+We need to write a Python module parse_duration.py with function parse_duration that parses according to rules, raising appropriate errors.
+
+Implementation plan:
+
+- Validate input type: if not isinstance(text, str): raise TypeError.
+
+- Strip whitespace: text = text.strip()
+
+- If empty after strip: raise ValueError.
+
+- Check for leading minus: sign = -1 if text.startswith('-') else 1. If minus, remove it: text = text[1:]; ensure no other minus signs later.
+
+- Ensure no whitespace inside: if any whitespace in text: raise ValueError.
+
+- Use regex to parse components: pattern for number: (?:\d+(?:\.\d+)?|\d*\.\d+) but rule says no leading dot, so number must start with digit. So pattern: \d+(?:\.\d+)? . That disallows .5. Also disallows trailing dot because \.\d+ required after dot.
+
+- Units: h|m|s|ms . But need to ensure order descending and each at most once.
+
+- We'll iterate through string, matching number+unit sequentially.
+
+- Use while index < len(text): match number: use regex at position.
+
+- After number, match unit: check next characters: if text startswith('ms', idx): unit='ms', else unit=text[idx]; must be one of h,m,s.
+
+- Keep track of seen units and order: define order mapping: {'h':4,'m':3,'s':2,'ms':1}. Ensure each unit not seen before, and order decreasing: previous_order > current_order.
+
+- Convert number to float, multiply by unit factor: h*3600, m*60, s*1, ms*0.001.
+
+- Sum.
+
+- After loop, ensure at least one component parsed; else raise ValueError.
+
+- Return sign*total.
+
+Edge cases: "5" missing unit -> after number, no unit -> raise ValueError.
+
+Also ensure no extra characters left.
+
+Implement regex for number: r'\d+(?:\.\d+)?' . Use re.compile.
+
+Implementation details:
+
+```
+import re
+
+_number_re = re.compile(r'\d+(?:\.\d+)?')
+```
+
+In loop:
+
+```
+m = _number_re.match(text, i)
+if not m:
+    raise ValueError(...)
+num_str = m.group()
+i = m.end()
+# unit detection
+if text.startswith('ms', i):
+    unit = 'ms'
+    i += 2
+elif i < len(text) and text[i] in ('h','m','s'):
+    unit = text[i]
+    i += 1
+else:
+    raise ValueError(...)
+```
+
+Check order:
+
+```
+order = {'h':4,'m':3,'s':2,'ms':1}
+if unit in seen:
+    raise ValueError(...)
+if prev_order is not None and order[unit] >= prev_order:
+    raise ValueError(...)
+prev_order = order[unit]
+seen.add(unit)
+```
+
+Note: descending order means each next unit must be smaller order number (i.e., order decreasing). So we need prev_order > current_order.
+
+Edge: if first component, prev_order = None.
+
+After loop, ensure i == len(text). Already ensured.
+
+Return sign*total.
+
+Also ensure no whitespace inside: after stripping, if any whitespace char in text: raise ValueError.
+
+Testing with examples.
+
+Now produce final file content.

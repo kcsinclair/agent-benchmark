@@ -1,0 +1,88 @@
+import bisect
+
+def best_schedule(jobs: list[tuple[float, float, float]]) -> tuple[float, list[int]]:
+    """
+    Solves the Weighted Interval Scheduling problem in O(n log n) time.
+    
+    Args:
+        jobs: A list of tuples (start, end, weight).
+        
+    Returns:
+        A tuple (total_weight, chosen_indices) where chosen_indices is a list
+        of indices into the original jobs list, sorted by start time.
+    """
+    if not jobs:
+        return 0.0, []
+
+    # We need to keep track of original indices to return them at the end.
+    # Format: (end, start, weight, original_index)
+    indexed_jobs = []
+    for i, (s, e, w) in enumerate(jobs):
+        indexed_jobs.append((e, s, w, i))
+
+    # Sort jobs by end time to facilitate dynamic programming.
+    # O(n log n)
+    indexed_jobs.sort()
+
+    n = len(indexed_jobs)
+    # dp[i] will store the maximum weight using a subset of the first i jobs.
+    dp = [0.0] * (n + 1)
+    # parent[i] will store the index of the previous job in the optimal sequence
+    # ending at job i-1, used to reconstruct the path.
+    parent = [-1] * (n + 1)
+    
+    # To find the latest non-overlapping job efficiently, we use binary search.
+    # We extract the end times of the sorted jobs.
+    end_times = [job[0] for job in indexed_jobs]
+
+    for i in range(1, n + 1):
+        curr_end, curr_start, curr_weight, _ = indexed_jobs[i-1]
+        
+        # Find the rightmost job that ends at or before the current job's start time.
+        # bisect_right finds the insertion point for curr_start in end_times.
+        # Since we want end_time <= curr_start, bisect_right gives us the index
+        # after the last valid job.
+        idx = bisect.bisect_right(end_times, curr_start)
+        
+        # Option 1: Include the current job
+        weight_if_included = curr_weight + dp[idx]
+        
+        # Option 2: Exclude the current job
+        weight_if_excluded = dp[i-1]
+        
+        if weight_if_included > weight_if_excluded:
+            dp[i] = weight_if_included
+            parent[i] = idx  # Store the index of the compatible job
+            # We use a special marker to indicate we included this job
+            # but we need to distinguish between "included" and "skipped".
+            # Let's use a flag or a specific structure.
+            # Actually, let's store whether we included job i-1.
+            parent[i] = (idx, True) 
+        else:
+            dp[i] = weight_if_excluded
+            parent[i] = (i-1, False)
+
+    # Reconstruct the solution
+    chosen_indices = []
+    curr = n
+    while curr > 0:
+        p_info = parent[curr]
+        if isinstance(p_info, tuple) and p_info[1]:
+            # We included job curr-1
+            idx_in_indexed = curr - 1
+            chosen_indices.append(indexed_jobs[idx_in_indexed][3])
+            curr = p_info[0]
+        elif isinstance(p_info, tuple) and not p_info[1]:
+            # We skipped job curr-1
+            curr = p_info[0]
+        else:
+            # This case handles the base case/logic safety
+            break
+
+    # The problem requires indices sorted by start time.
+    # Since we collected them by traversing backwards from the end, 
+    # they are currently in reverse order of end times.
+    # We sort them based on the start time of the original jobs.
+    chosen_indices.sort(key=lambda i: jobs[i][0])
+
+    return dp[n], chosen_indices

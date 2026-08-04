@@ -1,0 +1,129 @@
+We need to implement LRU cache with TTL. Use a Map to store entries with order from most recent to least recent? In JS Map preserves insertion order, not recency. To implement LRU efficiently O(1), we can use a doubly linked list plus a Map from key to node. But requirement says "Map keeps insertion order — that is enough; do not use arrays for recency". Actually Map insertion order can be used: we can delete and re-set key to move it to end (most recent). So we can treat Map's iteration order as LRU from oldest (least recent) to newest (most recent). For O(1) we can use Map and on access we delete and set again to move to end. That's O(1) amortized.
+
+We also need to store expiry time per entry.
+
+Implementation details:
+
+class LruTtlCache {
+  constructor({capacity, defaultTtlMs = Infinity, now = () => Date.now()}) {
+    if (!Number.isInteger(capacity) || capacity < 1) throw new RangeError('capacity must be integer >= 1');
+    this._capacity = capacity;
+    this._defaultTtlMs = defaultTtlMs;
+    this._now = now;
+    this._map = new Map(); // key -> {value, expiry}
+  }
+
+  _isExpired(entry) {
+    const now = this._now();
+    return entry.expiry !== Infinity && now >= entry.expiry;
+  }
+
+  _purgeExpired() {
+    // iterate from oldest to newest, remove expired entries.
+    const now = this._now();
+    for (const [key, entry] of this._map) {
+      if (entry.expiry !== Infinity && now >= entry.expiry) {
+        this._map.delete(key);
+      } else {
+        // Since map is ordered by recency, but expiration may be later for later entries.
+        // Can't break because later entries could also be expired (if they have earlier expiry? Actually order is recency, not expiry). So we need to continue.
+      }
+    }
+  }
+
+  set(key, value, ttlMs) {
+    const ttl = ttlMs !== undefined ? ttlMs : this._defaultTtlMs;
+    const expiry = ttl === Infinity ? Infinity : this._now() + ttl;
+    // If ttl <=0, expiry <= now, treat as expired; we can just not store.
+    if (ttl <= 0) {
+      // Ensure removal if exists
+      this._map.delete(key);
+      return this;
+    }
+    // Remove existing to update recency
+    if (this._map.has(key)) {
+      this._map.delete(key);
+    }
+    this._map.set(key, {value, expiry});
+    // Eviction if over capacity
+    this._evictIfNeeded();
+    return this;
+  }
+
+  _evictIfNeeded() {
+    // First purge expired entries
+    this._purgeExpired();
+    while (this._map.size > this._capacity) {
+      // evict least recently used: first entry in map
+      const lruKey = this._map.keys().next().value;
+      this._map.delete(lruKey);
+    }
+  }
+
+  get(key) {
+    const entry = this._map.get(key);
+    if (!entry) return undefined;
+    if (this._isExpired(entry)) {
+      this._map.delete(key);
+      return undefined;
+    }
+    // move to most recent
+    this._map.delete(key);
+    this._map.set(key, entry);
+    return entry.value;
+  }
+
+  has(key) {
+    const entry = this._map.get(key);
+    if (!entry) return false;
+    if (this._isExpired(entry)) {
+      this._map.delete(key);
+      return false;
+    }
+    return true;
+  }
+
+  delete(key) {
+    return this._map.delete(key);
+  }
+
+  get size() {
+    // purge expired before returning size
+    this._purgeExpired();
+    return this._map.size;
+  }
+
+  keys() {
+    // purge expired first
+    this._purgeExpired();
+    // need most recent to least recent order.
+    // Map iteration is insertion order (oldest first). Since we move accessed entries to end, the end is most recent.
+    // So we need to collect keys and reverse.
+    const keys = Array.from(this._map.keys());
+    return keys.reverse();
+  }
+}
+
+Edge Cases: defaultTtlMs may be Infinity; ttlMs may be undefined; ttlMs may be 0 or negative => entry already expired, we should not store. The spec says ttlMs of 0 or negative means entry is already expired. So set should treat as expired and not store; also should remove existing key.
+
+When evicting, we must first evict expired entries, then if still over capacity evict LRU. Our _evictIfNeeded does that.
+
+Potential performance: _purgeExpired iterates whole map each time; that's O(n) but acceptable for size getter and keys. For set we call _evictIfNeeded which calls purge; that could be O(n) each set, but still amortized O(1) maybe not. However spec says O(1) amortized for get, set, has, delete. Purging all entries each set could be O(n). But we can instead only purge while evicting: we can loop removing expired entries from front (LRU) until we find non-expired or size <= capacity. However expiration not correlated with recency, so expired entries could be anywhere. But we can still iterate map and delete expired entries; that's O(n). Might be okay for medium difficulty.
+
+But we can improve: In set, after insertion, we can while size > capacity, try to delete expired entries first by scanning map (maybe break after first non-expired). Simpler to just purge all.
+
+Given constraints, fine.
+
+Need to ensure that defaultTtlMs may be undefined; we set default param.
+
+Now produce final file content.
+
+Also need to export class.
+
+Add JSDoc comments maybe.
+
+Edge Cases: When ttl is Infinity, expiry = Infinity; _isExpired returns false.
+
+Implementation of _isExpired: if entry.expiry === Infinity return false; else return this._now() >= entry.expiry.
+
+Now produce final answer.

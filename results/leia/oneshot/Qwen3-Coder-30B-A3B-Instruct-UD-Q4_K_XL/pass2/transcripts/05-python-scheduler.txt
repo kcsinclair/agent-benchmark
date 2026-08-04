@@ -1,0 +1,113 @@
+# Weighted Interval Scheduling Solution
+
+I'll solve this step-by-step using dynamic programming with binary search to achieve O(n log n) time complexity.
+
+```python
+def best_schedule(jobs):
+    """
+    Find the maximum weight subset of non-overlapping jobs.
+    
+    Args:
+        jobs: List of (start, end, weight) tuples
+        
+    Returns:
+        Tuple of (total_weight, chosen_indices) where:
+        - total_weight is the maximum achievable sum of weights
+        - chosen_indices are the indices of jobs in the optimal subset
+    """
+    if not jobs:
+        return (0.0, [])
+    
+    # Create list of (start, end, weight, index) for easier handling
+    indexed_jobs = [(start, end, weight, i) for i, (start, end, weight) in enumerate(jobs)]
+    indexed_jobs.sort()  # Sort by start time
+    
+    # Extract sorted arrays for easier access
+    starts = [job[0] for job in indexed_jobs]
+    ends = [job[1] for job in indexed_jobs]
+    weights = [job[2] for job in indexed_jobs]
+    indices = [job[3] for job in indexed_jobs]
+    
+    n = len(jobs)
+    
+    # Precompute the latest non-overlapping job for each job
+    # For job i, find the latest job j such that job j ends <= job i starts
+    latest_non_overlap = [-1] * n  # -1 means no such job exists
+    
+    # Binary search for the latest non-overlapping job
+    for i in range(1, n):
+        # Find the rightmost job that ends <= current job's start
+        left, right = 0, i - 1
+        pos = -1
+        
+        while left <= right:
+            mid = (left + right) // 2
+            if ends[mid] <= starts[i]:
+                pos = mid
+                left = mid + 1
+            else:
+                right = mid - 1
+        
+        latest_non_overlap[i] = pos
+    
+    # Dynamic programming
+    # dp[i] represents the maximum weight achievable using jobs 0..i
+    dp = [0.0] * n
+    dp[0] = weights[0]
+    
+    for i in range(1, n):
+        # Option 1: Don't take current job
+        option1 = dp[i-1]
+        
+        # Option 2: Take current job
+        # We can take this job if we don't overlap with previous jobs
+        option2 = weights[i]
+        if latest_non_overlap[i] != -1:
+            option2 += dp[latest_non_overlap[i]]
+        
+        dp[i] = max(option1, option2)
+    
+    # Reconstruct the solution
+    # Backtrack to find which jobs were selected
+    selected_indices = []
+    i = n - 1
+    
+    while i >= 0:
+        # If we took this job, it must be because it gave a better value
+        # than not taking it
+        if i == 0:
+            if dp[i] > 0:
+                selected_indices.append(indices[i])
+            break
+        
+        # If taking this job gives the same value as not taking it,
+        # we didn't take it
+        if dp[i] == dp[i-1]:
+            i -= 1
+        else:
+            # We took this job
+            selected_indices.append(indices[i])
+            # Find the previous non-overlapping job
+            prev = latest_non_overlap[i]
+            i = prev if prev != -1 else -1
+    
+    # Sort indices by start time (which is the same as original order)
+    selected_indices.sort()
+    
+    return (dp[n-1], selected_indices)
+```
+
+This solution works as follows:
+
+1. **Preprocessing**: Sort jobs by start time to make processing easier.
+2. **Binary Search**: For each job, find the latest job that doesn't overlap with it using binary search.
+3. **Dynamic Programming**: Use DP where `dp[i]` represents the maximum weight achievable using jobs 0 through i.
+4. **Reconstruction**: Backtrack through the DP table to find which jobs were selected.
+
+The time complexity is O(n log n) due to:
+- Sorting: O(n log n)
+- Binary search for each job: O(n log n)
+- DP computation: O(n)
+- Solution reconstruction: O(n)
+
+The space complexity is O(n) for storing the DP array and auxiliary data structures.

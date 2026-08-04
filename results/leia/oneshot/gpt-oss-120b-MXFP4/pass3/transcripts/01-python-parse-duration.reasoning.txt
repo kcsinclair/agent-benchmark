@@ -1,0 +1,57 @@
+We need to write a Python module parse_duration.py with function parse_duration that parses according to rules, raising appropriate errors.
+
+Implementation plan:
+
+- Validate input type: if not isinstance(text, str): raise TypeError.
+
+- Strip whitespace: text = text.strip()
+
+- If empty after strip: raise ValueError.
+
+- Check for leading minus: sign = -1 if text.startswith('-') else 1. If minus, remove it: text = text[1:]; ensure no other minus signs later.
+
+- Ensure no whitespace inside: if any whitespace in text: raise ValueError.
+
+- Use regex to parse components: pattern for number: (?:\d+(?:\.\d+)?|\d*\.\d+) but rule says no leading dot, no trailing dot. So number must be digits, optional fractional part with dot and digits. So pattern: \d+(?:\.\d+)? . That disallows .5 and 5. . Good.
+
+- Units: h|m|s|ms . But need to ensure order descending and each at most once.
+
+- We'll iterate through string, matching number+unit sequentially.
+
+- Use while index < len(text): match number at start: use regex ^\d+(?:\.\d+)? . Then after number, match unit: check for 'ms' first (since longer). So we can attempt to match 'ms' else single char.
+
+- Keep track of seen units and order: define order mapping: {'h':0,'m':1,'s':2,'ms':3}. Ensure each new unit's order > previous order (since descending order means earlier units have smaller order index). Actually descending size: h (largest) before m before s before ms. So order index must increase as we go. So we can keep last_order = -1; each unit's order must be > last_order. If not, raise ValueError. Also if unit already seen (order already used) raise ValueError.
+
+- Compute total seconds: convert each component: h*3600, m*60, s*1, ms*0.001.
+
+- After loop, ensure at least one component parsed; else raise ValueError.
+
+- Return sign * total.
+
+Edge cases: empty string after stripping -> ValueError. Input like "5" -> after parsing number, no unit -> raise ValueError.
+
+Also ensure no extra characters left after parsing; if any leftover unmatched -> raise ValueError.
+
+Implementation details:
+
+- Use re.compile for number pattern.
+
+- While loop: at each iteration, match number at current index: m = number_re.match(text, idx). If not, raise ValueError.
+
+- idx = m.end(); then check for unit: if text.startswith('ms', idx): unit='ms'; idx+=2; else if text[idx] in 'hms': unit=text[idx]; idx+=1; else raise ValueError.
+
+- Ensure idx not exceed length.
+
+- After loop, if idx != len(text): raise ValueError (should be fully consumed).
+
+- Ensure no whitespace inside: we already stripped; but we can check if any whitespace char in text after stripping: if any(c.isspace() for c in text): raise ValueError.
+
+Testing with examples.
+
+Also need to handle sign: if sign negative and total zero? return -0.0? fine.
+
+Write docstring.
+
+Return float.
+
+Now produce final file content.

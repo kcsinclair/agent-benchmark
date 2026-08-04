@@ -1,0 +1,94 @@
+```python
+def best_schedule(jobs: list[tuple[float, float, float]]) -> tuple[float, list[int]]:
+    """
+    Solve the weighted interval scheduling problem in O(n log n) time.
+    
+    Args:
+        jobs: list of (start, end, weight) tuples
+        
+    Returns:
+        (total_weight, chosen_indices) where chosen_indices are sorted by start time
+        (ties broken by index ascending)
+    """
+    if not jobs:
+        return (0.0, [])
+    
+    n = len(jobs)
+    
+    # Create indexed jobs: (start, end, weight, original_index)
+    indexed_jobs = [(jobs[i][0], jobs[i][1], jobs[i][2], i) for i in range(n)]
+    
+    # Sort by end time. If end times are equal, sort by start time, then by index
+    indexed_jobs.sort(key=lambda x: (x[1], x[0], x[3]))
+    
+    # Extract sorted arrays
+    ends = [job[1] for job in indexed_jobs]
+    starts = [job[0] for job in indexed_jobs]
+    weights = [job[2] for job in indexed_jobs]
+    orig_indices = [job[3] for job in indexed_jobs]
+    
+    # For each job i, find the largest j < i such that ends[j] <= starts[i]
+    # This is the "previous compatible job"
+    # Use binary search on the ends array
+    
+    def find_prev_compatible(i: int) -> int:
+        """Find the largest index j < i such that ends[j] <= starts[i]. Return -1 if none."""
+        target = starts[i]
+        lo, hi = 0, i - 1
+        result = -1
+        while lo <= hi:
+            mid = (lo + hi) // 2
+            if ends[mid] <= target:
+                result = mid
+                lo = mid + 1
+            else:
+                hi = mid - 1
+        return result
+    
+    # DP: dp[i] = maximum weight using a subset of jobs[0..i]
+    # dp[i] = max(dp[i-1], weights[i] + dp[prev_compatible(i)])
+    
+    dp = [0.0] * n
+    dp[0] = weights[0]
+    
+    for i in range(1, n):
+        # Option 1: don't include job i
+        exclude = dp[i - 1]
+        
+        # Option 2: include job i
+        prev = find_prev_compatible(i)
+        if prev == -1:
+            include = weights[i]
+        else:
+            include = weights[i] + dp[prev]
+        
+        dp[i] = max(exclude, include)
+    
+    total_weight = dp[n - 1]
+    
+    # Backtrack to find which jobs were chosen
+    chosen = []
+    i = n - 1
+    while i >= 0:
+        prev = find_prev_compatible(i)
+        if prev == -1:
+            include_val = weights[i]
+        else:
+            include_val = weights[i] + dp[prev]
+        
+        exclude_val = dp[i - 1] if i > 0 else 0.0
+        
+        if include_val >= exclude_val:
+            # Job i was included
+            chosen.append(orig_indices[i])
+            i = prev
+        else:
+            # Job i was not included
+            i -= 1
+    
+    # Sort chosen indices by start time, breaking ties by index ascending
+    # We need to sort by the original job's start time, then by original index
+    chosen.sort(key=lambda idx: (jobs[idx][0], idx))
+    
+    return (total_weight, chosen)
+```

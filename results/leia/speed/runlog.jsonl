@@ -1,0 +1,10 @@
+{"label":"control-start","seconds":8,"temp_before":"26.5","temp_after":"41.0","file":"control-start.json"}
+{"label":"gemma-4-31B","seconds":241,"temp_before":"39.4","temp_after":"61.1","file":"gemma-4-31B.json"}
+{"label":"gemma-4-26B","seconds":49,"temp_before":"58.9","temp_after":"59.2","file":"gemma-4-26B.json"}
+{"label":"gpt-oss-120b","seconds":132,"temp_before":"57.2","temp_after":"56.5","file":"gpt-oss-120b.json"}
+{"label":"Qwen3-Coder-30B","seconds":69,"temp_before":"54.8","temp_after":"62.2","file":"Qwen3-Coder-30B.json"}
+{"label":"control-middle","seconds":14,"temp_before":"59.9","temp_after":"56.9","file":"control-middle.json"}
+{"label":"Qwen3.6-27B","seconds":195,"temp_before":"54.9","temp_after":"63.0","file":"Qwen3.6-27B.json"}
+{"label":"Qwen3.6-35B","seconds":64,"temp_before":"60.6","temp_after":"60.6","file":"Qwen3.6-35B.json"}
+{"label":"Kimi-Linear-48B","error":true}
+{"label":"control-end","seconds":10,"temp_before":"45.6","temp_after":"55.9","file":"control-end.json"}

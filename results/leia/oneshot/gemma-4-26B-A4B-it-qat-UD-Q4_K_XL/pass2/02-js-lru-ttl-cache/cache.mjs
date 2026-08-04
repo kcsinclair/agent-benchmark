@@ -1,0 +1,141 @@
+/**
+ * LruTtlCache implementation
+ * 
+ * Uses a Map to maintain insertion order, which in JavaScript 
+ * allows for O(1) access and O(1) "move to end" (by deleting and re-setting).
+ * The Map's iterator follows insertion order, so the first element is the LRU.
+ */
+export class LruTtlCache {
+  /**
+   * @param {Object} options
+   * @param {number} options.capacity - Maximum number of non-expired entries.
+   * @param {number} [options.defaultTtlMs=Infinity] - Default TTL in milliseconds.
+   * @param {Function} [options.now=() => Date.now()] - Clock function.
+   */
+  constructor({ capacity, defaultTtlMs = Infinity, now = () => Date.now() }) {
+    if (!Number.isInteger(capacity) || capacity < 1) {
+      throw new RangeError("Capacity must be an integer ≥ 1");
+    }
+    this._capacity = capacity;
+    this._defaultTtlMs = defaultTtlMs;
+    this._now = now;
+    // Map stores key -> { value, expiry }
+    // Map maintains insertion order: oldest (LRU) at the start, newest at the end.
+    this._cache = new Map();
+  }
+
+  /**
+   * Internal helper to purge expired entries.
+   * Since we need to purge expired entries to maintain 'size' and 'capacity' semantics,
+   * we iterate through the map. Note: While a full scan is O(N), the requirements
+   * imply we must purge them when discovered or when calculating size.
+   */
+  _purgeExpired() {
+    const currentTime = this._now();
+    for (const [key, entry] of this._cache.entries()) {
+      if (entry.expiry !== Infinity && currentTime >= entry.expiry) {
+        this._cache.delete(key);
+      }
+    }
+  }
+
+  /**
+   * Inserts or replaces a value.
+   * @param {*} key 
+   * @param {*} value 
+   * @param {number} [ttlMs] 
+   * @returns {LruTtlCache}
+   */
+  set(key, value, ttlMs) {
+    const currentTime = this._now();
+    const ttl = ttlMs ?? this._defaultTtlMs;
+    const expiry = ttl <= 0 ? currentTime : currentTime + ttl;
+
+    // If key exists, remove it first to update recency (move to end)
+    if (this._cache.has(key)) {
+      this._cache.delete(key);
+    }
+
+    this._cache.set(key, { value, expiry });
+
+    // Handle capacity
+    if (this._cache.size > this._capacity) {
+      // 1. Try to evict expired entries first
+      this._purgeExpired();
+
+      // 2. If still over capacity, evict the Least Recently Used (first in Map)
+      if (this._cache.size > this._capacity) {
+        const lruKey = this._cache.keys().next().value;
+        this._cache.delete(lruKey);
+      }
+    }
+
+    return this;
+  }
+
+  /**
+   * Returns the value and makes the entry most recently used.
+   * @param {*} key 
+   * @returns {*}
+   */
+  get(key) {
+    const entry = this._cache.get(key);
+    if (!entry) return undefined;
+
+    if (entry.expiry !== Infinity && this._now() >= entry.expiry) {
+      this._cache.delete(key);
+      return undefined;
+    }
+
+    // Refresh recency: delete and re-insert
+    this._cache.delete(key);
+    this._cache.set(key, entry);
+    return entry.value;
+  }
+
+  /**
+   * Returns true if present and not expired.
+   * @param {*} key 
+   * @returns {boolean}
+   */
+  has(key) {
+    const entry = this._cache.get(key);
+    if (!entry) return false;
+
+    if (entry.expiry !== Infinity && this._now() >= entry.expiry) {
+      this._cache.delete(key);
+      return false;
+    }
+
+    return true;
+  }
+
+  /**
+   * Removes the entry.
+   * @param {*} key 
+   * @returns {boolean}
+   */
+  delete(key) {
+    return this._cache.delete(key);
+  }
+
+  /**
+   * Number of live (non-expired) entries.
+   * @returns {number}
+   */
+  get size() {
+    this._purgeExpired();
+    return this._cache.size;
+  }
+
+  /**
+   * Array of live keys ordered from most recently used to least recently used.
+   * @returns {Array<*>}
+   */
+  keys() {
+    this._purgeExpired();
+    // Map.keys() returns insertion order (LRU -> MRU). 
+    // Requirement asks for MRU -> LRU.
+    return Array.from(this._cache.keys()).reverse();
+  }
+}

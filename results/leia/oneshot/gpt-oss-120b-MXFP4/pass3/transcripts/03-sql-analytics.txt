@@ -1,0 +1,53 @@
+**q1.sql**
+```sql
+SELECT
+    c.name AS customer_name,
+    ROUND(SUM(oi.quantity * p.unit_price), 2) AS revenue
+FROM customers c
+JOIN orders o          ON o.customer_id = c.id AND o.status = 'completed'
+JOIN order_items oi   ON oi.order_id = o.id
+JOIN products p       ON p.id = oi.product_id
+GROUP BY c.id, c.name
+ORDER BY revenue DESC, customer_name ASC
+```
+
+**q2.sql**
+```sql
+SELECT
+    p.name AS product_name,
+    SUM(oi.quantity) AS units_sold
+FROM products p
+JOIN order_items oi ON oi.product_id = p.id
+JOIN orders o       ON o.id = oi.order_id
+WHERE o.status = 'completed'
+GROUP BY p.id, p.name
+HAVING units_sold > 0
+ORDER BY units_sold DESC, product_name ASC
+LIMIT 3
+```
+
+**q3.sql**
+```sql
+SELECT
+    c.name AS customer_name,
+    c.country
+FROM customers c
+LEFT JOIN orders o ON o.customer_id = c.id
+WHERE o.id IS NULL
+ORDER BY customer_name ASC
+```
+
+**q4.sql**
+```sql
+SELECT
+    strftime('%Y-%m', o.ordered_at) AS month,
+    ROUND(SUM(oi.quantity * p.unit_price), 2) AS revenue
+FROM orders o
+JOIN order_items oi ON oi.order_id = o.id
+JOIN products p     ON p.id = oi.product_id
+WHERE o.status = 'completed'
+  AND strftime('%Y', o.ordered_at) = '2025'
+GROUP BY month
+HAVING revenue <> 0
+ORDER BY month ASC
+```

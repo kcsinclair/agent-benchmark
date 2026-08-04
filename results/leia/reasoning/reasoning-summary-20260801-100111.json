@@ -1,0 +1,286 @@
+{
+  "wall_seconds": 1081.5,
+  "track": "reasoning",
+  "settings": {
+    "temperature": 0.0,
+    "max_tokens": 2048,
+    "think": "off",
+    "repeat": 1,
+    "seed": 1,
+    "server": "http://leia.packsin.com:7442",
+    "categories": [
+      "state",
+      "constraint",
+      "compliance",
+      "abstention",
+      "trap",
+      "retrieval"
+    ]
+  },
+  "results": [
+    {
+      "model": "gemma-4-26B-A4B-it-qat-UD-Q4_K_XL",
+      "load_seconds": 0.1,
+      "passes": [
+        {
+          "pass": 1,
+          "dir": "/Users/keith/Library/Mobile Documents/com~apple~CloudDocs/Projects/agent-coding-test/results/leia/reasoning/gemma-4-26B-A4B-it-qat-UD-Q4_K_XL",
+          "totals": {
+            "state": {
+              "right": 7,
+              "count": 20,
+              "seconds": 5.1
+            },
+            "constraint": {
+              "right": 14,
+              "count": 20,
+              "seconds": 4.8
+            },
+            "compliance": {
+              "right": 20,
+              "count": 20,
+              "seconds": 3.9
+            },
+            "abstention": {
+              "right": 20,
+              "count": 20,
+              "seconds": 5.2
+            },
+            "trap": {
+              "right": 13,
+              "count": 14,
+              "seconds": 3.4
+            },
+            "retrieval": {
+              "right": 8,
+              "count": 8,
+              "seconds": 21.0
+            }
+          },
+          "right": 82,
+          "count": 102
+        }
+      ]
+    },
+    {
+      "model": "Qwen3-Coder-30B-A3B-Instruct-UD-Q4_K_XL",
+      "load_seconds": 13.0,
+      "passes": [
+        {
+          "pass": 1,
+          "dir": "/Users/keith/Library/Mobile Documents/com~apple~CloudDocs/Projects/agent-coding-test/results/leia/reasoning/Qwen3-Coder-30B-A3B-Instruct-UD-Q4_K_XL",
+          "totals": {
+            "state": {
+              "right": 8,
+              "count": 20,
+              "seconds": 20.8
+            },
+            "constraint": {
+              "right": 6,
+              "count": 20,
+              "seconds": 5.0
+            },
+            "compliance": {
+              "right": 20,
+              "count": 20,
+              "seconds": 2.9
+            },
+            "abstention": {
+              "right": 20,
+              "count": 20,
+              "seconds": 4.4
+            },
+            "trap": {
+              "right": 12,
+              "count": 14,
+              "seconds": 3.4
+            },
+            "retrieval": {
+              "right": 8,
+              "count": 8,
+              "seconds": 19.8
+            }
+          },
+          "right": 74,
+          "count": 102
+        }
+      ]
+    },
+    {
+      "model": "Qwen3.6-35B-A3B-UD-Q4_K_M",
+      "load_seconds": 15.0,
+      "passes": [
+        {
+          "pass": 1,
+          "dir": "/Users/keith/Library/Mobile Documents/com~apple~CloudDocs/Projects/agent-coding-test/results/leia/reasoning/Qwen3.6-35B-A3B-UD-Q4_K_M",
+          "totals": {
+            "state": {
+              "right": 2,
+              "count": 20,
+              "seconds": 6.8
+            },
+            "constraint": {
+              "right": 13,
+              "count": 20,
+              "seconds": 6.6
+            },
+            "compliance": {
+              "right": 20,
+              "count": 20,
+              "seconds": 4.3
+            },
+            "abstention": {
+              "right": 20,
+              "count": 20,
+              "seconds": 5.8
+            },
+            "trap": {
+              "right": 12,
+              "count": 14,
+              "seconds": 4.6
+            },
+            "retrieval": {
+              "right": 8,
+              "count": 8,
+              "seconds": 25.2
+            }
+          },
+          "right": 75,
+          "count": 102
+        }
+      ]
+    },
+    {
+      "model": "unsloth/gemma-4-31B-it-qat-GGUF:Q4_K_XL",
+      "load_seconds": 16.9,
+      "passes": [
+        {
+          "pass": 1,
+          "dir": "/Users/keith/Library/Mobile Documents/com~apple~CloudDocs/Projects/agent-coding-test/results/leia/reasoning/unsloth_gemma-4-31B-it-qat-GGUF_Q4_K_XL",
+          "totals": {
+            "state": {
+              "right": 10,
+              "count": 20,
+              "seconds": 17.8
+            },
+            "constraint": {
+              "right": 12,
+              "count": 20,
+              "seconds": 16.6
+            },
+            "compliance": {
+              "right": 20,
+              "count": 20,
+              "seconds": 13.2
+            },
+            "abstention": {
+              "right": 20,
+              "count": 20,
+              "seconds": 16.0
+            },
+            "trap": {
+              "right": 13,
+              "count": 14,
+              "seconds": 10.6
+            },
+            "retrieval": {
+              "right": 8,
+              "count": 8,
+              "seconds": 97.1
+            }
+          },
+          "right": 83,
+          "count": 102
+        }
+      ]
+    },
+    {
+      "model": "Qwen3.6-27B-Q4_K_M",
+      "load_seconds": 13.4,
+      "passes": [
+        {
+          "pass": 1,
+          "dir": "/Users/keith/Library/Mobile Documents/com~apple~CloudDocs/Projects/agent-coding-test/results/leia/reasoning/Qwen3.6-27B-Q4_K_M",
+          "totals": {
+            "state": {
+              "right": 6,
+              "count": 20,
+              "seconds": 15.4
+            },
+            "constraint": {
+              "right": 10,
+              "count": 20,
+              "seconds": 14.4
+            },
+            "compliance": {
+              "right": 20,
+              "count": 20,
+              "seconds": 11.9
+            },
+            "abstention": {
+              "right": 20,
+              "count": 20,
+              "seconds": 12.7
+            },
+            "trap": {
+              "right": 13,
+              "count": 14,
+              "seconds": 9.7
+            },
+            "retrieval": {
+              "right": 8,
+              "count": 8,
+              "seconds": 74.4
+            }
+          },
+          "right": 77,
+          "count": 102
+        }
+      ]
+    },
+    {
+      "model": "gpt-oss-120b-MXFP4",
+      "load_seconds": 125.1,
+      "passes": [
+        {
+          "pass": 1,
+          "dir": "/Users/keith/Library/Mobile Documents/com~apple~CloudDocs/Projects/agent-coding-test/results/leia/reasoning/gpt-oss-120b-MXFP4",
+          "totals": {
+            "state": {
+              "right": 20,
+              "count": 20,
+              "seconds": 111.9
+            },
+            "constraint": {
+              "right": 20,
+              "count": 20,
+              "seconds": 158.1
+            },
+            "compliance": {
+              "right": 20,
+              "count": 20,
+              "seconds": 35.7
+            },
+            "abstention": {
+              "right": 20,
+              "count": 20,
+              "seconds": 42.1
+            },
+            "trap": {
+              "right": 13,
+              "count": 14,
+              "seconds": 37.4
+            },
+            "retrieval": {
+              "right": 8,
+              "count": 8,
+              "seconds": 49.6
+            }
+          },
+          "right": 101,
+          "count": 102
+        }
+      ]
+    }
+  ]
+}

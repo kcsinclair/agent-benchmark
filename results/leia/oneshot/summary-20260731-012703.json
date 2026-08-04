@@ -1,0 +1,196 @@
+{
+  "wall_seconds": 3517.1,
+  "settings": {
+    "temperature": 0.0,
+    "max_tokens": 16384,
+    "think": "off",
+    "repeat": 3,
+    "reasoning_effort": "",
+    "server": "http://leia.packsin.com:7442"
+  },
+  "results": [
+    {
+      "model": "Qwen3-Coder-30B-A3B-Instruct-UD-Q4_K_XL",
+      "load_seconds": 0.1,
+      "passes": [
+        {
+          "pass": 1,
+          "dir": "/Users/keith/Library/Mobile Documents/com~apple~CloudDocs/Projects/agent-coding-test/runs/Qwen3-Coder-30B-A3B-Instruct-UD-Q4_K_XL/pass1",
+          "generate_seconds": 41.4,
+          "wall_seconds": 41.4,
+          "trouble": [],
+          "score": 58,
+          "max": 68
+        },
+        {
+          "pass": 2,
+          "dir": "/Users/keith/Library/Mobile Documents/com~apple~CloudDocs/Projects/agent-coding-test/runs/Qwen3-Coder-30B-A3B-Instruct-UD-Q4_K_XL/pass2",
+          "generate_seconds": 34.4,
+          "wall_seconds": 34.4,
+          "trouble": [],
+          "score": 56,
+          "max": 68
+        },
+        {
+          "pass": 3,
+          "dir": "/Users/keith/Library/Mobile Documents/com~apple~CloudDocs/Projects/agent-coding-test/runs/Qwen3-Coder-30B-A3B-Instruct-UD-Q4_K_XL/pass3",
+          "generate_seconds": 37.0,
+          "wall_seconds": 37.0,
+          "trouble": [],
+          "score": 57,
+          "max": 68
+        }
+      ]
+    },
+    {
+      "model": "Qwen3.6-27B-Q4_K_M",
+      "load_seconds": 13.9,
+      "passes": [
+        {
+          "pass": 1,
+          "dir": "/Users/keith/Library/Mobile Documents/com~apple~CloudDocs/Projects/agent-coding-test/runs/Qwen3.6-27B-Q4_K_M/pass1",
+          "generate_seconds": 443.1,
+          "wall_seconds": 443.2,
+          "trouble": [],
+          "score": 57,
+          "max": 68
+        },
+        {
+          "pass": 2,
+          "dir": "/Users/keith/Library/Mobile Documents/com~apple~CloudDocs/Projects/agent-coding-test/runs/Qwen3.6-27B-Q4_K_M/pass2",
+          "generate_seconds": 347.1,
+          "wall_seconds": 347.1,
+          "trouble": [],
+          "score": 66,
+          "max": 68
+        },
+        {
+          "pass": 3,
+          "dir": "/Users/keith/Library/Mobile Documents/com~apple~CloudDocs/Projects/agent-coding-test/runs/Qwen3.6-27B-Q4_K_M/pass3",
+          "generate_seconds": 430.9,
+          "wall_seconds": 430.9,
+          "trouble": [],
+          "score": 57,
+          "max": 68
+        }
+      ]
+    },
+    {
+      "model": "Qwen3.6-35B-A3B-UD-Q4_K_M",
+      "load_seconds": 32.5,
+      "passes": [
+        {
+          "pass": 1,
+          "dir": "/Users/keith/Library/Mobile Documents/com~apple~CloudDocs/Projects/agent-coding-test/runs/Qwen3.6-35B-A3B-UD-Q4_K_M/pass1",
+          "generate_seconds": 345.7,
+          "wall_seconds": 345.8,
+          "trouble": [
+            "04-go-worker-pool: repetition loop"
+          ],
+          "score": 57,
+          "max": 68
+        },
+        {
+          "pass": 2,
+          "dir": "/Users/keith/Library/Mobile Documents/com~apple~CloudDocs/Projects/agent-coding-test/runs/Qwen3.6-35B-A3B-UD-Q4_K_M/pass2",
+          "generate_seconds": 349.4,
+          "wall_seconds": 349.4,
+          "trouble": [
+            "04-go-worker-pool: repetition loop"
+          ],
+          "score": 57,
+          "max": 68
+        },
+        {
+          "pass": 3,
+          "dir": "/Users/keith/Library/Mobile Documents/com~apple~CloudDocs/Projects/agent-coding-test/runs/Qwen3.6-35B-A3B-UD-Q4_K_M/pass3",
+          "generate_seconds": 82.5,
+          "wall_seconds": 82.5,
+          "trouble": [
+            "03-sql-analytics: q1.sql, q2.sql, q3.sql, q4.sql not extracted"
+          ],
+          "score": 53,
+          "max": 68
+        }
+      ]
+    },
+    {
+      "model": "gemma-4-26B-A4B-it-qat-UD-Q4_K_XL",
+      "load_seconds": 10.2,
+      "passes": [
+        {
+          "pass": 1,
+          "dir": "/Users/keith/Library/Mobile Documents/com~apple~CloudDocs/Projects/agent-coding-test/runs/gemma-4-26B-A4B-it-qat-UD-Q4_K_XL/pass1",
+          "generate_seconds": 77.8,
+          "wall_seconds": 77.8,
+          "trouble": [],
+          "score": 54,
+          "max": 68
+        },
+        {
+          "pass": 2,
+          "dir": "/Users/keith/Library/Mobile Documents/com~apple~CloudDocs/Projects/agent-coding-test/runs/gemma-4-26B-A4B-it-qat-UD-Q4_K_XL/pass2",
+          "generate_seconds": 73.5,
+          "wall_seconds": 73.5,
+          "trouble": [],
+          "score": 65,
+          "max": 68
+        },
+        {
+          "pass": 3,
+          "dir": "/Users/keith/Library/Mobile Documents/com~apple~CloudDocs/Projects/agent-coding-test/runs/gemma-4-26B-A4B-it-qat-UD-Q4_K_XL/pass3",
+          "generate_seconds": 71.0,
+          "wall_seconds": 71.0,
+          "trouble": [],
+          "score": 65,
+          "max": 68
+        }
+      ]
+    },
+    {
+      "model": "unsloth/gemma-4-31B-it-qat-GGUF:Q4_K_XL",
+      "load_seconds": 17.9,
+      "passes": [
+        {
+          "pass": 1,
+          "dir": "/Users/keith/Library/Mobile Documents/com~apple~CloudDocs/Projects/agent-coding-test/runs/unsloth_gemma-4-31B-it-qat-GGUF_Q4_K_XL/pass1",
+          "generate_seconds": 316.7,
+          "wall_seconds": 316.7,
+          "trouble": [],
+          "score": 68,
+          "max": 68
+        },
+        {
+          "pass": 2,
+          "dir": "/Users/keith/Library/Mobile Documents/com~apple~CloudDocs/Projects/agent-coding-test/runs/unsloth_gemma-4-31B-it-qat-GGUF_Q4_K_XL/pass2",
+          "generate_seconds": 311.5,
+          "wall_seconds": 311.5,
+          "trouble": [],
+          "score": 68,
+          "max": 68
+        },
+        {
+          "pass": 3,
+          "dir": "/Users/keith/Library/Mobile Documents/com~apple~CloudDocs/Projects/agent-coding-test/runs/unsloth_gemma-4-31B-it-qat-GGUF_Q4_K_XL/pass3",
+          "generate_seconds": 331.7,
+          "wall_seconds": 331.8,
+          "trouble": [],
+          "score": 68,
+          "max": 68
+        }
+      ]
+    },
+    {
+      "model": "gpt-oss-120b-MXFP4",
+      "load_seconds": 32.5,
+      "passes": [],
+      "error": "HTTP 500: model name=gpt-oss-120b-MXFP4 failed to load"
+    },
+    {
+      "model": "moonshotai_Kimi-Linear-48B-A3B-Instruct-Q4_K_M",
+      "load_seconds": 0.0,
+      "passes": [],
+      "error": "<urlopen error [Errno 61] Connection refused>"
+    }
+  ]
+}

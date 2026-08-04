@@ -1,0 +1,153 @@
+We need to implement Run with bounded concurrency, ordering, fail fast, context cancellation.
+
+We need to return results slice in order. Approach: create a struct for each task with index, task function. Use a worker pool of size workers. Use a channel to send tasks to workers. Use a results slice of any with length len(tasks). Use error handling: first error.
+
+We need to cancel remaining tasks when error occurs or parent ctx cancelled. We'll create a derived context for each task: we can use ctx (parent) and a cancel function that we can call when we need to cancel tasks. Actually we need to cancel tasks that are still running when error occurs. So we can create a child context with cancel: taskCtx, taskCancel := context.WithCancel(ctx). Pass taskCtx to task. When we detect error, we call taskCancel() to cancel all tasks (since they share same cancel). But tasks that have not started must not start. So we need to stop feeding tasks to workers after error or parent cancellation. Use a done channel to signal stop.
+
+Implementation plan:
+
+func Run(ctx context.Context, tasks []Task, workers int) ([]any, error) {
+    if workers < 1 {
+        return nil, errors.New("workers must be >= 1")
+    }
+    if len(tasks) == 0 {
+        return nil, nil
+    }
+
+    // Create a child context that we can cancel on first error or parent cancel.
+    taskCtx, cancelAll := context.WithCancel(ctx)
+    defer cancelAll() // ensure resources freed
+
+    type job struct {
+        idx int
+        fn Task
+    }
+
+    jobs := make(chan job)
+    // results slice
+    results := make([]any, len(tasks))
+
+    var wg sync.WaitGroup
+    // error handling
+    var once sync.Once
+    var firstErr error
+
+    // worker function
+    worker := func() {
+        defer wg.Done()
+        for j := range jobs {
+            // before executing, check if context already done
+            select {
+            case <-taskCtx.Done():
+                // don't start new tasks
+                // we could skip execution
+                // but we need to ensure we don't block; just continue to next iteration (which will break when channel closed)
+                continue
+            default:
+            }
+
+            res, err := j.fn(taskCtx)
+            if err != nil {
+                once.Do(func() {
+                    firstErr = err
+                    // cancel all tasks
+                    cancelAll()
+                })
+                // we still need to store maybe nil? Not needed because we will return nil results on error.
+                // continue to drain other jobs (but they may be prevented from starting)
+                continue
+            }
+            // store result if no error yet
+            // but if error already occurred, we can ignore storing.
+            // However ordering requirement only on success.
+            // So we can store anyway; not used.
+            results[j.idx] = res
+        }
+    }
+
+    // start workers
+    wg.Add(workers)
+    for i := 0; i < workers; i++ {
+        go worker()
+    }
+
+    // feed jobs
+    go func() {
+        defer close(jobs)
+        for i, t := range tasks {
+            // before sending, check if context done (error or parent cancel)
+            select {
+            case <-taskCtx.Done():
+                // stop sending further jobs
+                return
+            default:
+                // send
+                jobs <- job{idx: i, fn: t}
+            }
+        }
+    }()
+
+    // Wait for workers to finish
+    wg.Wait()
+
+    // After workers done, check errors
+    if firstErr != nil {
+        return nil, firstErr
+    }
+    // also check if ctx cancelled
+    if err := ctx.Err(); err != nil {
+        return nil, err
+    }
+    // success
+    return results, nil
+}
+
+Potential issues: need to ensure that if parent ctx cancelled, we propagate that error (or wrap). The above uses taskCtx derived from ctx, and we cancelAll on error. If parent ctx cancelled, taskCtx.Done() will be closed, feeding goroutine will stop sending jobs, workers will stop after channel closed. However we need to return ctx.Err() (or wrapped). After wg.Wait, we check ctx.Err(). But if parent cancelled after some tasks started, they may have been cancelled via taskCtx (since it's derived). The workers may have already completed; after wg.Wait, we check ctx.Err() and return that.
+
+Edge Cases: If first error occurs, we cancelAll, which cancels taskCtx, causing other workers to stop starting new tasks (they check select before executing). However they may already be executing tasks; they will continue until they return. That's fine.
+
+Need to ensure that we don't leak goroutine feeding jobs: we close jobs after loop or early return due to ctx.Done(). That's fine.
+
+Potential race: firstErr set via once.Do; reading after wg.Wait is safe.
+
+Need to import packages: context, errors, sync.
+
+Return nil slice on error: spec says return (nil, err). So we should return nil slice.
+
+If len(tasks)==0, return empty slice (nil) and nil error.
+
+Edge: workers > len(tasks). That's fine; some workers will just exit after channel closed.
+
+Potential issue: In worker loop, after receiving job, we check taskCtx.Done() before executing. But if taskCtx is cancelled after we already started the task, we still run it; that's okay.
+
+But we also need to ensure that tasks that have not yet started never start after error. Our feeding goroutine stops sending when taskCtx.Done(). However there may be jobs already in channel that workers haven't taken yet. Those jobs are already queued; they may be taken after cancellation and executed, violating "must never start". To avoid that, we need to ensure that after cancellation, workers do not start tasks that are already queued. So we need to make workers check taskCtx.Done() after receiving job, before executing. That's already done: after receiving j := range jobs, we select on taskCtx.Done() before executing. However the job is already taken from channel; but we still can skip execution. That's okay: they won't start the task function. So they will just continue loop (maybe continue to next job). But we need to ensure they don't block waiting for more jobs after cancellation; they will keep looping until channel closed. Since feeding goroutine may have stopped early, but channel not closed yet. We need to close channel when feeding goroutine returns (due to cancellation). That's done: defer close(jobs) in feeding goroutine. So after cancellation, feeding goroutine returns, closes channel, workers will exit after draining remaining jobs (which they will skip). However there may be jobs already in channel that were sent before cancellation; they will be received and skipped. That's okay.
+
+Potential race: feeding goroutine may be blocked sending to jobs channel if workers are busy and channel is unbuffered. If we use unbuffered channel, sending may block, causing feeding goroutine to be stuck and not notice cancellation. To avoid that, we can make jobs channel buffered (size workers) or use select with ctx.Done() while sending. Use select to send or abort. Implementation: for each task, select { case <-taskCtx.Done(): return; case jobs <- job{...}: } This ensures we don't block indefinitely. Good.
+
+Thus we need to implement sending with select.
+
+Now about error handling: spec says first error that occurred. Our once.Do ensures first error captured. However if multiple tasks error concurrently, whichever triggers once.Do first will be captured. That's fine.
+
+Need to wrap errors? Not required.
+
+Now implement.
+
+Edge: If workers < 1, return error. Use errors.New.
+
+Now final code.
+
+Testing: Not needed.
+
+Make sure to import "context", "errors", "sync".
+
+Return nil slice on error: return nil, firstErr.
+
+If ctx.Err() after workers done and no firstErr, return nil, ctx.Err().
+
+But spec says if parent ctx cancelled while Run is in flight, return (nil, ctx.Err()) (or wrapping). So we need to check ctx.Err() before returning success. So after wg.Wait, if firstErr != nil return nil, firstErr. else if err := ctx.Err(); err != nil { return nil, err } else return results, nil.
+
+Edge: If tasks slice empty, we return nil slice (or empty) and nil error. We'll just return nil, nil.
+
+Ok.
+
+Now produce final answer.

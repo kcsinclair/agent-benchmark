@@ -1,0 +1,110 @@
+package main
+
+import (
+	"context"
+	"errors"
+	"sync"
+)
+
+// Task is one unit of work.
+type Task func(ctx context.Context) (any, error)
+
+// Run executes tasks with at most `workers` running concurrently and returns
+// their results in the same order as the input slice.
+func Run(parent context.Context, tasks []Task, workers int) ([]any, error) {
+	// ---- validation ---------------------------------------------------------
+	if workers < 1 {
+		return nil, errors.New("workers must be >= 1")
+	}
+	if len(tasks) == 0 {
+		// empty result is allowed to be nil
+		return nil, nil
+	}
+
+	// ---- preparation --------------------------------------------------------
+	// bound workers to the number of tasks – no point creating more goroutines
+	if workers > len(tasks) {
+		workers = len(tasks)
+	}
+
+	// derived cancellable context – used to stop the pool on first error or
+	// parent cancellation
+	ctx, cancel := context.WithCancel(parent)
+	defer cancel()
+
+	type job struct {
+		idx  int
+		task Task
+	}
+	taskCh := make(chan job) // unbuffered – workers pull when ready
+
+	results := make([]any, len(tasks))
+
+	var wg sync.WaitGroup
+	var once sync.Once
+	var firstErr error
+
+	// ---- worker -------------------------------------------------------------
+	worker := func() {
+		defer wg.Done()
+		for {
+			select {
+			case <-ctx.Done():
+				// pool is shutting down
+				return
+			case j, ok := <-taskCh:
+				if !ok {
+					// no more jobs
+					return
+				}
+				// run the task
+				res, err := j.task(ctx)
+				if err != nil {
+					once.Do(func() {
+						firstErr = err
+						cancel() // stop the whole pool
+					})
+					// do not store a result for a failed task
+					continue
+				}
+				results[j.idx] = res
+			}
+		}
+	}
+
+	// start workers
+	wg.Add(workers)
+	for i := 0; i < workers; i++ {
+		go worker()
+	}
+
+	// ---- feed jobs ----------------------------------------------------------
+	go func() {
+		// ensure workers are not left waiting on a never‑closed channel
+		defer close(taskCh)
+		for i, t := range tasks {
+			select {
+			case <-ctx.Done():
+				// pool is shutting down – stop sending new jobs
+				return
+			case taskCh <- job{idx: i, task: t}:
+				// job queued
+			}
+		}
+	}()
+
+	// ---- wait for completion ------------------------------------------------
+	wg.Wait()
+
+	// ---- decide what to return ------------------------------------------------
+	if firstErr != nil {
+		// an error from a task – result slice must be nil
+		return nil, firstErr
+	}
+	if err := ctx.Err(); err != nil && err != context.Canceled {
+		// parent context finished (deadline exceeded, etc.)
+		return nil, err
+	}
+	// success
+	return results, nil
+}

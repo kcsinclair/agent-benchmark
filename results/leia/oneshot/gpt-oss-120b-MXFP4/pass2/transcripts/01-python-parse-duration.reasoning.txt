@@ -1,0 +1,59 @@
+We need to write a Python module parse_duration.py with function parse_duration that parses according to rules, raising appropriate errors.
+
+Implementation plan:
+
+- Validate input type: if not isinstance(text, str): raise TypeError.
+
+- Strip whitespace: text = text.strip()
+
+- If empty after strip: raise ValueError.
+
+- Check for leading minus: sign = -1 if text.startswith('-') else 1. If minus present, remove it: text = text[1:]; ensure no other minus signs later.
+
+- Ensure no whitespace inside: if any whitespace in text: raise ValueError.
+
+- Use regex to parse components: pattern for number: (?:\d+(?:\.\d+)?|\d*\.\d+?)? Actually rule: numbers are non-negative decimals: digits with optional fractional part, but cannot be .5 (no leading dot) and cannot be 5. (no trailing dot). So pattern: \d+(?:\.\d+)? . That's digits at least one, optional . and at least one digit after dot.
+
+- Units: h|m|s|ms . But need order descending and each at most once.
+
+- We'll iterate through string, matching number+unit sequentially.
+
+- Use while loop with index i.
+
+- Keep last_unit_index = order index of previous unit (starting high). Define order mapping: {'h':0, 'm':1, 's':2, 'ms':3}. Ensure each new unit's order > last (since descending order means earlier units have smaller index). Actually descending size: h > m > s > ms, so order index increasing as we go. So we need new unit order > last_order. Also ensure not repeated.
+
+- For each component: match number: read digits, optional .digits. Use regex from current position: r'\d+(?:\.\d+)?' . If not match: raise ValueError.
+
+- After number, need unit: check if substring startswith 'ms' else single char unit among h,m,s. Must be one of them.
+
+- Compute seconds: conversion dict: {'h':3600, 'm':60, 's':1, 'ms':0.001}.
+
+- Accumulate total.
+
+- After loop, ensure at least one component parsed.
+
+- Return sign * total.
+
+Edge cases: Input like "5" -> after number, no unit -> raise ValueError.
+
+Input like "1h30m" works.
+
+Input like "1m1h": order violation: first unit m (order 1), then h (order 0) which is less than previous, raise ValueError.
+
+Input like "1h1h": repeated unit: we can keep set of used units; if unit already used raise ValueError.
+
+Whitespace inside: after stripping, if any whitespace char in text: raise ValueError.
+
+Also ensure no extra characters after parsing: after loop, i must equal len(text). If not, raise ValueError.
+
+Implement parse_duration accordingly.
+
+Add __all__ = ['parse_duration'].
+
+Write docstring.
+
+Testing not required but we can include simple if __name__ == '__main__': pass.
+
+Return float.
+
+Ok produce final file.

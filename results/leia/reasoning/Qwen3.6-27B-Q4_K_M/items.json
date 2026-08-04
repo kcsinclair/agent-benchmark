@@ -1,0 +1,1026 @@
+{
+  "model": "Qwen3.6-27B-Q4_K_M",
+  "seed": 1,
+  "results": [
+    {
+      "category": "state",
+      "item": 1,
+      "ok": false,
+      "expected": "8",
+      "seconds": 0.8,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "12"
+    },
+    {
+      "category": "state",
+      "item": 2,
+      "ok": false,
+      "expected": "26",
+      "seconds": 0.8,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "20"
+    },
+    {
+      "category": "state",
+      "item": 3,
+      "ok": false,
+      "expected": "4",
+      "seconds": 0.8,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "10"
+    },
+    {
+      "category": "state",
+      "item": 4,
+      "ok": true,
+      "expected": "3",
+      "seconds": 0.7,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "3"
+    },
+    {
+      "category": "state",
+      "item": 5,
+      "ok": false,
+      "expected": "36",
+      "seconds": 0.8,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "15"
+    },
+    {
+      "category": "state",
+      "item": 6,
+      "ok": false,
+      "expected": "11",
+      "seconds": 0.8,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "24"
+    },
+    {
+      "category": "state",
+      "item": 7,
+      "ok": true,
+      "expected": "14",
+      "seconds": 0.8,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "14"
+    },
+    {
+      "category": "state",
+      "item": 8,
+      "ok": true,
+      "expected": "11",
+      "seconds": 0.8,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "11"
+    },
+    {
+      "category": "state",
+      "item": 9,
+      "ok": false,
+      "expected": "7",
+      "seconds": 0.7,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "9"
+    },
+    {
+      "category": "state",
+      "item": 10,
+      "ok": false,
+      "expected": "5",
+      "seconds": 0.8,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "11"
+    },
+    {
+      "category": "state",
+      "item": 11,
+      "ok": false,
+      "expected": "4",
+      "seconds": 0.8,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "14"
+    },
+    {
+      "category": "state",
+      "item": 12,
+      "ok": true,
+      "expected": "13",
+      "seconds": 0.8,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "13"
+    },
+    {
+      "category": "state",
+      "item": 13,
+      "ok": false,
+      "expected": "1",
+      "seconds": 0.7,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "5"
+    },
+    {
+      "category": "state",
+      "item": 14,
+      "ok": true,
+      "expected": "0",
+      "seconds": 0.7,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "0"
+    },
+    {
+      "category": "state",
+      "item": 15,
+      "ok": false,
+      "expected": "8",
+      "seconds": 0.8,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "11"
+    },
+    {
+      "category": "state",
+      "item": 16,
+      "ok": false,
+      "expected": "15",
+      "seconds": 0.8,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "12"
+    },
+    {
+      "category": "state",
+      "item": 17,
+      "ok": false,
+      "expected": "1",
+      "seconds": 0.8,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "11"
+    },
+    {
+      "category": "state",
+      "item": 18,
+      "ok": true,
+      "expected": "15",
+      "seconds": 0.8,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "15"
+    },
+    {
+      "category": "state",
+      "item": 19,
+      "ok": false,
+      "expected": "7",
+      "seconds": 0.8,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "15"
+    },
+    {
+      "category": "state",
+      "item": 20,
+      "ok": false,
+      "expected": "5",
+      "seconds": 0.7,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "0"
+    },
+    {
+      "category": "constraint",
+      "item": 1,
+      "ok": true,
+      "expected": "2",
+      "seconds": 0.7,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "2"
+    },
+    {
+      "category": "constraint",
+      "item": 2,
+      "ok": false,
+      "expected": "2",
+      "seconds": 0.7,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "3"
+    },
+    {
+      "category": "constraint",
+      "item": 3,
+      "ok": true,
+      "expected": "1",
+      "seconds": 0.7,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "1"
+    },
+    {
+      "category": "constraint",
+      "item": 4,
+      "ok": false,
+      "expected": "3",
+      "seconds": 0.7,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "2"
+    },
+    {
+      "category": "constraint",
+      "item": 5,
+      "ok": false,
+      "expected": "2",
+      "seconds": 0.7,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "1"
+    },
+    {
+      "category": "constraint",
+      "item": 6,
+      "ok": false,
+      "expected": "2",
+      "seconds": 0.7,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "1"
+    },
+    {
+      "category": "constraint",
+      "item": 7,
+      "ok": false,
+      "expected": "2",
+      "seconds": 0.7,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "3"
+    },
+    {
+      "category": "constraint",
+      "item": 8,
+      "ok": false,
+      "expected": "2",
+      "seconds": 0.7,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "4"
+    },
+    {
+      "category": "constraint",
+      "item": 9,
+      "ok": true,
+      "expected": "3",
+      "seconds": 0.7,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "3"
+    },
+    {
+      "category": "constraint",
+      "item": 10,
+      "ok": true,
+      "expected": "4",
+      "seconds": 0.7,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "4"
+    },
+    {
+      "category": "constraint",
+      "item": 11,
+      "ok": false,
+      "expected": "3",
+      "seconds": 0.7,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "1"
+    },
+    {
+      "category": "constraint",
+      "item": 12,
+      "ok": true,
+      "expected": "1",
+      "seconds": 0.8,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "1"
+    },
+    {
+      "category": "constraint",
+      "item": 13,
+      "ok": true,
+      "expected": "2",
+      "seconds": 0.7,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "2"
+    },
+    {
+      "category": "constraint",
+      "item": 14,
+      "ok": true,
+      "expected": "3",
+      "seconds": 0.7,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "3"
+    },
+    {
+      "category": "constraint",
+      "item": 15,
+      "ok": false,
+      "expected": "2",
+      "seconds": 0.7,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "1"
+    },
+    {
+      "category": "constraint",
+      "item": 16,
+      "ok": true,
+      "expected": "4",
+      "seconds": 0.7,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "4"
+    },
+    {
+      "category": "constraint",
+      "item": 17,
+      "ok": true,
+      "expected": "4",
+      "seconds": 0.7,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "4"
+    },
+    {
+      "category": "constraint",
+      "item": 18,
+      "ok": false,
+      "expected": "3",
+      "seconds": 0.7,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "2"
+    },
+    {
+      "category": "constraint",
+      "item": 19,
+      "ok": false,
+      "expected": "3",
+      "seconds": 0.7,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "2"
+    },
+    {
+      "category": "constraint",
+      "item": 20,
+      "ok": true,
+      "expected": "2",
+      "seconds": 0.7,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "2"
+    },
+    {
+      "category": "compliance",
+      "item": 1,
+      "ok": true,
+      "expected": "88",
+      "seconds": 0.6,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "88"
+    },
+    {
+      "category": "compliance",
+      "item": 2,
+      "ok": true,
+      "expected": "three lowercase words",
+      "seconds": 0.7,
+      "tokens": 4,
+      "finish": "stop",
+      "reply": "red green blue"
+    },
+    {
+      "category": "compliance",
+      "item": 3,
+      "ok": true,
+      "expected": "PARIS",
+      "seconds": 0.6,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "PARIS"
+    },
+    {
+      "category": "compliance",
+      "item": 4,
+      "ok": true,
+      "expected": "PARIS",
+      "seconds": 0.3,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "PARIS"
+    },
+    {
+      "category": "compliance",
+      "item": 5,
+      "ok": true,
+      "expected": "three lowercase words",
+      "seconds": 0.5,
+      "tokens": 4,
+      "finish": "stop",
+      "reply": "red green blue"
+    },
+    {
+      "category": "compliance",
+      "item": 6,
+      "ok": true,
+      "expected": "{\"animal\": \"heron\", \"legs\": 4}",
+      "seconds": 2.0,
+      "tokens": 20,
+      "finish": "stop",
+      "reply": "{\n  \"animal\": \"heron\",\n  \"legs\": 2\n}"
+    },
+    {
+      "category": "compliance",
+      "item": 7,
+      "ok": true,
+      "expected": "48",
+      "seconds": 0.6,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "48"
+    },
+    {
+      "category": "compliance",
+      "item": 8,
+      "ok": true,
+      "expected": "85",
+      "seconds": 0.7,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "85"
+    },
+    {
+      "category": "compliance",
+      "item": 9,
+      "ok": true,
+      "expected": "PARIS",
+      "seconds": 0.4,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "PARIS"
+    },
+    {
+      "category": "compliance",
+      "item": 10,
+      "ok": true,
+      "expected": "81",
+      "seconds": 0.6,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "81"
+    },
+    {
+      "category": "compliance",
+      "item": 11,
+      "ok": true,
+      "expected": "three lowercase words",
+      "seconds": 0.5,
+      "tokens": 4,
+      "finish": "stop",
+      "reply": "red green blue"
+    },
+    {
+      "category": "compliance",
+      "item": 12,
+      "ok": true,
+      "expected": "52",
+      "seconds": 0.6,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "52"
+    },
+    {
+      "category": "compliance",
+      "item": 13,
+      "ok": true,
+      "expected": "three lowercase words",
+      "seconds": 0.5,
+      "tokens": 4,
+      "finish": "stop",
+      "reply": "red green blue"
+    },
+    {
+      "category": "compliance",
+      "item": 14,
+      "ok": true,
+      "expected": "PARIS",
+      "seconds": 0.4,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "PARIS"
+    },
+    {
+      "category": "compliance",
+      "item": 15,
+      "ok": true,
+      "expected": "three lowercase words",
+      "seconds": 0.5,
+      "tokens": 4,
+      "finish": "stop",
+      "reply": "red green blue"
+    },
+    {
+      "category": "compliance",
+      "item": 16,
+      "ok": true,
+      "expected": "three lowercase words",
+      "seconds": 0.4,
+      "tokens": 4,
+      "finish": "stop",
+      "reply": "red green blue"
+    },
+    {
+      "category": "compliance",
+      "item": 17,
+      "ok": true,
+      "expected": "81",
+      "seconds": 0.6,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "81"
+    },
+    {
+      "category": "compliance",
+      "item": 18,
+      "ok": true,
+      "expected": "three lowercase words",
+      "seconds": 0.5,
+      "tokens": 4,
+      "finish": "stop",
+      "reply": "red green blue"
+    },
+    {
+      "category": "compliance",
+      "item": 19,
+      "ok": true,
+      "expected": "72",
+      "seconds": 0.6,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "72"
+    },
+    {
+      "category": "compliance",
+      "item": 20,
+      "ok": true,
+      "expected": "three lowercase words",
+      "seconds": 0.5,
+      "tokens": 4,
+      "finish": "stop",
+      "reply": "red green blue"
+    },
+    {
+      "category": "abstention",
+      "item": 1,
+      "ok": true,
+      "expected": "7",
+      "seconds": 0.7,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "7"
+    },
+    {
+      "category": "abstention",
+      "item": 2,
+      "ok": true,
+      "expected": "9",
+      "seconds": 0.7,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "9"
+    },
+    {
+      "category": "abstention",
+      "item": 3,
+      "ok": true,
+      "expected": "UNKNOWN",
+      "seconds": 0.7,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "UNKNOWN"
+    },
+    {
+      "category": "abstention",
+      "item": 4,
+      "ok": true,
+      "expected": "4",
+      "seconds": 0.7,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "4"
+    },
+    {
+      "category": "abstention",
+      "item": 5,
+      "ok": true,
+      "expected": "UNKNOWN",
+      "seconds": 0.7,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "UNKNOWN"
+    },
+    {
+      "category": "abstention",
+      "item": 6,
+      "ok": true,
+      "expected": "UNKNOWN",
+      "seconds": 0.7,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "UNKNOWN"
+    },
+    {
+      "category": "abstention",
+      "item": 7,
+      "ok": true,
+      "expected": "7",
+      "seconds": 0.3,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "7"
+    },
+    {
+      "category": "abstention",
+      "item": 8,
+      "ok": true,
+      "expected": "4",
+      "seconds": 0.7,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "4"
+    },
+    {
+      "category": "abstention",
+      "item": 9,
+      "ok": true,
+      "expected": "6",
+      "seconds": 0.7,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "6"
+    },
+    {
+      "category": "abstention",
+      "item": 10,
+      "ok": true,
+      "expected": "UNKNOWN",
+      "seconds": 0.3,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "UNKNOWN"
+    },
+    {
+      "category": "abstention",
+      "item": 11,
+      "ok": true,
+      "expected": "UNKNOWN",
+      "seconds": 0.7,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "UNKNOWN"
+    },
+    {
+      "category": "abstention",
+      "item": 12,
+      "ok": true,
+      "expected": "UNKNOWN",
+      "seconds": 0.7,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "UNKNOWN"
+    },
+    {
+      "category": "abstention",
+      "item": 13,
+      "ok": true,
+      "expected": "UNKNOWN",
+      "seconds": 0.7,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "UNKNOWN"
+    },
+    {
+      "category": "abstention",
+      "item": 14,
+      "ok": true,
+      "expected": "UNKNOWN",
+      "seconds": 0.7,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "UNKNOWN"
+    },
+    {
+      "category": "abstention",
+      "item": 15,
+      "ok": true,
+      "expected": "UNKNOWN",
+      "seconds": 0.7,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "UNKNOWN"
+    },
+    {
+      "category": "abstention",
+      "item": 16,
+      "ok": true,
+      "expected": "3",
+      "seconds": 0.7,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "3"
+    },
+    {
+      "category": "abstention",
+      "item": 17,
+      "ok": true,
+      "expected": "UNKNOWN",
+      "seconds": 0.3,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "UNKNOWN"
+    },
+    {
+      "category": "abstention",
+      "item": 18,
+      "ok": true,
+      "expected": "4",
+      "seconds": 0.7,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "4"
+    },
+    {
+      "category": "abstention",
+      "item": 19,
+      "ok": true,
+      "expected": "UNKNOWN",
+      "seconds": 0.7,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "UNKNOWN"
+    },
+    {
+      "category": "abstention",
+      "item": 20,
+      "ok": true,
+      "expected": "4",
+      "seconds": 0.3,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "4"
+    },
+    {
+      "category": "trap",
+      "item": 1,
+      "ok": false,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 0.7,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 2,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 0.6,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 3,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 0.7,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 4,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 0.7,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 5,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 0.7,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 6,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 0.6,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 7,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 0.7,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 8,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 0.7,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 9,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 0.7,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 10,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 0.7,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 11,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 0.7,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 12,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 0.7,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 13,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 0.6,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 14,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 0.7,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "retrieval",
+      "item": 1,
+      "ok": true,
+      "expected": "175",
+      "seconds": 9.3,
+      "tokens": 4,
+      "finish": "stop",
+      "reply": "175"
+    },
+    {
+      "category": "retrieval",
+      "item": 2,
+      "ok": true,
+      "expected": "272",
+      "seconds": 9.3,
+      "tokens": 4,
+      "finish": "stop",
+      "reply": "272"
+    },
+    {
+      "category": "retrieval",
+      "item": 3,
+      "ok": true,
+      "expected": "756",
+      "seconds": 9.3,
+      "tokens": 4,
+      "finish": "stop",
+      "reply": "756"
+    },
+    {
+      "category": "retrieval",
+      "item": 4,
+      "ok": true,
+      "expected": "210",
+      "seconds": 9.3,
+      "tokens": 4,
+      "finish": "stop",
+      "reply": "210"
+    },
+    {
+      "category": "retrieval",
+      "item": 5,
+      "ok": true,
+      "expected": "673",
+      "seconds": 9.3,
+      "tokens": 4,
+      "finish": "stop",
+      "reply": "673"
+    },
+    {
+      "category": "retrieval",
+      "item": 6,
+      "ok": true,
+      "expected": "176",
+      "seconds": 9.3,
+      "tokens": 4,
+      "finish": "stop",
+      "reply": "176"
+    },
+    {
+      "category": "retrieval",
+      "item": 7,
+      "ok": true,
+      "expected": "650",
+      "seconds": 9.3,
+      "tokens": 4,
+      "finish": "stop",
+      "reply": "650"
+    },
+    {
+      "category": "retrieval",
+      "item": 8,
+      "ok": true,
+      "expected": "322",
+      "seconds": 9.3,
+      "tokens": 4,
+      "finish": "stop",
+      "reply": "322"
+    }
+  ]
+}

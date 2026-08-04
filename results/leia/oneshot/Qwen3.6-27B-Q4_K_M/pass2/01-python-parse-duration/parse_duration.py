@@ -1,0 +1,79 @@
+import re
+
+
+def parse_duration(text: str) -> float:
+    """
+    Parse a human-readable duration string and return the total number of seconds as a float.
+    
+    Args:
+        text: A string representing a duration, e.g., "1h30m", "2.5s", "-1h"
+        
+    Returns:
+        The total duration in seconds as a float.
+        
+    Raises:
+        TypeError: If the input is not a string.
+        ValueError: If the string doesn't match the expected format.
+    """
+    # Check for non-string input
+    if not isinstance(text, str):
+        raise TypeError("Input must be a string")
+    
+    # Strip leading and trailing whitespace
+    text = text.strip()
+    
+    # Check for empty string
+    if not text:
+        raise ValueError("Empty string is not a valid duration")
+    
+    # Check for internal whitespace (after stripping)
+    if ' ' in text or '\t' in text or '\n' in text or '\r' in text:
+        raise ValueError("Internal whitespace is not allowed")
+    
+    # Define the pattern for a valid duration string
+    # Optional leading minus sign
+    # One or more components in strictly descending order: h, m, s, ms
+    # Each component is a number (digits with optional fractional part) followed by a unit
+    
+    # Pattern breakdown:
+    # ^(-)? - optional minus sign at the start
+    # (?:...) - non-capturing group for the components
+    # The components must be in order: h, m, s, ms, each optional but at least one must be present
+    
+    # Let's define the pattern more carefully:
+    # A number is: one or more digits, optionally followed by a dot and one or more digits
+    # But no leading dot, no trailing dot, no bare dot
+    
+    # Number pattern: \d+(\.\d+)?
+    # This ensures: at least one digit, optionally followed by a dot and at least one more digit
+    
+    # Units in order: h, m, s, ms
+    # Each unit can appear at most once, and they must be in descending order
+    
+    # Pattern: ^(-)?(\d+(\.\d+)?h)?(\d+(\.\d+)?m)?(\d+(\.\d+)?s)?(\d+(\.\d+)?ms)?$
+    # But we need at least one component
+    
+    pattern = r'^(-)?(\d+(?:\.\d+)?h)?(\d+(?:\.\d+)?m)?(\d+(?:\.\d+)?s)?(\d+(?:\.\d+)?ms)?$'
+    
+    match = re.match(pattern, text)
+    
+    if not match:
+        raise ValueError(f"Invalid duration format: '{text}'")
+    
+    # Check that at least one component is present
+    components = [match.group(2), match.group(3), match.group(4), match.group(5)]
+    if all(c is None for c in components):
+        raise ValueError(f"No components found in: '{text}'")
+    
+    # Extract the values
+    sign = -1 if match.group(1) else 1
+    
+    hours = float(match.group(2)[:-1]) if match.group(2) else 0.0
+    minutes = float(match.group(3)[:-1]) if match.group(3) else 0.0
+    seconds = float(match.group(4)[:-1]) if match.group(4) else 0.0
+    milliseconds = float(match.group(5)[:-2]) if match.group(5) else 0.0
+    
+    # Calculate total seconds
+    total_seconds = hours * 3600 + minutes * 60 + seconds + milliseconds / 1000
+    
+    return sign * total_seconds
