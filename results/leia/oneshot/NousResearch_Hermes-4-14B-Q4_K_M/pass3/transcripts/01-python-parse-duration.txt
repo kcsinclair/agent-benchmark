@@ -1,0 +1,100 @@
+```python
+import re
+
+def parse_duration(text: str) -> float:
+    if not isinstance(text, str):
+        raise TypeError("Input must be a string")
+
+    text = text.strip()
+    if not text:
+        raise ValueError("Empty string")
+
+    # Check for leading minus sign
+    sign = 1
+    if text[0] == '-':
+        sign = -1
+        text = text[1:]
+        if not text:
+            raise ValueError("Invalid format after '-'")
+
+    # Regex to match components: number followed by unit
+    # Number: non-negative decimal (no leading/trailing dot, no exponents)
+    # Units: h, m, s, ms
+    # Components must be in order h > m > s > ms, no repeats
+    components = []
+    current_unit = None
+    unit_order = ['h', 'm', 's', 'ms']
+    unit_index = {unit: idx for idx, unit in enumerate(unit_order)}
+
+    # Regex for a single component: number followed by unit
+    # Number: \d+(?:\.\d+)? (e.g., 2, 1.5, 0.25)
+    # Unit: h|m|s|ms
+    # The entire string must be matched by this pattern
+    pattern = r'^(\d+(?:\.\d+)?)\s*([hms]|ms)$'
+    # But since components are concatenated without separators, we need to parse sequentially
+    # Instead, we'll split the string into tokens of number and unit, ensuring order and uniqueness
+
+    # Split the text into tokens of number and unit
+    tokens = []
+    i = 0
+    n = len(text)
+    while i < n:
+        # Match number part
+        num_match = re.match(r'^\d+(?:\.\d+)?', text[i:])
+        if not num_match:
+            raise ValueError(f"Invalid number at position {i}")
+        num_str = num_match.group(0)
+        num_end = i + len(num_str)
+        i = num_end
+
+        # Match unit part
+        unit_match = re.match(r'^[hms]|ms', text[i:])
+        if not unit_match:
+            raise ValueError(f"Invalid unit at position {i}")
+        unit = unit_match.group(0)
+        i += len(unit)
+
+        tokens.append((num_str, unit))
+
+    # Check for whitespace in tokens
+    for num_str, unit in tokens:
+        if num_str.strip() != num_str or unit.strip() != unit:
+            raise ValueError("Whitespace not allowed in number or unit")
+
+    # Check unit order and uniqueness
+    for num_str, unit in tokens:
+        if unit not in unit_order:
+            raise ValueError(f"Invalid unit: {unit}")
+        if unit_index[unit] < unit_index.get(current_unit, -1):
+            raise ValueError(f"Units must be in descending order: {current_unit} before {unit}")
+        if unit in components:
+            raise ValueError(f"Repeated unit: {unit}")
+        components.append(unit)
+        current_unit = unit
+
+    # Check at least one component
+    if not tokens:
+        raise ValueError("At least one component required")
+
+    # Parse numbers and calculate total seconds
+    total_seconds = 0.0
+    for num_str, unit in tokens:
+        try:
+            num = float(num_str)
+        except ValueError:
+            raise ValueError(f"Invalid number: {num_str}")
+
+        if num < 0:
+            raise ValueError(f"Negative number: {num_str}")
+
+        if unit == 'h':
+            total_seconds += num * 3600
+        elif unit == 'm':
+            total_seconds += num * 60
+        elif unit == 's':
+            total_seconds += num
+        elif unit == 'ms':
+            total_seconds += num / 1000
+
+    return sign * total_seconds
+```

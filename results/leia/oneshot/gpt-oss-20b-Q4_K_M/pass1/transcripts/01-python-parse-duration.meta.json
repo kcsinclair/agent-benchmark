@@ -1,0 +1,16 @@
+{
+  "model": "gpt-oss-20b-Q4_K_M",
+  "finish_reason": "stop",
+  "mode": "think=off",
+  "temperature": 0.0,
+  "max_tokens": 16384,
+  "usage": {
+    "completion_tokens": 3564,
+    "prompt_tokens": 628,
+    "total_tokens": 4192,
+    "prompt_tokens_details": {
+      "cached_tokens": 60
+    }
+  },
+  "seconds": 47.2
+}

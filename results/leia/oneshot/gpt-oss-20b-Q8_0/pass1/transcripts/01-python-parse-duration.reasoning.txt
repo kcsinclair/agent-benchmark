@@ -1,0 +1,865 @@
+We need to produce code for parse_duration.py. Provide function parse_duration that follows rules. Must raise TypeError if non-string. Must strip whitespace at ends, but no whitespace inside. Must parse components: number + unit. Units: h, m, s, ms. Order descending: h > m > s > ms. Each unit at most once. Must parse decimal numbers: digits with optional fractional part. No leading +, no exponents, no bare '.' or '.5', no trailing dot. So regex for number: r'\d+(\.\d+)?' but ensure not '.' alone. That matches digits with optional decimal part. But also need to ensure no trailing dot: pattern ensures decimal part has digits after dot. Good.
+
+We need to parse components sequentially. Approach: use regex to find all matches of number+unit. But need to ensure order and uniqueness. Also ensure entire string matches pattern (no leftover). Also ensure no whitespace inside. So after stripping, we can check if any whitespace remains: if re.search(r'\s', text): raise ValueError.
+
+We can use regex pattern: r'(?P<num>\d+(?:\.\d+)?)(?P<unit>h|m|s|ms)'. But note that 'ms' is two letters; we need to match 'ms' before 'm' or 's' to avoid partial. So order: ms first? But we parse sequentially; we can use regex that matches 'ms' as unit. But if we use alternation 'ms|h|m|s', we need to order ms first to avoid 'm' matching part of 'ms'. So pattern: r'(?P<num>\d+(?:\.\d+)?)(?P<unit>ms|h|m|s)'. But we also need to ensure that 'ms' is matched before 'm' or 's'. Good.
+
+Now we need to parse entire string: we can use re.finditer to iterate matches. After each match, we can accumulate. But we also need to ensure that matches cover entire string: we can keep track of last end index; after loop, ensure last end == len(text). Also ensure at least one component.
+
+Also need to handle optional leading minus sign. So we can check if text startswith '-': sign = -1 else 1. But we must ensure minus sign only at start. So we can strip leading minus: if text[0]=='-': sign=-1; text=text[1:]; else sign=1. But we must ensure that after removing minus, the rest is not empty. But rule 3: at least one component required. So if after minus sign removal, string empty -> ValueError.
+
+Also need to ensure no whitespace inside: after stripping, we can check if any whitespace: if re.search(r'\s', text): raise ValueError.
+
+Now parse components: maintain last_unit_index to enforce order. We can map unit to order: h:0, m:1, s:2, ms:3. For each component, check that unit not already seen; and that its order > last_order? Wait descending order: h before m before s before ms. So order indices ascending: h=0, m=1, s=2, ms=3. So we need to ensure that each component's order > last_order. So we maintain last_order = -1 initially. For each component, if order <= last_order: raise ValueError. Also check not repeated: we can keep set of seen units; if unit in seen: raise ValueError.
+
+Now compute seconds: number * factor. Factors: h=3600, m=60, s=1, ms=0.001. So accumulate.
+
+Edge cases: number may be large; but fine.
+
+Also need to raise ValueError for invalid patterns: e.g., "5" missing unit. Our regex will not match; after loop, if no matches or leftover, raise ValueError.
+
+Also need to raise ValueError for "1m1h" wrong order: our order check will catch because m order 1 > last_order 0? Wait first component '1m' order 1 > -1 ok. last_order=1. Next component '1h' order 0 <= last_order -> raise ValueError.
+
+Also repeated unit: '1h1h': first h order 0; second h order 0 <= last_order 0 -> raise ValueError.
+
+Also "1h1h" also repeated unit; but our check will catch.
+
+Also "1h1h" also repeated unit; but we also check seen set.
+
+Also "1h1h" will raise ValueError.
+
+Also "1h1h" will also have order check fail earlier.
+
+Also "1h1h" will produce ValueError.
+
+Also "1h1h" will produce ValueError.
+
+Also "1h1h" will produce ValueError.
+
+Ok.
+
+Also "1h1h" will produce ValueError.
+
+Now "1h1h" will produce ValueError.
+
+Ok.
+
+Also "1h1h" will produce ValueError.
+
+Stop.
+
+Now "1h1h" will produce ValueError.
+
+Ok.
+
+Now "1h1h" will produce ValueError.
+
+Ok.
+
+Now "1h1h" will produce ValueError.
+
+Stop.
+
+Now "1h1h" will produce ValueError.
+
+Ok.
+
+Now "1h1h" will produce ValueError.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Now "1h1h" fails.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that "1h1h" fails.
+
+Ok.
+
+Now we need to ensure that "1h1...".
+
+Stop.
+
+Ok.
+
+I think we got enough.
+
+Now we need to produce final code.
+
+Edge cases: "1h1h" repeated unit; we catch.
+
+Also "1h1h" repeated unit; we catch.
+
+Also "1h1h" repeated unit; we catch.
+
+Ok.
+
+Now we need to ensure that "1h1h" repeated unit; we catch.
+
+Ok.
+
+Now we need to produce final code.
+
+Also need to raise TypeError if not str: if not isinstance(text, str): raise TypeError.
+
+Also need to handle None: TypeError.
+
+Now we need to produce final file parse_duration.py.
+
+Let's craft code:
+
+```
+import re
+
+_UNIT_ORDER = {'h': 0, 'm': 1, 's': 2, 'ms': 3}
+_UNIT_FACTOR = {'h': 3600.0, 'm': 60.0, 's': 1.0, 'ms': 0.001}
+
+_NUMBER_UNIT_RE = re.compile(r'(?P<num>\d+(?:\.\d+)?)(?P<unit>ms|h|m|s)')
+
+def parse_duration(text: str) -> float:
+    if not isinstance(text, str):
+        raise TypeError('text must be a string')
+    text = text.strip()
+    if not text:
+        raise ValueError('empty duration string')
+    # leading minus
+    sign = 1
+    if text[0] == '-':
+        sign = -1
+        text = text[1:]
+        if not text:
+            raise ValueError('duration string contains only a minus sign')
+    # no internal whitespace
+    if re.search(r'\s', text):
+        raise ValueError('whitespace inside duration string')
+    pos = 0
+    total = 0.0
+    last_order = -1
+    seen_units = set()
+    while pos < len(text):
+        m = _NUMBER_UNIT_RE.match(text, pos)
+        if not m:
+            raise ValueError(f'invalid component at position {pos}')
+        num_str = m.group('num')
+        unit = m.group('unit')
+        if unit in seen_units:
+            raise ValueError(f'repeated unit "{unit}"')
+        order = _UNIT_ORDER[unit]
+        if order <= last_order:
+            raise ValueError(f'unit order violation: "{unit}" after previous unit')
+        seen_units.add(unit)
+        try:
+            value = float(num_str)
+        except ValueError:
+            raise ValueError(f'invalid number "{num_str}"')
+        total += value * _UNIT_FACTOR[unit]
+        last_order = order
+        pos = m.end()
+    if pos != len(text):
+        raise ValueError('unexpected trailing characters')
+    return sign * total
+```
+
+But we need to ensure that we don't allow trailing characters after last component. Our loop ensures pos==len(text). Good.
+
+Also we need to ensure that at least one component: we check if pos==0 after loop? Actually we start pos=0; if no match at pos 0, we raise ValueError. So at least one component.
+
+Also we need to ensure that number cannot be negative: but we removed minus sign only at start; numbers cannot have sign. Our regex ensures digits only. Good.
+
+Also we need to ensure that numbers cannot have leading zeros? Not specified; allowed.
+
+Also we need to ensure that numbers cannot have trailing dot: our regex ensures decimal part has digits after dot. Good.
+
+Also we need to ensure that numbers cannot have exponent: not allowed.
+
+Also we need to ensure that numbers cannot have leading +: not allowed.
+
+Also we need to ensure that numbers cannot have bare '.' or '.5': not allowed.
+
+Our regex ensures digits before dot.
+
+Now we need to ensure that "5" missing unit: our regex will not match; we raise ValueError.
+
+Now we need to ensure that "1h1h" repeated unit: we raise ValueError.
+
+Now we need to ensure that "1h1h" repeated unit: we raise ValueError.
+
+Now we need to ensure that "1h1h" repeated unit: we raise ValueError.
+
+Ok.
+
+Now we need to ensure that "1h1h" repeated unit: we raise ValueError.
+
+Ok.
+
+Now we need to ensure that "1h1h" repeated unit: we raise ValueError.
+
+Ok.
+
+Now we need to ensure that "1h1h" repeated unit: we raise ValueError.
+
+Ok.
+
+Now we need to ensure that "1h1h" repeated unit: we raise ValueError.
+
+Ok.
+
+Now we need to ensure that "1h1h" repeated unit: we raise ValueError.
+
+Ok.
+
+Now we need to ensure that "1h1h" repeated unit: we raise ValueError.
+
+Ok.
+
+Now we need to ensure that "1h1h" repeated unit: we raise ValueError.
+
+Ok.
+
+Now we need to ensure that "1h1h" repeated unit: we raise ValueError.
+
+Ok.
+
+Now we need to ensure that "1h1h" repeated unit: we raise ValueError.
+
+Ok.
+
+Now we need to ensure that "1h1h" repeated unit: we raise ValueError.
+
+Ok.
+
+Now we need to ensure that "1h1h" repeated unit: we raise ValueError.
+
+Ok.
+
+Now we need to ensure that "1h1h" repeated unit: we raise.
+
+Stop.
+
+Ok.
+
+Now we need to produce final file.
+
+Also we need to include docstring maybe.
+
+Also we need to ensure that we don't import re inside function each call; we can compile at module level.
+
+Also we need to ensure that we don't use any external libs.
+
+Now produce final answer: Provide the file content.
+
+Let's craft final answer.

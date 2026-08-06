@@ -1,0 +1,57 @@
+We need to implement weighted interval scheduling with up to 200k jobs. Must be O(n log n). Use sorting by end time, binary search for previous non-overlapping job. Use DP arrays of size n. Use iterative loops. Also need to reconstruct indices. We need to return indices sorted by start time. We can reconstruct by backtracking from last job. We'll store for each job the index of previous chosen job (p[i]) and DP[i] = max weight up to i. Standard algorithm.
+
+Implementation details:
+
+- Input jobs list of tuples (start, end, weight). We'll create list of jobs with original index.
+
+- Sort by end time ascending. If tie, maybe by start? Not necessary but stable.
+
+- For each job i in sorted order, compute p[i] = largest j < i such that jobs[j].end <= jobs[i].start. Use binary search on end times array.
+
+- DP[0] = 0. For i from 1..n: DP[i] = max(DP[i-1], jobs[i-1].weight + DP[p[i]]). Note: jobs list sorted; DP index offset by 1.
+
+- Also store choice: if DP[i] == DP[i-1] then skip job i-1; else include job i-1 and set prev[i] = p[i].
+
+- After loop, total_weight = DP[n].
+
+- Reconstruct: start from i = n. While i > 0: if DP[i] == DP[i-1] -> i -= 1; else include job i-1, set i = p[i].
+
+- The indices we collect are original indices of jobs. After collecting, we need to sort them by start time (and tie by index). We can sort using key lambda idx: (jobs_original[idx][0], idx). But we have original jobs list. We'll store original list.
+
+Edge cases: empty jobs -> return (0.0, []).
+
+Complexities: Sorting O(n log n). Binary search for each job O(log n). DP O(n). Reconstruction O(n). Sorting indices O(k log k) where k <= n.
+
+We need to ensure memory usage: arrays of size n+1 floats and ints. For 200k, fine.
+
+Implementation details: Use bisect_right on end_times list to find insertion point for start. p[i] = bisect_right(end_times, start) - 1. Because we want last job with end <= start. Since end_times sorted ascending. For start, we need <= start. bisect_right returns index of first > start. So subtract 1.
+
+Edge: if result < 0, p[i] = 0 (meaning no previous job). But DP array offset: DP[0] = 0. So we can set p[i] = idx where idx is index in sorted jobs list (0-based). But DP index offset: DP[i] corresponds to first i jobs. So p[i] should be index of job in sorted list. For DP, we need DP[p[i]] where p[i] is number of jobs up to that previous job. Since DP index offset by 1, we can set p[i] = j+1 where j is index of previous job. Let's compute:
+
+Let sorted_jobs list of length n. For job i (0-based), we compute prev_index = bisect_right(end_times, start) - 1. If prev_index >= 0: p[i] = prev_index + 1 else p[i] = 0. Then DP[i+1] = max(DP[i], weight + DP[p[i]]). And we store prev_choice[i+1] = p[i] if we include else i.
+
+But easier: we can keep DP array of length n+1. For each i from 1..n: job = sorted_jobs[i-1]. Compute prev = bisect_right(end_times, job.start) - 1. If prev >= 0: prev_dp_index = prev + 1 else 0. Then include_weight = job.weight + DP[prev_dp_index]. Exclude_weight = DP[i-1]. If include > exclude: DP[i] = include; choice[i] = prev_dp_index; else DP[i] = exclude; choice[i] = -1 (meaning skip). But we need to reconstruct. We can store a boolean include[i] = True/False. Or store prev[i] = prev_dp_index if include else -1.
+
+During reconstruction: i = n. While i > 0: if choice[i] == -1: i -= 1 else: include job i-1; i = choice[i].
+
+But we need to map back to original indices. We'll store sorted_jobs as list of tuples (start, end, weight, original_index). So when we include job i-1, we add original_index.
+
+After reconstruction, we have list of indices unsorted. We need to sort by start time and index. We can sort using key lambda idx: (jobs[idx][0], idx). But we need original jobs list. We'll keep original_jobs = jobs.
+
+Edge: weight is float. DP uses float. Use float addition.
+
+Return total_weight as DP[n] (float). Ensure 0.0 for empty.
+
+Testing with example.
+
+Let's implement.
+
+Potential pitfalls: recursion limit not used. Use iterative loops.
+
+Time complexity: O(n log n). For 200k, fine.
+
+Let's produce final code.
+
+Also ensure module importable with no side effects. So just define function.
+
+Let's produce final answer.

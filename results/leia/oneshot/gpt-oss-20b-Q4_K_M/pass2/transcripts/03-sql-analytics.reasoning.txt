@@ -1,0 +1,76 @@
+We need to produce four SQL queries. Let's craft each.
+
+We need to use SQLite functions: ROUND, strftime, etc.
+
+q1: revenue per customer. Need to join customers, orders, order_items, products. Only completed orders. Compute revenue per order item: quantity * unit_price. Sum per customer. Only customers with at least one completed order. Order by revenue desc, then customer_name asc. Use ROUND(revenue, 2). Use alias revenue. Query:
+
+SELECT c.name AS customer_name,
+       ROUND(SUM(oi.quantity * p.unit_price), 2) AS revenue
+FROM customers c
+JOIN orders o ON o.customer_id = c.id
+JOIN order_items oi ON oi.order_id = o.id
+JOIN products p ON p.id = oi.product_id
+WHERE o.status = 'completed'
+GROUP BY c.id, c.name
+HAVING COUNT(*) > 0
+ORDER BY revenue DESC, customer_name ASC;
+
+But we need to ensure only customers with at least one completed order. The join ensures that. HAVING COUNT(*) > 0 is redundant. But fine.
+
+q2: Top 3 products by units sold. Need sum quantity across completed orders. Join orders, order_items, products. Only completed orders. Group by product. Order by units_sold desc, product_name asc. Limit 3. Use ROUND? Not needed. Use alias units_sold. Query:
+
+SELECT p.name AS product_name,
+       SUM(oi.quantity) AS units_sold
+FROM products p
+JOIN order_items oi ON oi.product_id = p.id
+JOIN orders o ON o.id = oi.order_id
+WHERE o.status = 'completed'
+GROUP BY p.id, p.name
+HAVING units_sold > 0
+ORDER BY units_sold DESC, product_name ASC
+LIMIT 3;
+
+q3: Customers with no orders at all. Need left join orders. Where orders.id is null. Query:
+
+SELECT c.name AS customer_name,
+       c.country
+FROM customers c
+LEFT JOIN orders o ON o.customer_id = c.id
+WHERE o.id IS NULL
+ORDER BY customer_name ASC;
+
+q4: Monthly revenue for 2025. Need revenue per month from completed orders. Use strftime('%Y-%m', o.ordered_at) to get month. Only 2025. Sum revenue. Only months with non-zero revenue. Order by month ascending. Query:
+
+SELECT strftime('%Y-%m', o.ordered_at) AS month,
+       ROUND(SUM(oi.quantity * p.unit_price), 2) AS revenue
+FROM orders o
+JOIN order_items oi ON oi.order_id = o.id
+JOIN products p ON p.id = oi.product_id
+WHERE o.status = 'completed'
+  AND strftime('%Y', o.ordered_at) = '2025'
+GROUP BY month
+HAVING revenue > 0
+ORDER BY month ASC;
+
+But we need to use alias revenue in HAVING? In SQLite, HAVING can refer to alias? I think yes. But to be safe, use SUM(...) > 0. Use HAVING SUM(oi.quantity * p.unit_price) > 0. But we also need to round. So we can compute revenue in SELECT and use HAVING SUM(...) > 0. Let's produce:
+
+SELECT strftime('%Y-%m', o.ordered_at) AS month,
+       ROUND(SUM(oi.quantity * p.unit_price), 2) AS revenue
+FROM orders o
+JOIN order_items oi ON oi.order_id = o.id
+JOIN products p ON p.id = oi.product_id
+WHERE o.status = 'completed'
+  AND strftime('%Y', o.ordered_at) = '2025'
+GROUP BY month
+HAVING SUM(oi.quantity * p.unit_price) > 0
+ORDER BY month ASC;
+
+Ok.
+
+Edge cases: If there are no completed orders for a customer, they won't appear. Good.
+
+Now produce four files content.
+
+We need to output as final answer: Provide four SQL queries. Provide them maybe separated by headings. But the instruction: "Write four SQL files, each containing exactly one SELECT statement (no comments required, trailing semicolon optional)". So we just output the queries. Provide them maybe as separate code blocks.
+
+Let's produce final answer with four queries.

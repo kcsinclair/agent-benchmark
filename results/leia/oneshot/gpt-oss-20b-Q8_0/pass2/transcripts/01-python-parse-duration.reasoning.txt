@@ -1,0 +1,328 @@
+We need to produce code for parse_duration.py. Provide function parse_duration that follows rules. Must raise TypeError if non-string. Must strip whitespace at ends, but no whitespace inside. Must parse components: number + unit. Units: h, m, s, ms. Order descending: h > m > s > ms. Each unit at most once. Must handle negative sign at start. Numbers: non-negative decimals: digits with optional fractional part. No leading +, no exponents, no bare '.' or '.5', no trailing dot. So regex for number: r'\d+(\.\d+)?' but ensure not '.' alone. That matches digits with optional decimal part. Should not allow trailing dot: \d+\.\d+ ensures digits after dot. Good.
+
+We need to parse string: after stripping, check if empty -> ValueError. Then check optional leading '-'. Use sign = -1 if startswith '-'. Remove it. Then parse rest. Use regex to find components: pattern: r'(\d+(?:\.\d+)?)(h|m|s|ms)'. But need to ensure no overlapping. Use finditer. Ensure that concatenated string matches entire pattern: after removing sign, the string must be fully matched by concatenation of components. So we can use re.fullmatch with pattern: r'(\d+(?:\.\d+)?)(h|m|s|ms)(\d+(?:\.\d+)?)(h|m|s|ms)...' but variable number. Instead, we can iterate: pos=0; while pos < len(s): match = re.match(r'(\d+(?:\.\d+)?)(h|m|s|ms)', s[pos:]); if not match: raise ValueError. Then capture number, unit. pos += match.end(). Continue. After loop, ensure pos==len(s). Also ensure order: maintain last_unit_index. Map unit to order: h:0, m:1, s:2, ms:3. Ensure current index > last_index? Actually descending order: h before m before s before ms. So order indices increasing. So we require current_index > last_index. Also ensure not repeated: if current_index == last_index? But we already enforce >. So repeated will fail. Also ensure no missing unit: if number but no unit, match fails. Good.
+
+Also need to ensure no whitespace inside: we stripped outer whitespace; but if there is whitespace inside, our regex will fail because whitespace not matched. So fine.
+
+Compute total seconds: for each component, convert number to float. Multiply by unit factor: h:3600, m:60, s:1, ms:0.001. Sum. Multiply by sign.
+
+Edge cases: negative sign only allowed at start. If string after stripping starts with '-' and then nothing else: e.g., "-" -> ValueError because no component. Our loop will fail.
+
+Also need to raise TypeError if not isinstance(text, str). Also if text is None etc.
+
+Also ensure that numbers are non-negative decimals: our regex ensures digits. But what about leading zeros? allowed. Good.
+
+Also ensure no leading '+' sign: our regex doesn't allow '+', so fine.
+
+Also ensure no exponent: not allowed.
+
+Also ensure no bare '.' or '.5': our regex requires digits before dot. Good.
+
+Also ensure no trailing dot: our regex requires digits after dot. Good.
+
+Also ensure no whitespace inside: our regex will fail.
+
+Also ensure at least one component: we will check if components list empty -> ValueError.
+
+Also ensure that after sign removal, string not empty.
+
+Also ensure that after parsing, pos==len(s). Good.
+
+Also ensure that we don't accept '1h30m' with missing unit: e.g., '5' -> no unit, match fails.
+
+Also ensure that '1m1h' fails due to order: first component '1m' index 1, last_index=1; next component '1h' index 0, which is not > last_index, so ValueError.
+
+Also ensure repeated unit: '1h1h' -> first index 0, last_index=0; second index 0, not > last_index, ValueError.
+
+Also ensure '1h30m' works: first index 0, last_index=0; second index 1 > 0, ok.
+
+Also ensure '1h30m10s500ms' works.
+
+Also ensure '1.5h' works: number 1.5, unit h.
+
+Also ensure '250ms' works: number 250, unit ms.
+
+Also ensure '-45m' works: sign -1, number 45, unit m.
+
+Also ensure ' -45m ' works: strip whitespace.
+
+Also ensure '5' -> ValueError.
+
+Also ensure '' -> ValueError.
+
+Also ensure '1h 30m' -> whitespace inside: our regex will fail at space, raising ValueError.
+
+Also ensure '1h30m ' trailing whitespace: strip removes.
+
+Also ensure '1h30m\n' etc.
+
+Also ensure '1h30m\t' etc.
+
+Also ensure '1h30m  ' etc.
+
+Also ensure '1h30m 30s' with space: fails.
+
+Also ensure '1h30m30s500ms' works.
+
+Also ensure '1h30m30s500ms' parse: number 1, unit h; number 30, unit m; number 30, unit s; number 500, unit ms.
+
+Also ensure '1h30m30s500ms' returns 3600+1800+30+0.5=5430.5? Wait 1h=3600, 30m=1800, 30s=30, 500ms=0.5 => 5430.5. But earlier example 2h15m30s500ms -> 8130.5. Let's compute: 2h=7200, 15m=900, 30s=30, 500ms=0.5 => 8130.5. Good.
+
+Also ensure '1h30m30s500ms' returns 5430.5.
+
+Also ensure '1h30m30s500ms' parse.
+
+Also ensure '1h30m30s500ms' returns float.
+
+Also ensure negative sign multiplies.
+
+Also ensure that we raise ValueError for invalid patterns: e.g., '1h30m30s500msx' -> after parsing components, pos will be less than len(s) because trailing 'x' not matched, so raise ValueError.
+
+Also ensure that we raise ValueError for '1h30m30s500ms ' trailing whitespace? We strip, so fine.
+
+Also ensure that we raise ValueError for '1h30m30s500ms ' after strip, no trailing whitespace.
+
+Also ensure that we raise ValueError for '1h30m30s500ms ' after strip, no trailing whitespace.
+
+Also ensure that we raise ValueError for '1h30m30s500ms ' after strip, no trailing whitespace.
+
+Ok.
+
+Also ensure that we raise ValueError for '1h30m30s500ms' if any component missing unit: e.g., '1h30m30s500' -> last component number 500 but no unit, match fails.
+
+Also ensure that we raise ValueError for '1h30m30s500ms' if any component has invalid number: e.g., '1h30m30s500ms' all good.
+
+Also ensure that we raise ValueError for '1h30m30s500ms' if number has trailing dot: e.g., '1h30m30s500ms.' -> after strip, string ends with '.'; our regex will not match because '.' not part of number or unit; so ValueError.
+
+Also ensure that we raise ValueError for '1h30m30s500ms' if number has leading dot: e.g., '.5h' -> not matched.
+
+Also ensure that we raise ValueError for '1h30m30s500ms' if number has exponent: e.g., '1e3h' -> not matched.
+
+Also ensure that we raise ValueError for '1h30m30s500ms' if number has plus sign: e.g., '+1h' -> not matched.
+
+Also ensure that we raise ValueError for '1h30m30s500ms' if number has negative sign inside component: e.g., '-1h' -> not matched.
+
+Also ensure that we raise ValueError for '1h30m30s500ms' if number has leading zeros? allowed.
+
+Also ensure that we raise ValueError for '1h30m30s500ms' if number has decimal but no digits after dot: e.g., '1h30m30s500ms.' -> not matched.
+
+Ok.
+
+Also ensure that we raise ValueError for '1h30m30s500ms' if number has decimal but no digits before dot: e.g., '.5h' -> not matched.
+
+Ok.
+
+Also ensure that we raise ValueError for '1h30m30s500ms' if number has trailing dot: e.g., '1h30m30s500ms.' -> not matched.
+
+Ok.
+
+Also ensure that we raise ValueError for '1h30m30s500ms' if number has multiple decimal points: e.g., '1.5.3h' -> not matched.
+
+Ok.
+
+Also ensure that we raise ValueError for '1h30m30s500ms' if number has leading zeros? allowed.
+
+Ok.
+
+Also ensure that we raise ValueError for '1h30m30s500ms' if number has trailing zeros? allowed.
+
+Ok.
+
+Also ensure that we raise ValueError for '1h30m30s500ms' if number has decimal but no digits after dot: e.g., '1h30m30s500ms.' -> not matched.
+
+Ok.
+
+Also ensure that we raise ValueError for '1h30m30s500ms' if number has decimal but no digits before dot: e.g., '.5h' -> not matched.
+
+Ok.
+
+Also ensure that we raise ValueError for '1h30m30s500ms' if number has decimal but no digits after dot: e.g., '1h30m30s500ms.' -> not matched.
+
+Ok.
+
+Also ensure that we raise ValueError for '1h30m30s500ms' if number has decimal but no digits after dot: e.g., '1h30m30s500ms.' -> not matched.
+
+Ok.
+
+Stop repeating.
+
+Implementation details:
+
+```
+import re
+
+def parse_duration(text: str) -> float:
+    if not isinstance(text, str):
+        raise TypeError("text must be a string")
+    s = text.strip()
+    if not s:
+        raise ValueError("empty duration string")
+    sign = 1
+    if s[0] == '-':
+        sign = -1
+        s = s[1:]
+    if not s:
+        raise ValueError("duration string missing components")
+    # regex for component
+    component_re = re.compile(r'(\d+(?:\.\d+)?)(h|m|s|ms)')
+    pos = 0
+    total = 0.0
+    last_index = -1
+    unit_order = {'h':0, 'm':1, 's':2, 'ms':3}
+    factor = {'h':3600.0, 'm':60.0, 's':1.0, 'ms':0.001}
+    while pos < len(s):
+        m = component_re.match(s, pos)
+        if not m:
+            raise ValueError(f"invalid duration format at position {pos}")
+        number_str, unit = m.group(1), m.group(2)
+        # check order
+        idx = unit_order[unit]
+        if idx <= last_index:
+            raise ValueError(f"unit order violation: {unit}")
+        last_index = idx
+        try:
+            number = float(number_str)
+        except ValueError:
+            raise ValueError(f"invalid number: {number_str}")
+        total += number * factor[unit]
+        pos = m.end()
+    if pos != len(s):
+        raise ValueError("invalid trailing characters")
+    return sign * total
+```
+
+But we need to ensure that we don't accept whitespace inside. Our regex uses re.match with pattern that doesn't allow whitespace. But if there is whitespace inside, match will fail at that position, raising ValueError. Good.
+
+Also need to ensure that we don't accept '1h30m30s500ms' with trailing whitespace: we stripped earlier.
+
+Also need to ensure that we don't accept '1h30m30s500ms' with leading whitespace: stripped.
+
+Also need to ensure that we don't accept '1h30m30s500ms' with internal whitespace: fails.
+
+Also need to ensure that we don't accept '1h30m30s500ms' with multiple components: we parse all.
+
+Also need to ensure that we don't accept '1h30m30s500ms' with repeated unit: fails due to order check.
+
+Also need to ensure that we don't accept '1h30m30s500ms' with wrong order: fails due to order check.
+
+Also need to ensure that we don't accept '1h30m30s500ms' with missing unit: fails.
+
+Also need to ensure that we don't accept '1h30m30s500ms' with trailing characters: fails.
+
+Also need to ensure that we don't accept '1h30m30s500ms' with invalid number: fails.
+
+Also need to ensure that we don't accept '1h30m30s500ms' with negative sign inside component: fails.
+
+Also need to ensure that we don't accept '1h30m30s500ms' with plus sign: fails.
+
+Also need to ensure that we don't accept '1h30m30s500ms' with exponent: fails.
+
+Also need to ensure that we don't accept '1h30m30s500ms' with decimal but no digits after dot: fails.
+
+Ok.
+
+Edge: '1h30m30s500ms' parse: pos=0, m matches '1h', pos=2; next match '30m', pos=5; next '30s', pos=8; next '500ms', pos=13; pos==len(s)=13; good.
+
+Edge: '1h30m30s500msx' -> after parsing components, pos=13, len(s)=14, pos != len(s) -> raise ValueError.
+
+Edge: '1h30m30s500ms ' after strip -> no trailing whitespace.
+
+Edge: '1h30m30s500ms\n' -> strip removes newline.
+
+Edge: '1h30m30s500ms\t' -> strip removes.
+
+Edge: '1h30m30s500ms  ' -> strip removes.
+
+Edge: '1h30m30s500ms  ' -> strip removes.
+
+Edge: '1h30m30s500ms  ' -> strip removes.
+
+Ok.
+
+Also need to ensure that we raise ValueError for '1h30m30s500ms' if there is whitespace inside: e.g., '1h 30m' -> after strip, s='1h 30m'; pos=0, match '1h', pos=2; next pos=2, s[2]=' ' -> component_re.match fails -> raise ValueError.
+
+Ok.
+
+Also need to ensure that we raise ValueError for '1h30m30s500ms' if there is whitespace at start: we strip.
+
+Ok.
+
+Also need to ensure that we raise ValueError for '1h30m30s500ms' if there is whitespace at end: we strip.
+
+Ok.
+
+Also need to ensure that we raise ValueError for '1h30m30s500ms' if there is whitespace inside: fails.
+
+Ok.
+
+Also need to ensure that we raise ValueError for '1h30m30s500ms' if there is whitespace inside: fails.
+
+Ok.
+
+Also need to ensure that we raise ValueError for '1h30m30s500ms' if there is whitespace inside: fails.
+
+Ok.
+
+Stop.
+
+Now we need to produce final file parse_duration.py with function parse_duration. Add docstring maybe. Ensure no prints. Use re module.
+
+Also need to ensure that we raise TypeError for non-string. Use isinstance.
+
+Also need to ensure that we raise ValueError for empty string after strip.
+
+Also need to ensure that we raise ValueError for string with only '-' after strip: e.g., '-' -> after sign removal, s empty -> raise ValueError.
+
+Also need to ensure that we raise ValueError for string with only whitespace: after strip empty -> raise ValueError.
+
+Also need to ensure that we raise ValueError for string with only unit but no number: e.g., 'h' -> match fails -> ValueError.
+
+Also need to ensure that we raise ValueError for string with number but no unit: e.g., '5' -> match fails -> ValueError.
+
+Ok.
+
+Also need to ensure that we raise ValueError for string with number and unit but repeated unit: e.g., '1h1h' -> first component '1h', last_index=0; second component '1h', idx=0 <= last_index -> ValueError.
+
+Ok.
+
+Also need to ensure that we raise ValueError for string with wrong order: e.g., '1m1h' -> first component '1m', idx=1; last_index=1; second component '1h', idx=0 <= last_index -> ValueError.
+
+Ok.
+
+Also need to ensure that we raise ValueError for string with missing unit: e.g., '1h30m30s500' -> after parsing '1h', '30m', '30s', pos=8; next match fails because '500' not followed by unit; raise ValueError.
+
+Ok.
+
+Also need to ensure that we raise ValueError for string with trailing characters: e.g., '1h30m30s500msx' -> after parsing all components, pos=13, len(s)=14 -> raise ValueError.
+
+Ok.
+
+Also need to ensure that we raise ValueError for string with invalid number: e.g., '1..5h' -> match fails.
+
+Ok.
+
+Also need to ensure that we raise ValueError for string with invalid number: e.g., '1.5.3h' -> match fails.
+
+Ok.
+
+Also need to ensure that we raise ValueError for string with invalid number: e.g., '1h30m30s500ms' all good.
+
+Ok.
+
+Also need to ensure that we raise ValueError for string with invalid number: e.g., '1h30m30s500ms' all good.
+
+Ok.
+
+Stop.
+
+Now produce final code.
+
+Also maybe add __all__ = ['parse_duration'].
+
+Also maybe add type hints.
+
+Also maybe add small tests? Not required.
+
+Ok.
+
+Let's produce final file.

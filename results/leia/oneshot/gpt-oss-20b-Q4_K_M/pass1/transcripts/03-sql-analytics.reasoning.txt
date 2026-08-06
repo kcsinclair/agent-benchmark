@@ -1,0 +1,72 @@
+We need to produce four SQL queries. Let's craft each.
+
+We need to consider SQLite syntax. Use ROUND(revenue, 2). For revenue per customer: join customers, orders, order_items, products. Only completed orders. Sum quantity * unit_price. Group by customer id. Need customer_name. Order by revenue desc, customer_name asc.
+
+Edge: customers with no completed orders should not appear. So join orders with status completed. Use inner join.
+
+Query:
+
+SELECT c.name AS customer_name,
+       ROUND(SUM(oi.quantity * p.unit_price), 2) AS revenue
+FROM customers c
+JOIN orders o ON o.customer_id = c.id
+JOIN order_items oi ON oi.order_id = o.id
+JOIN products p ON p.id = oi.product_id
+WHERE o.status = 'completed'
+GROUP BY c.id, c.name
+ORDER BY revenue DESC, customer_name ASC;
+
+But need to ensure revenue is numeric. Use SUM(oi.quantity * p.unit_price). Good.
+
+Now q2: Top 3 products by units sold. Need product_name, units_sold. Sum quantity across completed orders. Join orders, order_items, products. Only completed orders. Group by product id. Order by units_sold desc, product_name asc. Limit 3.
+
+SELECT p.name AS product_name,
+       SUM(oi.quantity) AS units_sold
+FROM products p
+JOIN order_items oi ON oi.product_id = p.id
+JOIN orders o ON o.id = oi.order_id
+WHERE o.status = 'completed'
+GROUP BY p.id, p.name
+HAVING units_sold > 0
+ORDER BY units_sold DESC, product_name ASC
+LIMIT 3;
+
+But SQLite doesn't support HAVING alias? We can use HAVING SUM(oi.quantity) > 0. Or just rely on group by; if no completed orders, sum will be null? Actually join ensures only rows with completed orders. If product has no completed orders, there will be no rows, so not included. So no need HAVING. But we can keep.
+
+Now q3: Customers with no orders at all. Need left join orders. Use NOT EXISTS or LEFT JOIN with IS NULL. Query:
+
+SELECT c.name AS customer_name,
+       c.country
+FROM customers c
+LEFT JOIN orders o ON o.customer_id = c.id
+WHERE o.id IS NULL
+ORDER BY customer_name ASC;
+
+Alternatively use NOT EXISTS (SELECT 1 FROM orders o WHERE o.customer_id = c.id). Works.
+
+Now q4: Monthly revenue for 2025. Need month string '2025-01' etc. Use strftime('%Y-%m', o.ordered_at). Only completed orders. Sum revenue. Only months with non-zero revenue. Order by month ascending.
+
+SELECT strftime('%Y-%m', o.ordered_at) AS month,
+       ROUND(SUM(oi.quantity * p.unit_price), 2) AS revenue
+FROM orders o
+JOIN order_items oi ON oi.order_id = o.id
+JOIN products p ON p.id = oi.product_id
+WHERE o.status = 'completed'
+  AND strftime('%Y', o.ordered_at) = '2025'
+GROUP BY month
+HAVING revenue > 0
+ORDER BY month ASC;
+
+But revenue alias not allowed in HAVING? Use SUM(oi.quantity * p.unit_price) > 0. Or just rely on group by; if no revenue, no rows. But there could be zero revenue if quantity zero? quantity is integer >0? Not specified but likely >0. So fine.
+
+But we need to ensure month string format '2025-01' etc. strftime('%Y-%m', ...) returns '2025-01'. Good.
+
+Edge: need to round revenue to 2 decimals. Use ROUND(SUM(...), 2). Good.
+
+Now produce four files content.
+
+Let's craft final answer: Provide four SQL queries.
+
+Also note trailing semicolon optional. Provide semicolons.
+
+Let's produce final answer.

@@ -1,0 +1,144 @@
+// cache.mjs
+// LRU cache with per‑entry TTL
+// Node.js ES module (ES2020+)
+
+export class LruTtlCache {
+  /**
+   * @param {Object} options
+   * @param {number} options.capacity  – maximum number of live entries (≥ 1)
+   * @param {number} [options.defaultTtlMs=Infinity] – default TTL in ms
+   * @param {() => number} [options.now=() => Date.now()] – clock function
+   */
+  constructor({ capacity, defaultTtlMs = Infinity, now = () => Date.now() }) {
+    if (!Number.isInteger(capacity) || capacity < 1) {
+      throw new RangeError('capacity must be an integer ≥ 1');
+    }
+    this._capacity = capacity;
+    this._defaultTtlMs = defaultTtlMs;
+    this._nowFn = now;
+    this._map = new Map(); // key → { value, expiry }
+  }
+
+  /* ------------------------------------------------------------------ */
+  /*  Private helpers                                                  */
+  /* ------------------------------------------------------------------ */
+
+  /** @private */
+  _now() {
+    return this._nowFn();
+  }
+
+  /** @private
+   *  Remove all expired entries from the map.
+   */
+  _purgeExpired() {
+    const now = this._now();
+    for (const [k, v] of this._map) {
+      if (v.expiry <= now) {
+        this._map.delete(k);
+      }
+    }
+  }
+
+  /** @private
+   *  Evict entries until the cache fits its capacity.
+   *  Expired entries are removed first; if still over capacity,
+   *  the least‑recently‑used entry is evicted.
+   */
+  _evictIfNeeded() {
+    const now = this._now();
+    while (this._map.size > this._capacity) {
+      // Get the oldest entry (least recently used)
+      const [k, v] = this._map.entries().next().value;
+      if (v.expiry <= now) {
+        // Expired – remove it and continue
+        this._map.delete(k);
+      } else {
+        // Not expired – evict LRU and stop
+        this._map.delete(k);
+        break;
+      }
+    }
+  }
+
+  /* ------------------------------------------------------------------ */
+  /*  Public API                                                      */
+  /* ------------------------------------------------------------------ */
+
+  /**
+   * Insert or replace a key/value pair.
+   * @param {*} key
+   * @param {*} value
+   * @param {number} [ttlMs] – TTL in ms for this entry
+   * @returns {this}
+   */
+  set(key, value, ttlMs) {
+    const expiry = this._now() + (ttlMs ?? this._defaultTtlMs);
+    // Move to the end (most recent) – delete first if present
+    if (this._map.has(key)) this._map.delete(key);
+    this._map.set(key, { value, expiry });
+    this._evictIfNeeded();
+    return this;
+  }
+
+  /**
+   * Retrieve a value by key.
+   * @param {*} key
+   * @returns {*} value or undefined if absent/expired
+   */
+  get(key) {
+    const entry = this._map.get(key);
+    if (!entry) return undefined;
+    if (entry.expiry <= this._now()) {
+      this._map.delete(key);
+      return undefined;
+    }
+    // Move to the end (most recent)
+    this._map.delete(key);
+    this._map.set(key, entry);
+    return entry.value;
+  }
+
+  /**
+   * Check if a key is present and not expired.
+   * Does NOT affect recency.
+   * @param {*} key
+   * @returns {boolean}
+   */
+  has(key) {
+    const entry = this._map.get(key);
+    if (!entry) return false;
+    if (entry.expiry <= this._now()) {
+      this._map.delete(key);
+      return false;
+    }
+    return true;
+  }
+
+  /**
+   * Remove a key from the cache.
+   * @param {*} key
+   * @returns {boolean} true if something was removed
+   */
+  delete(key) {
+    return this._map.delete(key);
+  }
+
+  /**
+   * Number of live (non‑expired) entries.
+   * @returns {number}
+   */
+  get size() {
+    this._purgeExpired();
+    return this._map.size;
+  }
+
+  /**
+   * Array of live keys ordered from most recently used to least.
+   * @returns {Array}
+   */
+  keys() {
+    this._purgeExpired();
+    return [...this._map.keys()].reverse();
+  }
+}

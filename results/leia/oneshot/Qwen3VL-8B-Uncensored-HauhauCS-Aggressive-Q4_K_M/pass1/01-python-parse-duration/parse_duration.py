@@ -1,0 +1,143 @@
+def parse_duration(text: str) -> float:
+    if not isinstance(text, str):
+        raise TypeError
+    
+    # Strip leading and trailing whitespace
+    text = text.strip()
+    
+    # Check for empty string
+    if not text:
+        raise ValueError
+    
+    # Check for leading minus sign
+    is_negative = text[0] == '-'
+    if is_negative:
+        text = text[1:]
+    
+    # Define unit conversion factors
+    unit_to_seconds = {
+        'h': 3600,
+        'm': 60,
+        's': 1,
+        'ms': 0.001
+    }
+    
+    # Define valid units in descending order
+    valid_units = ['h', 'm', 's', 'ms']
+    
+    # Parse components
+    components = []
+    i = 0
+    while i < len(text):
+        # Check if we're at a valid unit
+        if i < len(text) and text[i] in unit_to_seconds:
+            # Check if we have a valid number before this unit
+            if i == 0:
+                raise ValueError
+            # Extract the number
+            num_str = text[:i]
+            try:
+                num = float(num_str)
+            except ValueError:
+                raise ValueError
+            # Check if number is non-negative
+            if num < 0:
+                raise ValueError
+            
+            # Check if unit is valid
+            unit = text[i]
+            if unit == 'ms':
+                unit = 'ms'
+            elif unit == 's':
+                unit = 's'
+            elif unit == 'm':
+                unit = 'm'
+            elif unit == 'h':
+                unit = 'h'
+            else:
+                raise ValueError
+            
+            # Check if unit is in valid order
+            if unit not in valid_units:
+                raise ValueError
+            
+            # Check if unit is already used
+            if unit in [comp[1] for comp in components]:
+                raise ValueError
+            
+            # Add component
+            components.append((num, unit))
+            i += 1
+        else:
+            # Check if current character is a digit
+            if text[i].isdigit():
+                # Extract number
+                start = i
+                while i < len(text) and text[i].isdigit():
+                    i += 1
+                if i < len(text) and text[i] == '.':
+                    i += 1
+                    while i < len(text) and text[i].isdigit():
+                        i += 1
+                if i < len(text) and text[i] in unit_to_seconds:
+                    # Check if we have a valid number
+                    if start == i:  # No digits before unit
+                        raise ValueError
+                    # Extract the number
+                    num_str = text[start:i]
+                    try:
+                        num = float(num_str)
+                    except ValueError:
+                        raise ValueError
+                    # Check if number is non-negative
+                    if num < 0:
+                        raise ValueError
+                    # Check if unit is valid and in correct order
+                    unit = text[i]
+                    if unit == 'ms':
+                        unit = 'ms'
+                    elif unit == 's':
+                        unit = 's'
+                    elif unit == 'm':
+                        unit = 'm'
+                    elif unit == 'h':
+                        unit = 'h'
+                    else:
+                        raise ValueError
+                    
+                    # Check if unit is in valid order
+                    if unit not in valid_units:
+                        raise ValueError
+                    
+                    # Check if unit is already used
+                    if unit in [comp[1] for comp in components]:
+                        raise ValueError
+                    
+                    # Add component
+                    components.append((num, unit))
+                    i += 1
+                else:
+                    raise ValueError
+            else:
+                raise ValueError
+    
+    # Check if we have at least one component
+    if not components:
+        raise ValueError
+    
+    # Check if units are in correct order
+    units = [comp[1] for comp in components]
+    for i in range(len(units) - 1):
+        if valid_units.index(units[i]) < valid_units.index(units[i + 1]):
+            raise ValueError
+    
+    # Calculate total seconds
+    total_seconds = 0
+    for num, unit in components:
+        total_seconds += num * unit_to_seconds[unit]
+    
+    # Apply sign if needed
+    if is_negative:
+        total_seconds = -total_seconds
+    
+    return total_seconds

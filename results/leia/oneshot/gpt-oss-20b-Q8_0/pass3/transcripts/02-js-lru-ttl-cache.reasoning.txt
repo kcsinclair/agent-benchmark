@@ -1,0 +1,167 @@
+We need to implement LRU cache with TTL. Use Map to maintain order of insertion. But Map order is insertion order, not usage order. We need to move key to end on get/set. We can use Map and on get/set, delete and set again to move to end. That is O(1). For eviction, we need to evict least recently used: that's first key in Map. But we also need to evict expired entries first. So when we need to evict, we can iterate from least recent until we find non-expired or until capacity satisfied. But we need O(1) amortized. Eviction may involve scanning expired entries. But that's okay because each expired entry will be removed once. So amortized O(1). Implementation details:
+
+- Store Map<key, {value, expiry}>. Use Map to preserve order.
+
+- In constructor, validate capacity >=1 else throw RangeError.
+
+- defaultTtlMs default Infinity.
+
+- now function default Date.now.
+
+- set(key, value, ttlMs?) -> compute expiry = now() + (ttlMs ?? defaultTtlMs). If ttlMs is Infinity? Infinity + now() is Infinity. But Infinity + number is Infinity. So fine.
+
+- If key exists, delete old entry then set new. That will move to end.
+
+- After setting, check if size > capacity. If so, evict. Eviction algorithm: while size > capacity: get first key via map.keys().next().value. Check if expired: if expired, delete it. else delete it (LRU). Continue until size <= capacity.
+
+- get(key): if not map.has(key) return undefined. else get entry. Check expired: if expired, delete and return undefined. else move to end: delete and set again. Return value.
+
+- has(key): similar but no move. If expired, delete and return false. else return true.
+
+- delete(key): return map.delete(key).
+
+- size getter: need to purge expired entries. We can iterate over map entries and remove expired ones. But that would be O(n). But requirement: size must not count expired entries and must purge them. We can lazily purge during size call. But that could be O(n). But maybe acceptable? But they want O(1) amortized for get/set/has/delete. size may be O(n). Not specified. But we can implement purgeExpired() that iterates over map and deletes expired. But that would be O(n). But we can also maintain a count of live entries and update on get/set/has/delete. But we need to purge expired entries when discovered. So we can maintain count of live entries. When we find expired entry during get/has, we delete and decrement count. But size may still include expired entries that were not discovered. So we need to purge them. We could lazily purge on size call: iterate over map and delete expired. That would be O(n). But maybe acceptable. But we can also maintain a min-heap of expiry times to purge quickly. But not necessary.
+
+Given constraints, we can implement size getter that purges expired entries by iterating over map. Complexity O(n). Acceptable.
+
+- keys(): return array of live keys from most recent to least recent. Map order is from least recent to most recent (since we move to end on get/set). So we need to reverse order. But we also need to purge expired entries. So we can iterate over map from last to first. But Map doesn't provide reverse iterator. We can convert to array and filter. But we can also use [...map.entries()].reverse(). But that would be O(n). Acceptable.
+
+But we need to ensure that expired entries are removed. So we can iterate over map entries, filter out expired, delete them, and collect keys. But we need to maintain order from most recent to least recent. Since map order is least recent to most recent, we can iterate from end to start. But we can't easily iterate from end. So we can collect keys in array and then reverse. But we also need to delete expired entries. So we can iterate over map entries, if expired delete, else push key to array. After loop, reverse array. That will produce most recent first.
+
+Edge cases: Infinity TTL: expiry = Infinity. Infinity >= now() is false, so not expired.
+
+ttlMs negative or 0: expiry <= now() => expired. So set will store but will be considered expired immediately. But we still store? The spec says ttlMs of 0 or negative means entry is already expired. So set should store but will be considered expired. But we might want to not store? But spec says set inserts or replaces. The entry expires at now() + ttlMs. If ttlMs negative, expiry < now, so entry is expired. But we still store? But then get will delete it. But we might want to not store to avoid memory leak. But spec doesn't forbid storing. But we can store and let get/has delete. But we might also purge during set if expired? But not necessary.
+
+But we need to ensure that capacity eviction logic works: if we set an expired entry, it will be stored but considered expired. When we check size > capacity, we will evict expired entries first. So the expired entry will be removed. Good.
+
+Now implement.
+
+Implementation details:
+
+class LruTtlCache {
+  constructor({ capacity, defaultTtlMs = Infinity, now = () => Date.now() }) {
+    if (!Number.isInteger(capacity) || capacity < 1) throw new RangeError('capacity must be integer >= 1');
+    this.capacity = capacity;
+    this.defaultTtlMs = defaultTtlMs;
+    this.now = now;
+    this.map = new Map(); // key -> {value, expiry}
+  }
+
+  _isExpired(entry) {
+    return entry.expiry !== Infinity && this.now() >= entry.expiry;
+  }
+
+  _purgeExpired() {
+    for (const [key, entry] of this.map) {
+      if (this._isExpired(entry)) {
+        this.map.delete(key);
+      }
+    }
+  }
+
+  set(key, value, ttlMs) {
+    const expiry = this.now() + (ttlMs ?? this.defaultTtlMs);
+    if (this.map.has(key)) {
+      this.map.delete(key);
+    }
+    this.map.set(key, { value, expiry });
+    // Evict if over capacity
+    while (this.map.size > this.capacity) {
+      // get least recent key
+      const firstKey = this.map.keys().next().value;
+      const firstEntry = this.map.get(firstKey);
+      if (this._isExpired(firstEntry)) {
+        this.map.delete(firstKey);
+      } else {
+        this.map.delete(firstKey);
+      }
+    }
+    return this;
+  }
+
+  get(key) {
+    if (!this.map.has(key)) return undefined;
+    const entry = this.map.get(key);
+    if (this._isExpired(entry)) {
+      this.map.delete(key);
+      return undefined;
+    }
+    // move to end
+    this.map.delete(key);
+    this.map.set(key, entry);
+    return entry.value;
+  }
+
+  has(key) {
+    if (!this.map.has(key)) return false;
+    const entry = this.map.get(key);
+    if (this._isExpired(entry)) {
+      this.map.delete(key);
+      return false;
+    }
+    return true;
+  }
+
+  delete(key) {
+    return this.map.delete(key);
+  }
+
+  get size() {
+    this._purgeExpired();
+    return this.map.size;
+  }
+
+  keys() {
+    const keys = [];
+    for (const [key, entry] of this.map) {
+      if (this._isExpired(entry)) {
+        this.map.delete(key);
+      } else {
+        keys.push(key);
+      }
+    }
+    return keys.reverse();
+  }
+}
+
+But we need to ensure that _purgeExpired uses this.now() each time. But we call this.now() inside _isExpired. But _purgeExpired loops over map and deletes expired. But we also need to ensure that we don't modify map while iterating. Map.delete while iterating is allowed? In JS, deleting current key while iterating is allowed. But we need to be careful: we are iterating over map and deleting keys. That is fine.
+
+But we also need to ensure that _purgeExpired is called in size getter and keys. But we also need to ensure that get/has/delete don't call _purgeExpired. But they handle expired individually.
+
+Edge: In set, after adding new entry, we may have size > capacity. We evict expired entries first. But we might need to loop until size <= capacity. But we also need to consider that we might delete expired entries that were not discovered earlier. But we only check the first key each iteration. But if first key is expired, we delete it. Then size decreases. If still > capacity, we continue. But if first key is not expired, we delete it (LRU). That ensures we evict LRU. But we might also need to evict multiple expired entries if many expired. The loop will handle.
+
+But we also need to consider that after we delete first key, the next first key may be the next LRU. So loop works.
+
+But we also need to consider that we might have expired entries that are not at the front. But we only evict expired entries at front. But spec says "evict expired entries first; if still over capacity, evict the least recently used entry." That implies we should evict all expired entries, regardless of position, before evicting LRU. But our algorithm only evicts expired entries that happen to be at front. But if expired entries are not at front, we might not evict them until they become front after other evictions. But that might delay eviction. But spec says evict expired entries first. That means we should purge all expired entries before evicting LRU. So we need to purge all expired entries before checking capacity. But we can call _purgeExpired() before eviction. But that would iterate over all entries. But that's okay.
+
+But we also need to consider that we might have many expired entries; we want to purge them all. So modify set: after adding entry, call this._purgeExpired(); then while size > capacity, delete first key.
+
+But _purgeExpired() will delete all expired entries. That ensures we evict expired entries first.
+
+But we also need to ensure that _purgeExpired() uses this.now() each time. But we can compute now once at start of purge to avoid multiple calls. But not necessary.
+
+But we also need to ensure that _purgeExpired() is not called too often. But it's fine.
+
+Let's adjust set accordingly.
+
+Also, we need to ensure that _purgeExpired() is not called in get/has because they handle individually. But we might want to call _purgeExpired() in get/has to remove expired entries that are not the key. But spec says "An expired entry must be removed when discovered." So only when discovered. So we don't need to purge all.
+
+Now implement.
+
+Edge: In size getter, we call _purgeExpired() which will delete all expired entries. Good.
+
+Edge: In keys(), we also purge expired entries. Good.
+
+Now we need to export class.
+
+Also, we need to ensure that we use Map for keys. But Map keys can be any value. Good.
+
+Now we need to ensure that we don't use any Node-specific features beyond ES modules.
+
+Now produce final code.
+
+Let's write final file.
+
+Also, we need to ensure that we use 'export class LruTtlCache' at top.
+
+Let's produce final answer.

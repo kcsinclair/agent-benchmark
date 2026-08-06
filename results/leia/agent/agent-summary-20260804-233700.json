@@ -1,0 +1,672 @@
+{
+  "wall_seconds": 4894.7,
+  "track": "agent",
+  "settings": {
+    "temperature": 0.0,
+    "max_tokens": 8192,
+    "max_turns": 12,
+    "think": "off",
+    "repeat": 1,
+    "server": "http://leia.packsin.com:7442"
+  },
+  "results": [
+    {
+      "model": "gpt-oss-20b-Q4_K_M",
+      "track": "agent",
+      "load_seconds": 8.3,
+      "passes": [
+        {
+          "pass": 1,
+          "dir": "/Users/keith/Library/Mobile Documents/com~apple~CloudDocs/Projects/agent-benchmark/results/leia/agent/gpt-oss-20b-Q4_K_M",
+          "problems": [
+            {
+              "problem": "01-python-parse-duration",
+              "turns": 1,
+              "tool_calls": 0,
+              "bad_calls": 0,
+              "files": [],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 8192,
+              "stop": "stopped after 1 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "seconds": 122.6,
+              "missing": [
+                "parse_duration.py"
+              ],
+              "extra": []
+            },
+            {
+              "problem": "02-js-lru-ttl-cache",
+              "turns": 2,
+              "tool_calls": 1,
+              "bad_calls": 0,
+              "files": [
+                "cache.mjs"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 12579,
+              "stop": "stopped after 2 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "seconds": 191.5,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "03-sql-analytics",
+              "turns": 6,
+              "tool_calls": 5,
+              "bad_calls": 0,
+              "files": [
+                "q1.sql",
+                "q2.sql",
+                "q3.sql",
+                "q3.sql",
+                "q4.sql"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 10531,
+              "stop": "stopped after 6 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "seconds": 162.8,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "04-go-worker-pool",
+              "turns": 1,
+              "tool_calls": 0,
+              "bad_calls": 0,
+              "files": [],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 8192,
+              "stop": "stopped after 1 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "seconds": 129.4,
+              "missing": [
+                "pool.go"
+              ],
+              "extra": []
+            },
+            {
+              "problem": "05-python-scheduler",
+              "turns": 2,
+              "tool_calls": 1,
+              "bad_calls": 0,
+              "files": [
+                "scheduler.py"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 9598,
+              "stop": "stopped after 2 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "seconds": 148.3,
+              "missing": [],
+              "extra": []
+            }
+          ],
+          "seconds": 754.6,
+          "score": 37,
+          "max": 68
+        }
+      ]
+    },
+    {
+      "model": "gpt-oss-20b-Q8_0",
+      "track": "agent",
+      "load_seconds": 8.2,
+      "passes": [
+        {
+          "pass": 1,
+          "dir": "/Users/keith/Library/Mobile Documents/com~apple~CloudDocs/Projects/agent-benchmark/results/leia/agent/gpt-oss-20b-Q8_0",
+          "problems": [
+            {
+              "problem": "01-python-parse-duration",
+              "turns": 2,
+              "tool_calls": 1,
+              "bad_calls": 0,
+              "files": [
+                "parse_duration.py"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 11767,
+              "stop": "stopped after 2 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "seconds": 189.4,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "02-js-lru-ttl-cache",
+              "turns": 2,
+              "tool_calls": 1,
+              "bad_calls": 0,
+              "files": [
+                "cache.mjs"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 9832,
+              "stop": "stopped after 2 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "seconds": 163.9,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "03-sql-analytics",
+              "turns": 7,
+              "tool_calls": 6,
+              "bad_calls": 0,
+              "files": [
+                "q1.sql",
+                "q2.sql",
+                "q3.sql",
+                "q4.sql",
+                "q2.sql",
+                "q4.sql"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 3124,
+              "stop": "stopped after 7 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "seconds": 47.6,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "04-go-worker-pool",
+              "turns": 2,
+              "tool_calls": 1,
+              "bad_calls": 0,
+              "files": [
+                "pool.go"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 14560,
+              "stop": "stopped after 2 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "seconds": 242.8,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "05-python-scheduler",
+              "turns": 2,
+              "tool_calls": 1,
+              "bad_calls": 0,
+              "files": [
+                "scheduler.py"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 7167,
+              "stop": "stopped after 2 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "seconds": 115.5,
+              "missing": [],
+              "extra": []
+            }
+          ],
+          "seconds": 759.2,
+          "score": 68,
+          "max": 68
+        }
+      ]
+    },
+    {
+      "model": "NousResearch_Hermes-4-14B-Q4_K_M",
+      "track": "agent",
+      "load_seconds": 10.8,
+      "passes": [
+        {
+          "pass": 1,
+          "dir": "/Users/keith/Library/Mobile Documents/com~apple~CloudDocs/Projects/agent-benchmark/results/leia/agent/NousResearch_Hermes-4-14B-Q4_K_M",
+          "problems": [
+            {
+              "problem": "01-python-parse-duration",
+              "turns": 1,
+              "tool_calls": 0,
+              "bad_calls": 0,
+              "files": [],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 8192,
+              "stop": "stopped after 1 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "seconds": 364.1,
+              "missing": [
+                "parse_duration.py"
+              ],
+              "extra": []
+            },
+            {
+              "problem": "02-js-lru-ttl-cache",
+              "turns": 1,
+              "tool_calls": 0,
+              "bad_calls": 0,
+              "files": [],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 8192,
+              "stop": "stopped after 1 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "seconds": 366.0,
+              "missing": [
+                "cache.mjs"
+              ],
+              "extra": []
+            },
+            {
+              "problem": "03-sql-analytics",
+              "turns": 2,
+              "tool_calls": 4,
+              "bad_calls": 0,
+              "files": [
+                "q1.sql",
+                "q2.sql",
+                "q3.sql",
+                "q4.sql"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 947,
+              "stop": "stopped after 2 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "seconds": 42.3,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "04-go-worker-pool",
+              "turns": 1,
+              "tool_calls": 0,
+              "bad_calls": 0,
+              "files": [],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 8192,
+              "stop": "stopped after 1 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "seconds": 366.0,
+              "missing": [
+                "pool.go"
+              ],
+              "extra": []
+            },
+            {
+              "problem": "05-python-scheduler",
+              "turns": 1,
+              "tool_calls": 0,
+              "bad_calls": 0,
+              "files": [],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 8192,
+              "stop": "stopped after 1 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "seconds": 365.5,
+              "missing": [
+                "scheduler.py"
+              ],
+              "extra": []
+            }
+          ],
+          "seconds": 1503.9,
+          "score": 8,
+          "max": 68
+        }
+      ]
+    },
+    {
+      "model": "Qwen3VL-8B-Uncensored-HauhauCS-Aggressive-Q4_K_M",
+      "track": "agent",
+      "load_seconds": 10.9,
+      "passes": [
+        {
+          "pass": 1,
+          "dir": "/Users/keith/Library/Mobile Documents/com~apple~CloudDocs/Projects/agent-benchmark/results/leia/agent/Qwen3VL-8B-Uncensored-HauhauCS-Aggressive-Q4_K_M",
+          "problems": [
+            {
+              "problem": "01-python-parse-duration",
+              "turns": 2,
+              "tool_calls": 1,
+              "bad_calls": 0,
+              "files": [
+                "parse_duration.py"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 612,
+              "stop": "stopped after 2 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "seconds": 15.8,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "02-js-lru-ttl-cache",
+              "turns": 2,
+              "tool_calls": 1,
+              "bad_calls": 0,
+              "files": [
+                "cache.mjs"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 839,
+              "stop": "stopped after 2 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "seconds": 21.4,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "03-sql-analytics",
+              "turns": 2,
+              "tool_calls": 4,
+              "bad_calls": 0,
+              "files": [
+                "q1.sql",
+                "q2.sql",
+                "q3.sql",
+                "q4.sql"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 440,
+              "stop": "stopped after 2 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "seconds": 11.8,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "04-go-worker-pool",
+              "turns": 2,
+              "tool_calls": 1,
+              "bad_calls": 1,
+              "files": [],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 8192,
+              "stop": "request failed: HTTP 500: Failed to parse tool call arguments as JSON: [json.exception.parse_error.101] parse error at line 1, column 33495: syntax error while parsing value - invalid string: missing closing quote; last read: '\"package main\\n\\nimport (\\n    \\\"context\\\"\\n    \\\"sync\\\"\\n)\\n\\ntype Task func(ctx context.Context) (any, error)\\n\\nfunc Run(ctx context.Context, tasks []Task, workers int) ([]any, error) {\\n    if workers < 1 {\\n        return nil, fmt.Errorf(\\\"workers must be at least 1\\\")\\n    }\\n    \\n    if len(tasks) == 0 {\\n        return []any{}, nil\\n    }\\n    \\n    results := make([]any, len(tasks))\\n    var mu sync.Mutex\\n    var wg sync.WaitGroup\\n    \\n    // Channel to signal when a task is done\\n    done := make(chan struct{}, 1)\\n    \\n    // Channel to signal when a task fails\\n    fail := make(chan error, 1)\\n    \\n    // Channel to signal when all tasks are done\\n    allDone := make(chan struct{})\\n    \\n    // Channel to signal when we should stop\\n    stop := make(chan struct{})\\n    \\n    // Channel to signal when we should start a new task\\n    start := make(chan struct{})\\n    \\n    // Channel to signal when we should stop starting new tasks\\n    stopStart := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make( chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we should stop waiting for tasks\\n    stopWait := make(chan struct{})\\n    \\n    // Channel to signal when we'",
+              "prose_only": false,
+              "native_calls": 0,
+              "seconds": 217.4,
+              "missing": [
+                "pool.go"
+              ],
+              "extra": []
+            },
+            {
+              "problem": "05-python-scheduler",
+              "turns": 2,
+              "tool_calls": 1,
+              "bad_calls": 0,
+              "files": [
+                "scheduler.py"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 995,
+              "stop": "stopped after 2 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "seconds": 25.6,
+              "missing": [],
+              "extra": []
+            }
+          ],
+          "seconds": 292.0,
+          "score": 41,
+          "max": 68
+        }
+      ]
+    },
+    {
+      "model": "Llama-3-14B-Instruct-v1.Q4_K_M",
+      "track": "agent",
+      "load_seconds": 13.3,
+      "passes": [
+        {
+          "pass": 1,
+          "dir": "/Users/keith/Library/Mobile Documents/com~apple~CloudDocs/Projects/agent-benchmark/results/leia/agent/Llama-3-14B-Instruct-v1.Q4_K_M",
+          "problems": [
+            {
+              "problem": "01-python-parse-duration",
+              "turns": 1,
+              "tool_calls": 0,
+              "bad_calls": 0,
+              "files": [],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 1116,
+              "stop": "stopped after 1 turn(s)",
+              "prose_only": true,
+              "native_calls": 0,
+              "seconds": 47.6,
+              "missing": [
+                "parse_duration.py"
+              ],
+              "extra": []
+            },
+            {
+              "problem": "02-js-lru-ttl-cache",
+              "turns": 1,
+              "tool_calls": 0,
+              "bad_calls": 0,
+              "files": [],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 1934,
+              "stop": "stopped after 1 turn(s)",
+              "prose_only": true,
+              "native_calls": 0,
+              "seconds": 83.7,
+              "missing": [
+                "cache.mjs"
+              ],
+              "extra": []
+            },
+            {
+              "problem": "03-sql-analytics",
+              "turns": 1,
+              "tool_calls": 0,
+              "bad_calls": 0,
+              "files": [],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 7500,
+              "stop": "stopped after 1 turn(s)",
+              "prose_only": true,
+              "native_calls": 0,
+              "seconds": 334.8,
+              "missing": [
+                "q1.sql",
+                "q2.sql",
+                "q3.sql",
+                "q4.sql"
+              ],
+              "extra": []
+            },
+            {
+              "problem": "04-go-worker-pool",
+              "turns": 1,
+              "tool_calls": 0,
+              "bad_calls": 0,
+              "files": [],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 7550,
+              "stop": "stopped after 1 turn(s)",
+              "prose_only": true,
+              "native_calls": 0,
+              "seconds": 337.3,
+              "missing": [
+                "pool.go"
+              ],
+              "extra": []
+            },
+            {
+              "problem": "05-python-scheduler",
+              "turns": 1,
+              "tool_calls": 0,
+              "bad_calls": 0,
+              "files": [],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 7503,
+              "stop": "stopped after 1 turn(s)",
+              "prose_only": true,
+              "native_calls": 0,
+              "seconds": 335.5,
+              "missing": [
+                "scheduler.py"
+              ],
+              "extra": []
+            }
+          ],
+          "seconds": 1138.9,
+          "score": 0,
+          "max": 68
+        }
+      ]
+    },
+    {
+      "model": "Meta-Llama-3.1-8B-Instruct-Q4_K_M",
+      "track": "agent",
+      "load_seconds": 7.3,
+      "passes": [
+        {
+          "pass": 1,
+          "dir": "/Users/keith/Library/Mobile Documents/com~apple~CloudDocs/Projects/agent-benchmark/results/leia/agent/Meta-Llama-3.1-8B-Instruct-Q4_K_M",
+          "problems": [
+            {
+              "problem": "01-python-parse-duration",
+              "turns": 1,
+              "tool_calls": 0,
+              "bad_calls": 0,
+              "files": [],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 0,
+              "stop": "request failed: HTTP 500: The model produced output that does not match the expected peg-native format",
+              "prose_only": false,
+              "native_calls": 0,
+              "seconds": 12.2,
+              "missing": [
+                "parse_duration.py"
+              ],
+              "extra": []
+            },
+            {
+              "problem": "02-js-lru-ttl-cache",
+              "turns": 2,
+              "tool_calls": 1,
+              "bad_calls": 0,
+              "files": [
+                "cache.mjs"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 503,
+              "stop": "stopped after 2 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "seconds": 13.4,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "03-sql-analytics",
+              "turns": 1,
+              "tool_calls": 0,
+              "bad_calls": 0,
+              "files": [],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 0,
+              "stop": "request failed: HTTP 500: The model produced output that does not match the expected peg-native format",
+              "prose_only": false,
+              "native_calls": 0,
+              "seconds": 16.8,
+              "missing": [
+                "q1.sql",
+                "q2.sql",
+                "q3.sql",
+                "q4.sql"
+              ],
+              "extra": []
+            },
+            {
+              "problem": "04-go-worker-pool",
+              "turns": 3,
+              "tool_calls": 2,
+              "bad_calls": 0,
+              "files": [
+                "pool.go",
+                "pool.go"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 814,
+              "stop": "stopped after 3 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "seconds": 20.8,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "05-python-scheduler",
+              "turns": 2,
+              "tool_calls": 1,
+              "bad_calls": 0,
+              "files": [
+                "scheduler.py"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 490,
+              "stop": "stopped after 2 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "seconds": 13.1,
+              "missing": [],
+              "extra": []
+            }
+          ],
+          "seconds": 76.3,
+          "score": 0,
+          "max": 68
+        }
+      ]
+    }
+  ]
+}

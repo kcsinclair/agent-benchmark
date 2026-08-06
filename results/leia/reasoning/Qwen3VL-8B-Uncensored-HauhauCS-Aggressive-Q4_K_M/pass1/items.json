@@ -7,7 +7,7 @@
       "item": 1,
       "ok": true,
       "expected": "8",
-      "seconds": 6.6,
+      "seconds": 6.7,
       "tokens": 282,
       "finish": "stop",
       "reply": "Let's go step by step.\n\nInitial state:\n- C = 5\n- A = 7\n- B = 5\n\n---\n\n**Step 1: Remove 1 from B.**  \nB = 5 - 1 = **4**\n\nState: C=5, A=7, B=4\n\n---\n\n**Step 2: Double A.**  \nA = 7 * 2 = **14**\n\nState: C=5, A=14, B=4\n\n---\n\n**Step 3: Remove 3 from A.**  \nA = 14 - 3 = **11**\n\nState: C=5, A=11, B=4\n\n---\n\n**Step 4: Move 1 from C to B.**  \nC = 5 - 1 = **4**  \nB = 4 + 1 = **5**\n\nState: C=4, A=11, B=5\n\n---\n\n**Step 5: Swap the contents of C and B.**  \nC and B swap \u2192 C becomes 5, B becomes 4\n\nState: C=5, A=11, B=4\n\n---\n\n**Step 6: Add 4 to B.**  \nB = 4 + 4 = **8**\n\n---\n\n\u2705 Final answer: **8**\n\n8"
@@ -17,7 +17,7 @@
       "item": 2,
       "ok": true,
       "expected": "26",
-      "seconds": 6.4,
+      "seconds": 6.6,
       "tokens": 273,
       "finish": "stop",
       "reply": "Let's go step by step.\n\nInitial values:\n- C = 6\n- D = 5\n- B = 7\n\n---\n\n**Step 1: Add 4 to C.**  \nC = 6 + 4 = **10**  \nD = 5  \nB = 7\n\n---\n\n**Step 2: Move 5 from D to B.**  \nD = 5 - 5 = **0**  \nB = 7 + 5 = **12**  \nC = 10\n\n---\n\n**Step 3: Add 3 to C.**  \nC = 10 + 3 = **13**  \nD = 0  \nB = 12\n\n---\n\n**Step 4: Double C.**  \nC = 13 * 2 = **26**  \nD = 0  \nB = 12\n\n---\n\n**Step 5: Add 5 to B.**  \nB = 12 + 5 = **17**  \nC = 26  \nD = 0\n\n---\n\n**Step 6: Swap the contents of C and B.**  \nC = 17  \nB = 26  \nD = 0\n\n---\n\n\u2705 Final value in B: **26**\n\n26"
@@ -27,7 +27,7 @@
       "item": 3,
       "ok": true,
       "expected": "4",
-      "seconds": 6.8,
+      "seconds": 7.0,
       "tokens": 284,
       "finish": "stop",
       "reply": "Let's go step by step.\n\nInitial state:\n- D = 8\n- A = 4\n- B = 3\n\n---\n\n**Step 1: Move 1 from B to D.**\n\nB: 3 - 1 = 2  \nD: 8 + 1 = 9  \n\u2192 D=9, A=4, B=2\n\n---\n\n**Step 2: Swap the contents of B and D.**\n\nSwap D and B:\n\u2192 D=2, A=4, B=9\n\n---\n\n**Step 3: Move 3 from A to B.**\n\nA: 4 - 3 = 1  \nB: 9 + 3 = 12  \n\u2192 D=2, A=1, B=12\n\n---\n\n**Step 4: Remove 8 from B.**\n\nB: 12 - 8 = 4  \n\u2192 D=2, A=1, B=4\n\n---\n\n**Step 5: Add 5 to D.**\n\nD: 2 + 5 = 7  \n\u2192 D=7, A=1, B=4\n\n---\n\n**Step 6: Swap the contents of D and B.**\n\nSwap D and B:\n\u2192 D=4, A=1, B=7\n\n---\n\n**Final answer: D has 4.**\n\n4"
@@ -37,7 +37,7 @@
       "item": 4,
       "ok": true,
       "expected": "3",
-      "seconds": 6.0,
+      "seconds": 6.2,
       "tokens": 252,
       "finish": "stop",
       "reply": "Let's go step by step.\n\nInitial state:\n- B = 5\n- A = 7\n- C = 9\n\n---\n\n**Step 1: Double A.**\n\nA = 7 * 2 = 14  \nB = 5  \nC = 9\n\n---\n\n**Step 2: Remove 3 from B.**\n\nB = 5 - 3 = 2  \nA = 14  \nC = 9\n\n---\n\n**Step 3: Remove 7 from A.**\n\nA = 14 - 7 = 7  \nB = 2  \nC = 9\n\n---\n\n**Step 4: Swap the contents of C and B.**\n\nSwap B and C:\n\nB = 9  \nC = 2  \nA = 7\n\n---\n\n**Step 5: Remove 4 from A.**\n\nA = 7 - 4 = 3  \nB = 9  \nC = 2\n\n---\n\n**Step 6: Swap the contents of A and B.**\n\nSwap A and B:\n\nA = 9  \nB = 3  \nC = 2\n\n---\n\n\u2705 Final value in B: **3**\n\n---\n\n**Answer: 3**"
@@ -47,7 +47,7 @@
       "item": 5,
       "ok": true,
       "expected": "36",
-      "seconds": 6.5,
+      "seconds": 6.6,
       "tokens": 271,
       "finish": "stop",
       "reply": "Let's go step by step.\n\nInitial state:\n- A = 4\n- B = 5\n- C = 8\n\n---\n\n**Step 1: Add 6 to A.**\n\nA = 4 + 6 = **10**  \nB = 5  \nC = 8\n\n---\n\n**Step 2: Move 4 from A to B.**\n\nA = 10 - 4 = **6**  \nB = 5 + 4 = **9**  \nC = 8\n\n---\n\n**Step 3: Move 6 from A to B.**\n\nA = 6 - 6 = **0**  \nB = 9 + 6 = **15**  \nC = 8\n\n---\n\n**Step 4: Add 3 to A.**\n\nA = 0 + 3 = **3**  \nB = 15  \nC = 8\n\n---\n\n**Step 5: Double B.**\n\nB = 15 * 2 = **30**  \nA = 3  \nC = 8\n\n---\n\n**Step 6: Add 6 to B.**\n\nB = 30 + 6 = **36**  \nA = 3  \nC = 8\n\n---\n\n\u2705 Final answer: **36**"
@@ -57,7 +57,7 @@
       "item": 6,
       "ok": true,
       "expected": "11",
-      "seconds": 7.0,
+      "seconds": 7.1,
       "tokens": 294,
       "finish": "stop",
       "reply": "Let's go step by step.\n\nInitial state:\n- A = 6\n- C = 5\n- D = 6\n\n---\n\n**Step 1: Double A.**\nA = 6 * 2 = 12  \nC = 5  \nD = 6\n\n---\n\n**Step 2: Double A.**\nA = 12 * 2 = 24  \nC = 5  \nD = 6\n\n---\n\n**Step 3: Move 5 from C to A.**\nC = 5 - 5 = 0  \nA = 24 + 5 = 29  \nD = 6\n\n---\n\n**Step 4: Swap the contents of A and C.**\nA = 0  \nC = 29  \nD = 6\n\n---\n\n**Step 5: Move 5 from D to C.**\nD = 6 - 5 = 1  \nC = 29 + 5 = 34  \nA = 0\n\n---\n\n**Step 6: Move 23 from C to A.**\nC = 34 - 23 = 11  \nA = 0 + 23 = 23  \nD = 1\n\n---\n\nFinal state:\n- A = 23\n- C = 11\n- D = 1\n\n**Answer: 11**\n\n11"
@@ -77,7 +77,7 @@
       "item": 8,
       "ok": true,
       "expected": "11",
-      "seconds": 6.7,
+      "seconds": 6.9,
       "tokens": 280,
       "finish": "stop",
       "reply": "Let's go step by step.\n\nInitial state:\n- C = 5\n- B = 5\n- A = 4\n\n---\n\n**Step 1: Move 5 from B to C.**\n\nB had 5, so we move 5 from B to C.\n\nAfter this:\n- C = 5 + 5 = 10\n- B = 5 - 5 = 0\n- A = 4 (unchanged)\n\n---\n\n**Step 2: Add 1 to C.**\n\nC = 10 + 1 = 11\n\n---\n\n**Step 3: Add 2 to A.**\n\nA = 4 + 2 = 6\n\n---\n\n**Step 4: Add 1 to B.**\n\nB = 0 + 1 = 1\n\n---\n\n**Step 5: Remove 1 from B.**\n\nB = 1 - 1 = 0\n\n---\n\n**Step 6: Move 4 from A to B.**\n\nA has 6, so we move 4 from A to B.\n\nAfter this:\n- A = 6 - 4 = 2\n- B = 0 + 4 = 4\n- C = 11 (unchanged)\n\n---\n\n\u2705 Final value in C: **11**\n\n---\n\n**Answer: 11**"
@@ -87,7 +87,7 @@
       "item": 9,
       "ok": true,
       "expected": "7",
-      "seconds": 6.4,
+      "seconds": 6.6,
       "tokens": 269,
       "finish": "stop",
       "reply": "Let's go step by step.\n\nInitial values:\n- B = 6\n- A = 9\n- D = 5 (not used in any steps, so we can ignore it)\n\n---\n\n**Step 1: Add 1 to B.**  \nB = 6 + 1 = **7**  \nA = 9  \nD = 5\n\n---\n\n**Step 2: Swap the contents of A and B.**  \nA = 7  \nB = 9  \nD = 5\n\n---\n\n**Step 3: Double B.**  \nB = 9 * 2 = **18**  \nA = 7  \nD = 5\n\n---\n\n**Step 4: Remove 18 from B.**  \nB = 18 - 18 = **0**  \nA = 7  \nD = 5\n\n---\n\n**Step 5: Add 5 to B.**  \nB = 0 + 5 = **5**  \nA = 7  \nD = 5\n\n---\n\n**Step 6: Add 3 to B.**  \nB = 5 + 3 = **8**  \nA = 7  \nD = 5\n\n---\n\n**Final value in A: 7**\n\n\u2705 Answer: **7**"
@@ -107,7 +107,7 @@
       "item": 11,
       "ok": true,
       "expected": "4",
-      "seconds": 6.2,
+      "seconds": 6.4,
       "tokens": 261,
       "finish": "stop",
       "reply": "Let's go step by step.\n\nInitial state:\n- C = 3\n- B = 3\n- D = 3\n\n---\n\n**Step 1: Remove 3 from B.**\n\nB = 3 - 3 = 0  \nC = 3  \nD = 3\n\n---\n\n**Step 2: Double B.**\n\nB = 0 * 2 = 0  \nC = 3  \nD = 3\n\n---\n\n**Step 3: Swap the contents of C and D.**\n\nC and D swap \u2192 C = 3, D = 3 \u2192 still same, since they were equal.\n\nSo:  \nC = 3  \nB = 0  \nD = 3\n\n---\n\n**Step 4: Double B.**\n\nB = 0 * 2 = 0  \nC = 3  \nD = 3\n\n---\n\n**Step 5: Add 4 to B.**\n\nB = 0 + 4 = 4  \nC = 3  \nD = 3\n\n---\n\n**Step 6: Double D.**\n\nD = 3 * 2 = 6  \nC = 3  \nB = 4\n\n---\n\nFinal state: B = 4\n\n\u2705 Answer: **4**"
@@ -117,7 +117,7 @@
       "item": 12,
       "ok": true,
       "expected": "13",
-      "seconds": 8.8,
+      "seconds": 9.1,
       "tokens": 371,
       "finish": "stop",
       "reply": "Let's go step by step.\n\nInitial state:\n- B = 8\n- C = 8\n- D = 7\n\n---\n\n**Step 1: Move 8 from B to D.**\n\nThis means we take 8 from B and add it to D.\n\nBut wait \u2014 B only has 8, so we can move all of it.\n\nAfter Step 1:\n- B = 0\n- C = 8\n- D = 7 + 8 = 15\n\n---\n\n**Step 2: Double D.**\n\nD = 15 \u2192 30\n\nNow:\n- B = 0\n- C = 8\n- D = 30\n\n---\n\n**Step 3: Move 21 from D to B.**\n\nMove 21 from D to B.\n\nD = 30 - 21 = 9\n\nB = 0 + 21 = 21\n\nNow:\n- B = 21\n- C = 8\n- D = 9\n\n---\n\n**Step 4: Add 2 to B.**\n\nB = 21 + 2 = 23\n\nNow:\n- B = 23\n- C = 8\n- D = 9\n\n---\n\n**Step 5: Swap the contents of B and C.**\n\nSwap B and C:\n\nB = 8\nC = 23\nD = 9\n\n---\n\n**Step 6: Move 5 from D to B.**\n\nD = 9 - 5 = 4\n\nB = 8 + 5 = 13\n\nFinal state:\n- B = 13\n- C = 23\n- D = 4\n\n---\n\n\u2705 Final answer: **13**"
@@ -127,7 +127,7 @@
       "item": 13,
       "ok": true,
       "expected": "1",
-      "seconds": 6.2,
+      "seconds": 6.3,
       "tokens": 257,
       "finish": "stop",
       "reply": "Let's go step by step.\n\nInitial state:\n- C = 6\n- A = 8\n- D = 5\n\n---\n\n**Step 1: Remove 3 from D.**  \nD = 5 - 3 = **2**\n\n---\n\n**Step 2: Add 2 to A.**  \nA = 8 + 2 = **10**\n\n---\n\n**Step 3: Remove 1 from D.**  \nD = 2 - 1 = **1**\n\n---\n\n**Step 4: Move 3 from C to D.**  \nC = 6 - 3 = **3**  \nD = 1 + 3 = **4**\n\n---\n\n**Step 5: Swap the contents of D and A.**  \nBefore swap:  \nC = 3, A = 10, D = 4\n\nAfter swap:  \nC = 3  \nA = 4  \nD = 10\n\n---\n\n**Step 6: Move 2 from C to A.**  \nC = 3 - 2 = **1**  \nA = 4 + 2 = **6**\n\n---\n\nFinal state:  \nC = **1**\n\n---\n\n\u2705 **Answer: 1**"
@@ -137,7 +137,7 @@
       "item": 14,
       "ok": true,
       "expected": "0",
-      "seconds": 7.2,
+      "seconds": 7.4,
       "tokens": 304,
       "finish": "stop",
       "reply": "Let's go step by step.\n\nInitial state:\n- A = 8\n- B = 9\n- D = 2\n\n---\n\n**Step 1: Remove 1 from D.**  \nD = 2 - 1 = 1  \n\u2192 A = 8, B = 9, D = 1\n\n---\n\n**Step 2: Swap the contents of D and A.**  \nSwap A and D \u2192 A = 1, D = 8  \n\u2192 A = 1, B = 9, D = 8\n\n---\n\n**Step 3: Swap the contents of A and D.**  \nSwap A and D \u2192 A = 8, D = 1  \n\u2192 A = 8, B = 9, D = 1\n\n---\n\n**Step 4: Swap the contents of B and A.**  \nSwap A and B \u2192 A = 9, B = 8  \n\u2192 A = 9, B = 8, D = 1\n\n---\n\n**Step 5: Add 3 to B.**  \nB = 8 + 3 = 11  \n\u2192 A = 9, B = 11, D = 1\n\n---\n\n**Step 6: Remove 9 from A.**  \nA = 9 - 9 = 0  \n\u2192 A = 0, B = 11, D = 1\n\n---\n\n\u2705 Final answer: **0**"
@@ -147,7 +147,7 @@
       "item": 15,
       "ok": true,
       "expected": "8",
-      "seconds": 9.0,
+      "seconds": 9.2,
       "tokens": 377,
       "finish": "stop",
       "reply": "Let's go step by step.\n\nInitial state:\n- A = 3\n- D = 9\n- B = 2\n\n---\n\n**Step 1: Move 2 from B to D.**\n\nB had 2 \u2192 now B = 0  \nD had 9 \u2192 now D = 9 + 2 = 11\n\nState:\n- A = 3\n- D = 11\n- B = 0\n\n---\n\n**Step 2: Swap the contents of A and B.**\n\nA = 3, B = 0 \u2192 swap \u2192 A = 0, B = 3\n\nState:\n- A = 0\n- D = 11\n- B = 3\n\n---\n\n**Step 3: Move 6 from D to B.**\n\nD had 11 \u2192 now D = 11 - 6 = 5  \nB had 3 \u2192 now B = 3 + 6 = 9\n\nState:\n- A = 0\n- D = 5\n- B = 9\n\n---\n\n**Step 4: Add 3 to D.**\n\nD = 5 + 3 = 8\n\nState:\n- A = 0\n- D = 8\n- B = 9\n\n---\n\n**Step 5: Add 6 to A.**\n\nA = 0 + 6 = 6\n\nState:\n- A = 6\n- D = 8\n- B = 9\n\n---\n\n**Step 6: Swap the contents of B and D.**\n\nB = 9, D = 8 \u2192 swap \u2192 B = 8, D = 9\n\nState:\n- A = 6\n- D = 9\n- B = 8\n\n---\n\n\u2705 Final answer: **8**\n\n8"
@@ -157,7 +157,7 @@
       "item": 16,
       "ok": true,
       "expected": "15",
-      "seconds": 7.7,
+      "seconds": 7.9,
       "tokens": 322,
       "finish": "stop",
       "reply": "Let's go step by step.\n\nInitial state:\n- D = 2\n- A = 7\n- B = 3\n\n---\n\n**Step 1: Add 2 to A.**\n\nA = 7 + 2 = 9  \n\u2192 D = 2, A = 9, B = 3\n\n---\n\n**Step 2: Swap the contents of D and B.**\n\nSwap D and B \u2192 D = 3, B = 2  \n\u2192 D = 3, A = 9, B = 2\n\n---\n\n**Step 3: Move 6 from A to D.**\n\nA = 9 - 6 = 3  \nD = 3 + 6 = 9  \n\u2192 D = 9, A = 3, B = 2\n\n---\n\n**Step 4: Move 1 from A to B.**\n\nA = 3 - 1 = 2  \nB = 2 + 1 = 3  \n\u2192 D = 9, A = 2, B = 3\n\n---\n\n**Step 5: Double B.**\n\nB = 3 * 2 = 6  \n\u2192 D = 9, A = 2, B = 6\n\n---\n\n**Step 6: Move 9 from D to B.**\n\nD = 9 - 9 = 0  \nB = 6 + 9 = 15  \n\u2192 D = 0, A = 2, B = 15\n\n---\n\n\u2705 Final answer: **15**"
@@ -167,7 +167,7 @@
       "item": 17,
       "ok": true,
       "expected": "1",
-      "seconds": 6.0,
+      "seconds": 6.1,
       "tokens": 249,
       "finish": "stop",
       "reply": "Let's go step by step.\n\nInitial state:\n- C = 5\n- D = 6\n- B = 5\n\n---\n\n**Step 1: Remove 1 from B.**\n\nB = 5 - 1 = 4  \nC = 5  \nD = 6\n\n---\n\n**Step 2: Swap the contents of C and B.**\n\nC = 4  \nB = 5  \nD = 6\n\n---\n\n**Step 3: Add 6 to C.**\n\nC = 4 + 6 = 10  \nB = 5  \nD = 6\n\n---\n\n**Step 4: Move 3 from B to C.**\n\nB = 5 - 3 = 2  \nC = 10 + 3 = 13  \nD = 6\n\n---\n\n**Step 5: Remove 5 from D.**\n\nD = 6 - 5 = 1  \nC = 13  \nB = 2\n\n---\n\n**Step 6: Swap the contents of C and D.**\n\nC = 1  \nD = 13  \nB = 2\n\n---\n\n\u2705 Final value in C: **1**\n\n1"
@@ -177,7 +177,7 @@
       "item": 18,
       "ok": true,
       "expected": "15",
-      "seconds": 6.5,
+      "seconds": 6.6,
       "tokens": 270,
       "finish": "stop",
       "reply": "Let's go step by step:\n\nInitial values:\n- D = 5\n- B = 9\n- C = 2\n\n---\n\n**Step 1: Double D.**  \nD = 5 * 2 = **10**  \nB = 9  \nC = 2\n\n---\n\n**Step 2: Add 1 to B.**  \nD = 10  \nB = 9 + 1 = **10**  \nC = 2\n\n---\n\n**Step 3: Add 6 to C.**  \nD = 10  \nB = 10  \nC = 2 + 6 = **8**\n\n---\n\n**Step 4: Double B.**  \nD = 10  \nB = 10 * 2 = **20**  \nC = 8\n\n---\n\n**Step 5: Move 5 from C to D.**  \nC = 8 - 5 = **3**  \nD = 10 + 5 = **15**  \nB = 20\n\n---\n\n**Step 6: Double C.**  \nC = 3 * 2 = **6**  \nD = 15  \nB = 20\n\n---\n\n\u2705 Final value in D: **15**\n\n15"
@@ -187,7 +187,7 @@
       "item": 19,
       "ok": true,
       "expected": "7",
-      "seconds": 8.1,
+      "seconds": 8.3,
       "tokens": 342,
       "finish": "stop",
       "reply": "Let's go step by step.\n\nInitial state:\n- C = 6\n- A = 7\n- B = 8\n\n---\n\n**Step 1: Add 6 to B.**  \nB = 8 + 6 = **14**\n\nState:  \nC = 6  \nA = 7  \nB = 14\n\n---\n\n**Step 2: Swap the contents of C and B.**  \nSwap C and B \u2192 C = 14, B = 6\n\nState:  \nC = 14  \nA = 7  \nB = 6\n\n---\n\n**Step 3: Add 1 to B.**  \nB = 6 + 1 = **7**\n\nState:  \nC = 14  \nA = 7  \nB = 7\n\n---\n\n**Step 4: Remove 7 from A.**  \nA = 7 - 7 = **0**\n\nState:  \nC = 14  \nA = 0  \nB = 7\n\n---\n\n**Step 5: Move 4 from C to A.**  \nC = 14 - 4 = 10  \nA = 0 + 4 = 4\n\nState:  \nC = 10  \nA = 4  \nB = 7\n\n---\n\n**Step 6: Move 9 from C to A.**  \nC = 10 - 9 = 1  \nA = 4 + 9 = 13\n\nState:  \nC = 1  \nA = 13  \nB = 7\n\n---\n\n\u2705 Final value in B: **7**\n\n7"
@@ -197,7 +197,7 @@
       "item": 20,
       "ok": true,
       "expected": "5",
-      "seconds": 7.2,
+      "seconds": 7.4,
       "tokens": 305,
       "finish": "stop",
       "reply": "Let's go step by step.\n\nInitial state:\n- C = 8\n- D = 7\n- B = 3\n\n---\n\n**Step 1: Double B.**\n\nB = 3 * 2 = 6  \n\u2192 B = 6  \nC = 8, D = 7\n\n---\n\n**Step 2: Move 7 from C to D.**\n\nC = 8 - 7 = 1  \nD = 7 + 7 = 14  \n\u2192 C = 1, D = 14, B = 6\n\n---\n\n**Step 3: Remove 6 from B.**\n\nB = 6 - 6 = 0  \n\u2192 C = 1, D = 14, B = 0\n\n---\n\n**Step 4: Add 5 to C.**\n\nC = 1 + 5 = 6  \n\u2192 C = 6, D = 14, B = 0\n\n---\n\n**Step 5: Swap the contents of B and C.**\n\nSwap B and C \u2192 B gets C\u2019s value (6), C gets B\u2019s value (0)\n\n\u2192 B = 6, C = 0, D = 14\n\n---\n\n**Step 6: Remove 9 from D.**\n\nD = 14 - 9 = 5  \n\u2192 Final state: B=6, C=0, D=5\n\n---\n\n\u2705 Final answer: **5**"
@@ -927,7 +927,7 @@
       "item": 13,
       "ok": true,
       "expected": "[redacted: hand-authored trap bank]",
-      "seconds": 0.2,
+      "seconds": 0.1,
       "tokens": 2,
       "finish": "stop",
       "reply": "[redacted: hand-authored trap bank]"
@@ -947,7 +947,7 @@
       "item": 1,
       "ok": true,
       "expected": "196",
-      "seconds": 12.8,
+      "seconds": 12.7,
       "tokens": 4,
       "finish": "stop",
       "reply": "196"
@@ -957,7 +957,7 @@
       "item": 2,
       "ok": true,
       "expected": "982",
-      "seconds": 12.8,
+      "seconds": 12.7,
       "tokens": 4,
       "finish": "stop",
       "reply": "982"
@@ -967,7 +967,7 @@
       "item": 3,
       "ok": true,
       "expected": "786",
-      "seconds": 12.9,
+      "seconds": 12.7,
       "tokens": 4,
       "finish": "stop",
       "reply": "786"
@@ -977,7 +977,7 @@
       "item": 4,
       "ok": true,
       "expected": "423",
-      "seconds": 12.8,
+      "seconds": 12.7,
       "tokens": 4,
       "finish": "stop",
       "reply": "423"
@@ -987,7 +987,7 @@
       "item": 5,
       "ok": true,
       "expected": "665",
-      "seconds": 12.8,
+      "seconds": 12.7,
       "tokens": 4,
       "finish": "stop",
       "reply": "665"
@@ -997,7 +997,7 @@
       "item": 6,
       "ok": true,
       "expected": "338",
-      "seconds": 12.8,
+      "seconds": 12.7,
       "tokens": 4,
       "finish": "stop",
       "reply": "338"
@@ -1007,7 +1007,7 @@
       "item": 7,
       "ok": true,
       "expected": "623",
-      "seconds": 12.8,
+      "seconds": 12.7,
       "tokens": 4,
       "finish": "stop",
       "reply": "623"
@@ -1017,7 +1017,7 @@
       "item": 8,
       "ok": true,
       "expected": "134",
-      "seconds": 12.8,
+      "seconds": 12.7,
       "tokens": 4,
       "finish": "stop",
       "reply": "134"

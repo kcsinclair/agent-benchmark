@@ -1,0 +1,43 @@
+import re
+
+def parse_duration(text: str) -> float:
+    """
+    Parse a human-readable duration string and return the total number of seconds as a float.
+    """
+    units = {'h': 3600.0, 'h ': 3600.0, 'm': 60.0, 'm ': 60.0, 's': 1.0, 's ': 1.0, 'ms': 0.001, 'ms ': 0.001}
+    pattern = r'[-]?([0-9]+\.?){0,}([hms]?m?|h?([0-9]+\.?){0,}s?|([0-9]+\.?){0,}s?)(?:[+-]?([0-9]+\.?){0,}s?)*'
+    if not re.match(pattern, text.strip()):
+        raise ValueError("Invalid duration string")
+
+    result = 0.0
+    sign = 1.0
+    if text[0] == '-':
+        sign = -1.0
+        text = text[1:]
+
+    match = re.match(r'([0-9]+\.?){0,}([hms]?m?|h?([0-9]+\.?){0,}s?)*', text)
+    if match:
+        if match.group(0):
+            if match.group(0).endswith('s'):
+                value, unit = match.group(0[:-1]).replace('.', '').replace(' ', '').split('.')
+                if '.' in value:
+                    value = float(f"{float(value[:-1].replace(' ', '')}.{int(len(value) - 1):02d}e-{'0' * (len(value) - 1 - int(len(value) - 1):02d - 1)}".format(int(len(value) - 1 - int(len(value) - 1:2))))
+                    value /= 10 ** (int(len(value) - 1 - int(len(value) - 1:2)))
+                else:
+                    value = float(value)
+                if unit:
+                    if unit == 'ms':
+                        value *= 0.001
+                    elif unit == 's':
+                        pass
+                    else:
+                        raise ValueError(f"Invalid unit: {unit}")
+                else:
+                    raise ValueError("Missing unit")
+                result += sign * float(value * units.get(unit, float('inf')))
+            else:
+                raise ValueError("Invalid duration string")
+
+        return sign * result
+    else:
+        raise ValueError("Invalid duration string")

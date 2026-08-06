@@ -22,6 +22,8 @@
 #   -H, --host HOST       ssh target (default leia)
 #       --model-dir DIR   where the .gguf files live (default /opt/local-ai/models,
 #                         or $MODELDIR)
+#       --bin-dir DIR     where llama-bench lives, prepended to PATH (default
+#                         /opt/local-ai/bin, or $BENCH_BINDIR)
 #   -o, --out DIR         results directory (default results/<host>/speed)
 #   -d, --depths LIST     context depths (default 0,4096,16384)
 #   -r, --reps N          repetitions per test (default 3)
@@ -39,6 +41,10 @@ REPO="$(cd "$ROOT/.." && pwd)"
 
 HOST="leia"
 MODELDIR="${MODELDIR:-/opt/local-ai/models}"
+# llama-bench lives beside llama-server and is NOT on the ssh login PATH, so it
+# is prepended rather than assumed. Using the server's own bin dir also keeps
+# the measured build identical to the one that produced the accuracy scores.
+BINDIR="${BENCH_BINDIR:-/opt/local-ai/bin}"
 OUT=""   # default: results/<host>/speed
 DEPTHS="0,4096,16384"
 REPS=3
@@ -57,7 +63,12 @@ gpt-oss-120b|-m $MODELDIR/gpt-oss-120b-MXFP4.gguf
 Qwen3-Coder-30B|-m $MODELDIR/Qwen3-Coder-30B-A3B-Instruct-UD-Q4_K_XL.gguf
 Qwen3.6-27B|-m $MODELDIR/Qwen3.6-27B-Q4_K_M.gguf
 Qwen3.6-35B|-m $MODELDIR/Qwen3.6-35B-A3B-UD-Q4_K_M.gguf
-Kimi-Linear-48B|-m $MODELDIR/moonshotai_Kimi-Linear-48B-A3B-Instruct-Q4_K_M.gguf
+gpt-oss-20b-Q8|-m $MODELDIR/gpt-oss-20b-Q8_0.gguf
+gpt-oss-20b-Q4|-m $MODELDIR/gpt-oss-20b-Q4_K_M.gguf
+Hermes-4-14B|-m $MODELDIR/NousResearch_Hermes-4-14B-Q4_K_M.gguf
+Llama-3-14B|-m $MODELDIR/Llama-3-14B-Instruct-v1.Q4_K_M.gguf
+Qwen3VL-8B|-m $MODELDIR/Qwen3VL-8B-Uncensored-HauhauCS-Aggressive-Q4_K_M.gguf
+Llama-3.1-8B|-m $MODELDIR/Meta-Llama-3.1-8B-Instruct-Q4_K_M.gguf
 "
 CONTROL_LABEL="gemma-4-26B"
 
@@ -68,6 +79,7 @@ while [ $# -gt 0 ]; do
   case "$1" in
     -H|--host)     HOST="$2"; shift 2 ;;
     --model-dir)   MODELDIR="$2"; shift 2 ;;
+    --bin-dir)     BINDIR="$2"; shift 2 ;;
     -o|--out)      OUT="$2"; shift 2 ;;
     -d|--depths)   DEPTHS="$2"; shift 2 ;;
     -r|--reps)     REPS="$2"; shift 2 ;;
@@ -83,7 +95,7 @@ done
 
 [ -n "$OUT" ] || OUT="$REPO/results/${HOST%%.*}/speed"
 
-rsh() { ssh -o ConnectTimeout=20 -o BatchMode=yes "$HOST" "bash -lc '$1'"; }
+rsh() { ssh -o ConnectTimeout=20 -o BatchMode=yes "$HOST" "bash -lc 'export PATH=$BINDIR:\$PATH; $1'"; }
 
 # --- preflight ---------------------------------------------------------------
 rsh 'which llama-bench >/dev/null' || die "llama-bench not found on $HOST"

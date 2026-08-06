@@ -1,0 +1,74 @@
+import re
+
+def parse_duration(text: str) -> float:
+    if not isinstance(text, str):
+        raise TypeError("Input must be a string")
+
+    text = text.strip()
+    if not text:
+        raise ValueError("Empty string is not a valid duration")
+
+    # Check for leading minus sign
+    sign = 1
+    if text[0] == '-':
+        sign = -1
+        text = text[1:]
+        if not text:
+            raise ValueError("Negative sign without any components")
+
+    # Regex to match each component: number followed by unit
+    # Number: non-negative decimal (no leading +, no exponents, no .5, no 5.)
+    # Units: h, m, s, ms
+    # Components must be in order h > m > s > ms, no repeats
+    components = []
+    current_pos = 0
+    valid_units = ['h', 'm', 's', 'ms']
+    unit_order = {'h': 0, 'm': 1, 's': 2, 'ms': 3}
+    last_unit_index = -1  # Tracks the last unit's position in valid_units list
+
+    while current_pos < len(text):
+        # Match number part
+        num_match = re.match(r'^(\d+\.?\d*|\.\d+)$', text[current_pos:])
+        if not num_match:
+            raise ValueError(f"Invalid number format at position {current_pos}")
+        num_str = num_match.group(1)
+        current_pos += len(num_str)
+
+        # Match unit part
+        unit_match = re.match(r'^([hms]|ms)$', text[current_pos:])
+        if not unit_match:
+            raise ValueError(f"Invalid unit at position {current_pos}")
+        unit = unit_match.group(1)
+        current_pos += len(unit)
+
+        # Check for whitespace in between
+        if current_pos < len(text) and text[current_pos] != '':
+            raise ValueError(f"Whitespace found at position {current_pos}")
+
+        # Validate unit order and uniqueness
+        unit_index = valid_units.index(unit)
+        if unit_index <= last_unit_index:
+            raise ValueError(f"Units must be in descending order. '{unit}' is not after '{valid_units[last_unit_index]}'")
+        last_unit_index = unit_index
+
+        # Convert number to float
+        try:
+            num = float(num_str)
+        except ValueError:
+            raise ValueError(f"Invalid number format: {num_str}")
+
+        components.append((unit, num))
+
+    # Calculate total seconds
+    total_seconds = 0.0
+    for unit, num in components:
+        if unit == 'h':
+            total_seconds += num * 3600
+        elif unit == 'm':
+            total_seconds += num * 60
+        elif unit == 's':
+            total_seconds += num
+        elif unit == 'ms':
+            total_seconds += num / 1000
+
+    return sign * total_seconds

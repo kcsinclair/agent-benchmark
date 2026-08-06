@@ -88,13 +88,16 @@ has already caught a trap bank where every answer was "B".
 Agent track and speed sweep:
 
 ```bash
-./benchmark/run_agent.py -g <model-id>          # tool-use track
+./benchmark/run_agent.py <model-id>             # tool-use track (grades automatically)
 ./benchmark/run_llama_bench.sh                  # stops llama-server on leia!
 ./benchmark/collate_bench.py                    # speed joined to scores
 ```
 
 `run_agent.py` gives the model `write_file`/`read_file`/`list_files` and grades
-what lands on disk. It has no test-running tool on purpose: exposing the graders
+whatever lands in `results/<server>/agent/<model>/`. Note there is **no `-g`**:
+unlike `run_http.py`, grading here is unconditional, so passing `-g` is an
+error that aborts the run before a single request. It has no test-running tool
+on purpose: exposing the graders
 would leak the hidden edge cases and burn the benchmark. It records turns, tool
 calls, malformed calls, stray files, and whether the model answered in prose
 instead of calling anything.

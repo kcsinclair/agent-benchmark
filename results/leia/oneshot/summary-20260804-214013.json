@@ -1,0 +1,256 @@
+{
+  "wall_seconds": 11599.3,
+  "settings": {
+    "temperature": 0.0,
+    "max_tokens": 16384,
+    "think": "off",
+    "repeat": 3,
+    "reasoning_effort": "",
+    "server": "http://leia.packsin.com:7442"
+  },
+  "results": [
+    {
+      "model": "gpt-oss-20b-Q4_K_M",
+      "load_seconds": 0.1,
+      "passes": [
+        {
+          "pass": 1,
+          "dir": "/Users/keith/Library/Mobile Documents/com~apple~CloudDocs/Projects/agent-benchmark/results/leia/oneshot/gpt-oss-20b-Q4_K_M/pass1",
+          "generate_seconds": 553.1,
+          "wall_seconds": 553.1,
+          "trouble": [
+            "02-js-lru-ttl-cache: truncated",
+            "02-js-lru-ttl-cache: empty answer",
+            "04-go-worker-pool: truncated",
+            "04-go-worker-pool: empty answer"
+          ],
+          "score": 37,
+          "max": 68
+        },
+        {
+          "pass": 2,
+          "dir": "/Users/keith/Library/Mobile Documents/com~apple~CloudDocs/Projects/agent-benchmark/results/leia/oneshot/gpt-oss-20b-Q4_K_M/pass2",
+          "generate_seconds": 591.6,
+          "wall_seconds": 591.6,
+          "trouble": [
+            "01-python-parse-duration: truncated",
+            "01-python-parse-duration: empty answer",
+            "04-go-worker-pool: truncated",
+            "04-go-worker-pool: empty answer"
+          ],
+          "score": 25,
+          "max": 68
+        },
+        {
+          "pass": 3,
+          "dir": "/Users/keith/Library/Mobile Documents/com~apple~CloudDocs/Projects/agent-benchmark/results/leia/oneshot/gpt-oss-20b-Q4_K_M/pass3",
+          "generate_seconds": 730.9,
+          "wall_seconds": 730.9,
+          "trouble": [
+            "01-python-parse-duration: truncated",
+            "01-python-parse-duration: empty answer",
+            "04-go-worker-pool: truncated",
+            "04-go-worker-pool: empty answer"
+          ],
+          "score": 24,
+          "max": 68
+        }
+      ]
+    },
+    {
+      "model": "gpt-oss-20b-Q8_0",
+      "load_seconds": 8.2,
+      "passes": [
+        {
+          "pass": 1,
+          "dir": "/Users/keith/Library/Mobile Documents/com~apple~CloudDocs/Projects/agent-benchmark/results/leia/oneshot/gpt-oss-20b-Q8_0/pass1",
+          "generate_seconds": 535.0,
+          "wall_seconds": 535.0,
+          "trouble": [
+            "02-js-lru-ttl-cache: truncated",
+            "02-js-lru-ttl-cache: empty answer"
+          ],
+          "score": 51,
+          "max": 68
+        },
+        {
+          "pass": 2,
+          "dir": "/Users/keith/Library/Mobile Documents/com~apple~CloudDocs/Projects/agent-benchmark/results/leia/oneshot/gpt-oss-20b-Q8_0/pass2",
+          "generate_seconds": 305.0,
+          "wall_seconds": 305.1,
+          "trouble": [],
+          "score": 65,
+          "max": 68
+        },
+        {
+          "pass": 3,
+          "dir": "/Users/keith/Library/Mobile Documents/com~apple~CloudDocs/Projects/agent-benchmark/results/leia/oneshot/gpt-oss-20b-Q8_0/pass3",
+          "generate_seconds": 253.2,
+          "wall_seconds": 253.2,
+          "trouble": [],
+          "score": 68,
+          "max": 68
+        }
+      ]
+    },
+    {
+      "model": "NousResearch_Hermes-4-14B-Q4_K_M",
+      "load_seconds": 10.7,
+      "passes": [
+        {
+          "pass": 1,
+          "dir": "/Users/keith/Library/Mobile Documents/com~apple~CloudDocs/Projects/agent-benchmark/results/leia/oneshot/NousResearch_Hermes-4-14B-Q4_K_M/pass1",
+          "generate_seconds": 156.3,
+          "wall_seconds": 156.3,
+          "trouble": [],
+          "score": 23,
+          "max": 68
+        },
+        {
+          "pass": 2,
+          "dir": "/Users/keith/Library/Mobile Documents/com~apple~CloudDocs/Projects/agent-benchmark/results/leia/oneshot/NousResearch_Hermes-4-14B-Q4_K_M/pass2",
+          "generate_seconds": 218.0,
+          "wall_seconds": 218.0,
+          "trouble": [],
+          "score": 22,
+          "max": 68
+        },
+        {
+          "pass": 3,
+          "dir": "/Users/keith/Library/Mobile Documents/com~apple~CloudDocs/Projects/agent-benchmark/results/leia/oneshot/NousResearch_Hermes-4-14B-Q4_K_M/pass3",
+          "generate_seconds": 193.2,
+          "wall_seconds": 193.3,
+          "trouble": [],
+          "score": 31,
+          "max": 68
+        }
+      ]
+    },
+    {
+      "model": "Qwen3VL-8B-Uncensored-HauhauCS-Aggressive-Q4_K_M",
+      "load_seconds": 8.5,
+      "passes": [
+        {
+          "pass": 1,
+          "dir": "/Users/keith/Library/Mobile Documents/com~apple~CloudDocs/Projects/agent-benchmark/results/leia/oneshot/Qwen3VL-8B-Uncensored-HauhauCS-Aggressive-Q4_K_M/pass1",
+          "generate_seconds": 1405.2,
+          "wall_seconds": 1405.3,
+          "trouble": [
+            "01-python-parse-duration: repetition loop",
+            "04-go-worker-pool: truncated",
+            "05-python-scheduler: repetition loop"
+          ],
+          "score": 45,
+          "max": 68
+        },
+        {
+          "pass": 2,
+          "dir": "/Users/keith/Library/Mobile Documents/com~apple~CloudDocs/Projects/agent-benchmark/results/leia/oneshot/Qwen3VL-8B-Uncensored-HauhauCS-Aggressive-Q4_K_M/pass2",
+          "generate_seconds": 1404.8,
+          "wall_seconds": 1404.9,
+          "trouble": [
+            "01-python-parse-duration: repetition loop",
+            "04-go-worker-pool: truncated",
+            "05-python-scheduler: repetition loop"
+          ],
+          "score": 31,
+          "max": 68
+        },
+        {
+          "pass": 3,
+          "dir": "/Users/keith/Library/Mobile Documents/com~apple~CloudDocs/Projects/agent-benchmark/results/leia/oneshot/Qwen3VL-8B-Uncensored-HauhauCS-Aggressive-Q4_K_M/pass3",
+          "generate_seconds": 1232.0,
+          "wall_seconds": 1232.0,
+          "trouble": [
+            "04-go-worker-pool: truncated",
+            "05-python-scheduler: repetition loop"
+          ],
+          "score": 31,
+          "max": 68
+        }
+      ]
+    },
+    {
+      "model": "Llama-3-14B-Instruct-v1.Q4_K_M",
+      "load_seconds": 16.2,
+      "passes": [
+        {
+          "pass": 1,
+          "dir": "/Users/keith/Library/Mobile Documents/com~apple~CloudDocs/Projects/agent-benchmark/results/leia/oneshot/Llama-3-14B-Instruct-v1.Q4_K_M/pass1",
+          "generate_seconds": 825.2,
+          "wall_seconds": 825.2,
+          "trouble": [
+            "03-sql-analytics: repetition loop",
+            "03-sql-analytics: q2.sql, q3.sql, q4.sql not extracted",
+            "04-go-worker-pool: repetition loop",
+            "04-go-worker-pool: pool.go not extracted"
+          ],
+          "score": 0,
+          "max": 68
+        },
+        {
+          "pass": 2,
+          "dir": "/Users/keith/Library/Mobile Documents/com~apple~CloudDocs/Projects/agent-benchmark/results/leia/oneshot/Llama-3-14B-Instruct-v1.Q4_K_M/pass2",
+          "generate_seconds": 1082.4,
+          "wall_seconds": 1082.4,
+          "trouble": [
+            "02-js-lru-ttl-cache: repetition loop",
+            "03-sql-analytics: repetition loop",
+            "03-sql-analytics: q3.sql, q4.sql not extracted",
+            "04-go-worker-pool: repetition loop",
+            "04-go-worker-pool: pool.go not extracted"
+          ],
+          "score": 0,
+          "max": 68
+        },
+        {
+          "pass": 3,
+          "dir": "/Users/keith/Library/Mobile Documents/com~apple~CloudDocs/Projects/agent-benchmark/results/leia/oneshot/Llama-3-14B-Instruct-v1.Q4_K_M/pass3",
+          "generate_seconds": 797.6,
+          "wall_seconds": 797.6,
+          "trouble": [
+            "03-sql-analytics: repetition loop",
+            "03-sql-analytics: q2.sql, q3.sql, q4.sql not extracted",
+            "04-go-worker-pool: repetition loop",
+            "04-go-worker-pool: pool.go not extracted"
+          ],
+          "score": 0,
+          "max": 68
+        }
+      ]
+    },
+    {
+      "model": "Meta-Llama-3.1-8B-Instruct-Q4_K_M",
+      "load_seconds": 8.0,
+      "passes": [
+        {
+          "pass": 1,
+          "dir": "/Users/keith/Library/Mobile Documents/com~apple~CloudDocs/Projects/agent-benchmark/results/leia/oneshot/Meta-Llama-3.1-8B-Instruct-Q4_K_M/pass1",
+          "generate_seconds": 71.8,
+          "wall_seconds": 71.8,
+          "trouble": [],
+          "score": 19,
+          "max": 68
+        },
+        {
+          "pass": 2,
+          "dir": "/Users/keith/Library/Mobile Documents/com~apple~CloudDocs/Projects/agent-benchmark/results/leia/oneshot/Meta-Llama-3.1-8B-Instruct-Q4_K_M/pass2",
+          "generate_seconds": 70.4,
+          "wall_seconds": 70.5,
+          "trouble": [],
+          "score": 19,
+          "max": 68
+        },
+        {
+          "pass": 3,
+          "dir": "/Users/keith/Library/Mobile Documents/com~apple~CloudDocs/Projects/agent-benchmark/results/leia/oneshot/Meta-Llama-3.1-8B-Instruct-Q4_K_M/pass3",
+          "generate_seconds": 67.6,
+          "wall_seconds": 67.6,
+          "trouble": [],
+          "score": 19,
+          "max": 68
+        }
+      ]
+    }
+  ]
+}

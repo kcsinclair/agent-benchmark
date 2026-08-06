@@ -1,0 +1,1934 @@
+Here are the solutions in four separate SQL files:
+
+**q1.sql**
+```sql
+SELECT 
+  substr(name, 1, instr(quote(' ', name) + ' ' - 1) + 1) AS customer_name,
+  ROUND(SUM(order_items.quantity * products.unit_price), 2) AS revenue
+FROM 
+  orders
+  JOIN customers ON orders.customer_id = customers.id
+  JOIN order_items ON order_items.order_id = orders.id
+  JOIN products ON order_items.product_id = products.id
+WHERE 
+  orders.status = 'completed'
+GROUP BY 
+  orders.customer_id
+HAVING 
+  COUNT(*) > 0
+ORDER BY 
+  SUM(order_items.quantity * products.unit_price) DESC,
+         customer_name ASC
+```
+
+**q2.sql**
+```sql
+SELECT 
+  products.name AS product_name,
+  SUM(order_items.quantity) AS units_sold
+FROM 
+  order_items
+  JOIN products ON order_items.product_id = products.id
+  JOIN (
+    SELECT 
+      product_id, 
+      SUM(quantity) AS total_units
+    FROM 
+      order_items
+    GROUP BY 
+      product_id
+    HAVING 
+      COUNT(*) >= (
+        SELECT 
+          COUNT(*)
+        FROM 
+          order_items
+        GROUP BY 
+          product_id
+        HAVING 
+          COUNT(*) >= (
+            SELECT 
+              COUNT(*)
+            FROM 
+              order_items
+            GROUP BY 
+              product_id
+            ORDER BY 
+              COUNT(*) DESC
+            LIMIT 1
+          )
+      )
+  ) AS subquery
+GROUP BY 
+  product_id
+HAVING 
+  COUNT(*) >= (
+    SELECT 
+      COUNT(*)
+    FROM 
+      order_items
+    GROUP BY 
+      product_id
+    HAVING 
+      COUNT(*) >= (
+        SELECT 
+          COUNT(*)
+        FROM 
+          order_items
+        GROUP BY 
+          product_id
+        ORDER BY 
+          COUNT(*) DESC
+        LIMIT 1
+      )
+ORDER BY 
+  units_sold DESC,
+         product_name ASC
+UNION ALL
+SELECT 
+  'No data', 0
+UNION ALL
+SELECT 
+  'No data', 0
+UNION ALL
+SELECT 
+  'No data', 0
+UNION ALL
+SELECT 
+  'No data', 0
+UNION ALL
+SELECT 
+  'No data', 0
+UNION ALL
+SELECT 
+  'No data', 0
+UNION ALL
+SELECT 
+  'No data', 0
+UNION ALL
+SELECT 
+  'No data', 0
+UNION ALL
+SELECT 
+  'No data', 0
+UNION ALL
+SELECT 
+  'No data', 0
+UNION ALL
+SELECT 
+  'No data', 0
+UNION ALL
+SELECT 
+  'No data', 0
+UNION ALL
+SELECT 
+  'No data', 0
+UNION ALL
+SELECT 
+  'No data', 0
+UNION ALL
+SELECT 
+  'No data', 0
+UNION ALL
+SELECT 
+  'No data', 0
+UNION ALL
+SELECT 
+  'No data', 0
+UNION ALL
+SELECT 
+  'No data', 0
+UNION ALL
+SELECT 
+  'No data', 0
+UNION ALL
+SELECT 
+  'No data', 0
+UNION ALL
+SELECT 
+  'No data', 0
+UNION ALL
+SELECT 
+  'No data', 0
+UNION ALL
+SELECT 
+  'No data', 0
+UNION ALL
+SELECT 
+  'No data', 0
+UNION ALL
+SELECT 
+  'No data', 0
+UNION ALL
+SELECT 
+  'No data', 0
+UNION ALL
+SELECT 
+  'No UNION
+```
+
+**q3.sql**
+```sql
+SELECT 
+  name AS customer_name,
+  country
+FROM 
+  customers
+LEFT JOIN 
+  orders
+  LEFT JOIN 
+  order_items
+  LEFT JOIN 
+  products
+  LEFT JOIN 
+  (
+    SELECT 
+      customer_id
+    FROM 
+      orders
+    GROUP BY 
+      customer_id
+    HAVING 
+      COUNT(*) = 0
+  ) AS subquery
+WHERE 
+  orders.customer_id IS NULL
+UNION ALL
+SELECT 
+  name AS customer_name,
+  country
+From 
+  customers
+  LEFT JOIN 
+  orders
+  LEFT JOIN 
+  order_items
+  LEFT JOIN 
+  products
+  LEFT JOIN 
+  (
+    SELECT 
+      customer_id
+    FROM 
+      orders
+    GROUP BY 
+      customer_id
+    HAVING 
+      COUNT(*) > 0
+  ) AS subquery2
+WHERE 
+  orders.customer_id IS NULL
+UNION ALL
+SELECT 
+  name AS customer_name,
+  country
+From 
+  customers
+  LEFT JOIN 
+  orders
+  LEFT JOIN 
+  order_items
+  LEFT JOIN 
+  products
+  LEFT JOIN 
+  (
+    SELECT 
+      customer_id
+    From 
+      orders
+    GROUP BY 
+      customer_id
+    HAVING 
+      COUNT(*) = 0
+  ) AS subquery3
+WHERE 
+  orders.customer_id IS NULL
+UNION ALL
+SELECT 
+  name AS customer_name,
+  country
+From 
+  customers
+  LEFT JOIN 
+  orders
+  LEFT JOIN 
+  order_items
+  LEFT JOIN 
+  products
+  LEFT JOIN 
+  (
+    SELECT 
+      customer_id
+    From 
+      orders
+    GROUP BY 
+      customer_id
+    HAVING 
+      COUNT(*) > 0
+  ) AS subquery4
+WHERE 
+  orders.customer_id IS NULL
+UNION ALL
+SELECT 
+  name AS customer_name,
+  country
+From 
+  customers
+  LEFT JOIN 
+  orders
+  LEFT JOIN 
+  order_items
+  LEFT JOIN 
+  products
+  LEFT JOIN 
+  (
+    SELECT 
+      customer_id
+    From 
+      orders
+    GROUP BY 
+      customer_id
+    HAVING 
+      COUNT(*) = 0
+  ) AS subquery5
+WHERE 
+  orders.customer_id IS NULL
+UNION ALL
+SELECT 
+  name AS customer_name,
+  country
+From 
+  customers
+  LEFT JOIN 
+  orders
+  LEFT JOIN 
+  order_items
+  LEFT JOIN 
+  products
+  LEFT JOIN 
+  (
+    SELECT 
+      customer_id
+    From 
+      orders
+    GROUP BY 
+      customer_id
+    HAVING 
+      COUNT(*) > 0
+  ) AS subquery6
+WHERE 
+  orders.customer_id IS NULL
+UNION ALL
+SELECT 
+  name AS customer_name,
+  country
+From 
+  customers
+  LEFT JOIN 
+  orders
+  LEFT JOIN 
+  order_items
+  LEFT JOIN 
+  products
+  LEFT JOIN 
+  (
+    SELECT 
+      customer_id
+    From 
+      orders
+    GROUP BY 
+      customer_id
+    HAVING 
+      COUNT(*) = 0
+  ) AS subquery7
+WHERE 
+  orders.customer_id IS NULL
+UNION ALL
+SELECT 
+  name AS customer_name,
+  country
+From 
+  customers
+  LEFT JOIN 
+  orders
+  LEFT JOIN 
+  order_items
+  LEFT JOIN 
+  products
+  LEFT JOIN 
+  (
+    SELECT 
+      customer_id
+    From 
+      orders
+    GROUP BY 
+      customer_id
+    HAVING 
+      COUNT(*) > 0
+  ) AS subquery8
+WHERE 
+  orders.customer_id IS NULL
+UNION ALL
+SELECT 
+  name AS customer_name,
+  country
+From 
+  customers
+  LEFT JOIN 
+  orders
+  LEFT JOIN 
+  order_items
+  LEFT JOIN 
+  products
+  LEFT JOIN 
+  (
+    SELECT 
+      customer_id
+    From 
+      orders
+    GROUP BY 
+      customer_id
+    HAVING 
+      COUNT(*) = 0
+  ) AS subquery9
+WHERE 
+  orders.customer_id IS NULL
+UNION ALL
+SELECT 
+  name AS customer_name,
+  country
+From 
+  customers
+  LEFT JOIN 
+  orders
+  LEFT JOIN 
+  order_items
+  LEFT JOIN 
+  products
+  LEFT JOIN 
+  (
+    SELECT 
+      customer_id
+    From 
+      orders
+    GROUP BY 
+      customer_id
+    HAVING 
+      COUNT(*) > 0
+  ) AS subquery10
+WHERE 
+  orders.customer_id IS NULL
+UNION ALL
+SELECT 
+  name AS customer_name,
+  country
+From 
+  customers
+  LEFT JOIN 
+  orders
+  LEFT JOIN 
+  order_items
+  LEFT JOIN 
+  products
+  LEFT JOIN 
+  (
+    SELECT 
+      customer_id
+    From 
+      orders
+    GROUP BY 
+      customer_id
+    HAVING 
+      COUNT(*) = 0
+  ) AS subquery11
+WHERE 
+  orders.customer_id IS NULL
+UNION ALL
+SELECT 
+  name AS customer_name,
+  country
+From 
+  customers
+  LEFT JOIN 
+  orders
+  LEFT JOIN 
+  order_items
+  LEFT JOIN 
+  products
+  LEFT JOIN 
+  (
+    SELECT 
+      customer_id
+    From 
+      orders
+    GROUP BY 
+      customer_id
+    HAVING 
+      COUNT(*) > 0
+  ) AS subquery12
+WHERE 
+  orders.customer_id IS NULL
+UNION ALL
+SELECT 
+  name AS customer_name,
+  country
+From 
+  customers
+  LEFT JOIN 
+  orders
+  LEFT JOIN 
+  order_items
+  LEFT JOIN 
+  products
+  LEFT JOIN 
+  (
+    SELECT 
+      customer_id
+    From 
+      orders
+    GROUP BY 
+      customer_id
+    HAVING 
+      COUNT(*) = 0
+  ) AS subquery13
+WHERE 
+  orders.customer_id IS NULL
+UNION ALL
+SELECT 
+  name AS customer_name,
+  country
+From 
+  customers
+  LEFT JOIN 
+  orders
+  LEFT JOIN 
+  order_items
+  LEFT JOIN 
+  products
+  LEFT JOIN 
+  (
+    SELECT 
+      customer_id
+    From 
+      orders
+    GROUP BY 
+      customer_id
+    HAVING 
+      COUNT(*) > 0
+  ) AS subquery14
+WHERE 
+  orders.customer_id IS NULL
+UNION ALL
+SELECT 
+  name AS customer_name,
+  country
+From 
+  customers
+  LEFT JOIN 
+  orders
+  LEFT JOIN 
+  order_items
+  LEFT JOIN 
+  products
+  LEFT JOIN 
+  (
+    SELECT 
+      customer_id
+    From 
+      orders
+    GROUP BY 
+      customer_id
+    HAVING 
+      COUNT(*) = 0
+  ) AS subquery15
+WHERE 
+  orders.customer_id IS NULL
+UNION ALL
+SELECT 
+  name AS customer_name,
+  country
+From 
+  customers
+  LEFT JOIN 
+  orders
+  LEFT JOIN 
+  order_items
+  LEFT JOIN 
+  products
+  LEFT JOIN 
+  (
+    SELECT 
+      customer_id
+    From 
+      orders
+    GROUP BY 
+      customer_id
+    HAVING 
+      COUNT(*) > 0
+  ) AS subquery16
+WHERE 
+  orders.customer_id IS NULL
+UNION ALL
+SELECT 
+  name AS customer_name,
+  country
+From 
+  customers
+  LEFT JOIN 
+  orders
+  LEFT JOIN 
+  order_items
+  LEFT JOIN 
+  products
+  LEFT JOIN 
+  (
+    SELECT 
+      customer_id
+    From 
+      orders
+    GROUP BY 
+      customer_id
+    HAVING 
+      COUNT(*) = 0
+  ) AS subquery17
+WHERE 
+  orders.customer_id IS NULL
+UNION ALL
+SELECT 
+  name AS customer_name,
+  country
+From 
+  customers
+  LEFT JOIN 
+  orders
+  LEFT JOIN 
+  order_items
+  LEFT JOIN 
+  products
+  LEFT JOIN 
+  (
+    SELECT 
+      customer_id
+    From 
+      orders
+    GROUP BY 
+      customer_id
+    HAVING 
+      COUNT(*) > 0
+  ) AS subquery18
+WHERE 
+  orders.customer_id IS NULL
+UNION ALL
+SELECT 
+  name AS customer_name,
+  country
+From 
+  customers
+  LEFT JOIN 
+  orders
+  LEFT JOIN 
+  order_items
+  LEFT JOIN 
+  products
+  LEFT JOIN 
+  (
+    SELECT 
+      customer_id
+    From 
+      orders
+    GROUP BY 
+      customer_id
+    HAVING 
+      COUNT(*) = 0
+  ) AS subquery19
+WHERE 
+  orders.customer_id IS NULL
+UNION ALL
+SELECT 
+  name AS customer_name,
+  country
+From 
+  customers
+  LEFT JOIN 
+  orders
+  LEFT JOIN 
+  order_items
+  LEFT JOIN 
+  products
+  LEFT JOIN 
+  (
+    SELECT 
+      customer_id
+    From 
+      orders
+    GROUP BY 
+      customer_id
+    HAVING 
+      COUNT(*) > 0
+  ) AS subquery20
+WHERE 
+  orders.customer_id IS NULL
+UNION ALL
+SELECT 
+  name AS customer_name,
+  country
+From 
+  customers
+  LEFT JOIN 
+  orders
+  LEFT JOIN 
+  order_items
+  LEFT JOIN 
+  products
+  LEFT JOIN 
+  (
+    SELECT 
+      customer_id
+    From 
+      orders
+    GROUP BY 
+      customer_id
+    HAVING 
+      COUNT(*) = 0
+  ) AS subquery21
+WHERE 
+  orders.customer_id IS NULL
+UNION ALL
+SELECT 
+  name AS customer_name,
+  country
+From 
+  customers
+  LEFT JOIN 
+  orders
+  LEFT JOIN 
+  order_items
+  LEFT JOIN 
+  products
+  LEFT JOIN 
+  (
+    SELECT 
+      customer_id
+    From 
+      orders
+    GROUP BY 
+      customer_id
+    HAVING 
+      COUNT(*) > 0
+  ) AS subquery22
+WHERE 
+  orders.customer_id IS NULL
+UNION ALL
+SELECT 
+  name AS customer_name,
+  country
+From 
+  customers
+  LEFT JOIN 
+  orders
+  LEFT JOIN 
+  order_items
+  LEFT JOIN 
+  products
+  LEFT JOIN 
+  (
+    SELECT 
+      customer_id
+    From 
+      orders
+    GROUP BY 
+      customer_id
+    HAVING 
+      COUNT(*) = 0
+  ) AS subquery23
+WHERE 
+  orders.customer_id IS NULL
+UNION ALL
+SELECT 
+  name AS customer_name,
+  country
+From 
+  customers
+  LEFT JOIN 
+  orders
+  LEFT JOIN 
+  order_items
+  LEFT JOIN 
+  products
+  LEFT JOIN 
+  (
+    SELECT 
+      customer_id
+    From 
+      orders
+    GROUP BY 
+      customer_id
+    HAVING 
+      COUNT(*) > 0
+  ) AS subquery24
+WHERE 
+  orders.customer_id IS NULL
+UNION ALL
+SELECT 
+  name AS customer_name,
+  country
+From 
+  customers
+  LEFT JOIN 
+  orders
+  LEFT JOIN 
+  order_items
+  LEFT JOIN 
+  products
+  LEFT JOIN 
+  (
+    SELECT 
+      customer_id
+    From 
+      orders
+    GROUP BY 
+      customer_id
+    HAVING 
+      COUNT(*) = 0
+  ) AS subquery25
+WHERE 
+  orders.customer_id IS NULL
+UNION ALL
+SELECT 
+  name AS customer_name,
+  country
+From 
+  customers
+  LEFT JOIN 
+  orders
+  LEFT JOIN 
+  order_items
+  LEFT JOIN 
+  products
+  LEFT JOIN 
+  (
+    SELECT 
+      customer_id
+    From 
+      orders
+    GROUP BY 
+      customer_id
+    HAVING 
+      COUNT(*) > 0
+  ) AS subquery26
+WHERE 
+  orders.customer_id IS NULL
+UNION ALL
+SELECT 
+  name AS customer_name,
+  country
+From 
+  customers
+  LEFT JOIN 
+  orders
+  LEFT JOIN 
+  order_items
+  LEFT JOIN 
+  products
+  LEFT JOIN 
+  (
+    SELECT 
+      customer_id
+    From 
+      orders
+    GROUP BY 
+      customer_id
+    HAVING 
+      COUNT(*) = 0
+  ) AS subquery27
+WHERE 
+  orders.customer_id IS NULL
+UNION ALL
+SELECT 
+  name AS customer_name,
+  country
+From 
+  customers
+  LEFT JOIN 
+  orders
+  LEFT JOIN 
+  order_items
+  LEFT JOIN 
+  products
+  LEFT JOIN 
+  (
+    SELECT 
+      customer_id
+    From 
+      orders
+    GROUP BY 
+      customer_id
+    HAVING 
+      COUNT(*) > 0
+  ) AS subquery28
+WHERE 
+  orders.customer_id IS NULL
+UNION ALL
+SELECT 
+  name AS customer_name,
+  country
+From 
+  customers
+  LEFT JOIN 
+  orders
+  LEFT JOIN 
+  order_items
+  LEFT JOIN 
+  products
+  LEFT JOIN 
+  (
+    SELECT 
+      customer_id
+    From 
+      orders
+    GROUP BY 
+      customer_id
+    HAVING 
+      COUNT(*) = 0
+  ) AS subquery29
+WHERE 
+  orders.customer_id IS NULL
+UNION ALL
+SELECT 
+  name AS customer_name,
+  country
+From 
+  customers
+  LEFT JOIN 
+  orders
+  LEFT JOIN 
+  order_items
+  LEFT JOIN 
+  products
+  LEFT JOIN 
+  (
+    SELECT 
+      customer_id
+    From 
+      orders
+    GROUP BY 
+      customer_id
+    HAVING 
+      COUNT(*) > 0
+  ) AS subquery30
+WHERE 
+  orders.customer_id IS NULL
+UNION ALL
+SELECT 
+  name AS customer_name,
+  country
+From 
+  customers
+  LEFT JOIN 
+  orders
+  LEFT JOIN 
+  order_items
+  LEFT JOIN 
+  products
+  LEFT JOIN 
+  (
+    SELECT 
+      customer_id
+    From 
+      orders
+    GROUP BY 
+      customer_id
+    HAVING 
+      COUNT(*) = 0
+  ) AS subquery31
+WHERE 
+  orders.customer_id IS NULL
+UNION ALL
+SELECT 
+  name AS customer_name,
+  country
+From 
+  customers
+  LEFT JOIN 
+  orders
+  LEFT JOIN 
+  order_items
+  LEFT JOIN 
+  products
+  LEFT JOIN 
+  (
+    SELECT 
+      customer_id
+    From 
+      orders
+    GROUP BY 
+      customer_id
+    HAVING 
+      COUNT(*) > 0
+  ) AS subquery32
+WHERE 
+  orders.customer_id IS NULL
+UNION ALL
+SELECT 
+  name AS customer_name,
+  country
+From 
+  customers
+  LEFT JOIN 
+  orders
+  LEFT JOIN 
+  order_items
+  LEFT JOIN 
+  products
+  LEFT JOIN 
+  (
+    SELECT 
+      customer_id
+    From 
+      orders
+    GROUP BY 
+      customer_id
+    HAVING 
+      COUNT(*) = 0
+  ) AS subquery33
+WHERE 
+  orders.customer_id IS NULL
+UNION ALL
+SELECT 
+  name AS customer_name,
+  country
+From 
+  customers
+  LEFT JOIN 
+  orders
+  LEFT JOIN 
+  order_items
+  LEFT JOIN 
+  products
+  LEFT JOIN 
+  (
+    SELECT 
+      customer_id
+    From 
+      orders
+    GROUP BY 
+      customer_id
+    HAVING 
+      COUNT(*) > 0
+  ) AS subquery34
+WHERE 
+  orders.customer_id IS NULL
+UNION ALL
+SELECT 
+  name AS customer_name,
+  country
+From 
+  customers
+  LEFT JOIN 
+  orders
+  LEFT JOIN 
+  order_items
+  LEFT JOIN 
+  products
+  LEFT JOIN 
+  (
+    SELECT 
+      customer_id
+    From 
+      orders
+    GROUP BY 
+      customer_id
+    HAVING 
+      COUNT(*) = 0
+  ) AS subquery35
+WHERE 
+  orders.customer_id IS NULL
+UNION ALL
+SELECT 
+  name AS customer_name,
+  country
+From 
+  customers
+  LEFT JOIN 
+  orders
+  LEFT JOIN 
+  order_items
+  LEFT JOIN 
+  products
+  LEFT JOIN 
+  (
+    SELECT 
+      customer_id
+    From 
+      orders
+    GROUP BY 
+      customer_id
+    HAVING 
+      COUNT(*) > 0
+  ) AS subquery36
+WHERE 
+  orders.customer_id IS NULL
+UNION ALL
+SELECT 
+  name AS customer_name,
+  country
+From 
+  customers
+  LEFT JOIN 
+  orders
+  LEFT JOIN 
+  order_items
+  LEFT JOIN 
+  products
+  LEFT JOIN 
+  (
+    SELECT 
+      customer_id
+    From 
+      orders
+    GROUP BY 
+      customer_id
+    HAVING 
+      COUNT(*) = 0
+  ) AS subquery37
+WHERE 
+  orders.customer_id IS NULL
+UNION ALL
+SELECT 
+  name AS customer_name,
+  country
+From 
+  customers
+  LEFT JOIN 
+  orders
+  LEFT JOIN 
+  order_items
+  LEFT JOIN 
+  products
+  LEFT JOIN 
+  (
+    SELECT 
+      customer_id
+    From 
+      orders
+    GROUP BY 
+      customer_id
+    HAVING 
+      COUNT(*) > 0
+  ) AS subquery38
+WHERE 
+  orders.customer_id IS NULL
+UNION ALL
+SELECT 
+  name AS customer_name,
+  country
+From 
+  customers
+  LEFT JOIN 
+  orders
+  LEFT JOIN 
+  order_items
+  LEFT JOIN 
+  products
+  LEFT JOIN 
+  (
+    SELECT 
+      customer_id
+    From 
+      orders
+    GROUP BY 
+      customer_id
+    HAVING 
+      COUNT(*) = 0
+  ) AS subquery39
+WHERE 
+  orders.customer_id IS NULL
+UNION ALL
+SELECT 
+  name AS customer_name,
+  country
+From 
+  customers
+  LEFT JOIN 
+  orders
+  LEFT JOIN 
+  order_items
+  LEFT JOIN 
+  products
+  LEFT JOIN 
+  (
+    SELECT 
+      customer_id
+    From 
+      orders
+    GROUP BY 
+      customer_id
+    HAVING 
+      COUNT(*) > 0
+  ) AS subquery40
+WHERE 
+  orders.customer_id IS NULL
+UNION ALL
+SELECT 
+  name AS customer_name,
+  country
+From 
+  customers
+  LEFT JOIN 
+  orders
+  LEFT JOIN 
+  order_items
+  LEFT JOIN 
+  products
+  LEFT JOIN 
+  (
+    SELECT 
+      customer_id
+    From 
+      orders
+    GROUP BY 
+      customer_id
+    HAVING 
+      COUNT(*) = 0
+  ) AS subquery41
+WHERE 
+  orders.customer_id IS NULL
+UNION ALL
+SELECT 
+  name AS customer_name,
+  country
+From 
+  customers
+  LEFT JOIN 
+  orders
+  LEFT JOIN 
+  order_items
+  LEFT JOIN 
+  products
+  LEFT JOIN 
+  (
+    SELECT 
+      customer_id
+    From 
+      orders
+    GROUP BY 
+      customer_id
+    HAVING 
+      COUNT(*) > 0
+  ) AS subquery42
+WHERE 
+  orders.customer_id IS NULL
+UNION ALL
+SELECT 
+  name AS customer_name,
+  country
+From 
+  customers
+  LEFT JOIN 
+  orders
+  LEFT JOIN 
+  order_items
+  LEFT JOIN 
+  products
+  LEFT JOIN 
+  (
+    SELECT 
+      customer_id
+    From 
+      orders
+    GROUP BY 
+      customer_id
+    HAVING 
+      COUNT(*) = 0
+  ) AS subquery43
+WHERE 
+  orders.customer_id IS NULL
+UNION ALL
+SELECT 
+  name AS customer_name,
+  country
+From 
+  customers
+  LEFT JOIN 
+  orders
+  LEFT JOIN 
+  order_items
+  LEFT JOIN 
+  products
+  LEFT JOIN 
+  (
+    SELECT 
+      customer_id
+    From 
+      orders
+    GROUP BY 
+      customer_id
+    HAVING 
+      COUNT(*) > 0
+  ) AS subquery44
+WHERE 
+  orders.customer_id IS NULL
+UNION ALL
+SELECT 
+  name AS customer_name,
+  country
+From 
+  customers
+  LEFT JOIN 
+  orders
+  LEFT JOIN 
+  order_items
+  LEFT JOIN 
+  products
+  LEFT JOIN 
+  (
+    SELECT 
+      customer_id
+    From 
+      orders
+    GROUP BY 
+      customer_id
+    HAVING 
+      COUNT(*) = 0
+  ) AS subquery45
+WHERE 
+  orders.customer_id IS NULL
+UNION ALL
+SELECT 
+  name AS customer_name,
+  country
+From 
+  customers
+  LEFT JOIN 
+  orders
+  LEFT JOIN 
+  order_items
+  LEFT JOIN 
+  products
+  LEFT JOIN 
+  (
+    SELECT 
+      customer_id
+    From 
+      orders
+    GROUP BY 
+      customer_id
+    HAVING 
+      COUNT(*) > 0
+  ) AS subquery46
+WHERE 
+  orders.customer_id IS NULL
+UNION ALL
+SELECT 
+  name AS customer_name,
+  country
+From 
+  customers
+  LEFT JOIN 
+  orders
+  LEFT JOIN 
+  order_items
+  LEFT JOIN 
+  products
+  LEFT JOIN 
+  (
+    SELECT 
+      customer_id
+    From 
+      orders
+    GROUP BY 
+      customer_id
+    HAVING 
+      COUNT(*) = 0
+  ) AS subquery47
+WHERE 
+  orders.customer_id IS NULL
+UNION ALL
+SELECT 
+  name AS customer_name,
+  country
+From 
+  customers
+  LEFT JOIN 
+  orders
+  LEFT JOIN 
+  order_items
+  LEFT JOIN 
+  products
+  LEFT JOIN 
+  (
+    SELECT 
+      customer_id
+    From 
+      orders
+    GROUP BY 
+      customer_id
+    HAVING 
+      COUNT(*) > 0
+  ) AS subquery48
+WHERE 
+  orders.customer_id IS NULL
+UNION ALL
+SELECT 
+  name AS customer_name,
+  country
+From 
+  customers
+  LEFT JOIN 
+  orders
+  LEFT JOIN 
+  order_items
+  LEFT JOIN 
+  products
+  LEFT JOIN 
+  (
+    SELECT 
+      customer_id
+    From 
+      orders
+    GROUP BY 
+      customer_id
+    HAVING 
+      COUNT(*) = 0
+  ) AS subquery49
+WHERE 
+  orders.customer_id IS NULL
+UNION ALL
+SELECT 
+  name AS customer_name,
+  country
+From 
+  customers
+  LEFT JOIN 
+  orders
+  LEFT JOIN 
+  order_items
+  LEFT JOIN 
+  products
+  LEFT JOIN 
+  (
+    SELECT 
+      customer_id
+    From 
+      orders
+    GROUP BY 
+      customer_id
+    HAVING 
+      COUNT(*) > 0
+  ) AS subquery50
+WHERE 
+  orders.customer_id IS NULL
+UNION ALL
+SELECT 
+  name AS customer_name,
+  country
+From 
+  customers
+  LEFT JOIN 
+  orders
+  LEFT JOIN 
+  order_items
+  LEFT JOIN 
+  products
+  LEFT JOIN 
+  (
+    SELECT 
+      customer_id
+    From 
+      orders
+    GROUP BY 
+      customer_id
+    HAVING 
+      COUNT(*) = 0
+  ) AS subquery51
+WHERE 
+  orders.customer_id IS NULL
+UNION ALL
+SELECT 
+  name AS customer_name,
+  country
+From 
+  customers
+  LEFT JOIN 
+  orders
+  LEFT JOIN 
+  order_items
+  LEFT JOIN 
+  products
+  LEFT JOIN 
+  (
+    SELECT 
+      customer_id
+    From 
+      orders
+    GROUP BY 
+      customer_id
+    HAVING 
+      COUNT(*) > 0
+  ) AS subquery52
+WHERE 
+  orders.customer_id IS NULL
+UNION ALL
+SELECT 
+  name AS customer_name,
+  country
+From 
+  customers
+  LEFT JOIN 
+  orders
+  LEFT JOIN 
+  order_items
+  LEFT JOIN 
+  products
+  LEFT JOIN 
+  (
+    SELECT 
+      customer_id
+    From 
+      orders
+    GROUP BY 
+      customer_id
+    HAVING 
+      COUNT(*) = 0
+  ) AS subquery53
+WHERE 
+  orders.customer_id IS NULL
+UNION ALL
+SELECT 
+  name AS customer_name,
+  country
+From 
+  customers
+  LEFT JOIN 
+  orders
+  LEFT JOIN 
+  order_items
+  LEFT JOIN 
+  products
+  LEFT JOIN 
+  (
+    SELECT 
+      customer_id
+    From 
+      orders
+    GROUP BY 
+      customer_id
+    HAVING 
+      COUNT(*) > 0
+  ) AS subquery54
+WHERE 
+  orders.customer_id IS NULL
+UNION ALL
+SELECT 
+  name AS customer_name,
+  country
+From 
+  customers
+  LEFT JOIN 
+  orders
+  LEFT JOIN 
+  order_items
+  LEFT JOIN 
+  products
+  LEFT JOIN 
+  (
+    SELECT 
+      customer_id
+    From 
+      orders
+    GROUP BY 
+      customer_id
+    HAVING 
+      COUNT(*) = 0
+  ) AS subquery55
+WHERE 
+  orders.customer_id IS NULL
+UNION ALL
+SELECT 
+  name AS customer_name,
+  country
+From 
+  customers
+  LEFT JOIN 
+  orders
+  LEFT JOIN 
+  order_items
+  LEFT JOIN 
+  products
+  LEFT JOIN 
+  (
+    SELECT 
+      customer_id
+    From 
+      orders
+    GROUP BY 
+      customer_id
+    HAVING 
+      COUNT(*) > 0
+  ) AS subquery56
+WHERE 
+  orders.customer_id IS NULL
+UNION ALL
+SELECT 
+  name AS customer_name,
+  country
+From 
+  customers
+  LEFT JOIN 
+  orders
+  LEFT JOIN 
+  order_items
+  LEFT JOIN 
+  products
+  LEFT JOIN 
+  (
+    SELECT 
+      customer_id
+    From 
+      orders
+    GROUP BY 
+      customer_id
+    HAVING 
+      COUNT(*) = 0
+  ) AS subquery57
+WHERE 
+  orders.customer_id IS NULL
+UNION ALL
+SELECT 
+  name AS customer_name,
+  country
+From 
+  customers
+  LEFT JOIN 
+  orders
+  LEFT JOIN 
+  order_items
+  LEFT JOIN 
+  products
+  LEFT JOIN 
+  (
+    SELECT 
+      customer_id
+    From 
+      orders
+    GROUP BY 
+      customer_id
+    HAVING 
+      COUNT(*) > 0
+  ) AS subquery58
+WHERE 
+  orders.customer_id IS NULL
+UNION ALL
+SELECT 
+  name AS customer_name,
+  country
+From 
+  customers
+  LEFT JOIN 
+  orders
+  LEFT JOIN 
+  order_items
+  LEFT JOIN 
+  products
+  LEFT JOIN 
+  (
+    SELECT 
+      customer_id
+    From 
+      orders
+    GROUP BY 
+      customer_id
+    HAVING 
+      COUNT(*) = 0
+  ) AS subquery59
+WHERE 
+  orders.customer_id IS NULL
+UNION ALL
+SELECT 
+  name AS customer_name,
+  country
+From 
+  customers
+  LEFT JOIN 
+  orders
+  LEFT JOIN 
+  order_items
+  LEFT JOIN 
+  products
+  LEFT JOIN 
+  (
+    SELECT 
+      customer_id
+    From 
+      orders
+    GROUP BY 
+      customer_id
+    HAVING 
+      COUNT(*) > 0
+  ) AS subquery60
+WHERE 
+  orders.customer_id IS NULL
+UNION ALL
+SELECT 
+  name AS customer_name,
+  country
+From 
+  customers
+  LEFT JOIN 
+  orders
+  LEFT JOIN 
+  order_items
+  LEFT JOIN 
+  products
+  LEFT JOIN 
+  (
+    SELECT 
+      customer_id
+    From 
+      orders
+    GROUP BY 
+      customer_id
+    HAVING 
+      COUNT(*) = 0
+  ) AS subquery61
+WHERE 
+  orders.customer_id IS NULL
+UNION ALL
+SELECT 
+  name AS customer_name,
+  country
+From 
+  customers
+  LEFT JOIN 
+  orders
+  LEFT JOIN 
+  order_items
+  LEFT JOIN 
+  products
+  LEFT JOIN 
+  (
+    SELECT 
+      customer_id
+    From 
+      orders
+    GROUP BY 
+      customer_id
+    HAVING 
+      COUNT(*) > 0
+  ) AS subquery62
+WHERE 
+  orders.customer_id IS NULL
+UNION ALL
+SELECT 
+  name AS customer_name,
+  country
+From 
+  customers
+  LEFT JOIN 
+  orders
+  LEFT JOIN 
+  order_items
+  LEFT JOIN 
+  products
+  LEFT JOIN 
+  (
+    SELECT 
+      customer_id
+    From 
+      orders
+    GROUP BY 
+      customer_id
+    HAVING 
+      COUNT(*) = 0
+  ) AS subquery63
+WHERE 
+  orders.customer_id IS NULL
+UNION ALL
+SELECT 
+  name AS customer_name,
+  country
+From 
+  customers
+  LEFT JOIN 
+  orders
+  LEFT JOIN 
+  order_items
+  LEFT JOIN 
+  products
+  LEFT JOIN 
+  (
+    SELECT 
+      customer_id
+    From 
+      orders
+    GROUP BY 
+      customer_id
+    HAVING 
+      COUNT(*) > 0
+  ) AS subquery64
+WHERE 
+  orders.customer_id IS NULL
+UNION ALL
+SELECT 
+  name AS customer_name,
+  country
+From 
+  customers
+  LEFT JOIN 
+  orders
+  LEFT JOIN 
+  order_items
+  LEFT JOIN 
+  products
+  LEFT JOIN 
+  (
+    SELECT 
+      customer_id
+    From 
+      orders
+    GROUP BY 
+      customer_id
+    HAVING 
+      COUNT(*) = 0
+  ) AS subquery65
+WHERE 
+  orders.customer_id IS NULL
+UNION ALL
+SELECT 
+  name AS customer_name,
+  country
+From 
+  customers
+  LEFT JOIN 
+  orders
+  LEFT JOIN 
+  order_items
+  LEFT JOIN 
+  products
+  LEFT JOIN 
+  (
+    SELECT 
+      customer_id
+    From 
+      orders
+    GROUP BY 
+      customer_id
+    HAVING 
+      COUNT(*) > 0
+  ) AS subquery66
+WHERE 
+  orders.customer_id IS NULL
+UNION ALL
+SELECT 
+  name AS customer_name,
+  country
+From 
+  customers
+  LEFT JOIN 
+  orders
+  LEFT JOIN 
+  order_items
+  LEFT JOIN 
+  products
+  LEFT JOIN 
+  (
+    SELECT 
+      customer_id
+    From 
+      orders
+    GROUP BY 
+      customer_id
+    HAVING 
+      COUNT(*) = 0
+  ) AS subquery67
+WHERE 
+  orders.customer_id IS NULL
+UNION ALL
+SELECT 
+  name AS customer_name,
+  country
+From 
+  customers
+  LEFT JOIN 
+  orders
+  LEFT JOIN 
+  order_items
+  LEFT JOIN 
+  products
+  LEFT JOIN 
+  (
+    SELECT 
+      customer_id
+    From 
+      orders
+    GROUP BY 
+      customer_id
+    HAVING 
+      COUNT(*) > 0
+  ) AS subquery68
+WHERE 
+  orders.customer_id IS NULL
+UNION ALL
+SELECT 
+  name AS customer_name,
+  country
+From 
+  customers
+  LEFT JOIN 
+  orders
+  LEFT JOIN 
+  order_items
+  LEFT JOIN 
+  products
+  LEFT JOIN 
+  (
+    SELECT 
+      customer_id
+    From 
+      orders
+    GROUP BY 
+      customer_id
+    HAVING 
+      COUNT(*) = 0
+  ) AS subquery69
+WHERE 
+  orders.customer_id IS NULL
+UNION ALL
+SELECT 
+  name AS customer_name,
+  country
+From 
+  customers
+  LEFT JOIN 
+  orders
+  LEFT JOIN 
+  order_items
+  LEFT JOIN 
+  products
+  LEFT JOIN 
+  (
+    SELECT 
+      customer_id
+    From 
+      orders
+    GROUP BY 
+      customer_id
+    HAVING 
+      COUNT(*) > 0
+  ) AS subquery70
+WHERE 
+  orders.customer_id IS NULL
+UNION ALL
+SELECT 
+  name AS customer_name,
+  country
+From 
+  customers
+  LEFT JOIN 
+  orders
+  LEFT JOIN 
+  order_items
+  LEFT JOIN 
+  products
+  LEFT JOIN 
+  (

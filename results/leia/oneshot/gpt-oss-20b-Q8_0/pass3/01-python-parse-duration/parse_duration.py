@@ -1,0 +1,120 @@
+"""
+Duration string parser.
+
+The module exposes a single function:
+
+    parse_duration(text: str) -> float
+
+which converts a human‑readable duration string into a number of seconds.
+"""
+
+__all__ = ["parse_duration"]
+
+
+def parse_duration(text: str) -> float:
+    """
+    Parse a duration string and return the total number of seconds.
+
+    Parameters
+    ----------
+    text : str
+        The duration string to parse.
+
+    Returns
+    -------
+    float
+        The total duration in seconds.
+
+    Raises
+    ------
+    TypeError
+        If *text* is not a string.
+    ValueError
+        If the string does not conform to the specification.
+    """
+    if not isinstance(text, str):
+        raise TypeError("Input must be a string")
+
+    # Strip leading/trailing whitespace
+    s = text.strip()
+    if not s:
+        raise ValueError("Empty duration string")
+
+    # No whitespace allowed inside the string
+    if any(c.isspace() for c in s):
+        raise ValueError("Whitespace not allowed inside duration string")
+
+    # Optional leading minus sign
+    negative = False
+    if s[0] == "-":
+        negative = True
+        s = s[1:]
+    elif s[0] == "+":
+        raise ValueError("Leading '+' not allowed")
+
+    if not s:
+        raise ValueError("Missing duration components")
+
+    # Unit definitions
+    unit_order = {"h": 0, "m": 1, "s": 2, "ms": 3}
+    unit_factor = {"h": 3600.0, "m": 60.0, "s": 1.0, "ms": 0.001}
+
+    i = 0
+    total = 0.0
+    last_index = -1
+    components = 0
+
+    while i < len(s):
+        # ---- Parse number ----
+        start = i
+        if not s[i].isdigit():
+            raise ValueError(f"Expected digit at position {i}")
+
+        while i < len(s) and s[i].isdigit():
+            i += 1
+
+        # Optional fractional part
+        if i < len(s) and s[i] == ".":
+            i += 1
+            if i >= len(s) or not s[i].isdigit():
+                raise ValueError(f"Invalid decimal number at position {start}")
+            while i < len(s) and s[i].isdigit():
+                i += 1
+
+        num_str = s[start:i]
+
+        # ---- Parse unit ----
+        if i >= len(s):
+            raise ValueError(f"Missing unit after number at position {start}")
+
+        if s[i : i + 2] == "ms":
+            unit = "ms"
+            i += 2
+        elif s[i] in unit_order:
+            unit = s[i]
+            i += 1
+        else:
+            raise ValueError(f"Unknown unit at position {i}")
+
+        # ---- Order / repetition check ----
+        idx = unit_order[unit]
+        if idx <= last_index:
+            raise ValueError(f"Unit '{unit}' out of order or repeated")
+        last_index = idx
+
+        # ---- Accumulate total ----
+        try:
+            value = float(num_str)
+        except ValueError:
+            raise ValueError(f"Invalid number '{num_str}'")
+
+        total += value * unit_factor[unit]
+        components += 1
+
+    if components == 0:
+        raise ValueError("No components found")
+
+    if negative:
+        total = -total
+
+    return total

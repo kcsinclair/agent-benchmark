@@ -1,0 +1,187 @@
+import { Map } from 'node:map';
+
+export class LruTtlCache {
+  #capacity;
+  #defaultTtlMs;
+  #now;
+  #map; // Map<key, { value: any, expiry: number }>
+  #lruList; // Map<key, { prev: key | null, next: key | null }>
+  #head; // key
+  #tail; // key
+
+  constructor({ capacity, defaultTtlMs = Infinity, now = () => Date.now() }) {
+    if (typeof capacity !== 'number' || capacity < 1 || !Number.isInteger(capacity)) {
+      throw new RangeError('capacity must be an integer >= 1');
+    }
+    this.#capacity = capacity;
+    this.#defaultTtlMs = defaultTtlMs;
+    this.#now = now;
+    this.#map = new Map();
+    this.#lruList = new Map();
+    this.#head = null;
+    this.#tail = null;
+  }
+
+  set(key, value, ttlMs) {
+    const expiry = ttlMs === undefined ? this.#defaultTtlMs : ttlMs;
+    const expiryTime = expiry === Infinity ? Infinity : this.#now() + expiry;
+
+    // Update existing entry
+    if (this.#map.has(key)) {
+      const entry = this.#map.get(key);
+      entry.value = value;
+      entry.expiry = expiryTime;
+      this.#updateRecency(key);
+      return this;
+    }
+
+    // New entry
+    if (this.#map.size >= this.#capacity) {
+      this.#evict();
+    }
+
+    this.#map.set(key, { value, expiry: expiryTime });
+    this.#addToLruList(key);
+    return this;
+  }
+
+  get(key) {
+    const entry = this.#map.get(key);
+    if (!entry) return undefined;
+
+    // Check expiration
+    if (entry.expiry !== Infinity && this.#now() >= entry.expiry) {
+      this.#map.delete(key);
+      this.#removeFromLruList(key);
+      return undefined;
+    }
+
+    this.#updateRecency(key);
+    return entry.value;
+  }
+
+  has(key) {
+    const entry = this.#map.get(key);
+    if (!entry) return false;
+
+    // Check expiration
+    if (entry.expiry !== Infinity && this.#now() >= entry.expiry) {
+      this.#map.delete(key);
+      this.#removeFromLruList(key);
+      return false;
+    }
+    return true;
+  }
+
+  delete(key) {
+    if (!this.#map.has(key)) return false;
+    this.#map.delete(key);
+    this.#removeFromLruList(key);
+    return true;
+  }
+
+  get size() {
+    // Purge expired entries
+    const now = this.#now();
+    for (const key of this.#lruList.keys()) {
+      const entry = this.#map.get(key);
+      if (entry.expiry !== Infinity && now >= entry.expiry) {
+        this.#map.delete(key);
+        this.#removeFromLruList(key);
+      }
+    }
+    return this.#map.size;
+  }
+
+  keys() {
+    // Purge expired entries
+    const now = this.#now();
+    for (const key of this.#lruList.keys()) {
+      const entry = this.#map.get(key);
+      if (entry.expiry !== Infinity && now >= entry.expiry) {
+        this.#map.delete(key);
+        this.#removeFromLruList(key);
+      }
+    }
+    return Array.from(this.#lruList.keys());
+  }
+
+  #evict() {
+    // Remove expired entries first
+    const now = this.#now();
+    let evicted = 0;
+    for (const key of this.#lruList.keys()) {
+      const entry = this.#map.get(key);
+      if (entry.expiry !== Infinity && now >= entry.expiry) {
+        this.#map.delete(key);
+        this.#removeFromLruList(key);
+        evicted++;
+      }
+    }
+
+    // If still over capacity, evict LRU
+    while (this.#map.size > this.#capacity) {
+      const lruKey = this.#tail;
+      if (lruKey === null) break; // Should not happen if capacity >=1
+      this.#map.delete(lruKey);
+      this.#removeFromLruList(lruKey);
+    }
+  }
+
+  #updateRecency(key) {
+    // Remove from current position
+    if (this.#lruList.has(key)) {
+      const prevKey = this.#lruList.get(key).prev;
+      const nextKey = this.#lruList.get(key).next;
+
+      if (prevKey) {
+        this.#lruList.get(prevKey).next = nextKey;
+      } else {
+        this.#head = nextKey;
+      }
+
+      if (nextKey) {
+        this.#lruList.get(nextKey).prev = prevKey;
+      } else {
+        this.#tail = prevKey;
+      }
+    }
+
+    // Add to head
+    this.#addToLruList(key);
+  }
+
+  #addToLruList(key) {
+    const node = { prev: null, next: this.#head };
+    this.#lruList.set(key, node);
+
+    if (this.#head) {
+      this.#lruList.get(this.#head).prev = key;
+    } else {
+      this.#tail = key;
+    }
+    this.#head = key;
+  }
+
+  #removeFromLruList(key) {
+    const node = this.#lruList.get(key);
+    if (!node) return;
+
+    const prevKey = node.prev;
+    const nextKey = node.next;
+
+    if (prevKey) {
+      this.#lruList.get(prevKey).next = nextKey;
+    } else {
+      this.#head = nextKey;
+    }
+
+    if (nextKey) {
+      this.#lruList.get(nextKey).prev = prevKey;
+    } else {
+      this.#tail = prevKey;
+    }
+
+    this.#lruList.delete(key);
+  }
+}

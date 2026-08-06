@@ -1,0 +1,141 @@
+**parse_duration.py**
+
+```python
+# parse_duration.py
+# Author: ChatGPT
+# Description: Parses a human‑readable duration string into seconds.
+
+import re
+from typing import Dict
+
+# --------------------------------------------------------------------------- #
+# Helper constants
+# --------------------------------------------------------------------------- #
+
+# Conversion factors to seconds
+_UNIT_FACTORS: Dict[str, float] = {
+    'h': 3600.0,
+    'm': 60.0,
+    's': 1.0,
+    'ms': 0.001,
+}
+
+# Order of units – lower value means larger unit
+_UNIT_ORDER: Dict[str, int] = {
+    'h': 0,
+    'm': 1,
+    's': 2,
+    'ms': 3,
+}
+
+# Regular expression that matches a single component
+#   number  unit
+#   number: digits with optional fractional part
+#   unit  : one of the allowed unit strings
+_COMPONENT_RE = re.compile(r'(\d+(?:\.\d+)?)(h|m|s|ms)')
+
+# --------------------------------------------------------------------------- #
+# Main function
+# --------------------------------------------------------------------------- #
+
+def parse_duration(text: str) -> float:
+    """
+    Parse a duration string and return the total number of seconds.
+
+    Parameters
+    ----------
+    text : str
+        The duration string to parse.
+
+    Returns
+    -------
+    float
+        Total duration in seconds.
+
+    Raises
+    ------
+    TypeError
+        If *text* is not a string.
+    ValueError
+        If the string does not conform to the specification.
+    """
+    if not isinstance(text, str):
+        raise TypeError("parse_duration expects a string")
+
+    # Strip leading/trailing whitespace
+    s = text.strip()
+
+    # Empty string after stripping is invalid
+    if not s:
+        raise ValueError("empty duration string")
+
+    # No whitespace allowed inside the string
+    if any(c.isspace() for c in s):
+        raise ValueError("whitespace not allowed inside duration string")
+
+    # Handle optional leading minus sign
+    sign = 1.0
+    if s[0] == '-':
+        sign = -1.0
+        s = s[1:]
+
+    # After removing the leading minus, no other '-' or '+' may remain
+    if '-' in s or '+' in s:
+        raise ValueError("invalid sign placement")
+
+    # Exponents are not allowed
+    if 'e' in s or 'E' in s:
+        raise ValueError("exponents not allowed")
+
+    # Parse components sequentially
+    pos = 0
+    total_seconds = 0.0
+    seen_units = set()
+    last_order = -1
+
+    for match in _COMPONENT_RE.finditer(s):
+        start, end = match.span()
+        if start != pos:
+            # Gap between components – invalid
+            raise ValueError("components not contiguous")
+
+        number_str, unit = match.groups()
+        # Ensure unit order
+        order = _UNIT_ORDER[unit]
+        if order <= last_order:
+            raise ValueError("unit order or repetition error")
+        last_order = order
+
+        # Ensure unit not repeated
+        if unit in seen_units:
+            raise ValueError("unit repeated")
+        seen_units.add(unit)
+
+        # Convert number to float and accumulate
+        try:
+            number = float(number_str)
+        except ValueError:
+            raise ValueError("invalid number format")
+
+        total_seconds += number * _UNIT_FACTORS[unit]
+
+        pos = end
+
+    # After the loop, we must have consumed the entire string
+    if pos != len(s):
+        raise ValueError("trailing characters after last component")
+
+    # At least one component must have been present
+    if not seen_units:
+        raise ValueError("no components found")
+
+    return sign * total_seconds
+```
+
+The module contains only the required `parse_duration` function and no executable code, so it can be imported as:
+
+```python
+from parse_duration import parse_duration
+```
+
+and will behave exactly as specified.

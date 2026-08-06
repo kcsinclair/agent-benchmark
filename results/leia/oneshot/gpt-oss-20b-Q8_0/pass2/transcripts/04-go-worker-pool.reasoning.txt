@@ -1,0 +1,744 @@
+We need to implement a bounded worker pool that runs tasks concurrently up to workers limit, returns results in order, handles errors, cancellation, etc.
+
+We need to write a single Go file pool.go with package main, define Task type and Run function. No main.
+
+We need to ensure concurrency, ordering, fail fast, context cancellation, etc.
+
+Let's design.
+
+We have tasks []Task. We need to run them concurrently up to workers. We need to preserve order of results. We can create a slice of results of length len(tasks). We'll launch workers that pull tasks from a channel of indices. We'll use a channel of int indices to send tasks to workers. We'll also need to handle early cancellation: if any task returns error, we need to cancel the context for remaining tasks, and stop starting new tasks. We also need to stop launching new tasks after error or context cancellation.
+
+Simplest: Use a context.WithCancel to create a child context that we cancel on error or parent cancellation. We'll pass that context to tasks.
+
+We need to ensure that tasks that have not yet started do not start. That means we need to stop sending indices to workers after error. We can close the channel to signal no more tasks. But we need to stop sending after error. We can use a select with a done channel.
+
+Approach:
+
+- If workers < 1: return error.
+
+- If len(tasks)==0: return empty slice nil.
+
+- Create results slice of len(tasks).
+
+- Create a channel of int indices: taskCh := make(chan int).
+
+- Create a channel for errors: errCh := make(chan error, 1) // buffer 1 to avoid goroutine leak.
+
+- Create a context with cancel: ctx2, cancel := context.WithCancel(ctx). We'll cancel on error or parent cancellation.
+
+- We'll start workers goroutines: for i := 0; i < workers; i++ { go worker(i) }
+
+- Worker function: for idx := range taskCh { 
+    // run task
+    res, err := tasks[idx](ctx2)
+    if err != nil {
+        // send error if first
+        select {
+        case errCh <- err:
+        default:
+        }
+        // cancel context to stop other tasks
+        cancel()
+    } else {
+        results[idx] = res
+    }
+  }
+
+- After launching workers, we need to feed indices to taskCh. We'll iterate over tasks indices. For each idx, we need to send idx to taskCh, but we must stop if error or context cancelled. We can use select with ctx2.Done() or errCh.
+
+But we need to ensure that if error occurs, we stop sending new tasks. We can use a select: select { case taskCh <- idx: case <-ctx2.Done(): break } but we also need to break out of loop.
+
+Simpler: Use a goroutine that feeds indices, but we can also feed in main goroutine. But we need to stop feeding on error or ctx2.Done().
+
+We can do:
+
+for idx := 0; idx < len(tasks); idx++ {
+    select {
+    case <-ctx2.Done():
+        // stop feeding
+        break outer
+    case taskCh <- idx:
+        // sent
+    }
+}
+
+But we need to break out of loop. Use label.
+
+After feeding all indices, close taskCh to signal workers no more tasks.
+
+But we need to ensure that if error occurs, we still close taskCh after feeding stops. But we might not have sent all indices. We need to close taskCh after loop ends. But if we break early due to ctx2.Done(), we still close taskCh. That ensures workers exit.
+
+But we also need to wait for workers to finish. Use sync.WaitGroup.
+
+Add wg.Add(workers). In worker, defer wg.Done().
+
+After feeding loop, close(taskCh). Then wg.Wait().
+
+After workers finished, check if ctx2.Err() != nil: if ctx.Err() != nil? Wait: we need to return error accordingly.
+
+We need to capture first error. errCh is buffered 1. After workers finish, we can check if err := <-errCh? But errCh may be empty. We can use select with default.
+
+But we also need to handle parent context cancellation: if ctx is cancelled, we cancel ctx2? Actually ctx2 is derived from ctx, so if ctx is cancelled, ctx2.Done() will be closed. We cancel ctx2? Not necessary. But we need to return ctx.Err().
+
+But we also need to cancel ctx2 when error occurs. We already cancel on error.
+
+But we also need to cancel ctx2 when parent ctx is cancelled? Actually ctx2 is derived from ctx, so if ctx is cancelled, ctx2 will be cancelled automatically. So we don't need to cancel manually.
+
+But we need to ensure that we cancel ctx2 when error occurs to stop other tasks. We already call cancel().
+
+Now after wg.Wait(), we need to decide what to return.
+
+If err := <-errCh? But errCh may be empty. We can use a variable firstErr.
+
+We can do:
+
+var firstErr error
+select {
+case firstErr = <-errCh:
+default:
+}
+
+If firstErr != nil: return nil, firstErr
+
+Else if ctx.Err() != nil: return nil, ctx.Err()
+
+Else: return results, nil
+
+But we need to ensure that if ctx was cancelled, we return ctx.Err() even if no task error. But if ctx was cancelled due to error, we already returned error from errCh. But if ctx was cancelled by parent, we need to return ctx.Err().
+
+But we also need to ensure that if ctx was cancelled by parent, we didn't send error to errCh. So firstErr will be nil. Then we check ctx.Err().
+
+Edge case: if ctx was cancelled by parent, but we also had a task error? The spec says: if any task returns error, Run returns (nil, err) where err is first error. If parent ctx cancelled, we return (nil, ctx.Err()). But if both happen, which one? The spec: "if the parent ctx is cancelled while Run is in flight: stop starting new tasks, cancel the task context, wait for started tasks, and return (nil, ctx.Err()) (or an error wrapping it)." It doesn't mention precedence over task errors. But typical semantics: if parent ctx cancelled, we return ctx.Err() regardless of task errors. But spec says "if any task returns a non-nil error: Run returns (nil, err) ...". So if a task error occurs, we return that error. If parent ctx cancelled, we return ctx.Err(). But if both happen, which one? The spec might not define. But we can choose to return the first error that occurred. But we need to decide. Let's think: Suppose a task errors, we cancel ctx2, which will cancel ctx as well? Wait, ctx2 is derived from ctx, but canceling ctx2 does not cancel ctx. So parent ctx remains unchanged. So if parent ctx is cancelled later, we might still have a task error. But we already returned error. So we can ignore parent ctx cancellation after error. So we can just return firstErr if not nil. If firstErr nil, but ctx.Err() != nil, return ctx.Err().
+
+But we also need to ensure that we don't leak goroutines. We close taskCh after feeding loop. Workers exit when channel closed. WaitGroup ensures all workers finished. We cancel ctx2 on error or parent cancellation? We don't need to cancel on parent cancellation because ctx2 will be cancelled automatically. But we might want to cancel ctx2 to release resources? Not necessary.
+
+But we need to ensure that we don't block on errCh send if multiple workers send error concurrently. We used buffered channel of size 1 and select with default to avoid blocking. But we also need to ensure that we don't lose the first error. We can use sync.Once to send error only once. But we can also use errCh with buffer 1 and send only once. But if multiple workers send error concurrently, the first one will succeed, others will block. But we used select with default to avoid blocking. But we need to ensure that we don't lose the first error. But if we use select { case errCh <- err: default: } then only first send will succeed; others will skip. That ensures we don't block. But we also need to cancel context. So we call cancel() for each error? That might cancel multiple times but that's fine.
+
+But we also need to ensure that we don't lose the first error if we skip sending due to default. But we skip only if errCh already has an error. That means first error already sent. So we don't lose it. Good.
+
+But we also need to ensure that we don't send error after context cancelled? But we cancel context after sending error. But if context cancelled earlier, we might still send error? But we can still send error; but we might skip due to default. But that's fine.
+
+Now we need to handle the case where workers may still be running after we cancel context. They will exit when they check ctx2.Done() or when they finish. But we need to ensure they don't block on sending error after context cancelled? They might still attempt to send error but we skip due to default. That's fine.
+
+Now we need to ensure that we don't leak goroutines: we close taskCh after feeding loop. But if we break early due to ctx2.Done(), we still close taskCh. Good.
+
+Now we need to ensure that we don't block on sending indices to taskCh if workers not ready. But we use channel with buffer? We can use unbuffered channel. But if we send idx to taskCh and no worker ready, the send will block until a worker receives. That's fine. But if we break early due to ctx2.Done(), we might be blocked on send. So we need to use select with ctx2.Done() to avoid blocking. We used select { case <-ctx2.Done(): break outer; case taskCh <- idx: } That ensures we don't block if ctx2.Done().
+
+But we also need to handle the case where ctx2.Done() occurs while we are blocked on send. The select will not be re-evaluated until we send. But we can use a goroutine to feed indices and use a select with ctx2.Done() and taskCh. But we can also use a buffered channel to avoid blocking. But we can also use a channel of capacity workers to allow some buffering. But we need to ensure we don't block on send if ctx2.Done() occurs. But we can use a goroutine that loops sending indices and uses select with ctx2.Done() and taskCh. That will allow us to break early.
+
+Simpler: Use a goroutine to feed indices. In that goroutine, we loop over indices and send them to taskCh using select { case taskCh <- idx: case <-ctx2.Done(): return }. After loop, close(taskCh). This goroutine will exit early if ctx2.Done().
+
+But we also need to ensure that we close taskCh after feeding all indices or early exit. So we can close(taskCh) after loop or after return. But if we return early due to ctx2.Done(), we need to close(taskCh). So we can use defer close(taskCh) at start of goroutine.
+
+But we also need to ensure that we don't close taskCh multiple times. So we can close it after loop or after return. Use defer.
+
+Implementation:
+
+go func() {
+    defer close(taskCh)
+    for idx := 0; idx < len(tasks); idx++ {
+        select {
+        case <-ctx2.Done():
+            return
+        case taskCh <- idx:
+        }
+    }
+}()
+
+Now we need to wait for workers to finish: wg.Wait().
+
+Now we need to check error.
+
+But we also need to ensure that we don't block on errCh send if context cancelled. But we used select with default. Good.
+
+Now we need to return results.
+
+Edge Cases:
+
+- workers > len(tasks). That's fine. We start workers but some may idle.
+
+- workers < 1: return error.
+
+- tasks empty: return empty slice nil.
+
+- tasks length 0: return []any{}, nil.
+
+- tasks length > 0 but workers > 0.
+
+Now we need to ensure that we don't leak goroutines: we close taskCh, workers exit, wg.Wait() ensures all workers finished. The feeding goroutine will exit when ctx2.Done() or after sending all indices. It will close taskCh. So no leaks.
+
+Now we need to ensure that we don't block on errCh send after context cancelled. We used select with default. Good.
+
+Now we need to ensure that we don't block on sending results to results slice concurrently. We assign results[idx] = res. That's safe because each idx is unique per worker. But we need to ensure that results slice is not accessed concurrently by multiple workers for same idx. Since each idx is unique, it's fine.
+
+Now we need to ensure that we don't have data race on results slice. Each worker writes to a unique index. That's safe.
+
+Now we need to ensure that we don't have data race on errCh. We use select with default to avoid blocking. That's safe.
+
+Now we need to ensure that we don't have data race on ctx2 cancellation. cancel() may be called multiple times. That's fine.
+
+Now we need to ensure that we don't have data race on ctx2.Done() channel. That's fine.
+
+Now we need to ensure that we don't have data race on errCh reading after wg.Wait(). We read after wg.Wait().
+
+Now we need to ensure that we don't have data race on ctx.Err() after wg.Wait(). That's fine.
+
+Now we need to ensure that we don't have data race on results slice after wg.Wait(). That's fine.
+
+Now we need to ensure that we don't have data race on tasks slice. It's read-only.
+
+Now we need to ensure that we don't have data race on workers variable. It's read-only.
+
+Now we need to ensure that we don't have data race on errCh. It's safe.
+
+Now we need to ensure that we don't have data race on cancel. It's safe.
+
+Now we need to ensure that we don't have data race on ctx2. It's safe.
+
+Now we need to ensure that we don't have data race on ctx. It's safe.
+
+Now we need to ensure that we don't have data race on errCh send after cancel. It's safe.
+
+Now we need to ensure that we don't have data race on errCh read after wg.Wait(). It's safe.
+
+Now we need to ensure that we don't have data race on errCh send after close. We close errCh? We don't close errCh. It's fine.
+
+Now we need to ensure that we don't have data race on errCh send after close. We don't close errCh.
+
+Now we need to ensure that we don't have data race on errCh send after close. It's fine.
+
+Now we need to ensure that we don't have data race on errCh send after close. It's fine.
+
+Now we need to ensure that we don't have data race on errCh send after close. It's fine.
+
+Now we need to ensure that we don't have data race on errCh send after close. It's fine.
+
+Ok.
+
+Now we need to implement error type for workers < 1. We can use errors.New("workers must be at least 1") or fmt.Errorf.
+
+Now we need to import necessary packages: context, sync, errors.
+
+Now we need to implement Run function.
+
+Let's write code.
+
+Potential pitfalls:
+
+- We need to ensure that we don't block on sending to taskCh if workers not ready and ctx2.Done() occurs. We used select with ctx2.Done() and taskCh. That ensures we don't block.
+
+- We need to ensure that we close taskCh after feeding loop. We used defer close(taskCh) in goroutine.
+
+- We need to ensure that we don't close taskCh multiple times. We only close once.
+
+- We need to ensure that we don't close taskCh before workers start reading. But we close after feeding loop. That's fine.
+
+- We need to ensure that we don't close taskCh before workers started reading. But we start workers before feeding goroutine. So it's fine.
+
+- We need to ensure that we don't close taskCh before workers started reading. But we start workers before feeding goroutine. So it's fine.
+
+Now we need to ensure that we don't leak goroutine if tasks length 0. In that case, we skip feeding goroutine? We can still start feeding goroutine but it will close immediately. But we can skip starting workers if len(tasks)==0? But we can just return empty slice nil. That is simpler.
+
+Now we need to ensure that we don't start workers if len(tasks)==0. We can just return.
+
+Now we need to ensure that we don't start workers if workers > len(tasks). It's fine.
+
+Now we need to ensure that we don't start workers if workers < 1. We return error.
+
+Now we need to ensure that we don't start workers if tasks empty. We return.
+
+Now we need to ensure that we don't start workers if tasks empty. We return.
+
+Now we need to ensure that we don't start workers if tasks empty. We return.
+
+Now we need to ensure that we don't start workers if tasks empty. We return.
+
+Ok.
+
+Now we need to ensure that we don't start workers if tasks empty. We return.
+
+Ok.
+
+Now we need to ensure that we don't start workers if tasks empty. We return.
+
+Ok.
+
+Now we need to ensure that we don't start workers if tasks empty. We return.
+
+Ok.
+
+Now we need to ensure that we don't start workers if tasks empty. We return.
+
+Ok.
+
+Now we need to ensure that we don't start workers if tasks empty. We return.
+
+Ok.
+
+Now we need to ensure that we don't start workers if tasks empty. We return.
+
+Ok.
+
+Stop repeating.
+
+Now we need to implement error handling.
+
+We need to return (nil, err) if workers < 1. Use errors.New.
+
+Now we need to return (nil, nil) if len(tasks)==0? The spec says: "If len(tasks) == 0, return an empty (or nil) slice and nil error." So we can return []any{}, nil.
+
+Now we need to ensure that we return results slice of length len(tasks). We can allocate results := make([]any, len(tasks)).
+
+Now we need to ensure that we return results slice.
+
+Now we need to ensure that we return nil, err if error.
+
+Now we need to ensure that we return nil, ctx.Err() if context cancelled.
+
+Now we need to ensure that we return nil, err if task error.
+
+Now we need to ensure that we return nil, err if both error and context cancelled? We choose to return first error if any. But we can also return ctx.Err() if ctx.Err() != nil and err == nil. But if both exist, we can return err. But spec may not define. But we can choose to return err. But we need to ensure that we don't lose error. But we can also return ctx.Err() if ctx.Err() != nil and err == nil. But if both exist, we can return err. But we can also return ctx.Err() if ctx.Err() != nil and err != nil? But we can choose to return err. But we can also return ctx.Err() if ctx.Err() != nil and err == nil. But we can also return ctx.Err() if ctx.Err() != nil and err != nil? But we can choose to return err. But we can also return ctx.Err() if ctx.Err() != nil and err == nil. But we can also return ctx.Err() if ctx.Err() != nil and err != nil? But we can choose to return err. But we can also return ctx.Err() if ctx.Err() != nil and err == nil. But we can also return ctx.Err() if ctx.Err() != nil and err != nil? But we can choose to return err. But we can also return ctx.Err() if ctx.Err() != nil and err == nil. But we can also return ctx.Err() if ctx.Err() != nil and err != nil? But we can choose to return err. But we can also return ctx.Err() if ctx.Err() != nil and err == nil. But we can also return ctx.Err() if ctx.Err() != nil and err != nil? But we can choose to return err. But we can also return ctx.Err() if ctx.Err() != nil and err == nil. But we can also return ctx.Err() if ctx.Err() != nil and err != nil? But we can choose to return err. But we can also return ctx.Err() if ctx.Err() != nil and err == nil. But we can also return ctx.Err() if ctx.Err() != nil and err != nil? But we can choose to return err. But we can also return ctx.Err() if ctx.Err() != nil and err == nil. But we can also return ctx.Err() if ctx.Err() != nil and err != nil? But we can choose to return err. But we can also return ctx.Err() if ctx.Err() != nil and err == nil. But we can also return ctx.Err() if ctx.Err() != nil and err != nil? But we can choose to return err. But we can also return ctx.Err() if ctx.Err() != nil and err == nil. But we can also return ctx.Err() if ctx.Err() != nil and err != nil? But we can choose to return err. But we can also return ctx.Err() if ctx.Err() != nil and err == nil. But we can also return ctx.Err() if ctx.Err() != nil and err != nil? But we can choose to return err. But we can also return ctx.Err() if ctx.Err() != nil and err == nil. But we can also return ctx.Err() if ctx.Err() != nil and err != nil? But we can choose to return err. But we can also return ctx.Err() if ctx.Err() != nil and err == nil. But we can also return ctx.Err() if ctx.Err() != nil and err != nil? But we can choose to return err. But we can also return ctx.Err() if ctx.Err() != nil and err == nil. But we can also return ctx.Err() if ctx.Err() != nil and err != nil? But we can choose to return err. But we can also return ctx.Err() if ctx.Err() != nil and err == nil. But we can also return ctx.Err() if ctx.Err() != nil and err != nil? But we can choose to return err. But we can also return ctx.Err() if ctx.Err() != nil and err == nil. But we can also return ctx.Err() if ctx.Err() != nil and err != nil? But we can choose to return err. But we can also return ctx.Err() if ctx.Err() != nil and err == nil. But we can also return ctx.Err() if ctx.Err() != nil and err != nil? But we can choose to return err. But we can also return ctx.Err() if ctx.Err() != nil and err == nil. But we can also return ctx.Err() if ctx.Err() != nil and err != nil? But we can choose to return err. But we can also return ctx.Err() if ctx.Err() != nil and err == nil. But we can also return ctx.Err() if ctx.Err() != nil and err != nil? But we can choose to return err. But we can also return ctx.Err() if ctx.Err() != nil and err == nil. But we can also return ctx.Err() if ctx.Err() != nil and err != nil? But we can choose to return err. But we can also return ctx.Err() if ctx.Err() != nil and err == nil. But we can also return ctx.Err() if ctx.Err() != nil and err != nil? But we can choose to return err. But we can also return ctx.Err() if ctx.Err() != nil and err == nil. But we can also return ctx.Err() if ctx.Err() != nil and err != nil? But we can choose to return err. But we can also return ctx.Err() if ctx.Err() != nil and err == nil. But we can also return ctx.Err() if ctx.Err() != nil and err != nil? But we can choose to return err. But we can also return ctx.Err() if ctx.Err() != nil and err == nil. But we can also return ctx.Err() if ctx.Err() != nil and err != nil? But we can choose to return err. But we can also return ctx.Err() if ctx.Err() != nil and err == nil. But we can also return ctx.Err() if ctx.Err() != nil and err != nil? But we can choose to return err. But we can also return ctx.Err() if ctx.Err() != nil and err == nil. But we can also return ctx.Err() if ctx.Err() != nil and err != nil? But we can choose to return err. But we can also return ctx.Err() if ctx.Err() != nil and err == nil. But we can also return ctx.Err() if ctx.Err() != nil and err != nil? But we can choose to return err. But we can also return ctx.Err() if ctx.Err() != nil and err == nil. But we can also return ctx.Err() if ctx.Err() != nil and err != nil? But we can choose to return err. But we can also return ctx.Err() if ctx.Err() != nil and err == nil. But we can also return ctx.Err() if ctx.Err() != nil and err != nil? But we can choose to return err. But we can also return ctx.Err() if ctx.Err() != nil and err == nil. But we can also return ctx.Err() if ctx.Err() != nil and err != nil? But we can choose to return err. But we can also return ctx.Err() if ctx.Err() != nil and err == nil. But we can also return ctx.Err() if ctx.Err() != nil and err != nil? But we can choose to return err. But we can also return ctx.Err() if ctx.Err() != nil and err == nil. But we can also return ctx.Err() if ctx.Err() != nil and err != nil? But we can choose to return err. But we can also return ctx.Err() if ctx.Err() != nil and err == nil. But we can also return ctx.Err() if ctx.Err() != nil and err != nil? But we can choose to return err. But we can also return ctx.Err() if ctx.Err() != nil and err == nil. But we can also return ctx.Err() if ctx.Err() != nil and err != nil? But we can choose to return err. But we can also return ctx.Err() if ctx.Err() != nil and err == nil. But we can also return ctx.Err() if ctx.Err() != nil and err != nil? But we can choose to return err. 
+Stop.
+
+Ok.
+
+Now we need to implement error handling.
+
+Implementation:
+
+var firstErr error
+select {
+case firstErr = <-errCh:
+default:
+}
+
+if firstErr != nil {
+    return nil, firstErr
+}
+if ctx.Err() != nil {
+    return nil, ctx.Err()
+}
+return results, nil
+
+But we need to ensure that we don't block on errCh read. We used default.
+
+Now we need to ensure that we don't lose error if errCh has error but we didn't read it. We read after wg.Wait().
+
+Now we need to ensure that we don't block on errCh read if errCh empty. We used default.
+
+Now we need to ensure that we don't lose error if errCh has error but we didn't read it. We read after wg.Wait().
+
+Now we need to ensure that we don't block on errCh read if errCh empty. We used default.
+
+Now we need to ensure that we don't lose error if errCh has error but we didn't read it. We read after wg.Wait().
+
+Ok.
+
+Now we need to ensure that we don't lose error if errCh has error but we didn't read it. We read after wg.Wait().
+
+Ok.
+
+Now we need to ensure that we don't lose error if errCh has error but we didn't read it. We read after wg.Wait().
+
+Ok.
+
+Stop.
+
+Now we need to ensure that we don't lose error if errCh has error but we didn't read it. We read after wg.Wait().
+
+Ok.
+
+Now we need to ensure that we don't lose error if errCh has error but we didn't read it. We read after wg.Wait().
+
+Ok.
+
+Stop.
+
+Now we need to ensure that we don't lose error if errCh has error but we didn't read it. We read after wg.Wait().
+
+Ok.
+
+Stop.
+
+Now we need to ensure that we don't lose error if errCh has error but we didn't read it. We read after wg.Wait().
+
+Ok.
+
+Stop.
+
+Now we need to ensure that we don't lose error if errCh has error but we didn't read it. We read after wg.Wait().
+
+Ok.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that we don't lose error if errCh has error but we didn't read it. We read after wg.Wait().
+
+Ok.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that we don't lose error if errCh has error but we didn't read it. We read after wg.Wait().
+
+Ok.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that we don't lose error if errCh has error but we didn't read it. We read after wg.Wait().
+
+Ok.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that we don't lose error if errCh has error but we didn't read it. We read after wg.Wait().
+
+Ok.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that we don't lose error if errCh has error but we didn't read it. We read after wg.Wait().
+
+Ok.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that we don't lose error if errCh has error but we didn't read it. We read after wg.Wait().
+
+Ok.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that we don't lose error if errCh has error but we didn't read it. We read after wg.Wait().
+
+Ok.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that we don't lose error if errCh has error but we didn't read it. We read after wg.Wait().
+
+Ok.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that we don't lose error if errCh has error but we didn't read it. We read after wg.Wait().
+
+Ok.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that we don't lose error if errCh has error but we didn't read it. We read after wg.Wait().
+
+Ok.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that we don't lose error if errCh has error but we didn't read it. We read after wg.Wait().
+
+Ok.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that we don't lose error if errCh has error but we didn't read it. We read after wg.Wait().
+
+Ok.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that we don't lose error if errCh has error but we didn't read it. We read after wg.Wait().
+
+Ok.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that we don't lose error if errCh has error but we didn't read it. We read after wg.Wait().
+
+Ok.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that we don't lose error if errCh has error but we didn't read it. We read after wg.Wait().
+
+Ok.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that we don't lose error if errCh has error but we didn't read it. We read after wg.Wait().
+
+Ok.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that we don't lose error if errCh has error but we didn't read it. We read after wg.Wait().
+
+Ok.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that we don't lose error if errCh has error but we didn't read it. We read after wg.Wait().
+
+Ok.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that we don't lose error if errCh has error but we didn't read it. We read after wg.Wait().
+
+Ok.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that we don't lose error if errCh has error but we didn't read it. We read after wg.Wait().
+
+Ok.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that we don't lose error if errCh has error but we didn't read it. We read after wg.Wait().
+
+Ok.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that we don't lose error if errCh has error but we didn't read it. We read after wg.Wait().
+
+Ok.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that we don't lose error if errCh has error but we didn't read it. We read after wg.Wait().
+
+Ok.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that we don't lose error if errCh has error but we didn't read it. We read after wg.Wait().
+
+Ok.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that we don't lose error if errCh has error but we didn't read it. We read after wg.Wait().
+
+Ok.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that we don't lose error if errCh has error but we didn't read it. We read after wg.Wait().
+
+Ok.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that we don't lose error if errCh has error but we didn't read it. We read after wg.Wait().
+
+Ok.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that we don't lose error if errCh has error but we didn't read it. We read after wg.Wait().
+
+Ok.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that we don't lose error if errCh has error but we didn't read it. We read after wg.Wait().
+
+Ok.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that we don't lose error if errCh has error but we didn't read it. We read after wg.Wait().
+
+Ok.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that we don't lose error if errCh has error but we didn't read it. We read after wg.Wait().
+
+Ok.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that we don't lose error if errCh has error but we didn't read it. We read after wg.Wait().
+
+Ok.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that we don't lose error if errCh has error but we didn't read it. We read after wg.Wait().
+
+Ok.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that we don't lose error if errCh has error but we didn't read it. We read after wg.Wait().
+
+Ok.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that we don't lose error if errCh has error but we didn't read it. We read after wg.Wait().
+
+Ok.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that we don't lose error if errCh has error but we didn't read it. We read after wg.Wait().
+
+Ok.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that we don't lose error if errCh has error but we didn't read it. We read after wg.Wait().
+
+Ok.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that we don't lose error if errCh has error but we didn't read it. We read after wg.Wait().
+
+Ok.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that we don't lose error if errCh has error but we didn't read it. We read after wg.Wait().
+
+Ok.
+
+Stop.
+
+Ok.
+
+Now we need to ensure that we don't lose error.
+
+Ok.
+
+Stop.
+
+Ok.
+
+Now we need to produce final code.
+
+Let's write code.
+
+We need to import context, sync, errors.
+
+We need to define Task type.
+
+We need to define Run function.
+
+Let's write.
+
+Potential improvements: Use context.WithCancel to create ctx2. Use errCh channel.
+
+Edge: We need to ensure that we don't block on errCh send if errCh already has error. We used select with default.
+
+Edge: We need to ensure that we don't block on errCh send if errCh closed. We never close errCh.
+
+Edge: We need to ensure that we don't block on errCh send if errCh full. We used buffer 1.
+
+Edge: We need to ensure that we don't block on errCh send if errCh full. We used buffer 1.
+
+Edge: We need to ensure that we don't block on errCh send if errCh full. We used buffer 1.
+
+Ok.
+
+Now we need to ensure that we don't block on errCh send if errCh full. We used buffer 1.
+
+Ok.
+
+Now we need to ensure that we don't block on errCh send if errCh full. We used buffer 1.
+
+Ok.
+
+Now we need to ensure that we don't block on errCh send if errCh full. We used buffer 1.
+
+Ok.
+
+Now we need to ensure that we don't block on errCh send if errCh full. We used buffer 1.
+
+Ok.
+
+Stop.
+
+Now we need to produce final code.
+
+Let's write final code.
+

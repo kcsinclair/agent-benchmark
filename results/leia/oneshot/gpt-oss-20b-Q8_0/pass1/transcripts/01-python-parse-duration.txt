@@ -1,0 +1,115 @@
+**parse_duration.py**
+
+```python
+"""
+parse_duration module
+
+Provides a single function `parse_duration` that converts a human‑readable
+duration string into a floating‑point number of seconds.
+
+The implementation follows the rules described in the problem statement
+and raises `ValueError` for any malformed input.  A `TypeError` is raised
+if the argument is not a string.
+"""
+
+import re
+
+# Order of units – lower value means larger unit
+_UNIT_ORDER = {"h": 0, "m": 1, "s": 2, "ms": 3}
+
+# Conversion factor to seconds
+_UNIT_FACTOR = {"h": 3600.0, "m": 60.0, "s": 1.0, "ms": 0.001}
+
+# Regex that matches a number followed by a unit.
+# The unit alternatives are ordered so that 'ms' is matched before 'm' or 's'.
+_NUMBER_UNIT_RE = re.compile(r"(?P<num>\d+(?:\.\d+)?)(?P<unit>ms|h|m|s)")
+
+
+def parse_duration(text: str) -> float:
+    """
+    Parse a duration string and return the total number of seconds.
+
+    Parameters
+    ----------
+    text : str
+        The duration string to parse.
+
+    Returns
+    -------
+    float
+        The duration expressed in seconds.
+
+    Raises
+    ------
+    TypeError
+        If *text* is not a string.
+    ValueError
+        If the string does not conform to the required format.
+    """
+    if not isinstance(text, str):
+        raise TypeError("text must be a string")
+
+    # Strip leading/trailing whitespace
+    text = text.strip()
+    if not text:
+        raise ValueError("empty duration string")
+
+    # Handle optional leading minus sign
+    sign = 1
+    if text[0] == "-":
+        sign = -1
+        text = text[1:]
+        if not text:
+            raise ValueError("duration string contains only a minus sign")
+
+    # No whitespace allowed inside the string
+    if re.search(r"\s", text):
+        raise ValueError("whitespace inside duration string")
+
+    pos = 0
+    total_seconds = 0.0
+    last_order = -1
+    seen_units = set()
+
+    while pos < len(text):
+        match = _NUMBER_UNIT_RE.match(text, pos)
+        if not match:
+            raise ValueError(f"invalid component at position {pos}")
+
+        num_str = match.group("num")
+        unit = match.group("unit")
+
+        # Check for repeated unit
+        if unit in seen_units:
+            raise ValueError(f"repeated unit '{unit}'")
+        seen_units.add(unit)
+
+        # Check unit order
+        order = _UNIT_ORDER[unit]
+        if order <= last_order:
+            raise ValueError(f"unit order violation: '{unit}' after previous unit")
+        last_order = order
+
+        # Convert number to float
+        try:
+            value = float(num_str)
+        except ValueError:
+            raise ValueError(f"invalid number '{num_str}'")
+
+        total_seconds += value * _UNIT_FACTOR[unit]
+        pos = match.end()
+
+    # Ensure the entire string was consumed
+    if pos != len(text):
+        raise ValueError("unexpected trailing characters")
+
+    return sign * total_seconds
+```
+
+This file contains only the required function and the necessary imports, so it can be imported with:
+
+```python
+from parse_duration import parse_duration
+```
+
+and used as specified.

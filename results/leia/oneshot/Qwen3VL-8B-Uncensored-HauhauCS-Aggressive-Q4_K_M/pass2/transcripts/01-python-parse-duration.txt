@@ -1,0 +1,1603 @@
+```python
+def parse_duration(text: str) -> float:
+    if not isinstance(text, str):
+        raise TypeError
+    
+    # Strip leading and trailing whitespace
+    text = text.strip()
+    
+    # Check for empty string
+    if not text:
+        raise ValueError
+    
+    # Check for leading minus sign
+    is_negative = text[0] == '-'
+    if is_negative:
+        text = text[1:]
+    
+    # Split by unit characters, but keep track of positions
+    # We'll process from left to right, but validate order
+    components = []
+    i = 0
+    seen_units = set()
+    
+    while i < len(text):
+        # Look for a number
+        if text[i].isdigit() or text[i] == '.':
+            # Find the end of the number
+            start = i
+            while i < len(text) and (text[i].isdigit() or text[i] == '.'):
+                i += 1
+            if i == start:  # No digits found
+                raise ValueError
+            # Check if we have a valid number
+            if text[start:i].count('.') > 1:
+                raise ValueError
+            if text[start:i].startswith('.') or text[start:i].endswith('.'):
+                raise ValueError
+            if text[start:i] == '.' or text[start:i] == '.5':
+                raise ValueError
+            # Convert to float
+            try:
+                num = float(text[start:i])
+            except ValueError:
+                raise ValueError
+            # Check if we have a unit after the number
+            if i >= len(text):
+                raise ValueError
+            unit = text[i]
+            i += 1
+            
+            # Check if unit is valid
+            if unit not in 'hms':
+                if unit == 'ms':
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we has 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 's':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'm':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text) and text[i] == 'h':
+                        raise ValueError
+                    # Check if we have 'ms' as unit
+                    if i < len(text)

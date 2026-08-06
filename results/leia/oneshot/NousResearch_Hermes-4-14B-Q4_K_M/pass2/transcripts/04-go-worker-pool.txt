@@ -1,0 +1,123 @@
+```go
+package main
+
+import (
+	"context"
+	"sync"
+)
+
+// Task is one unit of work.
+type Task func(ctx context.Context) (any, error)
+
+// Run executes tasks with at most `workers` running concurrently and returns
+// their results in the same order as the input slice.
+func Run(ctx context.Context, tasks []Task, workers int) ([]any, error) {
+	// Validate input parameters
+	if workers < 1 {
+		return nil, ErrInvalidWorkers
+	}
+	if len(tasks) == 0 {
+		return nil, nil
+	}
+
+	// Create a channel to signal when a worker is available
+	workerAvailable := make(chan struct{}, workers)
+	for i := 0; i < workers; i++ {
+		workerAvailable <- struct{}{}
+	}
+
+	// Create a channel to collect results in order
+	results := make(chan result, len(tasks))
+
+	// Start a goroutine to collect results and manage cancellation
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		defer close(results) // Close results channel when all tasks are done
+
+		// Wait for all tasks to complete or for an error to occur
+		wg.Wait()
+
+		// If no error occurred, collect results in order
+		if err == nil {
+			finalResults := make([]any, len(tasks))
+			for i := 0; i < len(tasks); i++ {
+				finalResults[i] = <-results
+			}
+			return finalResults, nil
+		}
+
+		// If an error occurred, return nil results and the error
+		return nil, err
+	}()
+
+	// Start a goroutine to handle context cancellation
+	go func() {
+		defer wg.Done()
+		select {
+		case <-ctx.Done():
+			// Cancel all tasks by closing the task context
+			taskCtx, cancel := context.WithCancel(ctx)
+			cancel()
+			// Wait for all tasks to complete
+			wg.Wait()
+			// Return nil results and the context error
+			return nil, ctx.Err()
+		}
+	}()
+
+	// Start each task in a goroutine
+	for i, task := range tasks {
+		// Wait for a worker to become available
+		<-workerAvailable
+
+		// Start the task in a goroutine
+		go func(i int, task Task) {
+			defer wg.Done()
+			defer func() {
+				// Release the worker slot
+				workerAvailable <- struct{}{}
+			}()
+
+			// Execute the task
+			result, err := task(ctx)
+			if err != nil {
+				// If an error occurred, return it immediately
+				results <- resultError{err: err}
+				return
+			}
+
+			// If no error occurred, return the result
+			results <- result
+		}(i, task)
+	}
+
+	// Wait for all tasks to complete
+	wg.Wait()
+
+	// Collect results in order
+	finalResults := make([]any, len(tasks))
+	for i := 0; i < len(tasks); i++ {
+		finalResults[i] = <-results
+	}
+
+	return finalResults, nil
+}
+
+// result represents the result of a task
+type result interface{}
+
+// resultError represents an error returned by a task
+type resultError struct {
+	err error
+}
+
+// resultSuccess represents a successful result returned by a task
+type resultSuccess struct {
+	result any
+}
+
+// ErrInvalidWorkers is returned when the number of workers is less than 1
+var ErrInvalidWorkers = errors.New("invalid number of workers")
+```

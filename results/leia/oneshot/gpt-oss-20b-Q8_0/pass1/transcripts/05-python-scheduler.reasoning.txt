@@ -1,0 +1,23 @@
+We need to implement weighted interval scheduling with up to 200k jobs. Must be O(n log n). Use sorting by end time, binary search for previous non-overlapping job. Use DP array of size n. Also need to reconstruct indices. We need to return indices sorted by start time. We can reconstruct by backtracking from last job. Then sort indices by start time (and index tie). Complexity O(n log n). Use bisect.
+
+Edge cases: empty list. Use float weights.
+
+Implementation details: jobs list of tuples. We'll keep original indices. We'll sort by end time ascending. For each job i in sorted list, compute p[i] = index of last job that ends <= start_i. Use bisect_right on end times list. Then DP[i] = max(DP[i-1], weight_i + DP[p[i]]). Also store choice: if we take job i, record that. For reconstruction: start from last index n-1, while i >=0: if DP[i] == DP[i-1] (or i==0 and DP[i]==weight_i?), then skip job i; else include job i and set i = p[i]. Need to handle i==0 case. We'll store DP array of length n. For i=0: DP[0] = weight_0. For i>0: DP[i] = max(DP[i-1], weight_i + DP[p[i]]). For reconstruction: start i = n-1. While i >=0: if i==0: if DP[0] == weight_0: include 0 else skip. For i>0: if DP[i] == DP[i-1]: skip; else include i and i = p[i]. After loop, we have list of indices in sorted-by-end order. Convert to original indices. Then sort by start time (and index). We can sort by (jobs[orig_idx][0], orig_idx). Complexity O(n log n). Should be fine.
+
+Memory: DP array of floats length n. p array of ints length n. end_times list.
+
+Edge: jobs may have same end times. Sorting stable? We'll sort by end time, then start? Not necessary. For p calculation, we need end times sorted ascending. Use bisect_right to find insertion point for start_i. p[i] = idx-1. If idx==0: p[i] = -1 meaning no previous job. We'll handle DP[-1] as 0. So we can set DP array with DP[-1] = 0. But easier: use p[i] = idx-1; if idx==0: p[i] = -1. Then when computing DP[i], we use prev = DP[p[i]] if p[i] != -1 else 0.
+
+Reconstruction: when including job i, set i = p[i]. If p[i] == -1, break.
+
+Return total_weight = DP[n-1] if n>0 else 0.0.
+
+Need to ensure float precision: use float.
+
+Let's craft code.
+
+Also need to ensure no recursion. We'll use loops.
+
+Testing with example.
+
+Let's produce final answer.

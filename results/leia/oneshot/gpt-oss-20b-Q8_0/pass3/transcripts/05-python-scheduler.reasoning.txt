@@ -1,0 +1,33 @@
+We need to implement weighted interval scheduling with up to 200k jobs. Use O(n log n). Standard algorithm: sort jobs by end time. For each job i, find previous non-overlapping job j (the last job with end <= start_i). Use binary search on sorted end times. Then DP: dp[i] = max(dp[i-1], weight_i + dp[j]). Also need to reconstruct indices. We need to return indices sorted by start time. We can reconstruct by backtracking from last job. We'll store for each i the choice: either skip or take. Then reconstruct list of indices (original indices). Then sort by start time (and index tie). Complexity O(n log n). Use floats for times and weights. Use bisect.
+
+Edge cases: empty list. Use 0-based indexing. We'll sort jobs with original index. Let's design:
+
+jobs_with_index = [(start, end, weight, idx)].
+
+Sort by end ascending. Build arrays: starts, ends, weights, idxs.
+
+Compute p array: for each i, find rightmost index j < i such that ends[j] <= starts[i]. Use bisect_right on ends with starts[i] to get insertion point; j = pos-1.
+
+DP arrays: dp[0] = 0. For i from 1..n: job index i-1 in sorted list. dp[i] = max(dp[i-1], weights[i-1] + dp[p[i-1]+1])? Wait careful: dp array length n+1, dp[0] = 0. For job i (1-indexed), weight w_i, p_i is index of last compatible job (0-based). Then dp[i] = max(dp[i-1], w_i + dp[p_i+1]) because dp array offset. Let's compute p_i as index of last compatible job (0-based). Then dp[i] = max(dp[i-1], w_i + dp[p_i+1]).
+
+Also store choice: take[i] = True if we take job i else False. Actually we can store decision: if dp[i] == w_i + dp[p_i+1] then take else skip. But careful: if equal, we can choose skip or take; any optimal subset accepted. We'll choose skip if equal to keep deterministic.
+
+After DP, reconstruct: start from i = n. While i > 0: if dp[i] == dp[i-1] (skip), i -= 1. else (take), add idxs[i-1] to list, i = p_i+1. At the end, we have list of original indices in reverse order of sorted by end. We need to sort by start time ascending, tie by index ascending. So we can sort the list with key lambda idx: (jobs[idx][0], idx). Return total_weight = dp[n], chosen_indices sorted.
+
+Complexities: O(n log n). Use bisect from bisect module.
+
+Edge: floats: bisect works on floats.
+
+Memory: arrays of length n.
+
+Implementation details: Use local variables for speed.
+
+Return total_weight as float. Ensure 0.0 for empty.
+
+Test with example.
+
+Let's craft code.
+
+Also ensure no side effects on import. So just define function.
+
+Let's produce final answer.

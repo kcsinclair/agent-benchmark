@@ -1,0 +1,78 @@
+#!/usr/bin/env python3
+"""
+Weighted interval scheduling – O(n log n) solution.
+
+The function `best_schedule` receives a list of jobs
+(start, end, weight) and returns the maximum total weight
+together with one optimal set of job indices.
+"""
+
+from __future__ import annotations
+from bisect import bisect_right
+from typing import List, Tuple
+
+def best_schedule(jobs: List[Tuple[float, float, float]]) -> Tuple[float, List[int]]:
+    """
+    Return the maximum achievable total weight and a list of indices of
+    jobs that realise this weight.  The indices are sorted by the job's
+    start time (ties broken by index ascending).
+
+    Parameters
+    ----------
+    jobs : list of (start, end, weight)
+        All jobs satisfy start < end and weight > 0.
+
+    Returns
+    -------
+    (total_weight, chosen_indices) : tuple
+        total_weight : float
+            The maximum total weight.
+        chosen_indices : list[int]
+            Indices into the original `jobs` list of one optimal subset,
+            sorted by start time (ties by index).
+    """
+    n = len(jobs)
+    if n == 0:
+        return 0.0, []
+
+    # Attach original indices and sort by end time
+    jobs_with_index = [(s, e, w, i) for i, (s, e, w) in enumerate(jobs)]
+    jobs_with_index.sort(key=lambda x: x[1])          # sort by end
+
+    # Pre‑compute the list of end times for binary search
+    ends = [e for (_, e, _, _) in jobs_with_index]
+
+    # DP arrays
+    dp = [0.0] * (n + 1)          # dp[0] = 0
+    choose = [False] * (n + 1)     # choose[i] indicates if job i-1 is taken
+
+    for i in range(1, n + 1):
+        s, e, w, _ = jobs_with_index[i - 1]
+        # p[i] – index of the last job that ends <= s
+        p = bisect_right(ends, s)          # returns position in ends where s would be inserted
+        # dp[i] = max(dp[i-1], w + dp[p])
+        val_with = w + dp[p]
+        if val_with >= dp[i - 1]:
+            dp[i] = val_with
+            choose[i] = True
+        else:
+            dp[i] = dp[i - 1]
+            choose[i] = False
+
+    # Reconstruct one optimal subset
+    chosen = []
+    i = n
+    while i > 0:
+        if choose[i]:
+            _, _, _, orig_idx = jobs_with_index[i - 1]
+            chosen.append(orig_idx)
+            # jump to the last compatible job
+            s, _, _, _ = jobs_with_index[i - 1]
+            i = bisect_right(ends, s)
+        else:
+            i -= 1
+
+    # Sort chosen indices by start time (ties by index)
+    chosen.sort(key=lambda idx: (jobs[idx][0], idx))
+
+    return dp[n], chosen

@@ -1,0 +1,105 @@
+**scheduler.py**
+
+```python
+#!/usr/bin/env python3
+"""
+Weighted interval scheduling – O(n log n) implementation.
+
+The function `best_schedule` receives a list of jobs
+(start, end, weight) and returns the maximum total weight
+together with one optimal set of job indices (sorted by start time).
+
+The algorithm follows the classic dynamic‑programming solution
+but uses binary search to keep the complexity to O(n log n)
+even for 200 000 jobs.
+"""
+
+from __future__ import annotations
+
+from bisect import bisect_right
+from typing import List, Tuple
+
+
+def best_schedule(jobs: List[Tuple[float, float, float]]) -> Tuple[float, List[int]]:
+    """
+    Return the maximum achievable total weight and a list of indices of
+    one optimal subset of non‑overlapping jobs.
+
+    Parameters
+    ----------
+    jobs : list[tuple[float, float, float]]
+        Each tuple is (start, end, weight).  All start < end and weight > 0.
+
+    Returns
+    -------
+    tuple[float, list[int]]
+        (total_weight, chosen_indices)
+
+        * total_weight – the maximum sum of weights (float)
+        * chosen_indices – indices into the original `jobs` list,
+          sorted by job start time (ties broken by index).
+    """
+    n = len(jobs)
+    if n == 0:
+        return 0.0, []
+
+    # Keep original indices
+    indexed_jobs = [(s, e, w, idx) for idx, (s, e, w) in enumerate(jobs)]
+
+    # Sort by end time (ascending).  Stable sort keeps original order for ties.
+    indexed_jobs.sort(key=lambda x: x[1])
+
+    # Separate lists for easier access
+    starts = [job[0] for job in indexed_jobs]
+    ends = [job[1] for job in indexed_jobs]
+    weights = [job[2] for job in indexed_jobs]
+    orig_indices = [job[3] for job in indexed_jobs]
+
+    # p[i] – index of the last job that ends <= starts[i]
+    p = [-1] * n
+    for i in range(n):
+        # bisect_right returns insertion point; subtract 1 to get last <= start
+        j = bisect_right(ends, starts[i]) - 1
+        p[i] = j
+
+    # DP array: dp[i] = best weight considering jobs[0..i]
+    dp = [0.0] * n
+    # choice[i] = True if job i is taken in optimal solution ending at i
+    choice = [False] * n
+
+    for i in range(n):
+        # weight if we take job i
+        take = weights[i]
+        if p[i] != -1:
+            take += dp[p[i]]
+        # weight if we skip job i
+        skip = dp[i - 1] if i > 0 else 0.0
+
+        if take > skip:
+            dp[i] = take
+            choice[i] = True
+        else:
+            dp[i] = skip
+            choice[i] = False
+
+    # Reconstruct one optimal set of indices
+    selected = []
+    i = n - 1
+    while i >= 0:
+        if choice[i]:
+            selected.append(orig_indices[i])
+            i = p[i]
+        else:
+            i -= 1
+
+    # The selected indices are in reverse order of end times.
+    # Sort them by start time (and by original index for ties).
+    selected.sort(key=lambda idx: (jobs[idx][0], idx))
+
+    total_weight = dp[-1]
+    return total_weight, selected
+```
+
+The module contains only the required function and uses only the Python
+standard library.  It runs in `O(n log n)` time and `O(n)` memory, easily
+handling 200 000 jobs within the time limits.

@@ -1,0 +1,93 @@
+#!/usr/bin/env python3
+"""
+Weighted interval scheduling – O(n log n) implementation.
+
+The function `best_schedule` receives a list of jobs
+(start, end, weight) and returns the maximum total weight
+together with one optimal set of job indices (sorted by start time).
+
+The algorithm follows the classic dynamic‑programming solution
+with binary search for the previous compatible job.
+"""
+
+from __future__ import annotations
+
+from bisect import bisect_right
+from typing import List, Tuple
+
+
+def best_schedule(jobs: List[Tuple[float, float, float]]) -> Tuple[float, List[int]]:
+    """
+    Return the maximum total weight and a list of indices of an optimal
+    non‑overlapping subset of jobs.
+
+    Parameters
+    ----------
+    jobs : list[tuple[float, float, float]]
+        Each tuple is (start, end, weight).  All start < end and weight > 0.
+
+    Returns
+    -------
+    tuple[float, list[int]]
+        (total_weight, chosen_indices)
+
+        * total_weight – the maximum achievable sum of weights.
+        * chosen_indices – indices into the original `jobs` list,
+          sorted by job start time (ties broken by index).
+    """
+    n = len(jobs)
+    if n == 0:
+        return 0.0, []
+
+    # Attach original indices and sort by end time
+    # (stable sort keeps original order for equal ends, which is fine)
+    sorted_jobs = [
+        (start, end, weight, idx) for idx, (start, end, weight) in enumerate(jobs)
+    ]
+    sorted_jobs.sort(key=lambda x: x[1])  # sort by end
+
+    # Pre‑compute end times for binary search
+    end_times = [job[1] for job in sorted_jobs]
+
+    # DP arrays
+    # dp[i] – best weight using first i jobs (sorted by end)
+    dp: List[float] = [0.0] * (n + 1)
+    # choice[i] – if job i-1 is taken, store the dp index of the previous job;
+    #             otherwise -1
+    choice: List[int] = [-1] * (n + 1)
+
+    for i in range(1, n + 1):
+        start, end, weight, _ = sorted_jobs[i - 1]
+
+        # Find the last job that ends <= start
+        prev_index = bisect_right(end_times, start) - 1
+        prev_dp_index = prev_index + 1 if prev_index >= 0 else 0
+
+        include_weight = weight + dp[prev_dp_index]
+        exclude_weight = dp[i - 1]
+
+        if include_weight > exclude_weight:
+            dp[i] = include_weight
+            choice[i] = prev_dp_index
+        else:
+            dp[i] = exclude_weight
+            choice[i] = -1
+
+    total_weight = dp[n]
+
+    # Reconstruct chosen indices
+    chosen_original_indices: List[int] = []
+    i = n
+    while i > 0:
+        if choice[i] == -1:
+            i -= 1
+        else:
+            # job i-1 is taken
+            _, _, _, orig_idx = sorted_jobs[i - 1]
+            chosen_original_indices.append(orig_idx)
+            i = choice[i]
+
+    # Sort indices by start time (and by index to break ties)
+    chosen_original_indices.sort(key=lambda idx: (jobs[idx][0], idx))
+
+    return total_weight, chosen_original_indices

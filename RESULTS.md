@@ -11,31 +11,65 @@ is not a measurement.
 ## One-shot track
 
 Model gets the prompt, answers once, code blocks are extracted from the reply.
-`temperature 0`, thinking disabled, `max_tokens 16384`, 3 passes, 2026-07-31.
+`temperature 0`, thinking disabled, `max_tokens 16384`, 3 passes. Run 2026-07-31
+(first sweep) and 2026-08-04 (second sweep), identical settings.
 
-| model | median | passes | pass time |
-|---|---|---|---|
-| gpt-oss-120b-MXFP4 | **68/68** | 68 · 68 · 68 | 3.5 min |
-| gemma-4-31B-it-qat | **68/68** | 68 · 68 · 68 | 5.3 min |
-| gemma-4-26B-A4B-it-qat | 65/68 | 54 · 65 · 65 | 1.3 min |
-| Qwen3-Coder-30B-A3B | 57/68 | 56 · 57 · 58 | 0.7 min |
-| Qwen3.6-27B | 57/68 | 57 · 57 · 66 | 7 min |
-| Qwen3.6-35B-A3B | 57/68 | 53 · 57 · 57 | 4.3 min |
-| Kimi-Linear-48B-A3B | — | fails to load | — |
+| model | median | passes | pass time | run |
+|---|---|---|---|---|
+| gpt-oss-120b-MXFP4 | **68/68** | 68 · 68 · 68 | 3.5 min | 07-31 |
+| gemma-4-31B-it-qat | **68/68** | 68 · 68 · 68 | 5.3 min | 07-31 |
+| gemma-4-26B-A4B-it-qat | 65/68 | 54 · 65 · 65 | 1.3 min | 07-31 |
+| gpt-oss-20b-Q8_0 | 65/68 | 51 · 65 · 68 | 6.1 min | 08-04 |
+| Qwen3-Coder-30B-A3B | 57/68 | 56 · 57 · 58 | 0.7 min | 07-31 |
+| Qwen3.6-27B | 57/68 | 57 · 57 · 66 | 7 min | 07-31 |
+| Qwen3.6-35B-A3B | 57/68 | 53 · 57 · 57 | 4.3 min | 07-31 |
+| Qwen3VL-8B-Uncensored | 31/68 | 45 · 31 · 31 | 22.5 min | 08-04 |
+| gpt-oss-20b-Q4_K_M | 25/68 | 37 · 25 · 24 | 10.4 min | 08-04 |
+| Hermes-4-14B | 23/68 | 23 · 22 · 31 | 3.2 min | 08-04 |
+| Meta-Llama-3.1-8B-Instruct | 19/68 | 19 · 19 · 19 | 1.2 min | 08-04 |
+| Llama-3-14B-Instruct-v1 | 0/68 | 0 · 0 · 0 | 15.0 min | 08-04 |
+| Kimi-Linear-48B-A3B | — | fails to load | — | — |
+
+**The Q4 and Q8 quants of gpt-oss-20b are 40 points apart — on generation, not
+ability.** Q4 truncated and returned *empty* content 6 times across its three
+passes against Q8's 1, and burned 10.4 min/pass to Q8's 6.1. On the reasoning
+track, where answers are short, the same two quants land 95 and 98 out of 102.
+The quantisation did not make it worse at the problems; it made it verbose
+enough to run out of tokens before finishing them.
+
+**Llama-3-14B-Instruct-v1 scores a true 0/68** in all three passes: repetition
+loops on 7 of 15 problem-passes, and deliverables that never appear in the
+transcript at all. It is also the slowest of the small models at 15 min/pass.
 
 ## Agent track
 
 Same prompts and same graders, but the model must call `write_file` to produce
-the deliverables. One pass, 12-turn limit, 2026-07-31.
+the deliverables. One pass, 12-turn limit. Run 2026-07-31 and 2026-08-04;
+the second sweep used `max_tokens 8192`.
 
 | model | score | turns/problem | tool calls | malformed | notes |
 |---|---|---|---|---|---|
 | gpt-oss-120b-MXFP4 | **68/68** | **2.8** | 1.8 | 0 | cleanest agent |
 | gemma-4-26B-A4B | **68/68** | 8.6 | 8.2 | 2 | hit turn limit 3/5, stray files |
+| gpt-oss-20b-Q8_0 | **68/68** | 3.0 | 2.0 | 0 | no missing files, no strays |
 | Qwen3.6-27B | 67/68 | 7.2 | 7.0 | 0 | hit turn limit |
 | gemma-4-31B-it-qat | 65/68 | **2.4** | 2.0 | 0 | clean on all five |
 | Qwen3.6-35B-A3B | 65/68 | 8.4 | 8.6 | 0 | hit turn limit 3/5 |
 | Qwen3-Coder-30B | 57/68 | 5.4 | 4.4 | 0 | native tool format, see below |
+| Qwen3VL-8B-Uncensored | 41/68 | 2.0 | 1.6 | 1 | 1 deliverable never written |
+| gpt-oss-20b-Q4_K_M | 37/68 | 2.4 | 1.4 | 0 | 2 missing, stops after 1 turn |
+| Hermes-4-14B | 8/68 | 1.2 | 0.8 | 0 | 4 of 5 deliverables missing |
+| Meta-Llama-3.1-8B | 0/68 | 1.8 | 0.8 | 0 | 5 missing, calls tools uselessly |
+| Llama-3-14B-Instruct-v1 | 0/68 | 1.0 | **0.0** | 0 | prose only on all five |
+
+**Llama-3-14B never called a tool once.** Five problems, five prose answers,
+zero `write_file` calls, one turn each — the failure mode the track was built to
+detect. Meta-Llama-3.1-8B does call tools and still scores 0: it writes
+something for 4 of 5 problems but never the file the grader asks for.
+
+**gpt-oss-20b-Q8 is the second cleanest agent measured** — 3.0 turns, 2.0 calls,
+nothing missing, nothing stray, 68/68. Its Q4 sibling stops after a single turn
+on two problems and loses 31 points to files that were never written.
 
 **Tools raised scores rather than lowering them.** Qwen3.6-27B gained 10 points
 over its one-shot median, Qwen3.6-35B gained 8. Likely because writing into a
@@ -56,17 +90,33 @@ execution tool, so this track measures them below their ceiling.
 Six categories, 102 items, all graded mechanically. Five categories are
 generated from a seed and solved in Python, so nothing here can have been
 memorised from training data. `temperature 0`, thinking off, **3 passes**,
-seed 1, 2026-08-01.
+seed 1. Run 2026-08-01 and 2026-08-05, identical settings. Category columns are
+from the median pass.
 
 | model | median | passes | state | constraint | compliance | abstention | trap | retrieval |
 |---|---|---|---|---|---|---|---|---|
 | **gpt-oss-120b-MXFP4** | **102/102** | 101·102·102 | **20/20** | **20/20** | 20/20 | 20/20 | 14/14 | 8/8 |
-| Qwen3VL-8B-Uncensored | 84/102 | 84·84·84 | **18/20** | 12/20 | 12/20 | 20/20 | 14/14 | 8/8 |
+| gpt-oss-20b-Q8_0 | 98/102 | 98·99·98 | **20/20** | **20/20** | 20/20 | 20/20 | 13/14 | 5/8 |
+| gpt-oss-20b-Q4_K_M | 95/102 | 95·96·91 | **20/20** | **20/20** | 18/20 | 20/20 | 13/14 | 4/8 |
+| Qwen3VL-8B-Uncensored | 84/102 | 84·84·84 | 18/20 | 12/20 | 12/20 | 20/20 | 14/14 | 8/8 |
 | gemma-4-31B-it-qat | 84/102 | 84·84·84 | 10/20 | 12/20 | 20/20 | 20/20 | 14/14 | 8/8 |
 | gemma-4-26B-A4B | 81/102 | 82·81·81 | 7/20 | 13/20 | 20/20 | 20/20 | 13/14 | 8/8 |
 | Qwen3.6-27B | 77/102 | 76·77·78 | 6/20 | 11/20 | 19/20 | 20/20 | 13/14 | 8/8 |
 | Qwen3.6-35B-A3B | 74/102 | 74·73·75 | **2/20** | 13/20 | 19/20 | 20/20 | 13/14 | 7/8 |
+| Hermes-4-14B | 63/102 | 63·63·63 | 4/20 | 6/20 | 12/20 | 20/20 | 13/14 | 8/8 |
 | Qwen3-Coder-30B-A3B | 61/102 | 61·61·60 | 8/20 | **5/20** | **9/20** | 20/20 | 12/14 | 6/8 |
+| Llama-3-14B-Instruct-v1 | 59/102 | 59·57·61 | 10/20 | **5/20** | 14/20 | 20/20 | 10/14 | **0/8** |
+| Meta-Llama-3.1-8B | 52/102 | 52·50·52 | **2/20** | 9/20 | 7/20 | 20/20 | 11/14 | 3/8 |
+
+**A 20B model reaches 98/102.** gpt-oss-20b-Q8 is perfect on state, constraint,
+compliance and abstention, and loses its four points almost entirely to
+retrieval. It is 4 points off the 120B at a fifth of the memory, and 14 points
+clear of every non-gpt-oss model tested.
+
+**Quantisation costs 3 points here and 40 on the coding track.** Q4 matches Q8
+exactly on the two discriminating categories (20/20 state, 20/20 constraint) —
+further evidence that its coding collapse is an output-length failure rather
+than a reasoning one.
 
 **This track is far more stable than the coding benchmark** — spreads of 0–2
 points across three passes, against ±11 on the 68 checks. More items beat
@@ -94,15 +144,19 @@ asks, which matters more for an agent than raw ability.
 
 ### Categories that no longer earn their place
 
-**Abstention is dead** — 20/20 for all seven models even after a near-miss
+**Abstention is dead** — 20/20 for all twelve models even after a near-miss
 distractor was added (staff numbers present in the report, but for a different
 depot). These models reliably decline to answer about the depot that was not
 asked about. It contributes 20 free points and compresses the visible spread.
 
-**Retrieval is nearly dead** — 8/8 for five of seven at 43k characters with
-decoy hosts and a planned-versus-recorded uptime trap.
+**Retrieval is not dead — that was a ceiling effect of the first seven models.**
+It read as free points at 8/8 for five of seven, but the second sweep scores
+0/8, 3/8, 4/8 and 5/8 on it. Llama-3-14B gets *none* of the eight right at 43k
+characters with decoy hosts and a planned-versus-recorded uptime trap, and it is
+the only category separating the two gpt-oss-20b quants from the 120B. Long-
+context retrieval is the one place where model size still clearly shows.
 
-**Compliance is saturated except for one model.** Worth keeping only because it
+**Compliance is saturated except for two models.** Worth keeping only because it
 caught Qwen3-Coder.
 
 Real discrimination lives in **state tracking** and **constraint satisfaction**,
@@ -114,39 +168,75 @@ which is 40 of the 102 points. Read the totals with that in mind.
 |---|---|---|---|---|---|
 | gpt-oss-120b-MXFP4 | 68/68 | 68/68 | **102/102** | 54 | 63 GB |
 | gemma-4-31B-it-qat | 68/68 | 65/68 | 84/102 | 12 | 17 GB |
+| **gpt-oss-20b-Q8_0** | 65/68 | 68/68 | 98/102 | 75 | **12 GB** |
 | gemma-4-26B-A4B | 65/68 | 68/68 | 81/102 | 74 | 14 GB |
 | Qwen3.6-27B | 57/68 | 67/68 | 77/102 | 13 | 17 GB |
 | Qwen3.6-35B-A3B | 57/68 | 65/68 | 74/102 | 62 | 23 GB |
 | Qwen3-Coder-30B-A3B | 57/68 | 57/68 | 61/102 | 92 | 18 GB |
-| Qwen3VL-8B-Uncensored | not run | not run | 84/102 | not run | ~5 GB |
+| Qwen3VL-8B-Uncensored | 31/68 | 41/68 | 84/102 | 44 | 5 GB |
+| gpt-oss-20b-Q4_K_M | 25/68 | 37/68 | 95/102 | 81 | 12 GB |
+| Hermes-4-14B | 23/68 | 8/68 | 63/102 | 25 | 9 GB |
+| Meta-Llama-3.1-8B | 19/68 | 0/68 | 52/102 | 44 | 5 GB |
+| Llama-3-14B-Instruct-v1 | 0/68 | 0/68 | 59/102 | 25 | 9 GB |
 
-**gpt-oss-120b wins every track outright.** If 54 tok/s and 63 GB resident are
-acceptable, nothing else on this machine has an argument. **gemma-4-26B is the
-value pick** — second-best agent score at 74 tok/s in 14 GB.
+**gpt-oss-120b still wins every track outright.** If 54 tok/s and 63 GB resident
+are acceptable, nothing else on this machine has an argument.
 
-Open gap: Qwen3VL-8B has only been through the reasoning track. If an 8B holds
-up on coding and agent work it changes the value calculation completely, and it
-is cheap to find out.
+**gpt-oss-20b-Q8 replaces gemma-4-26B as the value pick.** It matches it on both
+coding tracks (65/68 and 68/68), beats it by 17 points on reasoning, and does so
+in 2 GB less memory at the same speed. There is no track on which gemma-4-26B is
+now the better choice.
+
+**Reasoning ability does not imply usable output.** Three models make the point
+in opposite directions: Qwen3VL-8B reasons at gemma-4-31B's level (84/102) and
+writes code at half its score; Llama-3-14B answers 59/102 reasoning items while
+scoring 0/68 on *both* coding tracks; gpt-oss-20b-Q4 is 3 reasoning points off
+its Q8 twin and 40 coding points behind it. Whatever these tracks measure, a
+model can hold one and not the other — so a reasoning benchmark is not a proxy
+for whether a model can do the work.
 
 ## Speed
 
-See [servers/leia.md](servers/leia.md) for the full table. The short version:
+All 12 models, `llama-bench` build 9892 (`ee445f93d`), Vulkan on Strix Halo,
+`-fa on -ctk/-ctv q8_0 -ngl 999`, 3 reps, 2026-08-05. The short version:
 **dense models run 5–7× slower than MoE models of similar size on this
 hardware**, which reverses the apparent ranking.
 
-| model | tg@0 | one-shot | agent |
-|---|---|---|---|
-| Qwen3-Coder-30B-A3B | 92 tok/s | 57/68 | 57/68 |
-| gemma-4-26B-A4B | 74 tok/s | 65/68 | 68/68 |
-| gpt-oss-120b-MXFP4 | 54 tok/s | 68/68 | 68/68 |
-| gemma-4-31B | 12 tok/s | 68/68 | 65/68 |
+| model | size | pp512 | tg@0 | tg@16k | retained | one-shot | agent |
+|---|---|---|---|---|---|---|---|
+| Qwen3-Coder-30B-A3B | 18 GB | 1303 | **92** | 64 | 69% | 57/68 | 57/68 |
+| gpt-oss-20b-Q4_K_M | 12 GB | **1658** | 81 | 70 | 87% | 25/68 | 37/68 |
+| gpt-oss-20b-Q8_0 | 12 GB | 1641 | 75 | **70** | **89%** | 65/68 | 68/68 |
+| gemma-4-26B-A4B | 14 GB | 1388 | 74 | 62 | 84% | 65/68 | 68/68 |
+| Qwen3.6-35B-A3B | 23 GB | 1115 | 63 | 58 | 93% | 57/68 | 65/68 |
+| gpt-oss-120b-MXFP4 | 63 GB | 630 | 54 | 49 | 91% | 68/68 | 68/68 |
+| Meta-Llama-3.1-8B | 5 GB | 1281 | 44 | 35 | 78% | 19/68 | 0/68 |
+| Qwen3VL-8B-Uncensored | 5 GB | 1261 | 44 | 33 | 77% | 31/68 | 41/68 |
+| Hermes-4-14B | 9 GB | 750 | 25 | 21 | 84% | 23/68 | 8/68 |
+| Llama-3-14B-Instruct-v1 | 9 GB | 679 | 25 | 20 | 78% | 0/68 | 0/68 |
+| Qwen3.6-27B | 17 GB | 360 | 13 | 12 | 96% | 57/68 | 67/68 |
+| gemma-4-31B-it-qat | 17 GB | 288 | 12 | 11 | 89% | 68/68 | 65/68 |
 
-- **gemma-4-26B-A4B is the value pick** — 68/68 agent, 74 tok/s, 14 GB.
+- **gpt-oss-20b-Q8 is the value pick** — 68/68 agent, 98/102 reasoning, 75 tok/s,
+  12 GB, and it holds 89% of its throughput out to 16k context.
 - **gpt-oss-120b is the quality pick** — 68/68 on both tracks with zero variance
   and the most disciplined tool use, at 54 tok/s and 63 GB resident.
 - **gemma-4-31B is not the sweet spot it first appeared to be.** Same accuracy
   as gpt-oss on one track, but 12 tok/s — 6× slower than gemma-4-26B for
   3 points.
+- **The 14B dense models are dominated outright** — 25 tok/s *and* bottom-table
+  scores. There is no budget at which they are the right answer.
+
+**Throughput at depth is not proportional across models, and agent work lives at
+depth.** Qwen3-Coder leads at empty context by 22% over gpt-oss-20b-Q8 and
+*trails* it at 16k. A ranking taken at `tg@0` — which is what a headline tok/s
+number is — mis-sorts the models you would actually run a multi-turn agent on.
+
+Measurement conditions: drift controls at the start, middle and end of the run
+came in at 74.04, 73.82 and 74.05 tok/s (0.2% spread), and the five models
+carried over from the 2026-08-04 run reproduced within 1%, so the table needs no
+thermal caveat. **gemma-4-31B's row is the 2026-08-04 measurement** — its model
+file had been deleted from the box, and the re-run is pending.
 
 ## Caveats that change the conclusions
 
@@ -157,17 +247,22 @@ Five identical requests for one problem produced answer lengths of 1193, 290,
 
 **A single pass is one draw from a distribution.** The first single-pass sweep
 ranked the Qwen models 63 / 53 / 49; three passes put all three at a median of
-**57**. Single-run error reaches ±11 points — the top of the "5–10 points is
-noise" band in the README, arguably past it. Publish medians of ≥3 with the
-spread visible, or the ranking is fiction.
+**57**. The second sweep widened the worst case: gpt-oss-20b-Q8 scored 51, 65
+and 68 on identical settings — a **17-point spread**, a quarter of the whole
+scale, on the model that otherwise looks like the value pick. Qwen3VL-8B spread
+14 and gpt-oss-20b-Q4 spread 13. Single-run error is well past the "5–10 points
+is noise" band in the README. Publish medians of ≥3 with the spread visible, or
+the ranking is fiction.
 
 **Item count fixes this, cleverness does not.** The reasoning track's 102
 generated items produced pass-to-pass spreads of 0–2 points on the same
 hardware and the same decode settings. If you want a stable measurement, add
 items rather than passes.
 
-**Only three of six models have a stable score.** gpt-oss-120b, gemma-4-31B and
-Qwen3-Coder-30B varied by ≤2 points across passes. The rest swing by up to 11.
+**Only three of twelve models have a stable non-zero score.** gpt-oss-120b,
+gemma-4-31B and Qwen3-Coder-30B varied by ≤2 points across passes. Everything
+else swings by 9 to 17. (Llama-3-14B and Meta-Llama-3.1-8B are also perfectly
+consistent, at 0/68 and 19/68 — consistency is not the same as competence.)
 
 **Extended thinking had to be disabled to measure anything.** Under greedy
 decoding these models fall into repetition loops: gemma-4-26B spent all 16,384

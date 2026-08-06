@@ -1,0 +1,742 @@
+{
+  "wall_seconds": 5091.8,
+  "track": "reasoning",
+  "settings": {
+    "temperature": 0.0,
+    "max_tokens": 2048,
+    "think": "off",
+    "repeat": 3,
+    "seed": 1,
+    "server": "http://leia.packsin.com:7442",
+    "categories": [
+      "state",
+      "constraint",
+      "compliance",
+      "abstention",
+      "trap",
+      "retrieval"
+    ]
+  },
+  "results": [
+    {
+      "model": "gpt-oss-20b-Q4_K_M",
+      "load_seconds": 8.1,
+      "passes": [
+        {
+          "pass": 1,
+          "dir": "/Users/keith/Library/Mobile Documents/com~apple~CloudDocs/Projects/agent-benchmark/results/leia/reasoning/gpt-oss-20b-Q4_K_M/pass1",
+          "totals": {
+            "state": {
+              "right": 20,
+              "count": 20,
+              "seconds": 94.3
+            },
+            "constraint": {
+              "right": 20,
+              "count": 20,
+              "seconds": 136.3
+            },
+            "compliance": {
+              "right": 18,
+              "count": 20,
+              "seconds": 87.0
+            },
+            "abstention": {
+              "right": 20,
+              "count": 20,
+              "seconds": 22.1
+            },
+            "trap": {
+              "right": 13,
+              "count": 14,
+              "seconds": 32.9
+            },
+            "retrieval": {
+              "right": 4,
+              "count": 8,
+              "seconds": 204.8
+            }
+          },
+          "right": 95,
+          "count": 102
+        },
+        {
+          "pass": 2,
+          "dir": "/Users/keith/Library/Mobile Documents/com~apple~CloudDocs/Projects/agent-benchmark/results/leia/reasoning/gpt-oss-20b-Q4_K_M/pass2",
+          "totals": {
+            "state": {
+              "right": 20,
+              "count": 20,
+              "seconds": 106.5
+            },
+            "constraint": {
+              "right": 20,
+              "count": 20,
+              "seconds": 125.2
+            },
+            "compliance": {
+              "right": 18,
+              "count": 20,
+              "seconds": 59.3
+            },
+            "abstention": {
+              "right": 20,
+              "count": 20,
+              "seconds": 22.2
+            },
+            "trap": {
+              "right": 13,
+              "count": 14,
+              "seconds": 39.1
+            },
+            "retrieval": {
+              "right": 5,
+              "count": 8,
+              "seconds": 180.0
+            }
+          },
+          "right": 96,
+          "count": 102
+        },
+        {
+          "pass": 3,
+          "dir": "/Users/keith/Library/Mobile Documents/com~apple~CloudDocs/Projects/agent-benchmark/results/leia/reasoning/gpt-oss-20b-Q4_K_M/pass3",
+          "totals": {
+            "state": {
+              "right": 20,
+              "count": 20,
+              "seconds": 95.1
+            },
+            "constraint": {
+              "right": 18,
+              "count": 20,
+              "seconds": 170.0
+            },
+            "compliance": {
+              "right": 17,
+              "count": 20,
+              "seconds": 111.9
+            },
+            "abstention": {
+              "right": 20,
+              "count": 20,
+              "seconds": 22.3
+            },
+            "trap": {
+              "right": 12,
+              "count": 14,
+              "seconds": 58.2
+            },
+            "retrieval": {
+              "right": 4,
+              "count": 8,
+              "seconds": 193.0
+            }
+          },
+          "right": 91,
+          "count": 102
+        }
+      ]
+    },
+    {
+      "model": "gpt-oss-20b-Q8_0",
+      "load_seconds": 8.1,
+      "passes": [
+        {
+          "pass": 1,
+          "dir": "/Users/keith/Library/Mobile Documents/com~apple~CloudDocs/Projects/agent-benchmark/results/leia/reasoning/gpt-oss-20b-Q8_0/pass1",
+          "totals": {
+            "state": {
+              "right": 20,
+              "count": 20,
+              "seconds": 74.8
+            },
+            "constraint": {
+              "right": 20,
+              "count": 20,
+              "seconds": 132.2
+            },
+            "compliance": {
+              "right": 20,
+              "count": 20,
+              "seconds": 58.5
+            },
+            "abstention": {
+              "right": 20,
+              "count": 20,
+              "seconds": 27.8
+            },
+            "trap": {
+              "right": 13,
+              "count": 14,
+              "seconds": 42.3
+            },
+            "retrieval": {
+              "right": 5,
+              "count": 8,
+              "seconds": 162.0
+            }
+          },
+          "right": 98,
+          "count": 102
+        },
+        {
+          "pass": 2,
+          "dir": "/Users/keith/Library/Mobile Documents/com~apple~CloudDocs/Projects/agent-benchmark/results/leia/reasoning/gpt-oss-20b-Q8_0/pass2",
+          "totals": {
+            "state": {
+              "right": 20,
+              "count": 20,
+              "seconds": 73.2
+            },
+            "constraint": {
+              "right": 20,
+              "count": 20,
+              "seconds": 135.9
+            },
+            "compliance": {
+              "right": 20,
+              "count": 20,
+              "seconds": 34.1
+            },
+            "abstention": {
+              "right": 20,
+              "count": 20,
+              "seconds": 28.8
+            },
+            "trap": {
+              "right": 13,
+              "count": 14,
+              "seconds": 36.5
+            },
+            "retrieval": {
+              "right": 6,
+              "count": 8,
+              "seconds": 117.6
+            }
+          },
+          "right": 99,
+          "count": 102
+        },
+        {
+          "pass": 3,
+          "dir": "/Users/keith/Library/Mobile Documents/com~apple~CloudDocs/Projects/agent-benchmark/results/leia/reasoning/gpt-oss-20b-Q8_0/pass3",
+          "totals": {
+            "state": {
+              "right": 20,
+              "count": 20,
+              "seconds": 77.3
+            },
+            "constraint": {
+              "right": 20,
+              "count": 20,
+              "seconds": 130.1
+            },
+            "compliance": {
+              "right": 18,
+              "count": 20,
+              "seconds": 88.6
+            },
+            "abstention": {
+              "right": 20,
+              "count": 20,
+              "seconds": 28.8
+            },
+            "trap": {
+              "right": 13,
+              "count": 14,
+              "seconds": 35.6
+            },
+            "retrieval": {
+              "right": 7,
+              "count": 8,
+              "seconds": 150.8
+            }
+          },
+          "right": 98,
+          "count": 102
+        }
+      ]
+    },
+    {
+      "model": "NousResearch_Hermes-4-14B-Q4_K_M",
+      "load_seconds": 14.3,
+      "passes": [
+        {
+          "pass": 1,
+          "dir": "/Users/keith/Library/Mobile Documents/com~apple~CloudDocs/Projects/agent-benchmark/results/leia/reasoning/NousResearch_Hermes-4-14B-Q4_K_M/pass1",
+          "totals": {
+            "state": {
+              "right": 4,
+              "count": 20,
+              "seconds": 11.2
+            },
+            "constraint": {
+              "right": 6,
+              "count": 20,
+              "seconds": 10.3
+            },
+            "compliance": {
+              "right": 12,
+              "count": 20,
+              "seconds": 7.1
+            },
+            "abstention": {
+              "right": 20,
+              "count": 20,
+              "seconds": 8.8
+            },
+            "trap": {
+              "right": 13,
+              "count": 14,
+              "seconds": 3.9
+            },
+            "retrieval": {
+              "right": 8,
+              "count": 8,
+              "seconds": 161.4
+            }
+          },
+          "right": 63,
+          "count": 102
+        },
+        {
+          "pass": 2,
+          "dir": "/Users/keith/Library/Mobile Documents/com~apple~CloudDocs/Projects/agent-benchmark/results/leia/reasoning/NousResearch_Hermes-4-14B-Q4_K_M/pass2",
+          "totals": {
+            "state": {
+              "right": 4,
+              "count": 20,
+              "seconds": 8.1
+            },
+            "constraint": {
+              "right": 6,
+              "count": 20,
+              "seconds": 7.2
+            },
+            "compliance": {
+              "right": 12,
+              "count": 20,
+              "seconds": 6.9
+            },
+            "abstention": {
+              "right": 20,
+              "count": 20,
+              "seconds": 6.7
+            },
+            "trap": {
+              "right": 13,
+              "count": 14,
+              "seconds": 1.8
+            },
+            "retrieval": {
+              "right": 8,
+              "count": 8,
+              "seconds": 3.7
+            }
+          },
+          "right": 63,
+          "count": 102
+        },
+        {
+          "pass": 3,
+          "dir": "/Users/keith/Library/Mobile Documents/com~apple~CloudDocs/Projects/agent-benchmark/results/leia/reasoning/NousResearch_Hermes-4-14B-Q4_K_M/pass3",
+          "totals": {
+            "state": {
+              "right": 4,
+              "count": 20,
+              "seconds": 7.7
+            },
+            "constraint": {
+              "right": 6,
+              "count": 20,
+              "seconds": 7.3
+            },
+            "compliance": {
+              "right": 12,
+              "count": 20,
+              "seconds": 6.6
+            },
+            "abstention": {
+              "right": 20,
+              "count": 20,
+              "seconds": 6.6
+            },
+            "trap": {
+              "right": 13,
+              "count": 14,
+              "seconds": 1.9
+            },
+            "retrieval": {
+              "right": 8,
+              "count": 8,
+              "seconds": 3.6
+            }
+          },
+          "right": 63,
+          "count": 102
+        }
+      ]
+    },
+    {
+      "model": "Qwen3VL-8B-Uncensored-HauhauCS-Aggressive-Q4_K_M",
+      "load_seconds": 7.4,
+      "passes": [
+        {
+          "pass": 1,
+          "dir": "/Users/keith/Library/Mobile Documents/com~apple~CloudDocs/Projects/agent-benchmark/results/leia/reasoning/Qwen3VL-8B-Uncensored-HauhauCS-Aggressive-Q4_K_M/pass1",
+          "totals": {
+            "state": {
+              "right": 18,
+              "count": 20,
+              "seconds": 128.9
+            },
+            "constraint": {
+              "right": 12,
+              "count": 20,
+              "seconds": 3.4
+            },
+            "compliance": {
+              "right": 12,
+              "count": 20,
+              "seconds": 4.1
+            },
+            "abstention": {
+              "right": 20,
+              "count": 20,
+              "seconds": 3.7
+            },
+            "trap": {
+              "right": 14,
+              "count": 14,
+              "seconds": 2.2
+            },
+            "retrieval": {
+              "right": 8,
+              "count": 8,
+              "seconds": 101.6
+            }
+          },
+          "right": 84,
+          "count": 102
+        },
+        {
+          "pass": 2,
+          "dir": "/Users/keith/Library/Mobile Documents/com~apple~CloudDocs/Projects/agent-benchmark/results/leia/reasoning/Qwen3VL-8B-Uncensored-HauhauCS-Aggressive-Q4_K_M/pass2",
+          "totals": {
+            "state": {
+              "right": 18,
+              "count": 20,
+              "seconds": 129.0
+            },
+            "constraint": {
+              "right": 12,
+              "count": 20,
+              "seconds": 1.6
+            },
+            "compliance": {
+              "right": 12,
+              "count": 20,
+              "seconds": 3.6
+            },
+            "abstention": {
+              "right": 20,
+              "count": 20,
+              "seconds": 2.4
+            },
+            "trap": {
+              "right": 14,
+              "count": 14,
+              "seconds": 1.0
+            },
+            "retrieval": {
+              "right": 8,
+              "count": 8,
+              "seconds": 2.8
+            }
+          },
+          "right": 84,
+          "count": 102
+        },
+        {
+          "pass": 3,
+          "dir": "/Users/keith/Library/Mobile Documents/com~apple~CloudDocs/Projects/agent-benchmark/results/leia/reasoning/Qwen3VL-8B-Uncensored-HauhauCS-Aggressive-Q4_K_M/pass3",
+          "totals": {
+            "state": {
+              "right": 18,
+              "count": 20,
+              "seconds": 128.8
+            },
+            "constraint": {
+              "right": 12,
+              "count": 20,
+              "seconds": 1.8
+            },
+            "compliance": {
+              "right": 12,
+              "count": 20,
+              "seconds": 3.6
+            },
+            "abstention": {
+              "right": 20,
+              "count": 20,
+              "seconds": 2.1
+            },
+            "trap": {
+              "right": 14,
+              "count": 14,
+              "seconds": 1.1
+            },
+            "retrieval": {
+              "right": 8,
+              "count": 8,
+              "seconds": 2.8
+            }
+          },
+          "right": 84,
+          "count": 102
+        }
+      ]
+    },
+    {
+      "model": "Llama-3-14B-Instruct-v1.Q4_K_M",
+      "load_seconds": 10.0,
+      "passes": [
+        {
+          "pass": 1,
+          "dir": "/Users/keith/Library/Mobile Documents/com~apple~CloudDocs/Projects/agent-benchmark/results/leia/reasoning/Llama-3-14B-Instruct-v1.Q4_K_M/pass1",
+          "totals": {
+            "state": {
+              "right": 10,
+              "count": 20,
+              "seconds": 153.3
+            },
+            "constraint": {
+              "right": 5,
+              "count": 20,
+              "seconds": 72.6
+            },
+            "compliance": {
+              "right": 14,
+              "count": 20,
+              "seconds": 9.9
+            },
+            "abstention": {
+              "right": 20,
+              "count": 20,
+              "seconds": 12.9
+            },
+            "trap": {
+              "right": 10,
+              "count": 14,
+              "seconds": 3.8
+            },
+            "retrieval": {
+              "right": 0,
+              "count": 8,
+              "seconds": 0.0
+            }
+          },
+          "right": 59,
+          "count": 102
+        },
+        {
+          "pass": 2,
+          "dir": "/Users/keith/Library/Mobile Documents/com~apple~CloudDocs/Projects/agent-benchmark/results/leia/reasoning/Llama-3-14B-Instruct-v1.Q4_K_M/pass2",
+          "totals": {
+            "state": {
+              "right": 9,
+              "count": 20,
+              "seconds": 150.5
+            },
+            "constraint": {
+              "right": 4,
+              "count": 20,
+              "seconds": 150.5
+            },
+            "compliance": {
+              "right": 14,
+              "count": 20,
+              "seconds": 9.0
+            },
+            "abstention": {
+              "right": 20,
+              "count": 20,
+              "seconds": 10.3
+            },
+            "trap": {
+              "right": 10,
+              "count": 14,
+              "seconds": 1.5
+            },
+            "retrieval": {
+              "right": 0,
+              "count": 8,
+              "seconds": 0.0
+            }
+          },
+          "right": 57,
+          "count": 102
+        },
+        {
+          "pass": 3,
+          "dir": "/Users/keith/Library/Mobile Documents/com~apple~CloudDocs/Projects/agent-benchmark/results/leia/reasoning/Llama-3-14B-Instruct-v1.Q4_K_M/pass3",
+          "totals": {
+            "state": {
+              "right": 11,
+              "count": 20,
+              "seconds": 154.1
+            },
+            "constraint": {
+              "right": 6,
+              "count": 20,
+              "seconds": 147.3
+            },
+            "compliance": {
+              "right": 14,
+              "count": 20,
+              "seconds": 9.1
+            },
+            "abstention": {
+              "right": 20,
+              "count": 20,
+              "seconds": 10.1
+            },
+            "trap": {
+              "right": 10,
+              "count": 14,
+              "seconds": 1.5
+            },
+            "retrieval": {
+              "right": 0,
+              "count": 8,
+              "seconds": 0.0
+            }
+          },
+          "right": 61,
+          "count": 102
+        }
+      ]
+    },
+    {
+      "model": "Meta-Llama-3.1-8B-Instruct-Q4_K_M",
+      "load_seconds": 7.5,
+      "passes": [
+        {
+          "pass": 1,
+          "dir": "/Users/keith/Library/Mobile Documents/com~apple~CloudDocs/Projects/agent-benchmark/results/leia/reasoning/Meta-Llama-3.1-8B-Instruct-Q4_K_M/pass1",
+          "totals": {
+            "state": {
+              "right": 2,
+              "count": 20,
+              "seconds": 8.7
+            },
+            "constraint": {
+              "right": 9,
+              "count": 20,
+              "seconds": 3.2
+            },
+            "compliance": {
+              "right": 7,
+              "count": 20,
+              "seconds": 3.7
+            },
+            "abstention": {
+              "right": 20,
+              "count": 20,
+              "seconds": 4.1
+            },
+            "trap": {
+              "right": 11,
+              "count": 14,
+              "seconds": 2.1
+            },
+            "retrieval": {
+              "right": 3,
+              "count": 8,
+              "seconds": 79.3
+            }
+          },
+          "right": 52,
+          "count": 102
+        },
+        {
+          "pass": 2,
+          "dir": "/Users/keith/Library/Mobile Documents/com~apple~CloudDocs/Projects/agent-benchmark/results/leia/reasoning/Meta-Llama-3.1-8B-Instruct-Q4_K_M/pass2",
+          "totals": {
+            "state": {
+              "right": 2,
+              "count": 20,
+              "seconds": 8.5
+            },
+            "constraint": {
+              "right": 9,
+              "count": 20,
+              "seconds": 3.1
+            },
+            "compliance": {
+              "right": 5,
+              "count": 20,
+              "seconds": 3.6
+            },
+            "abstention": {
+              "right": 20,
+              "count": 20,
+              "seconds": 4.1
+            },
+            "trap": {
+              "right": 11,
+              "count": 14,
+              "seconds": 1.5
+            },
+            "retrieval": {
+              "right": 3,
+              "count": 8,
+              "seconds": 2.0
+            }
+          },
+          "right": 50,
+          "count": 102
+        },
+        {
+          "pass": 3,
+          "dir": "/Users/keith/Library/Mobile Documents/com~apple~CloudDocs/Projects/agent-benchmark/results/leia/reasoning/Meta-Llama-3.1-8B-Instruct-Q4_K_M/pass3",
+          "totals": {
+            "state": {
+              "right": 3,
+              "count": 20,
+              "seconds": 9.6
+            },
+            "constraint": {
+              "right": 9,
+              "count": 20,
+              "seconds": 3.1
+            },
+            "compliance": {
+              "right": 6,
+              "count": 20,
+              "seconds": 3.7
+            },
+            "abstention": {
+              "right": 20,
+              "count": 20,
+              "seconds": 3.9
+            },
+            "trap": {
+              "right": 11,
+              "count": 14,
+              "seconds": 1.0
+            },
+            "retrieval": {
+              "right": 3,
+              "count": 8,
+              "seconds": 1.9
+            }
+          },
+          "right": 52,
+          "count": 102
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,1026 @@
+{
+  "model": "gpt-oss-20b-Q4_K_M",
+  "seed": 1,
+  "results": [
+    {
+      "category": "state",
+      "item": 1,
+      "ok": true,
+      "expected": "8",
+      "seconds": 2.9,
+      "tokens": 208,
+      "finish": "stop",
+      "reply": "8"
+    },
+    {
+      "category": "state",
+      "item": 2,
+      "ok": true,
+      "expected": "26",
+      "seconds": 3.4,
+      "tokens": 228,
+      "finish": "stop",
+      "reply": "26"
+    },
+    {
+      "category": "state",
+      "item": 3,
+      "ok": true,
+      "expected": "4",
+      "seconds": 12.8,
+      "tokens": 932,
+      "finish": "stop",
+      "reply": "4"
+    },
+    {
+      "category": "state",
+      "item": 4,
+      "ok": true,
+      "expected": "3",
+      "seconds": 3.5,
+      "tokens": 248,
+      "finish": "stop",
+      "reply": "3"
+    },
+    {
+      "category": "state",
+      "item": 5,
+      "ok": true,
+      "expected": "36",
+      "seconds": 3.4,
+      "tokens": 234,
+      "finish": "stop",
+      "reply": "36"
+    },
+    {
+      "category": "state",
+      "item": 6,
+      "ok": true,
+      "expected": "11",
+      "seconds": 9.4,
+      "tokens": 696,
+      "finish": "stop",
+      "reply": "11"
+    },
+    {
+      "category": "state",
+      "item": 7,
+      "ok": true,
+      "expected": "14",
+      "seconds": 4.9,
+      "tokens": 349,
+      "finish": "stop",
+      "reply": "14"
+    },
+    {
+      "category": "state",
+      "item": 8,
+      "ok": true,
+      "expected": "11",
+      "seconds": 4.0,
+      "tokens": 273,
+      "finish": "stop",
+      "reply": "11"
+    },
+    {
+      "category": "state",
+      "item": 9,
+      "ok": true,
+      "expected": "7",
+      "seconds": 3.5,
+      "tokens": 236,
+      "finish": "stop",
+      "reply": "7"
+    },
+    {
+      "category": "state",
+      "item": 10,
+      "ok": true,
+      "expected": "5",
+      "seconds": 5.7,
+      "tokens": 399,
+      "finish": "stop",
+      "reply": "5"
+    },
+    {
+      "category": "state",
+      "item": 11,
+      "ok": true,
+      "expected": "4",
+      "seconds": 3.3,
+      "tokens": 232,
+      "finish": "stop",
+      "reply": "4"
+    },
+    {
+      "category": "state",
+      "item": 12,
+      "ok": true,
+      "expected": "13",
+      "seconds": 6.6,
+      "tokens": 474,
+      "finish": "stop",
+      "reply": "13"
+    },
+    {
+      "category": "state",
+      "item": 13,
+      "ok": true,
+      "expected": "1",
+      "seconds": 4.0,
+      "tokens": 274,
+      "finish": "stop",
+      "reply": "1"
+    },
+    {
+      "category": "state",
+      "item": 14,
+      "ok": true,
+      "expected": "0",
+      "seconds": 3.8,
+      "tokens": 267,
+      "finish": "stop",
+      "reply": "0"
+    },
+    {
+      "category": "state",
+      "item": 15,
+      "ok": true,
+      "expected": "8",
+      "seconds": 5.7,
+      "tokens": 409,
+      "finish": "stop",
+      "reply": "8"
+    },
+    {
+      "category": "state",
+      "item": 16,
+      "ok": true,
+      "expected": "15",
+      "seconds": 3.4,
+      "tokens": 245,
+      "finish": "stop",
+      "reply": "15"
+    },
+    {
+      "category": "state",
+      "item": 17,
+      "ok": true,
+      "expected": "1",
+      "seconds": 4.9,
+      "tokens": 352,
+      "finish": "stop",
+      "reply": "1"
+    },
+    {
+      "category": "state",
+      "item": 18,
+      "ok": true,
+      "expected": "15",
+      "seconds": 3.1,
+      "tokens": 222,
+      "finish": "stop",
+      "reply": "15"
+    },
+    {
+      "category": "state",
+      "item": 19,
+      "ok": true,
+      "expected": "7",
+      "seconds": 3.7,
+      "tokens": 265,
+      "finish": "stop",
+      "reply": "7"
+    },
+    {
+      "category": "state",
+      "item": 20,
+      "ok": true,
+      "expected": "5",
+      "seconds": 3.2,
+      "tokens": 220,
+      "finish": "stop",
+      "reply": "5"
+    },
+    {
+      "category": "constraint",
+      "item": 1,
+      "ok": true,
+      "expected": "2",
+      "seconds": 4.4,
+      "tokens": 319,
+      "finish": "stop",
+      "reply": "2"
+    },
+    {
+      "category": "constraint",
+      "item": 2,
+      "ok": true,
+      "expected": "2",
+      "seconds": 10.1,
+      "tokens": 739,
+      "finish": "stop",
+      "reply": "2"
+    },
+    {
+      "category": "constraint",
+      "item": 3,
+      "ok": true,
+      "expected": "1",
+      "seconds": 8.1,
+      "tokens": 586,
+      "finish": "stop",
+      "reply": "1"
+    },
+    {
+      "category": "constraint",
+      "item": 4,
+      "ok": true,
+      "expected": "3",
+      "seconds": 6.7,
+      "tokens": 489,
+      "finish": "stop",
+      "reply": "3"
+    },
+    {
+      "category": "constraint",
+      "item": 5,
+      "ok": true,
+      "expected": "2",
+      "seconds": 4.4,
+      "tokens": 322,
+      "finish": "stop",
+      "reply": "2"
+    },
+    {
+      "category": "constraint",
+      "item": 6,
+      "ok": true,
+      "expected": "2",
+      "seconds": 5.4,
+      "tokens": 403,
+      "finish": "stop",
+      "reply": "2"
+    },
+    {
+      "category": "constraint",
+      "item": 7,
+      "ok": true,
+      "expected": "2",
+      "seconds": 5.2,
+      "tokens": 373,
+      "finish": "stop",
+      "reply": "2"
+    },
+    {
+      "category": "constraint",
+      "item": 8,
+      "ok": true,
+      "expected": "2",
+      "seconds": 14.7,
+      "tokens": 1055,
+      "finish": "stop",
+      "reply": "2"
+    },
+    {
+      "category": "constraint",
+      "item": 9,
+      "ok": true,
+      "expected": "3",
+      "seconds": 2.3,
+      "tokens": 147,
+      "finish": "stop",
+      "reply": "3"
+    },
+    {
+      "category": "constraint",
+      "item": 10,
+      "ok": true,
+      "expected": "4",
+      "seconds": 6.8,
+      "tokens": 479,
+      "finish": "stop",
+      "reply": "4"
+    },
+    {
+      "category": "constraint",
+      "item": 11,
+      "ok": false,
+      "expected": "3",
+      "seconds": 28.0,
+      "tokens": 2048,
+      "finish": "length",
+      "reply": ""
+    },
+    {
+      "category": "constraint",
+      "item": 12,
+      "ok": true,
+      "expected": "1",
+      "seconds": 9.7,
+      "tokens": 705,
+      "finish": "stop",
+      "reply": "1"
+    },
+    {
+      "category": "constraint",
+      "item": 13,
+      "ok": true,
+      "expected": "2",
+      "seconds": 3.8,
+      "tokens": 275,
+      "finish": "stop",
+      "reply": "2"
+    },
+    {
+      "category": "constraint",
+      "item": 14,
+      "ok": true,
+      "expected": "3",
+      "seconds": 5.4,
+      "tokens": 380,
+      "finish": "stop",
+      "reply": "3"
+    },
+    {
+      "category": "constraint",
+      "item": 15,
+      "ok": true,
+      "expected": "2",
+      "seconds": 5.7,
+      "tokens": 400,
+      "finish": "stop",
+      "reply": "2"
+    },
+    {
+      "category": "constraint",
+      "item": 16,
+      "ok": false,
+      "expected": "4",
+      "seconds": 27.4,
+      "tokens": 2048,
+      "finish": "length",
+      "reply": ""
+    },
+    {
+      "category": "constraint",
+      "item": 17,
+      "ok": true,
+      "expected": "4",
+      "seconds": 8.5,
+      "tokens": 624,
+      "finish": "stop",
+      "reply": "4"
+    },
+    {
+      "category": "constraint",
+      "item": 18,
+      "ok": true,
+      "expected": "3",
+      "seconds": 2.8,
+      "tokens": 193,
+      "finish": "stop",
+      "reply": "3"
+    },
+    {
+      "category": "constraint",
+      "item": 19,
+      "ok": true,
+      "expected": "3",
+      "seconds": 7.4,
+      "tokens": 493,
+      "finish": "stop",
+      "reply": "3"
+    },
+    {
+      "category": "constraint",
+      "item": 20,
+      "ok": true,
+      "expected": "2",
+      "seconds": 3.2,
+      "tokens": 224,
+      "finish": "stop",
+      "reply": "2"
+    },
+    {
+      "category": "compliance",
+      "item": 1,
+      "ok": true,
+      "expected": "cedar,birch,alder",
+      "seconds": 1.2,
+      "tokens": 76,
+      "finish": "stop",
+      "reply": "cedar,birch,alder"
+    },
+    {
+      "category": "compliance",
+      "item": 2,
+      "ok": true,
+      "expected": "vast blue salty",
+      "seconds": 1.6,
+      "tokens": 108,
+      "finish": "stop",
+      "reply": "vast endless blue"
+    },
+    {
+      "category": "compliance",
+      "item": 3,
+      "ok": false,
+      "expected": "Chile",
+      "seconds": 26.9,
+      "tokens": 2048,
+      "finish": "length",
+      "reply": ""
+    },
+    {
+      "category": "compliance",
+      "item": 4,
+      "ok": true,
+      "expected": "vast blue salty",
+      "seconds": 1.5,
+      "tokens": 101,
+      "finish": "stop",
+      "reply": "vast endless tranquil"
+    },
+    {
+      "category": "compliance",
+      "item": 5,
+      "ok": true,
+      "expected": "PARIS",
+      "seconds": 1.2,
+      "tokens": 77,
+      "finish": "stop",
+      "reply": "PARIS"
+    },
+    {
+      "category": "compliance",
+      "item": 6,
+      "ok": true,
+      "expected": "vast blue salty",
+      "seconds": 1.7,
+      "tokens": 118,
+      "finish": "stop",
+      "reply": "vast endless blue"
+    },
+    {
+      "category": "compliance",
+      "item": 7,
+      "ok": true,
+      "expected": "85",
+      "seconds": 1.3,
+      "tokens": 85,
+      "finish": "stop",
+      "reply": "85"
+    },
+    {
+      "category": "compliance",
+      "item": 8,
+      "ok": true,
+      "expected": "the seven quiet river runs far",
+      "seconds": 4.1,
+      "tokens": 297,
+      "finish": "stop",
+      "reply": "time seven moments pass quietly now"
+    },
+    {
+      "category": "compliance",
+      "item": 9,
+      "ok": true,
+      "expected": "cedar,birch,alder",
+      "seconds": 1.3,
+      "tokens": 83,
+      "finish": "stop",
+      "reply": "cedar,birch,alder"
+    },
+    {
+      "category": "compliance",
+      "item": 10,
+      "ok": true,
+      "expected": "vast blue salty cold deep",
+      "seconds": 1.5,
+      "tokens": 104,
+      "finish": "stop",
+      "reply": "vast endless blue tranquil horizon"
+    },
+    {
+      "category": "compliance",
+      "item": 11,
+      "ok": true,
+      "expected": "red green blue",
+      "seconds": 1.6,
+      "tokens": 105,
+      "finish": "stop",
+      "reply": "red blue green"
+    },
+    {
+      "category": "compliance",
+      "item": 12,
+      "ok": false,
+      "expected": "vast blue salty cold deep",
+      "seconds": 27.9,
+      "tokens": 2048,
+      "finish": "length",
+      "reply": ""
+    },
+    {
+      "category": "compliance",
+      "item": 13,
+      "ok": true,
+      "expected": "the blue quiet river runs far",
+      "seconds": 2.7,
+      "tokens": 191,
+      "finish": "stop",
+      "reply": "the blue sky is endless today"
+    },
+    {
+      "category": "compliance",
+      "item": 14,
+      "ok": false,
+      "expected": "Chile",
+      "seconds": 28.1,
+      "tokens": 2048,
+      "finish": "length",
+      "reply": ""
+    },
+    {
+      "category": "compliance",
+      "item": 15,
+      "ok": true,
+      "expected": "{\"animal\":\"raven\",\"x\":7,\"total\":23}",
+      "seconds": 1.5,
+      "tokens": 91,
+      "finish": "stop",
+      "reply": "{\"animal\":\"raven\",\"x\":7,\"total\":23}"
+    },
+    {
+      "category": "compliance",
+      "item": 16,
+      "ok": true,
+      "expected": "cedar,birch,alder",
+      "seconds": 1.3,
+      "tokens": 83,
+      "finish": "stop",
+      "reply": "cedar,birch,alder"
+    },
+    {
+      "category": "compliance",
+      "item": 17,
+      "ok": true,
+      "expected": "vast blue salty cold deep",
+      "seconds": 1.4,
+      "tokens": 96,
+      "finish": "stop",
+      "reply": "vast endless blue tranquil horizon"
+    },
+    {
+      "category": "compliance",
+      "item": 18,
+      "ok": true,
+      "expected": "red green blue",
+      "seconds": 1.5,
+      "tokens": 103,
+      "finish": "stop",
+      "reply": "red blue green"
+    },
+    {
+      "category": "compliance",
+      "item": 19,
+      "ok": true,
+      "expected": "vast blue salty cold",
+      "seconds": 2.5,
+      "tokens": 184,
+      "finish": "stop",
+      "reply": "vast endless blue horizon"
+    },
+    {
+      "category": "compliance",
+      "item": 20,
+      "ok": true,
+      "expected": "cedar,birch,alder",
+      "seconds": 1.2,
+      "tokens": 83,
+      "finish": "stop",
+      "reply": "cedar,birch,alder"
+    },
+    {
+      "category": "abstention",
+      "item": 1,
+      "ok": true,
+      "expected": "3",
+      "seconds": 0.9,
+      "tokens": 49,
+      "finish": "stop",
+      "reply": "3"
+    },
+    {
+      "category": "abstention",
+      "item": 2,
+      "ok": true,
+      "expected": "UNKNOWN",
+      "seconds": 1.0,
+      "tokens": 54,
+      "finish": "stop",
+      "reply": "UNKNOWN"
+    },
+    {
+      "category": "abstention",
+      "item": 3,
+      "ok": true,
+      "expected": "5",
+      "seconds": 0.9,
+      "tokens": 50,
+      "finish": "stop",
+      "reply": "5"
+    },
+    {
+      "category": "abstention",
+      "item": 4,
+      "ok": true,
+      "expected": "UNKNOWN",
+      "seconds": 1.0,
+      "tokens": 56,
+      "finish": "stop",
+      "reply": "UNKNOWN"
+    },
+    {
+      "category": "abstention",
+      "item": 5,
+      "ok": true,
+      "expected": "UNKNOWN",
+      "seconds": 1.0,
+      "tokens": 53,
+      "finish": "stop",
+      "reply": "UNKNOWN"
+    },
+    {
+      "category": "abstention",
+      "item": 6,
+      "ok": true,
+      "expected": "27",
+      "seconds": 1.5,
+      "tokens": 92,
+      "finish": "stop",
+      "reply": "27"
+    },
+    {
+      "category": "abstention",
+      "item": 7,
+      "ok": true,
+      "expected": "UNKNOWN",
+      "seconds": 1.0,
+      "tokens": 55,
+      "finish": "stop",
+      "reply": "UNKNOWN"
+    },
+    {
+      "category": "abstention",
+      "item": 8,
+      "ok": true,
+      "expected": "28",
+      "seconds": 1.5,
+      "tokens": 94,
+      "finish": "stop",
+      "reply": "28"
+    },
+    {
+      "category": "abstention",
+      "item": 9,
+      "ok": true,
+      "expected": "6",
+      "seconds": 0.9,
+      "tokens": 48,
+      "finish": "stop",
+      "reply": "6"
+    },
+    {
+      "category": "abstention",
+      "item": 10,
+      "ok": true,
+      "expected": "UNKNOWN",
+      "seconds": 0.9,
+      "tokens": 53,
+      "finish": "stop",
+      "reply": "UNKNOWN"
+    },
+    {
+      "category": "abstention",
+      "item": 11,
+      "ok": true,
+      "expected": "24",
+      "seconds": 1.6,
+      "tokens": 99,
+      "finish": "stop",
+      "reply": "24"
+    },
+    {
+      "category": "abstention",
+      "item": 12,
+      "ok": true,
+      "expected": "12",
+      "seconds": 1.5,
+      "tokens": 94,
+      "finish": "stop",
+      "reply": "12"
+    },
+    {
+      "category": "abstention",
+      "item": 13,
+      "ok": true,
+      "expected": "9",
+      "seconds": 0.9,
+      "tokens": 50,
+      "finish": "stop",
+      "reply": "9"
+    },
+    {
+      "category": "abstention",
+      "item": 14,
+      "ok": true,
+      "expected": "UNKNOWN",
+      "seconds": 0.9,
+      "tokens": 53,
+      "finish": "stop",
+      "reply": "UNKNOWN"
+    },
+    {
+      "category": "abstention",
+      "item": 15,
+      "ok": true,
+      "expected": "18",
+      "seconds": 1.8,
+      "tokens": 115,
+      "finish": "stop",
+      "reply": "18"
+    },
+    {
+      "category": "abstention",
+      "item": 16,
+      "ok": true,
+      "expected": "UNKNOWN",
+      "seconds": 1.0,
+      "tokens": 55,
+      "finish": "stop",
+      "reply": "UNKNOWN"
+    },
+    {
+      "category": "abstention",
+      "item": 17,
+      "ok": true,
+      "expected": "UNKNOWN",
+      "seconds": 1.0,
+      "tokens": 56,
+      "finish": "stop",
+      "reply": "UNKNOWN"
+    },
+    {
+      "category": "abstention",
+      "item": 18,
+      "ok": true,
+      "expected": "36",
+      "seconds": 1.3,
+      "tokens": 81,
+      "finish": "stop",
+      "reply": "36"
+    },
+    {
+      "category": "abstention",
+      "item": 19,
+      "ok": true,
+      "expected": "6",
+      "seconds": 0.9,
+      "tokens": 48,
+      "finish": "stop",
+      "reply": "6"
+    },
+    {
+      "category": "abstention",
+      "item": 20,
+      "ok": true,
+      "expected": "8",
+      "seconds": 0.9,
+      "tokens": 48,
+      "finish": "stop",
+      "reply": "8"
+    },
+    {
+      "category": "trap",
+      "item": 1,
+      "ok": false,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 27.8,
+      "tokens": 2048,
+      "finish": "length",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 2,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 1.6,
+      "tokens": 101,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 3,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 1.4,
+      "tokens": 89,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 4,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 1.9,
+      "tokens": 128,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 5,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 1.8,
+      "tokens": 120,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 6,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 2.2,
+      "tokens": 146,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 7,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 2.1,
+      "tokens": 135,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 8,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 2.3,
+      "tokens": 162,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 9,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 2.4,
+      "tokens": 164,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 10,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 2.0,
+      "tokens": 134,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 11,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 1.9,
+      "tokens": 120,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 12,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 2.9,
+      "tokens": 198,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 13,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 2.5,
+      "tokens": 169,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 14,
+      "ok": false,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 5.5,
+      "tokens": 396,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "retrieval",
+      "item": 1,
+      "ok": false,
+      "expected": "196",
+      "seconds": 35.1,
+      "tokens": 2048,
+      "finish": "length",
+      "reply": ""
+    },
+    {
+      "category": "retrieval",
+      "item": 2,
+      "ok": false,
+      "expected": "982",
+      "seconds": 36.9,
+      "tokens": 2048,
+      "finish": "length",
+      "reply": ""
+    },
+    {
+      "category": "retrieval",
+      "item": 3,
+      "ok": true,
+      "expected": "786",
+      "seconds": 10.6,
+      "tokens": 280,
+      "finish": "stop",
+      "reply": "786"
+    },
+    {
+      "category": "retrieval",
+      "item": 4,
+      "ok": true,
+      "expected": "423",
+      "seconds": 15.5,
+      "tokens": 602,
+      "finish": "stop",
+      "reply": "423"
+    },
+    {
+      "category": "retrieval",
+      "item": 5,
+      "ok": true,
+      "expected": "665",
+      "seconds": 10.6,
+      "tokens": 303,
+      "finish": "stop",
+      "reply": "665"
+    },
+    {
+      "category": "retrieval",
+      "item": 6,
+      "ok": false,
+      "expected": "338",
+      "seconds": 36.7,
+      "tokens": 2048,
+      "finish": "length",
+      "reply": ""
+    },
+    {
+      "category": "retrieval",
+      "item": 7,
+      "ok": false,
+      "expected": "623",
+      "seconds": 37.1,
+      "tokens": 2048,
+      "finish": "length",
+      "reply": ""
+    },
+    {
+      "category": "retrieval",
+      "item": 8,
+      "ok": true,
+      "expected": "134",
+      "seconds": 10.6,
+      "tokens": 273,
+      "finish": "stop",
+      "reply": "134"
+    }
+  ]
+}

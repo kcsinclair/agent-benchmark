@@ -1,0 +1,946 @@
+{
+  "model": "Llama-3-14B-Instruct-v1.Q4_K_M",
+  "seed": 1,
+  "results": [
+    {
+      "category": "state",
+      "item": 1,
+      "ok": false,
+      "expected": "8",
+      "seconds": 3.7,
+      "tokens": 91,
+      "finish": "stop",
+      "reply": "1. B = 5 - 1 = 4\n2. A = 7 * 2 = 14\n3. A = 14 - 3 = 11\n4. C = 5 - 1 = 4\n5. B = 4, C = 11\n6. B = 4 + 4 + 1 = 9\n\nSo, B has 9 at the end."
+    },
+    {
+      "category": "state",
+      "item": 2,
+      "ok": true,
+      "expected": "26",
+      "seconds": 10.1,
+      "tokens": 244,
+      "finish": "stop",
+      "reply": "Let's apply the steps:\n\n1. Add 4 to C: C = 6 + 4 = 10\nBin contents: C=10, D=5, B=7\n\n2. Move 5 from D to B: B = 7 + 5 = 12, D = 5 - 5 = 0\nBin contents: C=10, D=0, B=12\n\n3. Add 3 to C: C = 10 + 3 = 13\nBin contents: C=13, D=0, B=12\n\n4. Double C: C = 13 * 2 = 26\nBin contents: C=26, D=0, B=12\n\n5. Add 5 to B: B = 12 + 5 = 17\nBin contents: C=26, D=0, B=17\n\n6. Swap the contents of C and B: Temporarily swap C and B: Temp C = 26, Temp B = 17\nFinal contents: C=17, D=0, B=26\n\nSo, there are 26 items in B at the end."
+    },
+    {
+      "category": "state",
+      "item": 3,
+      "ok": true,
+      "expected": "4",
+      "seconds": 9.1,
+      "tokens": 216,
+      "finish": "stop",
+      "reply": "Let's apply the steps:\n\n1. Initially:\nD = 8\nA = 4\nB = 3\n\nAfter step 1:\nD = 8 + 1 = 9\nA = 4\nB = 3 - 1 = 2\n\n2. Swap the contents of B and D:\nD = 2\nA = 4\nB = 9\n\n3. Move 3 from A to B:\nD = 2\nA = 4 - 3 = 1\nB = 9 + 3 = 12\n\n4. Remove 8 from B:\nD = 2\nA = 1\nB = 12 - 8 = 4\n\n5. Add 5 to D:\nD = 2 + 5 = 7\nA = 1\nB = 4\n\n6. Swap the contents of D and B:\nD = 4\nA = 1\nB = 7\n\nAfter all steps:\nD = 4\n\nAnswer: 4"
+    },
+    {
+      "category": "state",
+      "item": 4,
+      "ok": false,
+      "expected": "3",
+      "seconds": 9.3,
+      "tokens": 221,
+      "finish": "stop",
+      "reply": "1. Double A: 2A = 2(7) = 14\nB = 5, A = 14, C = 9\n2. Remove 3 from B: B = 5 - 3 = 2\nA = 14, B = 2, C = 9\n3. Remove 7 from A: A = 14 - 7 = 7\nB = 2, A = 7, C = 9\n4. Swap the contents of C and B: Temp = B, B = C, C = Temp\nB = 9, A = 7, C = 2\n5. Remove 4 from A: A = 7 - 4 = 3\nB = 9, A = 3, C = 2\n6. Swap the contents of A and B: Temp = A, A = B, B = Temp\nB = 9, A = 2, C = 3\nFinal answer: 2 + 3 = 5"
+    },
+    {
+      "category": "state",
+      "item": 5,
+      "ok": false,
+      "expected": "36",
+      "seconds": 5.9,
+      "tokens": 142,
+      "finish": "stop",
+      "reply": "1. C=8, B=5, A=4 + 6 = 14\n2. C=8, B=5, A=14 - 4 = 10\n3. C=8, B=5 + 4 + 12 = 21, A=10 - 12 = -2\n4. C=8, B=21, A=-2 + 3 = 1\n5. C=8, B=21 * 2 = 42, A=1\n6. C=8, B=42 + 6 = 58, A=1\n\nAt the end, there are 58 items in B."
+    },
+    {
+      "category": "state",
+      "item": 6,
+      "ok": false,
+      "expected": "11",
+      "seconds": 12.4,
+      "tokens": 299,
+      "finish": "stop",
+      "reply": "Let's apply the steps:\n\n1. Double A: A = 2 * 6 = 12\nA = 12, C = 5, D = 6\n\n2. Double A again: A = 2 * 12 = 24\nA = 24, C = 5, D = 6\n\n3. Move 5 from C to A: A = 24 + 5 = 29, C = 5 - 5 = 0\nA = 29, C = 0, D = 6\n\n4. Swap the contents of A and C: Temporarily swap A and C: A = 0, C = 29, D = 6\nNow, swap back: A = 29, C = 0, D = 6\n\n5. Move 5 from D to C: A = 29, C = 0 + 5 = 5, D = 6 - 5 = 1\nA = 29, C = 5, D = 1\n\n6. Move 23 from C to A: A = 29 + 23 = 52, C = 5 - 23 = -18 (impossible, since you can't have negative numbers of items in a bin)\nLet's just ignore this step and assume we'll just leave the bins empty.\n\nSo, at the end, there are 5 items in C."
+    },
+    {
+      "category": "state",
+      "item": 7,
+      "ok": true,
+      "expected": "14",
+      "seconds": 7.4,
+      "tokens": 177,
+      "finish": "stop",
+      "reply": "1. Swap the contents of C and A: C=5, D=7, A=4\n2. Swap the contents of C and A: C=4, D=7, A=5\nNow, C and A are back to their original values.\n3. Remove 3 from C: C=4-3=1, D=7, A=5\n4. Swap the contents of C and A: C=5, D=7, A=1\n5. Remove 1 from C: C=5-1=4, D=7, A=1\n6. Double D: C=4, D=7*2=14, A=1\n\nThe final values are: C=4, D=14, A=1\nSo, there are 14 in D at the end."
+    },
+    {
+      "category": "state",
+      "item": 8,
+      "ok": false,
+      "expected": "11",
+      "seconds": 4.7,
+      "tokens": 113,
+      "finish": "stop",
+      "reply": "1. C=5, B=5, A=4\n2. C=5+1=6, B=5, A=4\n3. C=6, B=5, A=4+2=10\n4. C=6, B=5+1=6, A=10\n5. C=6, B=6-1=5, A=10\n6. C=6, B=5+4=9, A=10-4=6\nC = 6"
+    },
+    {
+      "category": "state",
+      "item": 9,
+      "ok": true,
+      "expected": "7",
+      "seconds": 9.3,
+      "tokens": 225,
+      "finish": "stop",
+      "reply": "Let's apply the steps:\n\n1. Add 1 to B: B = 6 + 1 = 7\nBin contents: B=7, A=9, D=5\n\n2. Swap the contents of A and B: Swap A and B, so now: B=9, A=7, D=5\n\n3. Double B: B = 9 * 2 = 18\nBin contents: B=18, A=7, D=5\n\n4. Remove 18 from B: B = 18 - 18 = 0\nBin contents: B=0, A=7, D=5\n\n5. Add 5 to B: B = 0 + 5 = 5\nBin contents: B=5, A=7, D=5\n\n6. Add 3 to B: B = 5 + 3 = 8\nBin contents: B=8, A=7, D=5\n\nNow, let's find the number of items in A: A = 7\n\nAnswer: 7"
+    },
+    {
+      "category": "state",
+      "item": 10,
+      "ok": false,
+      "expected": "5",
+      "seconds": 5.6,
+      "tokens": 134,
+      "finish": "stop",
+      "reply": "1. Swap the contents of D and B: D=6, C=2, B=2\n2. Remove 5 from D: D=1, C=2, B=2\n3. Add 1 to C: D=1, C=3, B=2\n4. Swap the contents of D and C: D=3, C=1, B=2\n5. Move 3 from D to C: D=0, C=4, B=2\n6. Add 3 to B: D=0, C=4, B=7\n\nThe final answer is 7."
+    },
+    {
+      "category": "state",
+      "item": 11,
+      "ok": true,
+      "expected": "4",
+      "seconds": 2.8,
+      "tokens": 67,
+      "finish": "stop",
+      "reply": "1. B = 3 - 3 = 0\n2. B = 2 * 0 = 0\n3. No change\n4. B = 2 * 0 = 0\n5. B = 0 + 4 = 4\n6. No change\n\nB = 4"
+    },
+    {
+      "category": "state",
+      "item": 12,
+      "ok": false,
+      "expected": "13",
+      "seconds": 5.6,
+      "tokens": 133,
+      "finish": "stop",
+      "reply": "Let's apply the steps:\n\n1. B=8, C=8, D=7 -> B=8-8=0, C=8, D=7+8=15\n2. B=0, C=8, D=30\n3. B=30-21=9, C=8, D=7\n4. B=9+2=11, C=8, D=7\n5. B=7, C=11, D=7\n6. B=7+5=12, C=11, D=7-5=2\nFinal answer: B=12"
+    },
+    {
+      "category": "state",
+      "item": 13,
+      "ok": true,
+      "expected": "1",
+      "seconds": 10.3,
+      "tokens": 246,
+      "finish": "stop",
+      "reply": "Let's apply the steps:\n\n1. C=6, A=8, D=5\nAfter step 1: C=6, A=8, D=5-3 = 2\n\n2. C=6, A=8, D=2\nAfter step 2: C=6, A=8+2 = 10, D=2\n\n3. C=6, A=10, D=2\nAfter step 3: C=6, A=10, D=2-1 = 1\n\n4. C=6, A=10, D=1\nAfter step 4: C=6-3 = -3, A=10, D=1+3 = 4\n\n5. C=-3, A=10, D=4\nAfter step 5: C=-3, A=4, D=10\n\n6. C=-3, A=4+2 = 6, D=10\nAfter step 6: C=-3+2 = -1, A=6, D=10\n\nSo, there are -1 = -1 = 1 in C at the end."
+    },
+    {
+      "category": "state",
+      "item": 14,
+      "ok": true,
+      "expected": "0",
+      "seconds": 10.0,
+      "tokens": 239,
+      "finish": "stop",
+      "reply": "Let's apply the steps:\n\n1. Remove 1 from D: D = 2 - 1 = 1\nBin contents: A=8, B=9, D=1\n\n2. Swap the contents of D and A: Temporarily swap A and D: A=1, D=8\nBin contents: A=1, B=9, D=8\n\n3. Swap the contents of A and D: Temporarily swap A and D again: A=8, D=1\nBin contents: A=8, B=9, D=1\n\n4. Swap the contents of B and A: Temporarily swap B and A: A=9, B=8\nBin contents: A=9, B=8, D=1\n\n5. Add 3 to B: B = 9 + 3 = 12\nBin contents: A=9, B=12, D=1\n\n6. Remove 9 from A: A = 9 - 9 = 0\nBin contents: A=0, B=12, D=1\n\nThe final contents of A are: 0"
+    },
+    {
+      "category": "state",
+      "item": 15,
+      "ok": true,
+      "expected": "8",
+      "seconds": 8.5,
+      "tokens": 205,
+      "finish": "stop",
+      "reply": "Let's apply the steps:\n\n1. Initially:\nA = 3, D = 9, B = 2\n\nAfter step 1:\nA = 3, D = 11, B = 2\n\n2. Swap the contents of A and B:\nA = 2, D = 11, B = 3\n\n3. Move 6 from D to B:\nA = 2, D = 11 - 6 = 5, B = 3 + 6 = 9\n\n4. Add 3 to D:\nA = 2, D = 5 + 3 = 8, B = 9\n\n5. Add 6 to A:\nA = 2 + 6 = 8, D = 8, B = 9\n\n6. Swap the contents of B and D:\nA = 9, D = 8, B = 8\n\nSo, at the end, there are 8 items in B."
+    },
+    {
+      "category": "state",
+      "item": 16,
+      "ok": true,
+      "expected": "15",
+      "seconds": 9.8,
+      "tokens": 235,
+      "finish": "stop",
+      "reply": "Let's apply the steps:\n\n1. Add 2 to A: A = 7 + 2 = 9\n   D = 2\n   A = 9\n   B = 3\n\n2. Swap the contents of D and B:\n   D = 3\n   B = 2\n   A = 9\n\n3. Move 6 from A to D:\n   D = 3 + 6 = 9\n   B = 2\n   A = 9 - 6 = 3\n\n4. Move 1 from A to B:\n   D = 9\n   B = 2 + 1 = 3\n   A = 3 - 1 = 2\n\n5. Double B:\n   D = 9\n   B = 3 * 2 = 6\n   A = 2\n\n6. Move 9 from D to B:\n   D = 9 - 9 = 0\n   B = 6 + 9 = 15\n   A = 2\n\nSo, at the end, there are 15 items in B."
+    },
+    {
+      "category": "state",
+      "item": 17,
+      "ok": false,
+      "expected": "1",
+      "seconds": 5.4,
+      "tokens": 129,
+      "finish": "stop",
+      "reply": "Let's apply the steps:\n\n1. Bin B has 5 - 1 = 4.\n2. Swap C and B: C = 4, B = 5.\n3. Add 6 to C: C = 4 + 6 = 10.\n4. Move 3 from B to C: C = 10 - 3 = 7, B = 5 - 3 = 2.\n5. No effect on C.\n6. Swap C and D: C = 2, D = 7 - 5 = 2.\n\nSo, C has 2 at the end."
+    },
+    {
+      "category": "state",
+      "item": 18,
+      "ok": true,
+      "expected": "15",
+      "seconds": 8.8,
+      "tokens": 213,
+      "finish": "stop",
+      "reply": "1. Double D: 2 \u00d7 5 = 10\nBin D: 10\nBin B: 9\nBin C: 2\n\n2. Add 1 to B: 10\nBin D: 10\nBin B: 10\nBin C: 2\n\n3. Add 6 to C: 2 + 6 = 8\nBin D: 10\nBin B: 10\nBin C: 8\n\n4. Double B: 2 \u00d7 10 = 20\nBin D: 10\nBin B: 20\nBin C: 8\n\n5. Move 5 from C to D: 10 + 5 - 5 = 15\nBin D: 15\nBin B: 20\nBin C: 3\n\n6. Double C: 2 \u00d7 3 = 6\nBin D: 15\nBin B: 20\nBin C: 6\n\nAt the end, there are 15 balls in D."
+    },
+    {
+      "category": "state",
+      "item": 19,
+      "ok": false,
+      "expected": "7",
+      "seconds": 6.5,
+      "tokens": 155,
+      "finish": "stop",
+      "reply": "1. B = 8 + 6 = 14\n2. C = 14, B = 6\n3. B = 14 + 1 = 15\n4. A = 7 - 7 = 0, B = 15\n5. C = 14, A = 0, B = 15\n6. C = 0, A = 14 + 0 = 14 + 9 - 4 = 23, B = 15\n23 - 14 = 9\n9 - 4 = 5\n5 - 7 = -2 (error, cannot subtract a negative number from a negative number)\nSince B = 15, the final answer is 15."
+    },
+    {
+      "category": "state",
+      "item": 20,
+      "ok": true,
+      "expected": "5",
+      "seconds": 8.9,
+      "tokens": 214,
+      "finish": "stop",
+      "reply": "1. Double B: 3*2 = 6\nC = 8, D = 7, B = 6\n\n2. Move 7 from C to D: C = 8-7 = 1, D = 7+7 = 14\nC = 1, D = 14, B = 6\n\n3. Remove 6 from B: B = 6-6 = 0\nC = 1, D = 14, B = 0\n\n4. Add 5 to C: C = 1+5 = 6\nC = 6, D = 14, B = 0\n\n5. Swap the contents of B and C: Temp = C, C = B, B = Temp\nC = 0, D = 14, B = 6\n\n6. Remove 9 from D: D = 14-9 = 5\nC = 0, D = 5, B = 6\n\nAnswer: 5"
+    },
+    {
+      "category": "constraint",
+      "item": 1,
+      "ok": false,
+      "expected": "2",
+      "seconds": 0.2,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "4"
+    },
+    {
+      "category": "constraint",
+      "item": 2,
+      "ok": true,
+      "expected": "2",
+      "seconds": 9.2,
+      "tokens": 218,
+      "finish": "stop",
+      "reply": "From the given information, we can deduce the following:\n\n1. Cara is somewhere before Fay, so Cara is not in position 4.\n2. Fay is somewhere before Ben, so Fay is not in position 1.\n3. Ben and Fay are next to each other, so either Fay is in position 2 and Ben is in position 3, or vice versa.\n4. Eve is not in position 2, so Eve is either in position 1, 3, or 4.\n5. Cara is somewhere before Eve, so Cara is not in position 4 (since Eve is not in position 2).\n\nFrom (1) and (5), Cara is either in position 1 or 3.\n\nIf Cara is in position 1, then Eve is in position 3 (since Eve is not in position 2). But this contradicts (4), since Eve cannot be in position 3.\n\nTherefore, Cara is in position 3. Then, Fay is in position 2.\n\nSo, Fay is in position **2**."
+    },
+    {
+      "category": "constraint",
+      "item": 3,
+      "ok": true,
+      "expected": "1",
+      "seconds": 8.4,
+      "tokens": 201,
+      "finish": "stop",
+      "reply": "From the given information, we can deduce the following:\n\n1. Fay is not in position 1.\n2. Cara is not in position 3.\n3. Fay is somewhere before Eve.\n4. Ana is somewhere before Cara.\n5. Cara is not in position 4.\n\nFrom (1) and (3), we know that Fay is either in position 2 or 3.\n\nFrom (2), we know that Cara is not in position 3. Therefore, Cara must be in position 2 or 4.\n\nFrom (5), we know that Cara is not in position 4. Therefore, Cara must be in position 2.\n\nFrom (4), we know that Ana is somewhere before Cara. Since Cara is in position 2, Ana must be in position 1 or 3.\n\nFrom (1), we know that Fay is not in position 1. Therefore, Ana must be in position 1.\n\nSo, Ana is in position **1**."
+    },
+    {
+      "category": "constraint",
+      "item": 4,
+      "ok": false,
+      "expected": "3",
+      "seconds": 0.1,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "4"
+    },
+    {
+      "category": "constraint",
+      "item": 5,
+      "ok": false,
+      "expected": "2",
+      "seconds": 5.5,
+      "tokens": 131,
+      "finish": "stop",
+      "reply": "1. Ben is not in position 2, so Ben is either in position 1 or 4.\n2. Ben is not in position 3, so Ben is in position 1.\n3. Eve is last, so Eve is in position 4.\n4. Ana is not in position 2, so Ana is either in position 1 or 3.\n5. Eve and Ana are next to each other, so Ana is in position 3.\n6. So, Dan is in position 2 or 4 - 4 = 1 is not possible, so Dan is in position 3.\nAnswer: 3"
+    },
+    {
+      "category": "constraint",
+      "item": 6,
+      "ok": false,
+      "expected": "2",
+      "seconds": 5.1,
+      "tokens": 121,
+      "finish": "stop",
+      "reply": "4 - 1 = 3 (since Cara is last, so there are 3 people before her)\n\nFrom the given information:\n- Ana is somewhere before Dan.\n- Dan and Cara are next to each other.\n\nSo, Dan must be in position 2 or 3.\n\n- Ben is not in position 2.\n- Ana is not in position 4.\n\nSo, Ana must be in position 1 or 3.\n\nSince Dan is not in position 1 (because Ana is before Dan), Ana must be in position 3.\n\nTherefore, Ana is in position 3."
+    },
+    {
+      "category": "constraint",
+      "item": 7,
+      "ok": false,
+      "expected": "2",
+      "seconds": 0.1,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "3"
+    },
+    {
+      "category": "constraint",
+      "item": 8,
+      "ok": false,
+      "expected": "2",
+      "seconds": 7.0,
+      "tokens": 170,
+      "finish": "stop",
+      "reply": "From the given information, we can deduce the following:\n\n1. Ana is before Eve, so Ana is in position 1, 2, or 3.\n2. Dan is before Ana, so Dan is not in position 1.\n3. Dan is not in position 2, so Dan is in position 3 or 4.\n4. Dan and Fay are next to each other, so if Dan is in position 3, Fay must be in position 4 (since they cannot be in the same position).\n5. If Dan is in position 4, Fay must be in position 3 (since they cannot be in the same position).\n\nFrom (4), we know that Dan is not in position 4, so Dan must be in position 3. Therefore, Fay is in position **4**."
+    },
+    {
+      "category": "constraint",
+      "item": 9,
+      "ok": true,
+      "expected": "3",
+      "seconds": 0.1,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "3"
+    },
+    {
+      "category": "constraint",
+      "item": 10,
+      "ok": true,
+      "expected": "4",
+      "seconds": 0.1,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "4"
+    },
+    {
+      "category": "constraint",
+      "item": 11,
+      "ok": false,
+      "expected": "3",
+      "seconds": 0.2,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "4"
+    },
+    {
+      "category": "constraint",
+      "item": 12,
+      "ok": false,
+      "expected": "1",
+      "seconds": 0.1,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "4"
+    },
+    {
+      "category": "constraint",
+      "item": 13,
+      "ok": false,
+      "expected": "2",
+      "seconds": 0.1,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "4"
+    },
+    {
+      "category": "constraint",
+      "item": 14,
+      "ok": false,
+      "expected": "3",
+      "seconds": 4.3,
+      "tokens": 104,
+      "finish": "stop",
+      "reply": "4\nReasoning:\n- Ben is somewhere before Dan.\n- Dan is not in position 4.\n- So, Dan is either in position 1 or 2.\n- Dan is somewhere before Fay.\n- So, Dan is in position 2.\n- Fay and Dan are next to each other.\n- So, Fay is in position 3.\n- Cara is last.\n- So, Cara is in position 4.\n- So, the final order is: Ben, Dan, Fay, Cara."
+    },
+    {
+      "category": "constraint",
+      "item": 15,
+      "ok": false,
+      "expected": "2",
+      "seconds": 0.1,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "4"
+    },
+    {
+      "category": "constraint",
+      "item": 16,
+      "ok": false,
+      "expected": "4",
+      "seconds": 9.2,
+      "tokens": 223,
+      "finish": "stop",
+      "reply": "From the given information, we can deduce the following:\n\n1. Ben is somewhere before Cara, so Ben is not in position 4.\n2. Cara and Ben are next to each other, so either Ben is in position 3 and Cara is in position 2, or vice versa.\n3. Ben and Eve are next to each other, so either Ben is in position 2 and Eve is in position 3, or vice versa.\n4. Since Ben is not in position 4, and Ben is not in position 2 (because Cara is before him), Ben must be in position 3.\n5. Therefore, Eve must be in position 2 (because Ben and Eve are next to each other).\n6. Since Dan is somewhere before Ben, and Ben is not in position 4, Dan must be in position 1 or 2.\n7. Since Dan is not in position 4, and Dan is not in position 2 (because Eve is in position 2), Dan must be in position 1.\n\nSo, Cara is in position **2**."
+    },
+    {
+      "category": "constraint",
+      "item": 17,
+      "ok": false,
+      "expected": "4",
+      "seconds": 86.4,
+      "tokens": 2048,
+      "finish": "length",
+      "reply": "   * This is not possible because Ana is not in position 4.\n\n31. Ben is in position 1, Fay is in position 2, Ana is in position 2, and Dan is in\n   * This is not possible because Ana is not in position 4.\n\n32. Ben is in position 1, Fay is in position 2, Ana is in position 2, and Dan is in\n   * This is not possible because Ana is not in position 4.\n\n33. Ben is in position 1, Fay is in position 2, Ana is in position 2, and Dan is in\n   * This is not possible because Ana is not in position 4.\n\n34. Ben is in position 1, Fay is in position 2, Ana is in position 2, and Dan is in\n   * This is not possible because Ana is not in position 4.\n\n35. Ben is in position 1, Fay is in position 2, Ana is in position 2, and Dan is in\n   * This is not possible because Ana is not in position 4.\n\n36. Ben is in position 1, Fay is in position 2, Ana is in position 2, and Dan is in\n   * This is not possible because Ana is not in position 4.\n\n37. Ben is in position 1, Fay is in position 2, Ana is in position 2, and Dan is in\n   * This is not possible because Ana is not in position 4.\n\n38. Ben is in position 1, Fay is in position 2, Ana is in position 2, and Dan is in\n   * This is not possible because Ana is not in position 4.\n\n39. Ben is in position 1, Fay is in position 2, Ana is in position 2, and Dan is in\n   * This is not possible because Ana is not in position 4.\n\n40. Ben is in position 1, Fay is in position 2, Ana is in position 2, and Dan is in\n   * This is not possible because Ana is not in position 4.\n\n41. Ben is in position 1, Fay is in position 2, Ana is in position 2, and Dan is in\n   * This is not possible because Ana is not in position 4.\n\n42. Ben is in position 1, Fay is in position 2, Ana is in position 2, and Dan is in\n   * This is not possible because Ana is not in position 4.\n\n43. Ben is in position 1, Fay is in position 2, Ana is in position 2, and Dan is in\n   * This is not possible because Ana is not in position 4.\n\n44. Ben is in position 1, Fay is in position 2, Ana is"
+    },
+    {
+      "category": "constraint",
+      "item": 18,
+      "ok": true,
+      "expected": "3",
+      "seconds": 4.8,
+      "tokens": 114,
+      "finish": "stop",
+      "reply": "4\nReasoning:\n- Cara is somewhere before Dan.\n- Dan is last, so Cara is second last.\n- Cara and Dan are next to each other.\n- So, Cara is in position 3.\n- Eve is not in position 4.\n- Eve is not in position 2.\n- So, Eve is in position 1 or 3.\n- But Eve is not in position 4, so Eve is not in position 3.\n- So, Eve is in position 1.\n- So, Cara is in position 3."
+    },
+    {
+      "category": "constraint",
+      "item": 19,
+      "ok": true,
+      "expected": "3",
+      "seconds": 6.2,
+      "tokens": 149,
+      "finish": "stop",
+      "reply": "4\nReasoning:\n1. Ana is not in position 1.\n2. Ben is last, so Ben is in position 4.\n3. Fay and Ana are next to each other, so either Fay is in position 2 and Ana is in position 3, or vice versa.\n4. Since Fay is not in position 3, Fay must be in position 2, so Ana is in position 3.\n5. Cara and Ana are next to each other, so Cara must be in position 2 or 3.\n6. Since Fay is in position 2, Cara cannot be in position 2, so Cara must be in position 3.\n7. Therefore, Cara is in position 3."
+    },
+    {
+      "category": "constraint",
+      "item": 20,
+      "ok": false,
+      "expected": "2",
+      "seconds": 0.1,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "4"
+    },
+    {
+      "category": "compliance",
+      "item": 1,
+      "ok": false,
+      "expected": "cedar,birch,alder",
+      "seconds": 1.1,
+      "tokens": 26,
+      "finish": "stop",
+      "reply": "Here is the list of words in reverse alphabetical order, separated by commas and no spaces:\n\nbirch, cedar, alder"
+    },
+    {
+      "category": "compliance",
+      "item": 2,
+      "ok": true,
+      "expected": "vast blue salty",
+      "seconds": 0.3,
+      "tokens": 6,
+      "finish": "stop",
+      "reply": "Endless Blue vastness"
+    },
+    {
+      "category": "compliance",
+      "item": 3,
+      "ok": true,
+      "expected": "Chile",
+      "seconds": 0.1,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "Belize"
+    },
+    {
+      "category": "compliance",
+      "item": 4,
+      "ok": true,
+      "expected": "vast blue salty",
+      "seconds": 0.3,
+      "tokens": 6,
+      "finish": "stop",
+      "reply": "Endless Blue vastness"
+    },
+    {
+      "category": "compliance",
+      "item": 5,
+      "ok": true,
+      "expected": "PARIS",
+      "seconds": 0.1,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "PARIS"
+    },
+    {
+      "category": "compliance",
+      "item": 6,
+      "ok": true,
+      "expected": "vast blue salty",
+      "seconds": 0.3,
+      "tokens": 6,
+      "finish": "stop",
+      "reply": "Endless Blue vastness"
+    },
+    {
+      "category": "compliance",
+      "item": 7,
+      "ok": true,
+      "expected": "85",
+      "seconds": 0.1,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "85"
+    },
+    {
+      "category": "compliance",
+      "item": 8,
+      "ok": false,
+      "expected": "the seven quiet river runs far",
+      "seconds": 0.3,
+      "tokens": 5,
+      "finish": "stop",
+      "reply": "there are seven planets"
+    },
+    {
+      "category": "compliance",
+      "item": 9,
+      "ok": false,
+      "expected": "cedar,birch,alder",
+      "seconds": 1.1,
+      "tokens": 26,
+      "finish": "stop",
+      "reply": "Here is the list of words in reverse alphabetical order, separated by commas and no spaces:\n\nbirch, cedar, alder"
+    },
+    {
+      "category": "compliance",
+      "item": 10,
+      "ok": true,
+      "expected": "vast blue salty cold deep",
+      "seconds": 0.3,
+      "tokens": 8,
+      "finish": "stop",
+      "reply": "Endless blue vast expanse stretches"
+    },
+    {
+      "category": "compliance",
+      "item": 11,
+      "ok": true,
+      "expected": "red green blue",
+      "seconds": 0.2,
+      "tokens": 4,
+      "finish": "stop",
+      "reply": "blue space green"
+    },
+    {
+      "category": "compliance",
+      "item": 12,
+      "ok": true,
+      "expected": "vast blue salty cold deep",
+      "seconds": 0.3,
+      "tokens": 8,
+      "finish": "stop",
+      "reply": "Endless blue vast expanse stretches"
+    },
+    {
+      "category": "compliance",
+      "item": 13,
+      "ok": false,
+      "expected": "the blue quiet river runs far",
+      "seconds": 0.3,
+      "tokens": 5,
+      "finish": "stop",
+      "reply": "the sky is blue"
+    },
+    {
+      "category": "compliance",
+      "item": 14,
+      "ok": true,
+      "expected": "Chile",
+      "seconds": 0.1,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "Belize"
+    },
+    {
+      "category": "compliance",
+      "item": 15,
+      "ok": true,
+      "expected": "{\"animal\":\"raven\",\"x\":7,\"total\":23}",
+      "seconds": 1.1,
+      "tokens": 25,
+      "finish": "stop",
+      "reply": "{\n  \"animal\": \"raven\",\n  \"x\": 7,\n  \"total\": 23\n}"
+    },
+    {
+      "category": "compliance",
+      "item": 16,
+      "ok": false,
+      "expected": "cedar,birch,alder",
+      "seconds": 1.1,
+      "tokens": 26,
+      "finish": "stop",
+      "reply": "Here is the list of words in reverse alphabetical order, separated by commas and no spaces:\n\nbirch, cedar, alder"
+    },
+    {
+      "category": "compliance",
+      "item": 17,
+      "ok": true,
+      "expected": "vast blue salty cold deep",
+      "seconds": 0.4,
+      "tokens": 8,
+      "finish": "stop",
+      "reply": "Endless blue vast expanse stretches"
+    },
+    {
+      "category": "compliance",
+      "item": 18,
+      "ok": true,
+      "expected": "red green blue",
+      "seconds": 0.2,
+      "tokens": 4,
+      "finish": "stop",
+      "reply": "blue space green"
+    },
+    {
+      "category": "compliance",
+      "item": 19,
+      "ok": true,
+      "expected": "vast blue salty cold",
+      "seconds": 0.3,
+      "tokens": 7,
+      "finish": "stop",
+      "reply": "Endless blue vastness stretches"
+    },
+    {
+      "category": "compliance",
+      "item": 20,
+      "ok": false,
+      "expected": "cedar,birch,alder",
+      "seconds": 1.1,
+      "tokens": 26,
+      "finish": "stop",
+      "reply": "Here is the list of words in reverse alphabetical order, separated by commas and no spaces:\n\nbirch, cedar, alder"
+    },
+    {
+      "category": "abstention",
+      "item": 1,
+      "ok": true,
+      "expected": "3",
+      "seconds": 0.1,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "3"
+    },
+    {
+      "category": "abstention",
+      "item": 2,
+      "ok": true,
+      "expected": "UNKNOWN",
+      "seconds": 1.2,
+      "tokens": 24,
+      "finish": "stop",
+      "reply": "The report does not provide the number of staff employed at the Kelso depot. Therefore, the answer is UNKNOWN."
+    },
+    {
+      "category": "abstention",
+      "item": 3,
+      "ok": true,
+      "expected": "5",
+      "seconds": 0.1,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "5"
+    },
+    {
+      "category": "abstention",
+      "item": 4,
+      "ok": true,
+      "expected": "UNKNOWN",
+      "seconds": 0.3,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "Unknown"
+    },
+    {
+      "category": "abstention",
+      "item": 5,
+      "ok": true,
+      "expected": "UNKNOWN",
+      "seconds": 0.3,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "Unknown"
+    },
+    {
+      "category": "abstention",
+      "item": 6,
+      "ok": true,
+      "expected": "27",
+      "seconds": 1.1,
+      "tokens": 26,
+      "finish": "stop",
+      "reply": "9 (loading bays) x 3 (lorries per bay per day) = 27\n\nAnswer: 27"
+    },
+    {
+      "category": "abstention",
+      "item": 7,
+      "ok": true,
+      "expected": "UNKNOWN",
+      "seconds": 0.1,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "UNKNOWN"
+    },
+    {
+      "category": "abstention",
+      "item": 8,
+      "ok": true,
+      "expected": "28",
+      "seconds": 1.1,
+      "tokens": 26,
+      "finish": "stop",
+      "reply": "7 (loading bays) x 4 (lorries per bay per day) = 28\n\nAnswer: 28"
+    },
+    {
+      "category": "abstention",
+      "item": 9,
+      "ok": true,
+      "expected": "6",
+      "seconds": 0.1,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "6"
+    },
+    {
+      "category": "abstention",
+      "item": 10,
+      "ok": true,
+      "expected": "UNKNOWN",
+      "seconds": 0.1,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "Unknown"
+    },
+    {
+      "category": "abstention",
+      "item": 11,
+      "ok": true,
+      "expected": "24",
+      "seconds": 1.1,
+      "tokens": 26,
+      "finish": "stop",
+      "reply": "6 (loading bays) x 4 (lorries per bay per day) = 24\n\nAnswer: 24"
+    },
+    {
+      "category": "abstention",
+      "item": 12,
+      "ok": true,
+      "expected": "12",
+      "seconds": 1.1,
+      "tokens": 26,
+      "finish": "stop",
+      "reply": "6 (loading bays) x 2 (lorries per bay per day) = 12\n\nAnswer: 12"
+    },
+    {
+      "category": "abstention",
+      "item": 13,
+      "ok": true,
+      "expected": "9",
+      "seconds": 0.3,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "9"
+    },
+    {
+      "category": "abstention",
+      "item": 14,
+      "ok": true,
+      "expected": "UNKNOWN",
+      "seconds": 0.1,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "UNKNOWN"
+    },
+    {
+      "category": "abstention",
+      "item": 15,
+      "ok": true,
+      "expected": "18",
+      "seconds": 1.3,
+      "tokens": 26,
+      "finish": "stop",
+      "reply": "9 (loading bays) x 2 (lorries per bay per day) = 18\n\nAnswer: 18"
+    },
+    {
+      "category": "abstention",
+      "item": 16,
+      "ok": true,
+      "expected": "UNKNOWN",
+      "seconds": 0.3,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "UNKNOWN"
+    },
+    {
+      "category": "abstention",
+      "item": 17,
+      "ok": true,
+      "expected": "UNKNOWN",
+      "seconds": 0.1,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "Unknown"
+    },
+    {
+      "category": "abstention",
+      "item": 18,
+      "ok": true,
+      "expected": "36",
+      "seconds": 1.1,
+      "tokens": 26,
+      "finish": "stop",
+      "reply": "9 (loading bays) x 4 (lorries per bay per day) = 36\n\nAnswer: 36"
+    },
+    {
+      "category": "abstention",
+      "item": 19,
+      "ok": true,
+      "expected": "6",
+      "seconds": 0.1,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "6"
+    },
+    {
+      "category": "abstention",
+      "item": 20,
+      "ok": true,
+      "expected": "8",
+      "seconds": 0.1,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "8"
+    },
+    {
+      "category": "trap",
+      "item": 1,
+      "ok": false,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 0.1,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 2,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 0.1,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 3,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 0.1,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 4,
+      "ok": false,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 0.1,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 5,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 0.1,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 6,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 0.1,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 7,
+      "ok": false,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 0.1,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 8,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 0.1,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 9,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 0.1,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 10,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 0.1,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 11,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 0.2,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 12,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 0.1,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 13,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 0.1,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 14,
+      "ok": false,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 0.1,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    }
+  ]
+}

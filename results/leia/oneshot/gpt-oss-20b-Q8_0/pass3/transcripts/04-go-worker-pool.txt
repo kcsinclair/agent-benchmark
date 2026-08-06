@@ -1,0 +1,96 @@
+**pool.go**
+
+```go
+package main
+
+import (
+	"context"
+	"errors"
+	"sync"
+)
+
+// Task is one unit of work.
+type Task func(ctx context.Context) (any, error)
+
+// Run executes tasks with at most `workers` running concurrently and returns
+// their results in the same order as the input slice.
+func Run(ctx context.Context, tasks []Task, workers int) ([]any, error) {
+	// Validation
+	if workers < 1 {
+		return nil, errors.New("workers must be at least 1")
+	}
+	if len(tasks) == 0 {
+		return []any{}, nil
+	}
+
+	// Context that can be cancelled by us
+	ctx2, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	results := make([]any, len(tasks))
+	jobs := make(chan struct{ idx int; task Task })
+	errCh := make(chan error, 1) // buffer 1 to avoid blocking
+	var once sync.Once
+
+	// Start workers
+	var wg sync.WaitGroup
+	wg.Add(workers)
+	for i := 0; i < workers; i++ {
+		go func() {
+			defer wg.Done()
+			for job := range jobs {
+				res, err := job.task(ctx2)
+				if err != nil {
+					once.Do(func() {
+						errCh <- err
+						cancel()
+					})
+				} else {
+					results[job.idx] = res
+				}
+			}
+		}()
+	}
+
+	// Feed jobs, respecting cancellation and first error
+	var firstErr error
+feeding:
+	for i, t := range tasks {
+		job := struct{ idx int; task Task }{i, t}
+		sendLoop:
+		for {
+			select {
+			case <-ctx2.Done():
+				break feeding
+			case err := <-errCh:
+				firstErr = err
+				break feeding
+			case jobs <- job:
+				break sendLoop
+			}
+		}
+	}
+	close(jobs)
+	wg.Wait()
+
+	// Return according to the outcome
+	if firstErr != nil {
+		return nil, firstErr
+	}
+	if ctx2.Err() != nil {
+		return nil, ctx2.Err()
+	}
+	return results, nil
+}
+```
+
+This implementation satisfies all required semantics:
+
+* **Ordering** – results are written to the slice at the same index as the task.
+* **Bounded concurrency** – at most `workers` goroutines are running tasks.
+* **Validation** – errors for `workers < 1` and empty task list handled.
+* **Fail‑fast** – first error cancels the context, stops feeding new tasks,
+  and waits for already‑started tasks to finish.
+* **Context cancellation** – propagates cancellation to running tasks and
+  returns the context error if the parent context is cancelled.
+* **Race‑free** – uses only channels, `sync.WaitGroup`, and `sync.Once`.

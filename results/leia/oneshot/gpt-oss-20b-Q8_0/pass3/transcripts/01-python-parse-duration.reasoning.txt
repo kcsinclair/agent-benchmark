@@ -1,0 +1,201 @@
+We need to produce code for parse_duration.py. Provide function parse_duration that follows rules. Must raise TypeError if non-string. Must strip whitespace at ends, but no whitespace inside. Must parse components: number + unit. Units: h, m, s, ms. Order descending: h > m > s > ms. Each unit at most once. Must parse decimal numbers: digits with optional fractional part. No leading +, no exponents, no bare '.' or '.5', no trailing dot. So regex for number: r'\d+(\.\d+)?' but ensure not '.' alone. That matches digits with optional decimal part. Should not allow trailing dot: \d+\.\d+ ensures digits after dot. Good.
+
+We need to parse string: optional leading '-'. Then components. We can use regex to match entire string: ^\s*([+-]?)(?:(\d+(\.\d+)?)(h|m|s|ms))+$ but need to enforce order and uniqueness. Might be easier to parse manually: iterate over string after stripping. Use index pointer. Keep track of last unit index. Units order mapping: {'h':0,'m':1,'s':2,'ms':3}. For each component: parse number until unit. But unit may be 'ms' two letters. So we need to detect unit: check if substring starts with 'ms', else single char. Approach: while i < len(s): parse number: read digits and optional decimal part. Must have at least one digit. After number, parse unit: if s[i:i+2]=='ms', unit='ms', i+=2 else if s[i] in 'hms', unit=s[i], i+=1 else error. Then check order: unit_index > last_index? Actually descending order: h before m before s before ms. So indices increasing. So we require unit_index > last_index. Also ensure not repeated: if unit_index == last_index? Actually last_index is previous unit index. So we require unit_index > last_index. Also ensure not repeated: if unit_index == last_index, error. But if we enforce >, repeated will fail. Also ensure no missing unit: if number parsed but no unit, error.
+
+Also need to ensure at least one component: after parsing, if no components, error.
+
+Also need to ensure no whitespace inside: after stripping, if any whitespace char in string, error. So check if any c.isspace() in s: raise ValueError.
+
+Also need to handle negative sign: if first char is '-', set negative flag and skip it. But negative sign cannot appear elsewhere. So after stripping, if s[0]=='-', negative=True, i=1 else negative=False, i=0. But if s[0]=='+'? Not allowed. So if s[0]=='+', error.
+
+Also need to ensure that after parsing all components, we consumed entire string. If leftover, error.
+
+Also need to compute total seconds: for each component, multiply number by unit factor: h=3600, m=60, s=1, ms=0.001. Sum. Then apply negative sign.
+
+Edge cases: number may be large, but fine.
+
+Also need to raise TypeError if not isinstance(text, str). So at start: if not isinstance(text, str): raise TypeError.
+
+Also need to raise ValueError for invalid format.
+
+Let's craft code accordingly.
+
+Also need to ensure no leading/trailing whitespace: we strip. But if there is whitespace inside, error. So after stripping, check for any whitespace char: if any(c.isspace() for c in s): raise ValueError.
+
+Also need to ensure at least one component: after parsing, if components list empty: raise ValueError.
+
+Also need to ensure number parsing: digits with optional decimal part. So we can parse number string: read digits until non-digit or '.'; if '.' encountered, ensure next char is digit. So we can use regex: r'\d+(\.\d+)?' but manual parse easier.
+
+Let's implement parse_number(s, i): read digits. If no digits, error. Then if next char is '.', consume '.' and then read digits; if none, error. Return number string and new index.
+
+But we also need to ensure no trailing dot: if '.' but no digits after, error.
+
+Also ensure no leading '.' or '.5': our parse_number will require at least one digit before optional '.'; so '.5' will fail because first char not digit.
+
+Also ensure no trailing dot: '5.' will fail because after '.' no digits.
+
+Also ensure no exponent: we don't allow 'e' or 'E'.
+
+Also ensure no plus sign: we don't allow '+'.
+
+Also ensure no negative sign inside number: we don't allow '-'.
+
+Ok.
+
+Let's implement.
+
+Also need to ensure that after parsing number, we parse unit. If unit not recognized, error.
+
+Also ensure that after parsing unit, we continue.
+
+Also ensure that we don't allow repeated unit: we enforce order > last_index.
+
+Also ensure that we don't allow missing unit: if after number we reach end of string, error.
+
+Also ensure that we don't allow whitespace inside: we already checked.
+
+Also ensure that we don't allow any other characters: after parsing all components, we should be at end of string.
+
+Also ensure that we don't allow empty string: after stripping, if s=='' raise ValueError.
+
+Also ensure that we don't allow string like '5' (number only). Our parsing will parse number, then attempt to parse unit; if end of string, error.
+
+Also ensure that we don't allow '1h1h' repeated unit: our order check will fail because unit_index==last_index? Actually last_index will be 0 after first 'h', then second 'h' also index 0, not > last_index, so error.
+
+Also ensure that we don't allow '1m1h' wrong order: first 'm' index 1, last_index=1; next 'h' index 0, not > last_index, error.
+
+Also ensure that we don't allow '1h30m' correct: first 'h' index 0, last_index=0; next 'm' index 1 > 0, ok.
+
+Also ensure that we don't allow '1h30m10s500ms' correct.
+
+Also ensure that we don't allow '1h30m10s500ms10s' repeated 's': second 's' index 2, last_index=2? Actually after 's' index 2, last_index=2; next 's' index 2 not > 2, error.
+
+Ok.
+
+Also need to handle negative sign: if negative, apply at end.
+
+Also need to convert number string to float: float(num_str). Should be fine.
+
+Also need to compute total seconds: sum of number * factor.
+
+Edge: large numbers may produce float rounding but fine.
+
+Also need to ensure that we don't allow whitespace inside: we already check.
+
+Also need to ensure that we don't allow leading/trailing whitespace: we strip.
+
+Also need to ensure that we don't allow plus sign: if s[0]=='+', error.
+
+Also need to ensure that we don't allow minus sign after first component: we only allow at start.
+
+Ok.
+
+Let's implement parse_duration function accordingly.
+
+Also we need to include __all__ maybe not necessary.
+
+Also we need to ensure no prints.
+
+Let's produce final code.
+
+Also we need to include docstring maybe.
+
+Let's produce final answer: a file parse_duration.py with function parse_duration.
+
+Let's craft code:
+
+```
+def parse_duration(text: str) -> float:
+    if not isinstance(text, str):
+        raise TypeError("Input must be a string")
+    s = text.strip()
+    if not s:
+        raise ValueError("Empty duration string")
+    # no whitespace inside
+    if any(c.isspace() for c in s):
+        raise ValueError("Whitespace not allowed inside duration string")
+    # handle optional leading minus
+    negative = False
+    if s[0] == '-':
+        negative = True
+        s = s[1:]
+    elif s[0] == '+':
+        raise ValueError("Leading '+' not allowed")
+    if not s:
+        raise ValueError("Missing duration components")
+    unit_order = {'h':0,'m':1,'s':2,'ms':3}
+    unit_factor = {'h':3600.0,'m':60.0,'s':1.0,'ms':0.001}
+    i = 0
+    total = 0.0
+    last_index = -1
+    components = 0
+    while i < len(s):
+        # parse number
+        start = i
+        # digits before decimal
+        if not s[i].isdigit():
+            raise ValueError(f"Expected digit at position {i}")
+        while i < len(s) and s[i].isdigit():
+            i += 1
+        # optional decimal part
+        if i < len(s) and s[i] == '.':
+            i += 1
+            if i >= len(s) or not s[i].isdigit():
+                raise ValueError(f"Invalid decimal number at position {start}")
+            while i < len(s) and s[i].isdigit():
+                i += 1
+        num_str = s[start:i]
+        # parse unit
+        if i >= len(s):
+            raise ValueError(f"Missing unit after number at position {start}")
+        # check for 'ms' first
+        if s[i:i+2] == 'ms':
+            unit = 'ms'
+            i += 2
+        elif s[i] in unit_order:
+            unit = s[i]
+            i += 1
+        else:
+            raise ValueError(f"Unknown unit at position {i}")
+        # order check
+        idx = unit_order[unit]
+        if idx <= last_index:
+            raise ValueError(f"Unit '{unit}' out of order or repeated")
+        last_index = idx
+        # compute
+        try:
+            value = float(num_str)
+        except ValueError:
+            raise ValueError(f"Invalid number '{num_str}'")
+        total += value * unit_factor[unit]
+        components += 1
+    if components == 0:
+        raise ValueError("No components found")
+    if negative:
+        total = -total
+    return total
+```
+
+Edge: we need to ensure that after parsing all components, we consumed entire string. Our loop ensures i==len(s). Good.
+
+Also need to ensure that we don't allow whitespace inside: we already check.
+
+Also need to ensure that we don't allow trailing whitespace: we stripped.
+
+Also need to ensure that we don't allow leading/trailing whitespace inside: we stripped.
+
+Also need to ensure that we don't allow whitespace inside: we check any whitespace char.
+
+Also need to ensure that we don't allow plus sign: we raise error.
+
+Also need to ensure that we don't allow negative sign after first component: we don't parse minus inside number.
+
+Also need to ensure that we don't allow exponent: we don't parse 'e'.
+
+Ok.
+
+Let's produce final answer: the file parse_duration.py with this function.
+
+Also we might include __all__ = ['parse_duration'].
+
+Let's produce final.

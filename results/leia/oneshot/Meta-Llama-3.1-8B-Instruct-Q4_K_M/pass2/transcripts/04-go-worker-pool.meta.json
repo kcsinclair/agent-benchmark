@@ -1,0 +1,16 @@
+{
+  "model": "Meta-Llama-3.1-8B-Instruct-Q4_K_M",
+  "finish_reason": "stop",
+  "mode": "think=off",
+  "temperature": 0.0,
+  "max_tokens": 16384,
+  "usage": {
+    "completion_tokens": 463,
+    "prompt_tokens": 601,
+    "total_tokens": 1064,
+    "prompt_tokens_details": {
+      "cached_tokens": 600
+    }
+  },
+  "seconds": 10.8
+}

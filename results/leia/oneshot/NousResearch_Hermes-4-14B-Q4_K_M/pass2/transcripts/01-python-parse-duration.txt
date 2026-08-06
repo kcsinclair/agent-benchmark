@@ -1,0 +1,87 @@
+```python
+import re
+
+def parse_duration(text: str) -> float:
+    if not isinstance(text, str):
+        raise TypeError("Input must be a string")
+
+    text = text.strip()
+    if not text:
+        raise ValueError("Empty string is not a valid duration")
+
+    # Check for leading minus sign
+    sign = 1
+    if text[0] == '-':
+        sign = -1
+        text = text[1:]
+        if not text:
+            raise ValueError("Negative sign without any components")
+
+    # Regex to match each component: number followed by unit
+    # Number: non-negative decimal (no leading +, no exponents, no .5, no 5.)
+    # Units: h, m, s, ms
+    # Components must be in order h > m > s > ms, each unit at most once
+    components = []
+    current_pos = 0
+    valid_units = ['h', 'm', 's', 'ms']
+    seen_units = set()
+
+    while current_pos < len(text):
+        # Match number part
+        num_match = re.match(r'^(\d+\.?\d*|\.\d+)([hms]|ms)?', text[current_pos:])
+        if not num_match:
+            raise ValueError(f"Invalid number format at position {current_pos}")
+
+        num_str = num_match.group(1)
+        unit_str = num_match.group(2)
+
+        # Validate number format
+        if num_str.startswith('.'):
+            if len(num_str) == 1:
+                raise ValueError("Bare '.' is not a valid number")
+            if num_str[1] == '.':
+                raise ValueError("Trailing dot is not allowed")
+        elif num_str.endswith('.'):
+            raise ValueError("Trailing dot is not allowed")
+        if '.' in num_str:
+            if num_str.count('.') > 1:
+                raise ValueError("Multiple dots in number")
+            if num_str[0] == '.' and len(num_str) == 1:
+                raise ValueError("Bare '.' is not a valid number")
+            if num_str[-1] == '.':
+                raise ValueError("Trailing dot is not allowed")
+        if not num_str.replace('.', '', 1).isdigit():
+            raise ValueError("Invalid characters in number")
+
+        # Validate unit
+        if unit_str is None:
+            raise ValueError("Missing unit for number")
+        if unit_str not in valid_units:
+            raise ValueError(f"Invalid unit '{unit_str}'")
+        if unit_str in seen_units:
+            raise ValueError(f"Repeated unit '{unit_str}'")
+        seen_units.add(unit_str)
+
+        # Check unit order
+        if components:
+            last_unit = components[-1][1]
+            if valid_units.index(unit_str) > valid_units.index(last_unit):
+                raise ValueError(f"Units must be in descending order. Found '{unit_str}' after '{last_unit}'")
+
+        components.append((float(num_str), unit_str))
+        current_pos += len(num_match.group(0))
+
+    # Convert components to seconds
+    total_seconds = 0.0
+    for value, unit in components:
+        if unit == 'h':
+            total_seconds += value * 3600
+        elif unit == 'm':
+            total_seconds += value * 60
+        elif unit == 's':
+            total_seconds += value
+        elif unit == 'ms':
+            total_seconds += value / 1000
+
+    return sign * total_seconds
+```

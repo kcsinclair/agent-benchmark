@@ -5,7 +5,7 @@
     "cpu_info": "AMD RYZEN AI MAX+ 395 w/ Radeon 8060S",
     "gpu_info": "AMD Radeon Graphics (RADV STRIX_HALO)",
     "backends": "Vulkan",
-    "model_filename": "/home/keith/models/gemma-4-26B-A4B-it-qat-UD-Q4_K_XL.gguf",
+    "model_filename": "/opt/local-ai/models/gemma-4-26B-A4B-it-qat-UD-Q4_K_XL.gguf",
     "model_type": "gemma4 26B.A4B Q4_0",
     "model_size": 14233222264,
     "model_n_params": 25233142046,
@@ -36,12 +36,12 @@
     "n_prompt": 0,
     "n_gen": 128,
     "n_depth": 0,
-    "test_time": "2026-07-31T05:15:55Z",
-    "avg_ns": 1729768105,
-    "stddev_ns": 2041577,
-    "avg_ts": 73.998427,
-    "stddev_ts": 0.087343,
-    "samples_ns": [ 1731438979, 1730371667, 1727493671 ],
-    "samples_ts": [ 73.9269, 73.9725, 74.0958 ]
+    "test_time": "2026-08-05T10:16:12Z",
+    "avg_ns": 1734030704,
+    "stddev_ns": 2504830,
+    "avg_ts": 73.816558,
+    "stddev_ts": 0.106520,
+    "samples_ns": [ 1732220924, 1732982590, 1736888600 ],
+    "samples_ts": [ 73.8936, 73.8611, 73.695 ]
   }
 ]

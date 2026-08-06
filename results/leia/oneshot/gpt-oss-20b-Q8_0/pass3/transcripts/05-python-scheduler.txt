@@ -1,0 +1,97 @@
+**scheduler.py**
+
+```python
+#!/usr/bin/env python3
+"""
+Weighted interval scheduling – O(n log n) implementation.
+
+The function `best_schedule` receives a list of jobs
+(start, end, weight) and returns the maximum total weight
+together with one optimal set of job indices.
+"""
+
+from bisect import bisect_right
+from typing import List, Tuple
+
+def best_schedule(jobs: List[Tuple[float, float, float]]) -> Tuple[float, List[int]]:
+    """
+    Return the maximum achievable total weight and a list of indices of
+    one optimal subset of non‑overlapping jobs.
+
+    Parameters
+    ----------
+    jobs : list of (start, end, weight)
+        All jobs satisfy start < end and weight > 0.
+
+    Returns
+    -------
+    total_weight : float
+        The maximum total weight.
+    chosen_indices : list[int]
+        Indices into the original `jobs` list of an optimal subset,
+        sorted by start time (ties broken by index).
+    """
+    n = len(jobs)
+    if n == 0:
+        return 0.0, []
+
+    # Attach original indices and sort by end time
+    jobs_with_idx = [(s, e, w, i) for i, (s, e, w) in enumerate(jobs)]
+    jobs_with_idx.sort(key=lambda x: x[1])          # sort by end
+
+    # Separate into parallel arrays for speed
+    starts = [s for s, _, _, _ in jobs_with_idx]
+    ends   = [e for _, e, _, _ in jobs_with_idx]
+    weights = [w for _, _, w, _ in jobs_with_idx]
+    orig_idx = [i for _, _, _, i in jobs_with_idx]
+
+    # Pre‑compute p[i] – index of the last job that ends <= start[i]
+    # p[i] is -1 if no such job exists
+    p = [0] * n
+    for i in range(n):
+        # bisect_right returns insertion point; subtract 1 to get last <= start
+        j = bisect_right(ends, starts[i]) - 1
+        p[i] = j
+
+    # DP arrays: dp[i] is best weight considering first i jobs (1‑based)
+    dp = [0.0] * (n + 1)
+    # To reconstruct, store whether we take job i (1‑based)
+    take = [False] * (n + 1)
+
+    for i in range(1, n + 1):
+        w = weights[i - 1]
+        j = p[i - 1]          # 0‑based index of last compatible job
+        incl = w + dp[j + 1]  # dp index offset by +1
+        excl = dp[i - 1]
+        if incl > excl:
+            dp[i] = incl
+            take[i] = True
+        else:
+            dp[i] = excl
+            take[i] = False
+
+    # Reconstruct chosen indices
+    chosen = []
+    i = n
+    while i > 0:
+        if take[i]:
+            chosen.append(orig_idx[i - 1])
+            i = p[i - 1] + 1   # jump to job before the last compatible
+        else:
+            i -= 1
+
+    # Sort chosen indices by start time (and index to break ties)
+    chosen.sort(key=lambda idx: (jobs[idx][0], idx))
+
+    return dp[n], chosen
+```
+
+The implementation follows the classic weighted‑interval‑scheduling algorithm:
+
+1. **Sorting** – jobs are sorted by end time.
+2. **Pre‑computation** – for each job the last non‑overlapping job is found with binary search (`bisect_right`).
+3. **Dynamic programming** – `dp[i]` stores the optimum weight for the first `i` jobs.
+4. **Reconstruction** – back‑tracking using the `take` array yields one optimal subset.
+5. **Sorting the result** – the indices are finally sorted by start time (and index) as required.
+
+The algorithm runs in `O(n log n)` time and `O(n)` memory, easily handling 200 000 jobs within the time limits. No side‑effects occur on import, satisfying the specification.

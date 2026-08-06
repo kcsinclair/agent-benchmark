@@ -1,0 +1,103 @@
+```go
+package main
+
+import (
+	"context"
+	"sync"
+)
+
+// Task is one unit of work.
+type Task func(ctx context.Context) (any, error)
+
+// Run executes tasks with at most `workers` running concurrently and returns
+// their results in the same order as the input slice.
+func Run(ctx context.Context, tasks []Task, workers int) ([]any, error) {
+	// Validate input parameters
+	if workers < 1 {
+		return nil, ErrInvalidWorkers
+	}
+	if len(tasks) == 0 {
+		return nil, nil
+	}
+
+	// Create a channel to signal when a worker is available
+	workerAvailable := make(chan struct{}, workers)
+	for i := 0; i < workers; i++ {
+		workerAvailable <- struct{}{}
+	}
+
+	// Create a channel to collect results and errors
+	results := make(chan result, len(tasks))
+
+	// Start worker goroutines
+	var wg sync.WaitGroup
+	wg.Add(workers)
+	for i := 0; i < workers; i++ {
+		go func() {
+			defer wg.Done()
+			for {
+				select {
+				case <-workerAvailable:
+					// Worker is available, process a task
+					select {
+					case task, ok := <-tasks:
+						if !ok {
+							// No more tasks, exit
+							return
+						}
+						// Execute the task
+						res, err := task(ctx)
+						results <- result{index: taskIndex, value: res, err: err}
+					case <-ctx.Done():
+						// Context cancelled, exit
+						return
+					}
+				case <-ctx.Done():
+					// Context cancelled, exit
+					return
+				}
+			}
+		}()
+	}
+
+	// Send tasks to the worker goroutines
+	for i, task := range tasks {
+		select {
+		case workerAvailable <- struct{}{}:
+			// Worker is available, send the task
+			tasks <- task
+			taskIndex = i
+		case <-ctx.Done():
+			// Context cancelled, return early
+			close(tasks)
+			wg.Wait()
+			return nil, ctx.Err()
+		}
+	}
+
+	// Wait for all tasks to complete
+	close(tasks)
+	wg.Wait()
+
+	// Collect results and check for errors
+	var err error
+	for i := 0; i < len(tasks); i++ {
+		res := <-results
+		if res.err != nil {
+			err = res.err
+			break
+		}
+		results[i] = res.value
+	}
+
+	return results, err
+}
+
+type result struct {
+	index int
+	value any
+	err   error
+}
+
+var ErrInvalidWorkers = errors.New("invalid number of workers")
+```

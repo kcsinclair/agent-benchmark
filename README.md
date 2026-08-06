@@ -78,7 +78,7 @@ machine — no local llama.cpp needed):
 ```bash
 ./benchmark/run_http.py --list-models
 ./benchmark/run_http.py -r 3 -g <model-id>          # one-shot, 3 passes
-./benchmark/run_agent.py -g <model-id>              # agent / tool-use track
+./benchmark/run_agent.py <model-id>                 # agent track (grades automatically)
 ./reasoning/run_reasoning.py -r 3 <model-id>        # reasoning, 3 passes
 ./benchmark/run_llama_bench.sh                      # speed, over ssh
 ./benchmark/collate_bench.py                        # join speed to scores
