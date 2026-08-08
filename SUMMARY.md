@@ -156,28 +156,34 @@ exactly the workload you'd pick a fast model for.
 
 ### Speed against accuracy
 
-```mermaid
-quadrantChart
-    title Generation speed vs one-shot coding score
-    x-axis "12 tok/s" --> "92 tok/s"
-    y-axis "0/68" --> "68/68"
-    quadrant-1 "fast and accurate"
-    quadrant-2 "accurate but slow"
-    quadrant-3 "slow and weak"
-    quadrant-4 "fast and weak"
-    "gpt-oss-120b": [0.537, 1.0]
-    "gpt-oss-20b Q8": [0.749, 0.956]
-    "gemma-4-26B": [0.740, 0.956]
-    "Qwen3-Coder-30B": [0.917, 0.838]
-    "Qwen3.6-35B": [0.627, 0.838]
-    "Qwen3.6-27B": [0.127, 0.838]
-    "gemma-4-31B": [0.122, 1.0]
-    "Qwen3VL-8B": [0.436, 0.456]
-    "gpt-oss-20b Q4": [0.809, 0.368]
-    "Hermes-4-14B": [0.248, 0.338]
-    "Llama-3.1-8B": [0.443, 0.279]
-    "Llama-3-14B": [0.249, 0.0]
 ```
+one-shot
+score
+68 │       ● gemma-4-31B          ● gpt-oss-120b
+   │                                         ● gemma-4-26B + gpt-oss-20b Q8
+   │       ● Qwen3.6-27B              ● Qwen3.6-35B   ● Qwen3-Coder-30B
+   │
+51 │
+   │
+   │
+34 │
+   │                        ● Qwen3VL-8B
+   │              ● Hermes-4-14B                ● gpt-oss-20b Q4
+17 │                        ● Llama-3.1-8B
+   │
+   │
+   │
+ 0 │              ● Llama-3-14B
+   └─────────────────────────────────────────────────────────
+    0             25            50           75            100
+                  generation speed at empty context (tok/s)
+```
+
+The useful corner is top-right, and only three models are in it. Note that
+**gemma-4-26B and gpt-oss-20b-Q8 occupy the same point** — 74 vs 75 tok/s, both
+65/68 — which is why the choice between them comes down to the axes this plot
+doesn't show: reasoning (81 vs 98) and memory (14 GB vs 12 GB). gemma-4-31B and
+Qwen3.6-27B sit at the top-left: near-perfect scores at 12–13 tok/s.
 
 ### Reasoning score per GB resident
 
