@@ -57,6 +57,7 @@ UNIT="llama-server.service"
 # label | llama-bench model argument
 # local .gguf files by path; the two cached HF repos by -hf, as the router uses
 MODELS="
+Muse-Glimmer-30B|-m $MODELDIR/Muse-Glimmer-30B-UD-Q8_K_XL.gguf
 gemma-4-31B|-hf unsloth/gemma-4-31B-it-qat-GGUF:Q4_K_XL
 gemma-4-26B|-m $MODELDIR/gemma-4-26B-A4B-it-qat-UD-Q4_K_XL.gguf
 gpt-oss-120b|-m $MODELDIR/gpt-oss-120b-MXFP4.gguf

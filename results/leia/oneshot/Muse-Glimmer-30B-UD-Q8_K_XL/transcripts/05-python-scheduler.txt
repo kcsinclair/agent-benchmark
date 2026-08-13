@@ -1,0 +1,58 @@
+```python
+# scheduler.py
+from bisect import bisect_right
+from typing import List, Tuple
+
+def best_schedule(jobs: List[Tuple[float, float, float]]) -> Tuple[float, List[int]]:
+    if not jobs:
+        return 0.0, []
+
+    n = len(jobs)
+    items = []
+    for idx, (s, e, w) in enumerate(jobs):
+        items.append((e, s, w, idx))          # end, start, weight, original index
+    items.sort(key=lambda x: x[0])
+
+    ends = [it[0] for it in items]
+    starts = [it[1] for it in items]
+    weights = [it[2] for it in items]
+    origs = [it[3] for it in items]
+
+    p = [0] * n
+    for i in range(n):
+        s = starts[i]
+        j = bisect_right(ends, s, 0, i) - 1
+        p[i] = j
+
+    dp = [0.0] * (n + 1)
+    take = [False] * n
+
+    for i in range(1, n + 1):
+        w_i = weights[i - 1]
+        j = p[i - 1]
+        incl = w_i + dp[j + 1]
+        excl = dp[i - 1]
+        if incl > excl:
+            dp[i] = incl
+            take[i - 1] = True
+        else:
+            dp[i] = excl
+            take[i - 1] = False
+
+    chosen = []
+    i = n
+    while i > 0:
+        if take[i - 1]:
+            chosen.append(origs[i - 1])
+            i = p[i - 1] + 1
+        else:
+            i -= 1
+    chosen.reverse()
+
+    # ensure required ordering: by start time, then index
+    chosen_with_start = [(jobs[idx][0], idx) for idx in chosen]
+    chosen_with_start.sort(key=lambda x: (x[0], x[1]))
+    chosen_sorted = [idx for _, idx in chosen_with_start]
+
+    return float(dp[n]), chosen_sorted
+```

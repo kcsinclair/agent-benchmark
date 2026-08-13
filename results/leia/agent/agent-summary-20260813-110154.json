@@ -1,0 +1,125 @@
+{
+  "wall_seconds": 6014.2,
+  "track": "agent",
+  "settings": {
+    "temperature": 0.0,
+    "max_tokens": 8192,
+    "max_turns": 12,
+    "think": "off",
+    "repeat": 1,
+    "server": "http://leia.packsin.com:7442"
+  },
+  "results": [
+    {
+      "model": "Muse-Glimmer-30B-UD-Q8_K_XL",
+      "track": "agent",
+      "load_seconds": 9.1,
+      "passes": [
+        {
+          "pass": 1,
+          "dir": "/Users/keith/Code/agent-benchmark/results/leia/agent/Muse-Glimmer-30B-UD-Q8_K_XL",
+          "problems": [
+            {
+              "problem": "01-python-parse-duration",
+              "turns": 2,
+              "tool_calls": 1,
+              "bad_calls": 0,
+              "files": [
+                "parse_duration.py"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 13166,
+              "stop": "stopped after 2 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "seconds": 1824.5,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "02-js-lru-ttl-cache",
+              "turns": 1,
+              "tool_calls": 0,
+              "bad_calls": 0,
+              "files": [],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 8192,
+              "stop": "stopped after 1 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "seconds": 1136.1,
+              "missing": [
+                "cache.mjs"
+              ],
+              "extra": []
+            },
+            {
+              "problem": "03-sql-analytics",
+              "turns": 7,
+              "tool_calls": 12,
+              "bad_calls": 0,
+              "files": [
+                "q1.sql",
+                "q2.sql",
+                "q3.sql",
+                "q4.sql",
+                "q4.sql",
+                "q4.sql"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 5508,
+              "stop": "stopped after 7 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "seconds": 770.8,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "04-go-worker-pool",
+              "turns": 1,
+              "tool_calls": 0,
+              "bad_calls": 0,
+              "files": [],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 8192,
+              "stop": "stopped after 1 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "seconds": 1136.0,
+              "missing": [
+                "pool.go"
+              ],
+              "extra": []
+            },
+            {
+              "problem": "05-python-scheduler",
+              "turns": 1,
+              "tool_calls": 0,
+              "bad_calls": 0,
+              "files": [],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 8192,
+              "stop": "stopped after 1 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "seconds": 1135.9,
+              "missing": [
+                "scheduler.py"
+              ],
+              "extra": []
+            }
+          ],
+          "seconds": 6003.3,
+          "score": 28,
+          "max": 68
+        }
+      ]
+    }
+  ]
+}

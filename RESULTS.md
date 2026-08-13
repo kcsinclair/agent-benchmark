@@ -16,6 +16,7 @@ Model gets the prompt, answers once, code blocks are extracted from the reply.
 
 | model | median | passes | pass time | run |
 |---|---|---|---|---|
+| Muse-Glimmer-30B (Q8_K_XL) † | **68/68** | 68 — *one pass only* | 73 min | 08-12 |
 | gpt-oss-120b-MXFP4 | **68/68** | 68 · 68 · 68 | 3.5 min | 07-31 |
 | gemma-4-31B-it-qat | **68/68** | 68 · 68 · 68 | 5.3 min | 07-31 |
 | gemma-4-26B-A4B-it-qat | 65/68 | 54 · 65 · 65 | 1.3 min | 07-31 |
@@ -29,6 +30,37 @@ Model gets the prompt, answers once, code blocks are extracted from the reply.
 | Meta-Llama-3.1-8B-Instruct | 19/68 | 19 · 19 · 19 | 1.2 min | 08-04 |
 | Llama-3-14B-Instruct-v1 | 0/68 | 0 · 0 · 0 | 15.0 min | 08-04 |
 | Kimi-Linear-48B-A3B | — | fails to load | — | — |
+
+† **Muse-Glimmer-30B is one pass, not three, and on a different llama.cpp
+build.** Every other row was produced on `b9892-ee445f93d`; this architecture
+did not exist in that build, so leia was upgraded to `b10380-0b1bad14f` on
+08-12 to run it (see [servers/leia.md](servers/leia.md)). Qwen3-Coder-30B re-run
+on the new build scored 56/68, inside its recorded 56 · 57 · 58 spread, which is
+the only evidence so far that the two builds are comparable. Given the sweep's
+own headline finding — one run is not a measurement — a single 68/68 should be
+read as "did not drop a single check on the day", not as a tie with the two
+models that held 68 across three passes.
+
+Its problem 2 was generated on a **second attempt after the first request hit
+the harness's 1800s timeout with no reply at all**. Nothing of the model's first
+answer existed to preserve, so this is not a re-prompt under the README rules —
+but it is the reason the row is dated 08-12 rather than being a clean single
+sitting, and it is recorded here rather than left implicit.
+
+**Muse-Glimmer ignores `enable_thinking: false` silently.** Every request was
+sent with the switch and logged as `think=off`, and every one came back with
+`reasoning_content` — 38k characters on problem 2, 48k on problem 4. The
+template neither errors nor honours it, so `run_http.py`'s retry path (which
+only catches templates that *reject* the switch) does not fire and the metadata
+records `think=off` for a run that plainly thought. The reasoning is saved
+separately and never reaches the extractor, so the scores are unaffected; the
+`mode` field is what is wrong.
+
+That verbosity is most of the cost. At **7.3 tok/s** — dense 30B at Q8, 32 GB of
+weights, bandwidth-bound on this box exactly as the dense/MoE split in
+[servers/leia.md](servers/leia.md) predicts — it spent 9,573 and 10,947
+completion tokens on problems 2 and 4 alone. 73 minutes a pass against
+gpt-oss-120b's 3.5 for the same 68/68.
 
 **The Q4 and Q8 quants of gpt-oss-20b are 40 points apart — on generation, not
 ability.** Q4 truncated and returned *empty* content 6 times across its three
@@ -57,6 +89,7 @@ the second sweep used `max_tokens 8192`.
 | Qwen3.6-35B-A3B | 65/68 | 8.4 | 8.6 | 0 | hit turn limit 3/5 |
 | Qwen3-Coder-30B | 57/68 | 5.4 | 4.4 | 0 | native tool format, see below |
 | Qwen3VL-8B-Uncensored | 41/68 | 2.0 | 1.6 | 1 | 1 deliverable never written |
+| Muse-Glimmer-30B-Q8 | 28/68 | 2.4 | 2.6 | 0 | 3 of 5 out of tokens before calling |
 | gpt-oss-20b-Q4_K_M | 37/68 | 2.4 | 1.4 | 0 | 2 missing, stops after 1 turn |
 | Hermes-4-14B | 8/68 | 1.2 | 0.8 | 0 | 4 of 5 deliverables missing |
 | Meta-Llama-3.1-8B | 0/68 | 1.8 | 0.8 | 0 | 5 missing, calls tools uselessly |
@@ -70,6 +103,23 @@ something for 4 of 5 problems but never the file the grader asks for.
 **gpt-oss-20b-Q8 is the second cleanest agent measured** — 3.0 turns, 2.0 calls,
 nothing missing, nothing stray, 68/68. Its Q4 sibling stops after a single turn
 on two problems and loses 31 points to files that were never written.
+
+**Muse-Glimmer drops 40 points between the one-shot and agent tracks — every one
+of them to its own reasoning, not to tool use.** It scores 68/68 one-shot and
+28/68 here on the same five problems. Problems 2, 4 and 5 each record exactly
+`tokens: 8192` — the per-turn cap, to the token — with **zero tool calls** and
+`prose_only: false`. It did not answer in prose instead of calling a tool, and
+it did not call one badly: it never finished thinking. Its reasoning consumed
+the entire turn budget and the turn ended mid-thought, so no file was ever
+written. The two problems it completed it completed perfectly (20/20 and 8/8),
+with **0 malformed calls** across 13 calls — when it does emit a call, the call
+is well-formed. This is the gpt-oss-20b-Q4 failure again and more extreme: the
+score measures verbosity against a token ceiling, not agent ability. A larger
+`--max-tokens` would very likely move this number a long way, which is exactly
+why it should not be read as a capability ranking.
+
+Its one clean multi-call problem also shows the milder version: 12 tool calls
+for 4 files on problem 3, rewriting `q4.sql` three times. Redundant, not wrong.
 
 **Tools raised scores rather than lowering them.** Qwen3.6-27B gained 10 points
 over its one-shot median, Qwen3.6-35B gained 8. Likely because writing into a
@@ -107,6 +157,17 @@ from the median pass.
 | Qwen3-Coder-30B-A3B | 61/102 | 61·61·60 | 8/20 | **5/20** | **9/20** | 20/20 | 12/14 | 6/8 |
 | Llama-3-14B-Instruct-v1 | 59/102 | 59·57·61 | 10/20 | **5/20** | 14/20 | 20/20 | 10/14 | **0/8** |
 | Meta-Llama-3.1-8B | 52/102 | 52·50·52 | **2/20** | 9/20 | 7/20 | 20/20 | 11/14 | 3/8 |
+| Muse-Glimmer-30B-Q8 | not run | — | — | — | — | — | — | — |
+
+**Muse-Glimmer was not run on this track, deliberately.** At 7.3 tok/s a single
+pass of 102 items is a 4–8 hour measurement, and the track's default
+`max_tokens` is **2048** — a quarter of the 8192 budget the model had already
+been observed to exhaust on 3 of 5 agent problems without producing an answer.
+The expected result was a near-zero recording how long it thinks rather than how
+well, at a cost of most of a day. Raising the cap would measure the model but
+would not be comparable with the twelve rows above, which were all run at 2048.
+Either way the number would not have meant what the column header says, so the
+run was cancelled rather than published with a caveat longer than the result.
 
 **A 20B model reaches 98/102.** gpt-oss-20b-Q8 is perfect on state, constraint,
 compliance and abstention, and loses its four points almost entirely to
@@ -168,6 +229,7 @@ which is 40 of the 102 points. Read the totals with that in mind.
 |---|---|---|---|---|---|
 | gpt-oss-120b-MXFP4 | 68/68 | 68/68 | **102/102** | 54 | 63 GB |
 | gemma-4-31B-it-qat | 68/68 | 65/68 | 84/102 | 12 | 17 GB |
+| Muse-Glimmer-30B-Q8 † | 68/68 | 28/68 | not run | **7.4** | 32 GB |
 | **gpt-oss-20b-Q8_0** | 65/68 | 68/68 | 98/102 | 75 | **12 GB** |
 | gemma-4-26B-A4B | 65/68 | 68/68 | 81/102 | 74 | 14 GB |
 | Qwen3.6-27B | 57/68 | 67/68 | 77/102 | 13 | 17 GB |
@@ -181,6 +243,21 @@ which is 40 of the 102 points. Read the totals with that in mind.
 
 **gpt-oss-120b still wins every track outright.** If 54 tok/s and 63 GB resident
 are acceptable, nothing else on this machine has an argument.
+
+† **Muse-Glimmer-30B is a single run on every track, and its testing was stopped
+early.** It ties the top of the coding table at 68/68 and is the slowest model
+ever measured here at 7.4 tok/s — a combination that makes the remaining
+measurements expensive and, as the agent track showed, mostly a record of how
+many tokens it spends thinking. One pass of the reasoning track would have cost
+most of a day to produce a number about its verbosity, so it was cancelled. Read
+the row as two solid results and two deliberate gaps, not as a model that failed
+three tracks.
+
+**Muse-Glimmer is the sharpest example yet of the gap this benchmark keeps
+finding.** 68/68 given one shot and a large budget; 28/68 when the same five
+problems require it to finish thinking and then act inside 8192 tokens a turn.
+Nothing about its coding ability changed between those two runs — only whether
+it was allowed to ramble first. gpt-oss-120b scores 68/68 on both.
 
 **gpt-oss-20b-Q8 replaces gemma-4-26B as the value pick.** It matches it on both
 coding tracks (65/68 and 68/68), beats it by 17 points on reasoning, and does so
@@ -216,6 +293,7 @@ hardware**, which reverses the apparent ranking.
 | Llama-3-14B-Instruct-v1 | 9 GB | 679 | 25 | 20 | 78% | 0/68 | 0/68 |
 | Qwen3.6-27B | 17 GB | 360 | 13 | 12 | 96% | 57/68 | 67/68 |
 | gemma-4-31B-it-qat | 17 GB | 288 | 12 | 11 | 89% | 68/68 | 65/68 |
+| Muse-Glimmer-30B-Q8 ‡ | 32 GB | 348 | 7.4 | 7.3 | **99%** | 68/68 | — |
 
 - **gpt-oss-20b-Q8 is the value pick** — 68/68 agent, 98/102 reasoning, 75 tok/s,
   12 GB, and it holds 89% of its throughput out to 16k context.
@@ -231,6 +309,22 @@ hardware**, which reverses the apparent ranking.
 depth.** Qwen3-Coder leads at empty context by 22% over gpt-oss-20b-Q8 and
 *trails* it at 16k. A ranking taken at `tg@0` — which is what a headline tok/s
 number is — mis-sorts the models you would actually run a multi-turn agent on.
+
+‡ **Muse-Glimmer's row is 2026-08-12 on build `b10380`**, the rest are `b9892`.
+The builds are interchangeable for speed: the same control model on the new
+build read 74.29 / 74.34 / 74.31 tok/s against 74.04 / 73.82 / 74.05 on the old,
+a 0.3% difference against a control whose whole job is to detect drift smaller
+than that.
+
+**Muse-Glimmer is the slowest model measured and the least damaged by depth.**
+It retains **99%** of its throughput out to 16k, where the fastest model in the
+table keeps 69%. Its architecture alternates three 2048-token sliding-window
+layers with a fourth full-attention NoPE layer, so most of its layers never read
+the whole context. That is the opposite trade from Qwen3-Coder: Muse-Glimmer
+starts slow and stays there, which for long multi-turn agent work is the more
+predictable failure mode — but it starts so slow (7.4 tok/s, 32 GB read per
+token, dense) that 99% retention never overtakes anything. It closes the gap to
+gemma-4-31B from 62% to 33% across the depth sweep and still loses.
 
 Measurement conditions: drift controls at the start, middle and end of the run
 came in at 74.04, 73.82 and 74.05 tok/s (0.2% spread), and the five models

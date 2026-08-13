@@ -1,0 +1,89 @@
+```js
+// cache.mjs
+export class LruTtlCache {
+  #map
+  #capacity
+  #defaultTtlMs
+  #now
+
+  constructor({ capacity, defaultTtlMs = Infinity, now = () => Date.now() }) {
+    if (!Number.isInteger(capacity) || capacity < 1) {
+      throw new RangeError('capacity must be an integer >= 1')
+    }
+    this.#capacity = capacity
+    this.#defaultTtlMs = defaultTtlMs
+    this.#now = now
+    this.#map = new Map()
+  }
+
+  #purgeExpired() {
+    const now = this.#now()
+    for (const [key, entry] of this.#map) {
+      if (entry.expiry !== Infinity && now >= entry.expiry) {
+        this.#map.delete(key)
+      }
+    }
+  }
+
+  set(key, value, ttlMs) {
+    const now = this.#now()
+    const ttl = ttlMs ?? this.#defaultTtlMs
+    const expiry = ttl === Infinity ? Infinity : now + ttl
+
+    if (expiry !== Infinity && now >= expiry) {
+      this.#map.delete(key)
+      return this
+    }
+
+    this.#purgeExpired()
+
+    const existed = this.#map.has(key)
+    if (!existed) {
+      while (this.#map.size >= this.#capacity) {
+        const lruKey = this.#map.keys().next().value
+        this.#map.delete(lruKey)
+      }
+    }
+
+    this.#map.delete(key)
+    this.#map.set(key, { value, expiry })
+    return this
+  }
+
+  get(key) {
+    const entry = this.#map.get(key)
+    if (!entry) return undefined
+    if (entry.expiry !== Infinity && this.#now() >= entry.expiry) {
+      this.#map.delete(key)
+      return undefined
+    }
+    this.#map.delete(key)
+    this.#map.set(key, entry)
+    return entry.value
+  }
+
+  has(key) {
+    const entry = this.#map.get(key)
+    if (!entry) return false
+    if (entry.expiry !== Infinity && this.#now() >= entry.expiry) {
+      this.#map.delete(key)
+      return false
+    }
+    return true
+  }
+
+  delete(key) {
+    return this.#map.delete(key)
+  }
+
+  get size() {
+    this.#purgeExpired()
+    return this.#map.size
+  }
+
+  keys() {
+    this.#purgeExpired()
+    return Array.from(this.#map.keys()).reverse()
+  }
+}
+```

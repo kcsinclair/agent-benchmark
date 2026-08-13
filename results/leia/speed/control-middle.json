@@ -1,7 +1,7 @@
 [
   {
-    "build_commit": "ee445f93d",
-    "build_number": 9892,
+    "build_commit": "0b1bad14f",
+    "build_number": 10380,
     "cpu_info": "AMD RYZEN AI MAX+ 395 w/ Radeon 8060S",
     "gpu_info": "AMD Radeon Graphics (RADV STRIX_HALO)",
     "backends": "Vulkan",
@@ -26,8 +26,7 @@
     "devices": "auto",
     "tensor_split": "0.00",
     "tensor_buft_overrides": "none",
-    "use_mmap": true,
-    "use_direct_io": false,
+    "load_mode": "auto",
     "embeddings": false,
     "no_op_offload": 0,
     "no_host": false,
@@ -36,12 +35,12 @@
     "n_prompt": 0,
     "n_gen": 128,
     "n_depth": 0,
-    "test_time": "2026-08-05T10:16:12Z",
-    "avg_ns": 1734030704,
-    "stddev_ns": 2504830,
-    "avg_ts": 73.816558,
-    "stddev_ts": 0.106520,
-    "samples_ns": [ 1732220924, 1732982590, 1736888600 ],
-    "samples_ts": [ 73.8936, 73.8611, 73.695 ]
+    "test_time": "2026-08-12T11:49:03Z",
+    "avg_ns": 1721858084,
+    "stddev_ns": 6241212,
+    "avg_ts": 74.338950,
+    "stddev_ts": 0.269746,
+    "samples_ns": [ 1727359165, 1715075632, 1723139455 ],
+    "samples_ts": [ 74.1016, 74.6323, 74.283 ]
   }
 ]

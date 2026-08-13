@@ -23,3 +23,7 @@
 {"label":"Qwen3VL-8B","seconds":74,"temp_before":"63.4","temp_after":"66.5","file":"Qwen3VL-8B.json"}
 {"label":"Llama-3.1-8B","seconds":71,"temp_before":"64.2","temp_after":"66.1","file":"Llama-3.1-8B.json"}
 {"label":"control-end","seconds":13,"temp_before":"63.9","temp_after":"61.5","file":"control-end.json"}
+{"label":"control-start","seconds":12,"temp_before":"31.1","temp_after":"45.8","file":"control-start.json"}
+{"label":"Muse-Glimmer-30B","seconds":266,"temp_before":"44.1","temp_after":"63.1","file":"Muse-Glimmer-30B.json"}
+{"label":"control-middle","seconds":11,"temp_before":"61.1","temp_after":"60.4","file":"control-middle.json"}
+{"label":"control-end","seconds":7,"temp_before":"58.4","temp_after":"60.0","file":"control-end.json"}

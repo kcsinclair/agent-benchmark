@@ -1,0 +1,361 @@
+# Problem 1 — Duration String Parser (Python, easy)
+
+Write a Python 3 module in a single file named `parse_duration.py` that defines one function:
+
+def parse_duration(text: str) -> float:
+...
+
+Parse human-readable duration string and returns total seconds as float.
+
+Format: optional minus sign followed by one or more components, concatenated with no separators. Each component is number followed by unit:
+
+h hours
+m minutes
+s seconds
+ms milliseconds
+
+Rules:
+1. Numbers are non-negative decimals: digits with optional fractional part (2,1.5,0.25). No leading +, no exponents, no bare . or .5, and no trailing dot (5. is invalid).
+2. Units must appear in strictly descending order of size (h before m before s before ms) and each unit may appear at most once.
+3. At least one component required.
+4. Single leading - (before first component) negates whole duration: -1h30m is -5400.0 seconds.
+5. Leading and trailing whitespace must be tolerated (stripped). Whitespace anywhere else is invalid.
+6. Anything violates rules must raise ValueError. Passing non-string must raise TypeError.
+
+Examples...
+
+Constraints standard library only.
+
+Deliverable exactly one file.
+
+We need to produce code. Probably just output file content. The prompt says deliverable exactly one file. Probably just provide code.
+
+We need to ensure validation.
+
+Edge cases: number format: digits with optional fractional part. So regex: ^\d+(\.\d+)?$ . No leading + . No exponents. No bare . or .5 . No trailing dot.
+
+Units: h, m, s, ms. Note ms is two chars. Parsing concatenated: need to parse sequentially.
+
+We need to ensure units appear in strictly descending order of size: h > m > s > ms. So order index decreasing. Also each unit at most once.
+
+Leading/trailing whitespace stripped. Whitespace anywhere else invalid. So after strip, if any whitespace inside -> ValueError.
+
+Optional leading minus sign: only one leading '-'. If minus present, must be at start before first component. After strip, if starts with '-', remove it, set negative flag. Then remaining must not start with '-' again. Also minus sign cannot be in middle.
+
+Also number non-negative. So after sign removal, numbers must be >=0.
+
+Parsing algorithm:
+
+def parse_duration(text: str) -> float:
+ if not isinstance(text, str): raise TypeError
+ s = text.strip()
+ if not s: raise ValueError
+ # check internal whitespace
+ if any(c.isspace() for c in s): raise ValueError? Actually strip removed leading/trailing, but internal whitespace remains. Could check if s != s.strip() already done. But also need to ensure no whitespace inside. So if ' ' in s -> ValueError. Simpler: if re.search(r'\s', s): raise ValueError. But strip already removed edges. So check if any whitespace char in s -> ValueError.
+
+ negative = False
+ if s[0] == '-':
+   negative = True
+   s = s[1:]
+   if not s: raise ValueError
+   # also ensure no leading '-' again? Could be '--1h' -> after removal s starts with '-'. That would be invalid because number would start with '-'. We'll catch later.
+ elif s[0] == '+': raise ValueError? Rule says no leading +. So raise ValueError.
+
+ Now s must be non-empty and consist of components.
+
+ We need to parse components sequentially.
+
+ We can use regex to find all number+unit pairs. But need to ensure entire string consumed.
+
+ Pattern for component: (\d+(?:\.\d+)?)(h|m|s|ms)
+
+ But note 'm' could be ambiguous with 'ms'. Since ms is two chars, we need to match longest? If we match greedily, we can use regex with alternation ms|h|m|s . Since ms contains m, need to ensure we match ms first.
+
+ So pattern = r'(\d+(?:\.\d+)?)(ms|h|m|s)'
+
+ Then finditer. Ensure that concatenation covers whole string: sum of lengths == len(s). Also ensure at least one match.
+
+ Also need to validate number format: \d+(?:\.\d+)? ensures no trailing dot, no leading dot. Good.
+
+ Also need to ensure number is non-negative decimal, okay.
+
+ Also need to ensure units order strictly descending and each unit at most once.
+
+ Define order mapping: h=3, m=2, s=1, ms=0 (or descending). Actually size descending: h > m > s > ms. So order index decreasing.
+
+ We need strictly descending order: each subsequent unit must have smaller size than previous. So order index must strictly decrease.
+
+ Also each unit at most once: set.
+
+ Also need to ensure no extra characters.
+
+ Implementation steps:
+
+ import re
+
+ pattern = re.compile(r'(\d+(?:\.\d+)?)(ms|h|m|s)')
+
+ pos = 0
+ total_seconds = 0.0
+ prev_order = None
+ seen = set()
+ for m in pattern.finditer(s):
+   start = m.start()
+   if start != pos: raise ValueError (gap)
+   pos = m.end()
+   num_str, unit = m.groups()
+   # validate number? regex already.
+   # also ensure number not empty? fine.
+   # convert
+   try:
+     num = float(num_str)
+   except:
+     raise ValueError
+   if num < 0: raise ValueError (shouldn't happen)
+   if unit in seen: raise ValueError
+   seen.add(unit)
+   order = {'h':3,'m':2,'s':1,'ms':0}[unit]
+   if prev_order is not None:
+     if order >= prev_order: raise ValueError # must be strictly decreasing
+   prev_order = order
+   # accumulate seconds
+   if unit == 'h': total_seconds += num * 3600
+   elif unit == 'm': total_seconds += num * 60
+   elif unit == 's': total_seconds += num
+   elif unit == 'ms': total_seconds += num / 1000
+
+ After loop, if pos != len(s): raise ValueError
+
+ If negative: total_seconds = -total_seconds
+
+ Return float(total_seconds)
+
+ Edge cases: leading minus sign with whitespace? Already stripped. "- 1h"? After strip, s = "- 1h". s[0]=='-'. s = " 1h". Then internal whitespace -> will be caught by whitespace check? We checked whitespace after strip? We need to check whitespace after removing sign? Better to check whitespace in original stripped string before sign removal? Actually we stripped original. Then we check for any whitespace inside s. If we check before removing sign, "- 1h" contains space -> ValueError. Good.
+
+ Also need to ensure minus sign only at start. If s starts with '-', we removed one char. If remaining starts with '-', that would be caught by pattern? Pattern expects digit at start. So start != pos -> ValueError. Good.
+
+ Also need to ensure no leading '+'. If s[0]=='+' -> ValueError.
+
+ Also need to ensure empty after sign -> ValueError.
+
+ Also need to ensure number format: no leading + . Already.
+
+ Also need to ensure no trailing dot: regex \d+(?:\.\d+)? ensures at least one digit after dot. Good.
+
+ Also need to ensure no bare '.' or '.5' -> regex requires leading digits.
+
+ Also need to ensure no exponents -> regex doesn't allow e.
+
+ Also need to ensure whitespace anywhere else invalid. We can check if re.search(r'\s', s_original_stripped?) Actually after sign removal, s may contain whitespace. So we should check for whitespace in the string after stripping and after sign removal? Simpler: after initial strip, check if any whitespace character in s (original stripped). If yes, raise ValueError. But if s starts with '-', the '-' is not whitespace. The rest may contain whitespace. So check for whitespace in s before sign removal? If s = "-1h 30m", contains space -> raise. Good.
+
+ But what about s = "- 1h"? Contains space -> raise.
+
+ Implementation details: after strip, if any c.isspace() in s: raise ValueError. This will also catch internal spaces. Then proceed.
+
+ But note that after removing leading '-', the remaining s may still contain whitespace? Already checked.
+
+ Edge case: multiple minus signs? "- -1h"? Contains space -> caught. "- -1h"? Actually "- -1h" contains space. "-1h" fine. "--1h": s = "--1h". Contains no whitespace. s[0]=='-'. Remove first -> s = "-1h". Now s starts with '-'. Our whitespace check passed. Now pattern finditer will start at pos 0, but first char is '-', pattern expects digit. So start != pos? Actually finditer will find match at position 1? Let's see: pattern searches for digit. It will find '1h' at position 1. start=1 != pos=0 -> raise ValueError. Good.
+
+ Edge case: empty string -> after strip '' -> raise ValueError.
+
+ Edge case: just '-' -> after strip '-', s[0]=='-'. s = '' -> raise ValueError.
+
+ Edge case: '1h1h' -> seen duplicate -> raise.
+
+ Edge case: '1m1h' -> order: m=2 then h=3 -> order >= prev? 3 >=2 -> raise.
+
+ Edge case: '1h30m' -> order 3 then 2 -> ok.
+
+ Edge case: '1h30m15s500ms' -> ok.
+
+ Edge case: '0.25' -> no unit -> pattern finds nothing, pos=0 != len -> raise.
+
+ Edge case: '5.' -> regex won't match because \.\d+ requires digits after dot. So pattern won't match, pos != len -> raise.
+
+ Edge case: '.5h' -> regex won't match because starts with '.' -> pattern won't match at start -> raise.
+
+ Edge case: '1h ' -> after strip -> '1h' fine.
+
+ Edge case: ' 1h ' -> strip -> '1h'.
+
+ Edge case: '1h30m ' -> strip -> '1h30m'.
+
+ Edge case: '1h30m\n' -> strip removes newline.
+
+ Edge case: non-string -> TypeError.
+
+ Potential nuance: units must appear in strictly descending order of size. Does it require that they appear in order h,m,s,ms but can skip? Yes strictly descending, so h then s is allowed? h before s, skipping m. That's descending. Order index 3 then 1 -> decreasing, ok. So allowed.
+
+ Also each unit at most once.
+
+ Also need to ensure number is non-negative decimal. float conversion will allow '0' etc. Could be '0.0' fine.
+
+ Potential nuance: leading zeros? Allowed? Probably yes. Digits with optional fractional part. Leading zeros allowed.
+
+ Potential nuance: number like '001.5' -> regex allows. float conversion fine.
+
+ Potential nuance: very large numbers? fine.
+
+ Potential nuance: return float. Should we return total_seconds as float. Use float.
+
+ Potential nuance: negative sign negates whole duration. So if multiple components, sum then negate. That's fine.
+
+ Potential nuance: what about '-0h'? Should be -0.0? That's fine.
+
+ Potential nuance: whitespace tolerance leading/trailing only. We already strip and check internal whitespace. But what about tab? isspace covers.
+
+ Implementation details: Use re.finditer.
+
+ Alternative parsing manually with while loop to avoid regex pitfalls. But regex fine.
+
+ Edge case: unit 'm' vs 'ms'. Our pattern (ms|h|m|s) ensures ms matched first. Good.
+
+ Edge case: number with leading +? Regex won't match '+'.
+
+ Edge case: number with multiple dots? Regex will match first part? Actually pattern will match \d+(?:\.\d+)? which will match up to first dot? Example '1.2.3h' -> regex will match '1.2' then unit? Wait unit after? The pattern expects unit immediately after number. So '1.2.3h' -> the regex engine will try to match at pos0: \d+(?:\.\d+)? matches '1.2' then next char is '.' not unit, so match fails? Actually finditer will try at pos0, the regex will try to match the whole pattern. The number part can match '1' then '.'? Hmm. Let's test mentally: pattern = (\d+(?:\.\d+)?)(ms|h|m|s). At position 0, engine tries to match \d+ -> '1'. Then optional (?:\.\d+)? -> can match '.2' -> now at position 3 (character '.'), then unit must match ms|h|m|s -> '.' doesn't match. Backtrack? The optional group may be skipped? Could match \d+ -> '1.2.3'? No. The regex engine will backtrack: after matching '1.2', it fails unit, so it may try shorter number: \d+ matches '1', optional group not taken, then unit? Next char is '.' not unit. So fails. So no match at pos0. Then finditer will move to next position? It will try at pos1? Might find '2.3h'? Actually at pos1 char '.' -> \d+ fails. So no match. So pos remains 0, pos != len -> ValueError. Good.
+
+ Edge case: '1h30' -> pattern matches '1h', pos=2, remaining '30' -> no unit -> pos != len -> ValueError.
+
+ Edge case: 'h1' -> pattern expects number first -> no match -> ValueError.
+
+ Edge case: '1hh' -> pattern matches '1h', pos=2, remaining 'h' -> no match -> ValueError.
+
+ Edge case: '1ms2ms' -> duplicate -> ValueError.
+
+ Edge case: '1ms2s' -> order ms=0 then s=1 -> order >= prev? 1 >=0 -> raise. Good.
+
+ Edge case: '1s500ms' -> order 1 then 0 -> ok.
+
+ Edge case: '1h0m0s0ms' -> ok.
+
+ Potential nuance: The spec says numbers are non-negative decimals: digits with optional fractional part (2,1.5,0.25). No leading +, no exponents, no bare . or .5, and no trailing dot (5. is invalid). Our regex covers.
+
+ Potential nuance: Should we reject numbers like '00.00'? Probably allowed.
+
+ Potential nuance: Should we reject empty component? Already.
+
+ Potential nuance: Should we reject leading zeros? Not specified.
+
+ Potential nuance: Should we raise ValueError for non-string? Yes TypeError.
+
+ Implementation final.
+
+ Potential nuance: The function must be at module top level. No prints.
+
+ Provide file content.
+
+ Maybe also include if __name__ == '__main__' test? Not required. Better keep minimal.
+
+ Ensure imports at top.
+
+ Provide code.
+
+ Edge case: whitespace check: we did after strip, check any whitespace. But after removing leading '-', we might have whitespace left? Already checked. But if s starts with '-', we removed it, but the remaining string may contain leading whitespace? Example " -1h". After strip, s = "-1h". No whitespace. Good.
+
+ Example " - 1h": after strip, s = "- 1h". Contains space -> raise.
+
+ Good.
+
+ Potential nuance: The spec says leading and trailing whitespace must be tolerated (stripped). Whitespace anywhere else is invalid. So we should strip first, then check for internal whitespace. That's fine.
+
+ Potential nuance: What about multiple spaces at start/end? strip handles.
+
+ Potential nuance: What about newline inside? isspace catches.
+
+ Implementation steps final.
+
+ Let's produce final code.
+
+ Potential improvements: Use re.fullmatch? Could build pattern with ^...$ and ensure entire string consumed. Could use pattern = re.compile(r'(\d+(?:\.\d+)?)(ms|h|m|s)'). Then we can iterate.
+
+ Alternative: Use re.match with loop.
+
+ Edge case: negative sign with whitespace after? Already caught.
+
+ Edge case: sign with plus? s[0]=='+' -> raise ValueError.
+
+ Edge case: sign with other char? fine.
+
+ Edge case: empty after sign removal -> ValueError.
+
+ Edge case: number zero? fine.
+
+ Return float.
+
+ Test examples:
+
+ parse_duration("90s") -> 90.0
+
+ parse_duration("1h30m") -> 3600+1800=5400
+
+ parse_duration("1.5h") -> 5400
+
+ parse_duration("2h15m30s500ms") -> 2*3600=7200, 15*60=900 =>8100, +30=8130, +0.5=8130.5
+
+ parse_duration("250ms") ->0.25
+
+ parse_duration(" -45m ") -> -2700
+
+ parse_duration("1m1h") -> ValueError
+
+ parse_duration("1h1h") -> ValueError
+
+ parse_duration("") -> ValueError
+
+ parse_duration("5") -> ValueError
+
+ All good.
+
+ Potential nuance: The spec says numbers are non-negative decimals. Could be '0'? Yes.
+
+ Potential nuance: Should we allow '0.0h'? Yes.
+
+ Potential nuance: Should we allow '1h0.5m'? Yes.
+
+ Potential nuance: Strictly descending order: h before m before s before ms. Does it require that if you have h and ms, you cannot have m in between? That's fine.
+
+ Potential nuance: Could have '1h1ms'? Order 3 then 0 -> decreasing, allowed.
+
+ Potential nuance: Could have '1ms1h'? Order 0 then 3 -> increasing -> ValueError.
+
+ Implementation done.
+
+ Edge case: The regex pattern for number: \d+(?:\.\d+)? . This allows '1.'? No because \.\d+ requires at least one digit after dot. Good.
+
+ Edge case: '1.0.0h'? Might match '1.0' then leftover '.0h' -> pos mismatch -> ValueError.
+
+ Good.
+
+ Potential nuance: The spec says each component is number followed by unit. Units must appear in strictly descending order. Could we have '1h30m15s'? Yes.
+
+ Potential nuance: Could we have '1h30m15s500ms'? Yes.
+
+ Potential nuance: Could we have '1h30m15s500ms' with extra spaces? No.
+
+ Implementation final.
+
+ Maybe also check that after sign removal, s does not start with '.'? Regex will catch.
+
+ Potential nuance: TypeError for non-string. Use isinstance(text, str). If not, raise TypeError.
+
+ Potential nuance: Should we raise ValueError for None? TypeError? None is not str, so TypeError.
+
+ Good.
+
+ Provide final answer with code block.
+
+ Possibly also include docstring.
+
+ Deliverable exactly one file parse_duration.py.
+
+ Output code.
+
+ Let's produce final response with code.
+
+ Ensure no extra prints.
+
+ Possibly add __all__.
+
+ Ok.
+
+ Let's produce final answer.

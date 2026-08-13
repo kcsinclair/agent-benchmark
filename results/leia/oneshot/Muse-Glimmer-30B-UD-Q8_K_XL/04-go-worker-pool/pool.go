@@ -1,0 +1,95 @@
+package main
+
+import (
+	"context"
+	"fmt"
+	"sync"
+)
+
+// Task is one unit of work.
+type Task func(ctx context.Context) (any, error)
+
+// Run executes tasks with at most `workers` running concurrently and returns
+// their results in the same order as the input slice.
+func Run(ctx context.Context, tasks []Task, workers int) ([]any, error) {
+	if workers < 1 {
+		return nil, fmt.Errorf("workers must be >= 1")
+	}
+	if len(tasks) == 0 {
+		return []any{}, nil
+	}
+
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	results := make([]any, len(tasks))
+	var firstErr error
+	var mu sync.Mutex
+	var wg sync.WaitGroup
+	sem := make(chan struct{}, workers)
+
+loop:
+	for i, task := range tasks {
+		if ctx.Err() != nil {
+			break loop
+		}
+		mu.Lock()
+		if firstErr != nil {
+			mu.Unlock()
+			break loop
+		}
+		mu.Unlock()
+
+		select {
+		case sem <- struct{}{}:
+		case <-ctx.Done():
+			break loop
+		}
+
+		mu.Lock()
+		if firstErr != nil || ctx.Err() != nil {
+			mu.Unlock()
+			<-sem
+			break loop
+		}
+		mu.Unlock()
+
+		wg.Add(1)
+		go func(idx int, t Task) {
+			defer wg.Done()
+			defer func() { <-sem }()
+
+			if ctx.Err() != nil {
+				return
+			}
+			mu.Lock()
+			if firstErr != nil {
+				mu.Unlock()
+				return
+			}
+			mu.Unlock()
+
+			res, err := t(ctx)
+			if err != nil {
+				mu.Lock()
+				if firstErr == nil {
+					firstErr = err
+					cancel()
+				}
+				mu.Unlock()
+			} else {
+				results[idx] = res
+			}
+		}(i, task)
+	}
+
+	wg.Wait()
+
+	if firstErr != nil {
+		return nil, firstErr
+	}
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
+	return results, nil
+}

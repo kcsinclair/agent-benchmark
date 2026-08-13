@@ -1,0 +1,61 @@
+# parse_duration.py
+import re
+
+_UNIT_ORDER = {'h': 3, 'm': 2, 's': 1, 'ms': 0}
+_UNIT_SECONDS = {'h': 3600, 'm': 60, 's': 1, 'ms': 0.001}
+_COMPONENT_RE = re.compile(r'(\d+(?:\.\d+)?)(ms|h|m|s)')
+
+def parse_duration(text: str) -> float:
+    if not isinstance(text, str):
+        raise TypeError("text must be a str")
+    
+    s = text.strip()
+    if not s:
+        raise ValueError("empty duration")
+    if any(ch.isspace() for ch in s):
+        raise ValueError("whitespace inside duration")
+
+    negative = False
+    if s[0] == '-':
+        negative = True
+        s = s[1:]
+        if not s:
+            raise ValueError("missing components after sign")
+    elif s[0] == '+':
+        raise ValueError("leading + not allowed")
+
+    pos = 0
+    total = 0.0
+    prev_order = None
+    seen = set()
+
+    for m in _COMPONENT_RE.finditer(s):
+        if m.start() != pos:
+            raise ValueError("invalid component")
+        pos = m.end()
+        num_str, unit = m.groups()
+
+        if unit in seen:
+            raise ValueError("repeated unit")
+        seen.add(unit)
+
+        order = _UNIT_ORDER[unit]
+        if prev_order is not None and order >= prev_order:
+            raise ValueError("units not in descending order")
+        prev_order = order
+
+        try:
+            num = float(num_str)
+        except ValueError:
+            raise ValueError("invalid number")
+        if num < 0:
+            raise ValueError("negative component")
+
+        total += num * _UNIT_SECONDS[unit]
+
+    if pos != len(s):
+        raise ValueError("trailing garbage")
+    if not seen:
+        raise ValueError("no components")
+
+    return -total if negative else total
