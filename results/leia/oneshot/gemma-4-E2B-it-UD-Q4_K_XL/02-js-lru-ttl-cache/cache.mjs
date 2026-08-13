@@ -1,0 +1,196 @@
+/**
+ * Represents a single cache entry.
+ * @typedef {object} CacheEntry
+ * @property {*} value - The stored value.
+ * @property {number} expiryTime - The absolute time (via now()) when the entry expires. Infinity if never expires.
+ */
+
+export class LruTtlCache {
+    /**
+     * @param {object} options
+     * @param {number} options.capacity - The maximum number of live entries.
+     * @param {number} [options.defaultTtlMs=Infinity] - Default Time-To-Live in milliseconds.
+     * @param {function(): number} [options.now=Date.now] - Clock function returning current time in ms.
+     */
+    constructor({ capacity, defaultTtlMs = Infinity, now = () => Date.now() }) {
+        if (!Number.isInteger(capacity) || capacity < 1) {
+            throw new RangeError("Capacity must be an integer greater than or equal to 1.");
+        }
+
+        this.capacity = capacity;
+        this.defaultTtlMs = defaultTtlMs;
+        this.now = now;
+
+        /**
+         * Map<key, CacheEntry>
+         * Stores the actual data. Map iteration order is used for LRU tracking.
+         */
+        this.cache = new Map();
+    }
+
+    /**
+     * Helper to check if an entry is expired based on the injected clock.
+     * @param {CacheEntry} entry
+     * @returns {boolean} True if expired, false otherwise.
+     */
+    _isExpired(entry) {
+        if (entry.expiryTime === Infinity) {
+            return false;
+        }
+        return this.now() >= entry.expiryTime;
+    }
+
+    /**
+     * Helper to clean up expired entries. This is crucial for size and set operations.
+     * @param {Set<string>} keysToRemove - Keys to be removed.
+     */
+    _purgeExpired(keysToRemove) {
+        for (const key of keysToRemove) {
+            this.cache.delete(key);
+        }
+    }
+
+    /**
+     * Inserts or replaces a key-value pair.
+     * @param {*} key
+     * @param {*} value
+     * @param {number} [ttlMs] - Specific TTL for this entry. If omitted, defaultTtlMs is used.
+     * @returns {LruTtlCache}
+     */
+    set(key, value, ttlMs) {
+        const isNew = !this.cache.has(key);
+        const entry = {
+            value,
+            expiryTime: ttlMs === undefined ? this.now() + this.defaultTtlMs : this.now() + (ttlMs ?? this.defaultTtlMs)
+        };
+
+        if (!isNew) {
+            // 1. Update existing entry
+            this.cache.set(key, entry);
+            // Mark as MRU by deleting and re-setting (Map preserves insertion order)
+            this.cache.delete(key);
+            this.cache.set(key, entry);
+            return this;
+        }
+
+        // 2. New entry insertion
+        if (this.cache.size >= this.capacity) {
+            // Eviction required. Must evict expired entries first, then LRU.
+            
+            const expiredKeys = [];
+            const liveKeys = [];
+
+            // First pass: Identify all expired keys
+            for (const [k, e] of this.cache.entries()) {
+                if (this._isExpired(e)) {
+                    expiredKeys.push(k);
+                } else {
+                    liveKeys.push(k);
+                }
+            }
+
+            // Evict expired entries
+            this._purgeExpired(new Set(expiredKeys));
+
+            // Second pass: If still over capacity, evict LRU (the first element in the Map iteration order)
+            if (this.cache.size >= this.capacity) {
+                // The first key in the Map iteration order is the LRU key.
+                const lruKey = this.cache.keys().next().value;
+                if (lruKey !== undefined) {
+                    this.cache.delete(lruKey);
+                }
+            }
+        }
+
+        // Insert the new/updated entry
+        this.cache.set(key, entry);
+        return this;
+    }
+
+    /**
+     * Retrieves a value, marks it as most recently used, and purges if expired.
+     * @param {*} key
+     * @returns {*} The value, or undefined if not found or expired.
+     */
+    get(key) {
+        const entry = this.cache.get(key);
+
+        if (!entry) {
+            return undefined;
+        }
+
+        if (this._isExpired(entry)) {
+            // Expired: remove it and return undefined
+            this.cache.delete(key);
+            return undefined;
+        }
+
+        // Valid: Mark as MRU (move to end of Map)
+        this.cache.delete(key);
+        this.cache.set(key, entry);
+
+        return entry.value;
+    }
+
+    /**
+     * Checks if a key exists and is not expired. Does not affect recency.
+     * Removes the entry if it is discovered to be expired.
+     * @param {*} key
+     * @returns {boolean}
+     */
+    has(key) {
+        const entry = this.cache.get(key);
+
+        if (!entry) {
+            return false;
+        }
+
+        if (this._isExpired(entry)) {
+            // Expired: remove it
+            this.cache.delete(key);
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Removes an entry from the cache.
+     * @param {*} key
+     * @returns {boolean} True if an entry was removed, false otherwise.
+     */
+    delete(key) {
+        if (this.cache.has(key)) {
+            this.cache.delete(key);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Returns the number of live (non-expired) entries. Purges expired entries.
+     * @returns {number}
+     */
+    get size() {
+        // We must iterate and clean up expired entries to ensure size is accurate.
+        const keysToRemove = [];
+        for (const [key, entry] of this.cache.entries()) {
+            if (this._isExpired(entry)) {
+                keysToRemove.push(key);
+            }
+        }
+        
+        this._purgeExpired(new Set(keysToRemove));
+        
+        return this.cache.size;
+    }
+
+    /**
+     * Returns an array of live keys ordered from most recently used to least recently used.
+     * @returns {Array<*>}
+     */
+    keys() {
+        // Map iteration order is MRU to LRU
+        return Array.from(this.cache.keys());
+    }
+}

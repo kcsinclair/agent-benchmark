@@ -1,0 +1,134 @@
+```javascript
+/**
+ * LruTtlCache - An LRU cache with Time-To-Live (TTL) support.
+ * 
+ * Implementation details:
+ * - Uses a JavaScript Map to maintain insertion order.
+ * - In JS, Map.prototype.keys() returns keys in insertion order.
+ * - To implement LRU, we re-insert keys on access (get/set) to move them to the "newest" position.
+ * - Complexity: O(1) amortized for get, set, has, delete.
+ */
+
+export class LruTtlCache {
+  #capacity;
+  #defaultTtlMs;
+  #now;
+  #cache; // Stores { value, expiryTime }
+
+  constructor({ capacity, defaultTtlMs = Infinity, now = () => Date.now() }) {
+    if (!Number.isInteger(capacity) || capacity < 1) {
+      throw new RangeError("capacity must be an integer ≥ 1");
+    }
+    this.#capacity = capacity;
+    this.#defaultTtlMs = defaultTtlMs;
+    this.#now = now;
+    this.#cache = new Map();
+  }
+
+  /**
+   * Internal helper to check if an entry is expired.
+   * An entry is expired if now() >= expiryTime.
+   */
+  #isExpired(expiryTime) {
+    if (expiryTime === Infinity) return false;
+    return this.#now() >= expiryTime;
+  }
+
+  /**
+   * Internal helper to remove a specific key.
+   */
+  #remove(key) {
+    return this.#cache.delete(key);
+  }
+
+  /**
+   * Internal helper to purge all expired entries from the cache.
+   * Since we cannot guarantee order of expiration, we must iterate.
+   * However, we only call this when capacity is exceeded or during size/keys access.
+   */
+  #purgeExpired() {
+    for (const [key, entry] of this.#cache.entries()) {
+      if (this.#isExpired(entry.expiryTime)) {
+        this.#cache.delete(key);
+      }
+    }
+  }
+
+  get(key) {
+    const entry = this.#cache.get(key);
+    if (!entry) return undefined;
+
+    if (this.#isExpired(entry.expiryTime)) {
+      this.#cache.delete(key);
+      return undefined;
+    }
+
+    // Refresh recency: delete and re-insert
+    this.#cache.delete(key);
+    this.#cache.set(key, entry);
+    return entry.value;
+  }
+
+  set(key, value, ttlMs) {
+    const expiryTime = this.#now() + (ttlMs ?? this.#defaultTtlMs);
+    
+    // If key exists, we update it. We delete first to handle recency.
+    if (this.#cache.has(key)) {
+      this.#cache.delete(key);
+    }
+
+    // Check if we are at capacity
+    if (this.#cache.size >= this.#capacity) {
+      // 1. Try to evict expired entries first
+      this.#purgeExpired();
+
+      // 2. If still at capacity, evict the Least Recently Used (the first entry in Map)
+      if (this.#cache.size >= this.#capacity) {
+        const firstKey = this.#cache.keys().next().value;
+        this.#cache.delete(firstKey);
+      }
+    }
+
+    this.#cache.set(key, { value, expiryTime });
+    return this;
+  }
+
+  has(key) {
+    const entry = this.#cache.get(key);
+    if (!entry) return false;
+
+    if (this.#isExpired(entry.expiryTime)) {
+      this.#cache.delete(key);
+      return false;
+    }
+    return true;
+  }
+
+  delete(key) {
+    return this.#cache.delete(key);
+  }
+
+  get size() {
+    // We must not count expired entries.
+    // We purge expired entries to ensure the getter is accurate and cleans up.
+    this.#purgeExpired();
+    return this.#cache.size;
+  }
+
+  keys() {
+    // Return keys from most recent to least recent.
+    // Map.keys() returns in insertion order (oldest to newest).
+    // We must filter expired entries and reverse the order.
+    const liveKeys = [];
+    for (const key of this.#cache.keys()) {
+      const entry = this.#cache.get(key);
+      if (this.#isExpired(entry.expiryTime)) {
+        this.#cache.delete(key);
+        continue;
+      }
+      liveKeys.push(key);
+    }
+    return liveKeys.reverse();
+  }
+}
+```

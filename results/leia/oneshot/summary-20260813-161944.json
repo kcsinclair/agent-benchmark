@@ -1,0 +1,73 @@
+{
+  "wall_seconds": 505.6,
+  "settings": {
+    "temperature": 0.0,
+    "max_tokens": 16384,
+    "think": "off",
+    "repeat": 1,
+    "reasoning_effort": "",
+    "server": "http://leia.packsin.com:7442"
+  },
+  "results": [
+    {
+      "model": "gemma-4-26B-A4B-it-UD-Q8_K_XL",
+      "load_seconds": 14.1,
+      "passes": [
+        {
+          "pass": 1,
+          "dir": "/Users/keith/Code/agent-benchmark/results/leia/oneshot/gemma-4-26B-A4B-it-UD-Q8_K_XL",
+          "generate_seconds": 121.7,
+          "wall_seconds": 121.7,
+          "trouble": [],
+          "score": 60,
+          "max": 68
+        }
+      ]
+    },
+    {
+      "model": "gemma-4-26B-A4B-it-ultra-uncensored-heretic-Q4_K_M",
+      "load_seconds": 9.5,
+      "passes": [
+        {
+          "pass": 1,
+          "dir": "/Users/keith/Code/agent-benchmark/results/leia/oneshot/gemma-4-26B-A4B-it-ultra-uncensored-heretic-Q4_K_M",
+          "generate_seconds": 77.1,
+          "wall_seconds": 77.1,
+          "trouble": [],
+          "score": 61,
+          "max": 68
+        }
+      ]
+    },
+    {
+      "model": "gemma-4-E4B-it-qat-UD-Q4_K_XL",
+      "load_seconds": 3.7,
+      "passes": [
+        {
+          "pass": 1,
+          "dir": "/Users/keith/Code/agent-benchmark/results/leia/oneshot/gemma-4-E4B-it-qat-UD-Q4_K_XL",
+          "generate_seconds": 143.3,
+          "wall_seconds": 143.3,
+          "trouble": [],
+          "score": 37,
+          "max": 68
+        }
+      ]
+    },
+    {
+      "model": "gemma-4-E2B-it-UD-Q4_K_XL",
+      "load_seconds": 2.9,
+      "passes": [
+        {
+          "pass": 1,
+          "dir": "/Users/keith/Code/agent-benchmark/results/leia/oneshot/gemma-4-E2B-it-UD-Q4_K_XL",
+          "generate_seconds": 84.2,
+          "wall_seconds": 84.2,
+          "trouble": [],
+          "score": 34,
+          "max": 68
+        }
+      ]
+    }
+  ]
+}

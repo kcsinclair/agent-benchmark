@@ -1,0 +1,87 @@
+```python
+import re
+
+def parse_duration(text: str) -> float:
+    """
+    Parses a human-readable duration string and returns the total seconds as a float.
+    """
+    if not isinstance(text, str):
+        raise TypeError("Input must be a string")
+
+    text = text.strip()
+    if not text:
+        raise ValueError("Empty duration string")
+
+    # Check for sign
+    is_negative = False
+    if text.startswith('-'):
+        is_negative = True
+        text = text[1:]
+    elif text.startswith('+'):
+        # Rule 1: No leading '+'
+        raise ValueError("Leading '+' is not allowed")
+
+    if not text:
+        raise ValueError("No components found after sign")
+
+    # Regex explanation:
+    # Group 1: The number (digits, optional dot, digits)
+    # Group 2: The unit (h, m, s, or ms)
+    # We use a lookahead to ensure we don't allow trailing dots or invalid number formats
+    # The pattern ensures we capture valid decimals like '1.5' but not '5.' or '.5'
+    pattern = r'^(\d+(?:\.\d+)?)(h|m|s|ms)$'
+    
+    # To handle concatenated components, we find all matches and check if they cover the whole string
+    # We'll use finditer to extract components and then verify the string structure
+    
+    # First, let's validate the string doesn't contain spaces or invalid characters
+    # by checking if the reconstructed string matches the input.
+    
+    components = []
+    remaining = text
+    
+    # Units in descending order of size
+    unit_order = {'h': 4, 'm': 3, 's': 2, 'ms': 1}
+    unit_values = {'h': 3600.0, 'm': 60.0, 's': 1.0, 'ms': 0.001}
+    
+    last_unit_rank = 5 # Higher than any possible unit rank
+    
+    # We use a regex to find all valid components
+    # Since components are concatenated, we can't just use findall if we want to ensure 
+    # there's no garbage between them. We'll consume the string piece by piece.
+    
+    while remaining:
+        match = re.match(r'^(\d+(?:\.\d+)?)(h|m|s|ms)', remaining)
+        if not match:
+            raise ValueError("Invalid component format or missing unit")
+        
+        val_str, unit = match.groups()
+        
+        # Rule 1: Validate number format (regex handles most, but let's be safe)
+        # The regex \d+(?:\.\d+)? prevents '.5' and '5.'
+        try:
+            val = float(val_str)
+        except ValueError:
+            raise ValueError("Invalid number format")
+
+        # Rule 2: Strictly descending order and no repeats
+        current_rank = unit_order[unit]
+        if current_rank >= last_unit_rank:
+            raise ValueError("Units must be in descending order and unique")
+        
+        components.append(val * unit_values[unit])
+        last_unit_rank = current_rank
+        
+        # Move the pointer forward
+        remaining = remaining[match.end():]
+
+    if not components:
+        raise ValueError("No valid components found")
+
+    total_seconds = sum(components)
+    if is_negative:
+        total_seconds = -total_seconds
+
+    return float(total_seconds)
+
+```

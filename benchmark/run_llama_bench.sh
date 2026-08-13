@@ -60,6 +60,10 @@ MODELS="
 Muse-Glimmer-30B|-m $MODELDIR/Muse-Glimmer-30B-UD-Q8_K_XL.gguf
 gemma-4-31B|-hf unsloth/gemma-4-31B-it-qat-GGUF:Q4_K_XL
 gemma-4-26B|-m $MODELDIR/gemma-4-26B-A4B-it-qat-UD-Q4_K_XL.gguf
+gemma-4-26B-Q8|-m $MODELDIR/gemma-4-26B-A4B-it-UD-Q8_K_XL.gguf
+gemma-4-26B-heretic|-m $MODELDIR/gemma-4-26B-A4B-it-ultra-uncensored-heretic-Q4_K_M.gguf
+gemma-4-E4B|-m $MODELDIR/gemma-4-E4B-it-qat-UD-Q4_K_XL.gguf
+gemma-4-E2B|-m $MODELDIR/gemma-4-E2B-it-UD-Q4_K_XL.gguf
 gpt-oss-120b|-m $MODELDIR/gpt-oss-120b-MXFP4.gguf
 Qwen3-Coder-30B|-m $MODELDIR/Qwen3-Coder-30B-A3B-Instruct-UD-Q4_K_XL.gguf
 Qwen3.6-27B|-m $MODELDIR/Qwen3.6-27B-Q4_K_M.gguf

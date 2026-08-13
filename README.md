@@ -22,8 +22,21 @@ Four tracks run against it, measuring different things:
 | **reasoning** | 102 generated items across six categories | general fitness to run an agent |
 | **speed** | `llama-bench` at several context depths | tokens/sec, which decides if it is usable |
 
-Measured results live in [RESULTS.md](RESULTS.md); the machine they came from is
-described in [servers/leia.md](servers/leia.md).
+Measured results live in [RESULTS.md](RESULTS.md), with the headline findings
+and charts in [SUMMARY.md](SUMMARY.md); the machine they came from is described
+in [servers/leia.md](servers/leia.md).
+
+**Not every model has been through every track.** Twelve have all four. Rows
+marked ‡ in the results are a single pass on the one-shot and speed tracks only,
+which — given that three-pass models swing by up to 17 points between identical
+runs — places a model in a band rather than at a rank.
+
+> **Full testing to follow for the gemma-4 suite.** The variants added on
+> 2026-08-13 — `gemma-4-26B-A4B` at `Q8_K_XL`, the `ultra-uncensored-heretic`
+> finetune, and the `E4B` and `E2B` small models — have one one-shot pass and a
+> speed measurement each, and have not been run on the agent or reasoning
+> tracks. Treat their numbers as a first look. They get three passes and the
+> full four tracks in a later sweep, at which point the ‡ comes off.
 
 ## This repo is half the benchmark
 

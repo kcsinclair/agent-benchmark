@@ -1,0 +1,16 @@
+{
+  "model": "gemma-4-E2B-it-UD-Q4_K_XL",
+  "finish_reason": "stop",
+  "mode": "think=off",
+  "temperature": 0.0,
+  "max_tokens": 16384,
+  "usage": {
+    "completion_tokens": 1731,
+    "prompt_tokens": 613,
+    "total_tokens": 2344,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    }
+  },
+  "seconds": 18.0
+}

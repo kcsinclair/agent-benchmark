@@ -37,6 +37,11 @@ def load_bench(d):
             continue
         entry = {"pp": {}, "tg": {}, "size": rows[0].get("model_size"),
                  "params": rows[0].get("model_n_params")}
+        # llama-bench records the .gguf it actually loaded. Its basename is the
+        # server's model id for everything served from --models-dir, which is an
+        # exact identity where the short label is only a guess -- see match().
+        gguf = rows[0].get("model_filename") or ""
+        entry["stem"] = os.path.basename(gguf)[:-5] if gguf.endswith(".gguf") else None
         for r in rows:
             depth = r.get("n_depth", 0)
             if r.get("n_prompt"):
@@ -80,8 +85,23 @@ def score_map(summary):
     return out
 
 
-def match(label, model_ids):
-    """llama-bench labels are short; server ids are long. Match on the stem."""
+def match(label, model_ids, stem=None):
+    """llama-bench labels are short; server ids are long. Match on the stem.
+
+    The .gguf basename is tried first and exactly. The fuzzy label fallback
+    below cannot separate ids that share a prefix -- `gemma-4-26B` matches both
+    `gemma-4-26B-A4B-it-qat-UD-Q4_K_XL` and `gemma-4-26B-A4B-it-UD-Q8_K_XL`,
+    and picking the shortest silently reported the Q8's score against the Q4's
+    row. It stays only for models the router serves by `-hf`, whose cache
+    filename is not the server id.
+    """
+    if stem:
+        if stem in model_ids:
+            return stem
+        norm_stem = re.sub(r"[^a-z0-9]", "", stem.lower())
+        for mid in model_ids:
+            if re.sub(r"[^a-z0-9]", "", mid.lower()) == norm_stem:
+                return mid
     key = re.sub(r"[^a-z0-9]", "", label.lower())
     best = None
     for mid in model_ids:
@@ -135,7 +155,7 @@ def main(argv):
         row = [label, gb, fmt(m["pp"].get(0))]
         row += [fmt(m["tg"].get(dep)) for dep in depths]
         for table in (oneshot, agent):
-            mid = match(label, table)
+            mid = match(label, table, m.get("stem"))
             if mid:
                 med, mx, all_s = table[mid]
                 cell = "%d/%d" % (med, mx)

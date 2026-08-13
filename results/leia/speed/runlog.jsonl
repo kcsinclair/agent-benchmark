@@ -27,3 +27,10 @@
 {"label":"Muse-Glimmer-30B","seconds":266,"temp_before":"44.1","temp_after":"63.1","file":"Muse-Glimmer-30B.json"}
 {"label":"control-middle","seconds":11,"temp_before":"61.1","temp_after":"60.4","file":"control-middle.json"}
 {"label":"control-end","seconds":7,"temp_before":"58.4","temp_after":"60.0","file":"control-end.json"}
+{"label":"control-start","seconds":12,"temp_before":"42.1","temp_after":"57.8","file":"control-start.json"}
+{"label":"gemma-4-26B-Q8","seconds":73,"temp_before":"55.9","temp_after":"61.4","file":"gemma-4-26B-Q8.json"}
+{"label":"gemma-4-26B-heretic","seconds":58,"temp_before":"59.4","temp_after":"62.6","file":"gemma-4-26B-heretic.json"}
+{"label":"control-middle","seconds":13,"temp_before":"60.8","temp_after":"60.5","file":"control-middle.json"}
+{"label":"gemma-4-E4B","seconds":41,"temp_before":"58.9","temp_after":"61.4","file":"gemma-4-E4B.json"}
+{"label":"gemma-4-E2B","seconds":27,"temp_before":"59.6","temp_after":"63.4","file":"gemma-4-E2B.json"}
+{"label":"control-end","seconds":7,"temp_before":"61.5","temp_after":"62.0","file":"control-end.json"}

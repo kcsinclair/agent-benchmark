@@ -12,7 +12,8 @@ is not a measurement.
 
 Model gets the prompt, answers once, code blocks are extracted from the reply.
 `temperature 0`, thinking disabled, `max_tokens 16384`, 3 passes. Run 2026-07-31
-(first sweep) and 2026-08-04 (second sweep), identical settings.
+(first sweep) and 2026-08-04 (second sweep), identical settings. The † and ‡
+rows were added later as **single** passes and are marked as such.
 
 | model | median | passes | pass time | run |
 |---|---|---|---|---|
@@ -21,9 +22,13 @@ Model gets the prompt, answers once, code blocks are extracted from the reply.
 | gemma-4-31B-it-qat | **68/68** | 68 · 68 · 68 | 5.3 min | 07-31 |
 | gemma-4-26B-A4B-it-qat | 65/68 | 54 · 65 · 65 | 1.3 min | 07-31 |
 | gpt-oss-20b-Q8_0 | 65/68 | 51 · 65 · 68 | 6.1 min | 08-04 |
+| gemma-4-26B-A4B heretic ‡ | 61/68 | 61 — *one pass* | 1.3 min | 08-13 |
+| gemma-4-26B-A4B-it Q8_K_XL ‡ | 60/68 | 60 — *one pass* | 2.0 min | 08-13 |
 | Qwen3-Coder-30B-A3B | 57/68 | 56 · 57 · 58 | 0.7 min | 07-31 |
 | Qwen3.6-27B | 57/68 | 57 · 57 · 66 | 7 min | 07-31 |
 | Qwen3.6-35B-A3B | 57/68 | 53 · 57 · 57 | 4.3 min | 07-31 |
+| gemma-4-E4B-it-qat ‡ | 37/68 | 37 — *one pass* | 2.4 min | 08-13 |
+| gemma-4-E2B-it ‡ | 34/68 | 34 — *one pass* | 1.4 min | 08-13 |
 | Qwen3VL-8B-Uncensored | 31/68 | 45 · 31 · 31 | 22.5 min | 08-04 |
 | gpt-oss-20b-Q4_K_M | 25/68 | 37 · 25 · 24 | 10.4 min | 08-04 |
 | Hermes-4-14B | 23/68 | 23 · 22 · 31 | 3.2 min | 08-04 |
@@ -61,6 +66,39 @@ weights, bandwidth-bound on this box exactly as the dense/MoE split in
 [servers/leia.md](servers/leia.md) predicts — it spent 9,573 and 10,947
 completion tokens on problems 2 and 4 alone. 73 minutes a pass against
 gpt-oss-120b's 3.5 for the same 68/68.
+
+‡ **The four gemma variants added on 08-13 are one pass each**, run on build
+`b10380`. Read them against the three-pass rows with the spread in mind: the
+qat-Q4 26B's own passes ranged 54 to 65.
+
+**Quantising gemma-4-26B to Q8 bought nothing and cost 13 GB.** The Q8_K_XL
+scores 60/68 against the qat-Q4's 65/68 median — but the Q4's three passes were
+54 · 65 · 65, so 60 sits inside its own spread and this is not evidence that Q8
+is worse, only that it is not detectably better. It is 27.6 GB against 14.2 GB
+and generates at **45 tok/s against 74**. This is the opposite of the
+gpt-oss-20b result below: there, the smaller quant collapsed because it got
+verbose; here the larger quant changes nothing a single pass can see. Both say
+the same thing — quantisation is not a quality dial on this benchmark, it is a
+generation-length and throughput dial.
+
+**Abliteration did not damage coding ability.** The
+`ultra-uncensored-heretic` finetune of gemma-4-26B scores 61/68, indistinguishable
+from its unmodified siblings, and is the fastest of the three 26Bs on this track
+at 77s of generation. Whatever the finetune removed, it was not the ability to
+write a parser.
+
+**All three 26B variants fail in the same place**: problem 4, the Go worker pool
+graded under `-race`. Q8 scored 6/11 and heretic 7/11. Consistent across quant
+and finetune, which points at the family rather than the build.
+
+**The E-models are small enough to change the question.** gemma-4-E2B is
+**3.2 GB** and scores 16/17 on the LRU cache — but crashes problem 4 outright,
+scores 1/12 on the scheduler, and lands at 34/68. E4B, at 4.2 GB, takes 20/20 on
+problem 1 and also crashes problem 4, for 37/68. Both wrote every deliverable
+and every request finished cleanly, so these are honest capability results, not
+truncation: they produce Go that does not build. What they buy is speed —
+E2B is the **fastest model ever measured on this machine**, at 103 tok/s and
+3365 pp512.
 
 **The Q4 and Q8 quants of gpt-oss-20b are 40 points apart — on generation, not
 ability.** Q4 truncated and returned *empty* content 6 times across its three
@@ -232,6 +270,10 @@ which is 40 of the 102 points. Read the totals with that in mind.
 | Muse-Glimmer-30B-Q8 † | 68/68 | 28/68 | not run | **7.4** | 32 GB |
 | **gpt-oss-20b-Q8_0** | 65/68 | 68/68 | 98/102 | 75 | **12 GB** |
 | gemma-4-26B-A4B | 65/68 | 68/68 | 81/102 | 74 | 14 GB |
+| gemma-4-26B-A4B heretic ‡ | 61/68 | not run | not run | 66 | 17 GB |
+| gemma-4-26B-A4B Q8_K_XL ‡ | 60/68 | not run | not run | 45 | 28 GB |
+| gemma-4-E4B-it-qat ‡ | 37/68 | not run | not run | 66 | **4 GB** |
+| gemma-4-E2B-it ‡ | 34/68 | not run | not run | **103** | **3 GB** |
 | Qwen3.6-27B | 57/68 | 67/68 | 77/102 | 13 | 17 GB |
 | Qwen3.6-35B-A3B | 57/68 | 65/68 | 74/102 | 62 | 23 GB |
 | Qwen3-Coder-30B-A3B | 57/68 | 57/68 | 61/102 | 92 | 18 GB |
@@ -259,6 +301,17 @@ problems require it to finish thinking and then act inside 8192 tokens a turn.
 Nothing about its coding ability changed between those two runs — only whether
 it was allowed to ramble first. gpt-oss-120b scores 68/68 on both.
 
+‡ **The four gemma variants added 08-13 were run on the one-shot and speed
+tracks only** — single pass, agent and reasoning not run. They were a quick
+survey of a family already represented in the table, not a full entry.
+
+**gemma-4-26B is the same model at three quants and one abliteration, and the
+scores do not separate them.** 65/68 (qat-Q4), 61/68 (heretic Q4_K_M), 60/68
+(Q8_K_XL) — a 5-point range against a model whose own three passes spanned 11
+points. What *does* separate them is throughput: 74, 66 and 45 tok/s, and 14, 17
+and 28 GB. On this benchmark the quant choice is a speed and memory decision
+with no measurable accuracy attached.
+
 **gpt-oss-20b-Q8 replaces gemma-4-26B as the value pick.** It matches it on both
 coding tracks (65/68 and 68/68), beats it by 17 points on reasoning, and does so
 in 2 GB less memory at the same speed. There is no track on which gemma-4-26B is
@@ -274,19 +327,26 @@ for whether a model can do the work.
 
 ## Speed
 
-All 12 models, `llama-bench` build 9892 (`ee445f93d`), Vulkan on Strix Halo,
-`-fa on -ctk/-ctv q8_0 -ngl 999`, 3 reps, 2026-08-05. The short version:
+All 17 models, `llama-bench`, Vulkan on Strix Halo,
+`-fa on -ctk/-ctv q8_0 -ngl 999`, 3 reps. The bulk measured 2026-08-05 on build
+9892 (`ee445f93d`), the † and ‡ rows on 08-12 and 08-13 on build 10380
+(`0b1bad14f`) — see the footnotes for why those are the same table. The short
+version:
 **dense models run 5–7× slower than MoE models of similar size on this
 hardware**, which reverses the apparent ranking.
 
 | model | size | pp512 | tg@0 | tg@16k | retained | one-shot | agent |
 |---|---|---|---|---|---|---|---|
-| Qwen3-Coder-30B-A3B | 18 GB | 1303 | **92** | 64 | 69% | 57/68 | 57/68 |
-| gpt-oss-20b-Q4_K_M | 12 GB | **1658** | 81 | 70 | 87% | 25/68 | 37/68 |
+| gemma-4-E2B-it ‡ | **3 GB** | **3365** | **103** | 88 | 85% | 34/68 | — |
+| Qwen3-Coder-30B-A3B | 18 GB | 1303 | 92 | 64 | 69% | 57/68 | 57/68 |
+| gpt-oss-20b-Q4_K_M | 12 GB | 1658 | 81 | 70 | 87% | 25/68 | 37/68 |
 | gpt-oss-20b-Q8_0 | 12 GB | 1641 | 75 | **70** | **89%** | 65/68 | 68/68 |
 | gemma-4-26B-A4B | 14 GB | 1388 | 74 | 62 | 84% | 65/68 | 68/68 |
+| gemma-4-E4B-it-qat ‡ | 4 GB | 1977 | 66 | 55 | 83% | 37/68 | — |
+| gemma-4-26B-A4B heretic ‡ | 17 GB | 1246 | 66 | 55 | 84% | 61/68 | — |
 | Qwen3.6-35B-A3B | 23 GB | 1115 | 63 | 58 | 93% | 57/68 | 65/68 |
 | gpt-oss-120b-MXFP4 | 63 GB | 630 | 54 | 49 | 91% | 68/68 | 68/68 |
+| gemma-4-26B-A4B Q8_K_XL ‡ | 28 GB | 1211 | 45 | 40 | 89% | 60/68 | — |
 | Meta-Llama-3.1-8B | 5 GB | 1281 | 44 | 35 | 78% | 19/68 | 0/68 |
 | Qwen3VL-8B-Uncensored | 5 GB | 1261 | 44 | 33 | 77% | 31/68 | 41/68 |
 | Hermes-4-14B | 9 GB | 750 | 25 | 21 | 84% | 23/68 | 8/68 |
@@ -295,6 +355,16 @@ hardware**, which reverses the apparent ranking.
 | gemma-4-31B-it-qat | 17 GB | 288 | 12 | 11 | 89% | 68/68 | 65/68 |
 | Muse-Glimmer-30B-Q8 ‡ | 32 GB | 348 | 7.4 | 7.3 | **99%** | 68/68 | — |
 
+‡ measured 2026-08-13 on build `b10380`, alongside a control that read
+74.4 / 74.5 / 74.7 tok/s — in line with both earlier runs, so these rows sit in
+the same table as the `b9892` ones without a caveat.
+
+- **gemma-4-E2B is the fastest model ever measured here** — 103 tok/s and 3365
+  pp512 at **3 GB**, roughly double the prompt processing of the previous best.
+  It scores 34/68, so this is throughput without capability; but it is the only
+  model in the table that would leave room for anything else on the box.
+- **Q8 costs gemma-4-26B 39% of its throughput** — 45 tok/s against the qat-Q4's
+  74, and 28 GB against 14, for a score inside the Q4's own pass spread.
 - **gpt-oss-20b-Q8 is the value pick** — 68/68 agent, 98/102 reasoning, 75 tok/s,
   12 GB, and it holds 89% of its throughput out to 16k context.
 - **gpt-oss-120b is the quality pick** — 68/68 on both tracks with zero variance
@@ -353,7 +423,8 @@ generated items produced pass-to-pass spreads of 0–2 points on the same
 hardware and the same decode settings. If you want a stable measurement, add
 items rather than passes.
 
-**Only three of twelve models have a stable non-zero score.** gpt-oss-120b,
+**Only three of the twelve models run three times have a stable non-zero
+score.** gpt-oss-120b,
 gemma-4-31B and Qwen3-Coder-30B varied by ≤2 points across passes. Everything
 else swings by 9 to 17. (Llama-3-14B and Meta-Llama-3.1-8B are also perfectly
 consistent, at 0/68 and 19/68 — consistency is not the same as competence.)

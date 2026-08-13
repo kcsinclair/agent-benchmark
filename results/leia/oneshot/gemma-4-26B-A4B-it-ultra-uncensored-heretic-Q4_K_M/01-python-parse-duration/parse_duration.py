@@ -1,0 +1,90 @@
+import re
+
+def parse_duration(text: str) -> float:
+    """
+    Parses a human-readable duration string and returns the total number of seconds.
+    
+    Raises:
+    - TypeError: If text is not a string.
+    - ValueError: If the string format violates the specified rules.
+    """
+    if not isinstance(text, str):
+        raise TypeError("Input must be a string.")
+
+    # Strip leading and trailing whitespace
+    text = text.strip()
+    if not text:
+        raise ValueError("Empty duration string.")
+
+    # Check for leading minus sign
+    is_negative = False
+    if text.startswith('-'):
+        is_negative = True
+        text = text[1:]
+    
+    # Check for invalid internal whitespace
+    if ' ' in text:
+        raise ValueError("Internal whitespace is not allowed.")
+
+    # Regex to capture components: (number)(unit)
+    # Number: digits followed by optional dot and digits
+    # Unit: h, m, s, or ms
+    # We use a lookahead/lookbehind approach or simple findall to ensure 
+    # the entire string is consumed by valid components.
+    pattern = r'^(\d+(\.\d+)?)(h|m|s|ms)$'
+    
+    # We will iterate through the string to find components.
+    # Since units are fixed strings, we can't just use re.findall if we want 
+    # to ensure no "garbage" exists between components.
+    
+    total_seconds = 0.0
+    current_pos = 0
+    last_unit_rank = 4  # Rank: h=3, m=2, s=1, ms=0
+    unit_map = {'h': 3600.0, 'm': 60.0, 's': 1.0, 'ms': 0.01}
+    unit_to_rank = {'h': 3, 'm': 2, 's': 1, 'ms': 0}
+    
+    # Track seen units to prevent duplicates
+    seen_units = set()
+
+    # We need to parse the string component by component.
+    # Because units can be 'ms' (2 chars) or 's' (1 char), we must be careful.
+    # We'd better use a regex that finds all matches and then check if the 
+    # concatenated length matches the input length.
+    
+    matches = list(re.finditer(r'(\d+(\.\d+)?)(h|m|s|ms)', text))
+    
+    if not matches:
+        raise ValueError("No valid components found.")
+
+    # Check if the sum of lengths of matches equals the length of the input string
+    # This ensures no characters were skipped (like "1h-2m" or "1h.5m")
+    if sum(len(m.group(0)) for m in matches) != len(text):
+        raise ValueError("Invalid format or unexpected characters.")
+
+    for match in matches:
+        val_str, _, unit = match.groups()
+        
+        # Rule 1: Numbers are non-negative decimals. 
+        # The regex \d+(\.\d+)? handles digits and fractional parts.
+        # Note: The regex prevents ".5" or "5." because it requires digits on both sides of dot.
+        val = float(val_str)
+        
+        # Rule 2: Units must appear in strictly descending order
+        current_rank = unit_to_rank[unit]
+        if current_rank >= last_unit_rank:
+            raise ValueError("Units are not in strictly descending order.")
+        
+        # Rule 2: Each unit may appear at most once
+        if unit in seen_units:
+            raise ValueError(f"Duplicate unit: {unit}")
+        
+        # Calculate seconds for this component
+        total_seconds += val * unit_map[unit]
+        
+        # Update state
+        last_unit_rank = current_rank
+        seen_units.add(unit)
+
+    # Final result calculation
+    result = -total_seconds if is_negative else total_seconds
+    return float(result)
