@@ -346,10 +346,10 @@ testing is to follow**, at which point those rows get three passes and the ‡
 comes off. Muse-Glimmer's reasoning track was cancelled deliberately rather than
 deferred, for the token-budget reason given above.
 
-Two older caveats stand: **gemma-4-31B's speed row is the 2026-08-04
-measurement** (its model file was deleted from the box; the controls justify
-carrying the earlier number). **Kimi-Linear-48B has never been scored** — it
-fails to load and takes the server down with it.
+One older caveat is now closed: **gemma-4-31B's speed row was re-measured on
+2026-08-26** and reproduced the carried-over 2026-08-04 number within 1%.
+**Kimi-Linear-48B has never been scored** — it fails to load and takes the
+server down with it.
 
 Scores are comparable only within this machine and these decode settings. The
 agent track is a single pass, so treat ±3 there as noise; the ±17 above applies

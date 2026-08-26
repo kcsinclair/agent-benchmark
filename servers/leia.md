@@ -110,11 +110,17 @@ Three things to know before doing that:
 | gemma-4-26B-A4B | 14 GB | 1375 | 74 | 67 | 62 |
 | Qwen3.6-35B-A3B | 23 GB | 1121 | 62 | 61 | 58 |
 | gpt-oss-120b-MXFP4 | 63 GB | 624 | 54 | 53 | 49 |
+| Qwen3.8-27B ◆ | 16 GB | 351 | 13 | 13 | 12 |
 | Qwen3.6-27B | 17 GB | 363 | 13 | 13 | 12 |
-| gemma-4-31B | 17 GB | 288 | 12 | 12 | 11 |
+| gemma-4-31B ◆ | 17 GB | 287 | 12 | 12 | 11 |
 | Muse-Glimmer-30B (Q8) ‡ | 32 GB | 348 | 7.4 | 7.4 | 7.3 |
 
 tokens/sec; `pp` = prompt processing, `tg` = generation, `@N` = context depth.
+
+◆ measured 2026-08-26 on build `b10380`. `gemma-4-31B` was re-run rather than
+carried over: it reads 287 / 12.2 / 11.6 / 10.9 against the 288 / 12 / 12 / 11
+recorded on `b9892`, so its row is now a b10380 measurement and the two builds
+agree on a dense model as well as on the control.
 
 ‡ measured 2026-08-12 on build `b10380`, the rest on `b9892`. The two are
 comparable: the thermal control model was re-run on the new build and read

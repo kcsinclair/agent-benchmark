@@ -1,0 +1,317 @@
+```go
+package main
+
+import (
+	"context"
+	"sync"
+)
+
+// Task is one unit of work.
+type Task func(ctx context.Context) (any, error)
+
+// Run executes tasks with at most `workers` running concurrently and returns
+// their results in the same order as the input slice.
+func Run(ctx context.Context, tasks []Task, workers int) ([]any, error) {
+	if workers < 1 {
+		return nil, context.Canceled // or a custom error; spec says non-nil error
+	}
+	if len(tasks) == 0 {
+		return []any{}, nil
+	}
+
+	// Create a cancellable context that is cancelled when the first error occurs
+	// or when the parent context is cancelled.
+	taskCtx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	results := make([]any, len(tasks))
+	var firstErr error
+	var errOnce sync.Once
+	var wg sync.WaitGroup
+
+	// Use a semaphore channel to limit concurrency
+	sem := make(chan struct{}, workers)
+
+	// We need to track which tasks have been started so we can stop starting new ones
+	// when an error occurs or context is cancelled.
+	// We'll use an atomic-like approach with a channel or a mutex-protected flag.
+
+	var startedMu sync.Mutex
+	var stopped bool
+
+	// We'll launch a dispatcher that assigns tasks to workers.
+	// Actually, a simpler approach: launch up to `workers` goroutines, each pulling
+	// from a task index channel.
+
+	taskIdx := make(chan int, len(tasks))
+
+	// Fill the task index channel
+	for i := range tasks {
+		taskIdx <- i
+	}
+	close(taskIdx)
+
+	// Launch workers
+	for w := 0; w < workers; w++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for idx := range taskIdx {
+				// Check if we should stop
+				startedMu.Lock()
+				if stopped {
+					startedMu.Unlock()
+					return
+				}
+				// Also check if context is already cancelled
+				if taskCtx.Err() != nil {
+					startedMu.Unlock()
+					return
+				}
+				startedMu.Unlock()
+
+				// Acquire semaphore slot
+				select {
+				case sem <- struct{}{}:
+					// Got a slot
+				case <-taskCtx.Done():
+					// Context cancelled while waiting for slot
+					return
+				}
+				defer func() { <-sem }()
+
+				// Execute the task
+				result, err := tasks[idx](taskCtx)
+				if err != nil {
+					errOnce.Do(func() {
+						firstErr = err
+						cancel() // Cancel the task context to stop other tasks
+						startedMu.Lock()
+						stopped = true
+						startedMu.Unlock()
+					})
+				} else {
+					results[idx] = result
+				}
+			}
+		}()
+	}
+
+	wg.Wait()
+
+	// After all workers are done, check for errors
+	if firstErr != nil {
+		return nil, firstErr
+	}
+
+	// Check if the parent context was cancelled
+	if ctx.Err() != nil {
+		return nil, ctx.Err()
+	}
+
+	return results, nil
+}
+```
+
+Wait, I need to reconsider. The semaphore approach above has an issue: the semaphore is acquired *after* pulling from the task index channel, but the task index channel is pre-filled. This means all task indices are already in the channel, and workers pull from it. But the semaphore limits how many can actually execute concurrently. However, the way I've written it, a worker pulls an index, then tries to acquire a semaphore slot. If the semaphore is full, it blocks. But this means multiple workers could be blocked waiting for semaphore slots while holding task indices. That's fine for correctness, but let me think about whether this properly bounds concurrency.
+
+Actually, the issue is that the semaphore is acquired *inside* the worker goroutine after pulling the index. So at most `workers` goroutines are running, and each one acquires a semaphore slot before executing. Since there are exactly `workers` goroutines, the semaphore with capacity `workers` will never actually block (each goroutine can always get a slot because there are only `workers` goroutines total). So the semaphore is redundant in this design.
+
+Let me redesign: use a simpler approach where we have a fixed number of worker goroutines, and they pull task indices from a channel. The number of concurrent tasks is bounded by the number of worker goroutines, which is `workers`.
+
+```go
+package main
+
+import (
+	"context"
+	"sync"
+)
+
+// Task is one unit of work.
+type Task func(ctx context.Context) (any, error)
+
+// Run executes tasks with at most `workers` running concurrently and returns
+// their results in the same order as the input slice.
+func Run(ctx context.Context, tasks []Task, workers int) ([]any, error) {
+	if workers < 1 {
+		return nil, context.Canceled
+	}
+	if len(tasks) == 0 {
+		return []any{}, nil
+	}
+
+	// Create a cancellable context that is cancelled when the first error occurs
+	// or when the parent context is cancelled.
+	taskCtx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	results := make([]any, len(tasks))
+	var firstErr error
+	var errOnce sync.Once
+	var wg sync.WaitGroup
+
+	// Channel to distribute task indices to workers
+	taskIdx := make(chan int, len(tasks))
+
+	// Fill the task index channel
+	for i := range tasks {
+		taskIdx <- i
+	}
+	close(taskIdx)
+
+	// Launch workers
+	for w := 0; w < workers; w++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for idx := range taskIdx {
+				// Check if context is already cancelled
+				if taskCtx.Err() != nil {
+					return
+				}
+
+				// Execute the task
+				result, err := tasks[idx](taskCtx)
+				if err != nil {
+					errOnce.Do(func() {
+						firstErr = err
+						cancel() // Cancel the task context to stop other tasks
+					})
+				} else {
+					results[idx] = result
+				}
+			}
+		}()
+	}
+
+	wg.Wait()
+
+	// After all workers are done, check for errors
+	if firstErr != nil {
+		return nil, firstErr
+	}
+
+	// Check if the parent context was cancelled
+	if ctx.Err() != nil {
+		return nil, ctx.Err()
+	}
+
+	return results, nil
+}
+```
+
+This looks cleaner. Let me verify the requirements:
+
+1. **Ordering**: `results[idx]` is set to the result of `tasks[idx]`, so order is preserved. ✓
+2. **Bounded concurrency**: At most `workers` goroutines are running, each executing one task at a time. ✓
+3. **Validation**: `workers < 1` returns error immediately. `len(tasks) == 0` returns empty slice and nil. ✓
+4. **Fail fast**: When a task returns an error, `cancel()` is called, which cancels `taskCtx`. Other workers check `taskCtx.Err()` before starting a new task and return early. Already-running tasks get the cancelled context. `wg.Wait()` ensures we wait for all started tasks. ✓
+5. **Context cancellation**: If parent `ctx` is cancelled, `taskCtx` is also cancelled (since it's derived from `ctx`). Workers check `taskCtx.Err()` and stop. We return `ctx.Err()`. ✓
+6. **No busy-waiting**: Using channels and sync primitives. ✓
+
+One concern: when a task errors and we cancel, other workers that are currently *between* tasks (i.e., they just finished one and are about to pull the next index) will check `taskCtx.Err()` and return. But what about workers that are *in the middle* of executing a task? They will continue until the task returns (either normally or because it respects the cancelled context). That's correct behavior.
+
+Another concern: the `taskIdx` channel is pre-filled with all indices. When a worker returns early due to cancellation, the remaining indices stay in the channel. But since all workers will eventually return (either by finishing all tasks or by detecting cancellation), `wg.Wait()` will complete. The remaining indices in the channel are just garbage collected. This is fine.
+
+Let me also make sure the error returned is the *first* error. `errOnce` ensures only the first error is recorded. ✓
+
+I think this is correct. Let me finalize.
+</think>
+
+Looking at this problem, I need to implement a bounded worker pool with:
+- Ordered results
+- Bounded concurrency (exactly `workers` goroutines)
+- Fail-fast with context cancellation
+- Proper cleanup (no goroutine leaks)
+
+The key design: launch exactly `workers` goroutines that pull task indices from a channel. When an error occurs or the parent context is cancelled, a derived context is cancelled, causing workers to stop pulling new tasks. `sync.WaitGroup` ensures we wait for all in-flight tasks.
+
+```go
+package main
+
+import (
+	"context"
+	"errors"
+	"sync"
+)
+
+// Task is one unit of work.
+type Task func(ctx context.Context) (any, error)
+
+// Run executes tasks with at most `workers` running concurrently and returns
+// their results in the same order as the input slice.
+func Run(ctx context.Context, tasks []Task, workers int) ([]any, error) {
+	if workers < 1 {
+		return nil, errors.New("workers must be at least 1")
+	}
+	if len(tasks) == 0 {
+		return []any{}, nil
+	}
+
+	// Derived context that gets cancelled on first error or parent cancellation.
+	taskCtx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	results := make([]any, len(tasks))
+	var firstErr error
+	var errOnce sync.Once
+	var wg sync.WaitGroup
+
+	// Channel to distribute task indices to workers.
+	taskIdx := make(chan int, len(tasks))
+	for i := range tasks {
+		taskIdx <- i
+	}
+	close(taskIdx)
+
+	// Launch exactly `workers` goroutines; each pulls indices until the
+	// channel is drained or the context is cancelled.
+	for w := 0; w < workers; w++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for idx := range taskIdx {
+				// If the context is already cancelled (due to a prior error
+				// or parent cancellation), stop pulling new tasks.
+				if taskCtx.Err() != nil {
+					return
+				}
+
+				result, err := tasks[idx](taskCtx)
+				if err != nil {
+					errOnce.Do(func() {
+						firstErr = err
+						cancel() // signal all other workers to stop
+					})
+				} else {
+					results[idx] = result
+				}
+			}
+		}()
+	}
+
+	wg.Wait()
+
+	if firstErr != nil {
+		return nil, firstErr
+	}
+	if ctx.Err() != nil {
+		return nil, ctx.Err()
+	}
+	return results, nil
+}
+```
+
+**How it satisfies each requirement:**
+
+1. **Ordering** — `results[idx]` is written by the worker that executes `tasks[idx]`, so `results[i]` always corresponds to `tasks[i]`.
+
+2. **Bounded concurrency** — Exactly `workers` goroutines are spawned, each executing one task at a time. No more than `workers` tasks run concurrently.
+
+3. **Validation** — `workers < 1` returns an error immediately; `len(tasks) == 0` returns an empty slice and nil.
+
+4. **Fail fast** — On the first task error, `errOnce` records it and calls `cancel()`, which cancels `taskCtx`. Workers check `taskCtx.Err()` before starting each new task and return early. Already-running tasks receive the cancelled context (cooperative cancellation). `wg.Wait()` blocks until all started tasks finish — no goroutine leaks.
+
+5. **Context cancellation** — `taskCtx` is derived from the parent `ctx`, so parent cancellation propagates automatically. Workers stop pulling new tasks, and `Run` returns `ctx.Err()`.
+
+6. **No busy-waiting** — Synchronization uses channels, `sync.WaitGroup`, and `sync.Once` only.

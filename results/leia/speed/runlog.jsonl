@@ -34,3 +34,8 @@
 {"label":"gemma-4-E4B","seconds":41,"temp_before":"58.9","temp_after":"61.4","file":"gemma-4-E4B.json"}
 {"label":"gemma-4-E2B","seconds":27,"temp_before":"59.6","temp_after":"63.4","file":"gemma-4-E2B.json"}
 {"label":"control-end","seconds":7,"temp_before":"61.5","temp_after":"62.0","file":"control-end.json"}
+{"label":"control-start","seconds":12,"temp_before":"30.2","temp_after":"45.8","file":"control-start.json"}
+{"label":"gemma-4-31B","seconds":239,"temp_before":"44.2","temp_after":"64.9","file":"gemma-4-31B.json"}
+{"label":"control-middle","seconds":8,"temp_before":"62.6","temp_after":"62.2","file":"control-middle.json"}
+{"label":"Qwen3.8-27B","seconds":191,"temp_before":"60.4","temp_after":"67.4","file":"Qwen3.8-27B.json"}
+{"label":"control-end","seconds":8,"temp_before":"65.1","temp_after":"64.4","file":"control-end.json"}

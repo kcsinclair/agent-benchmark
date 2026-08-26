@@ -68,6 +68,7 @@ gpt-oss-120b|-m $MODELDIR/gpt-oss-120b-MXFP4.gguf
 Qwen3-Coder-30B|-m $MODELDIR/Qwen3-Coder-30B-A3B-Instruct-UD-Q4_K_XL.gguf
 Qwen3.6-27B|-m $MODELDIR/Qwen3.6-27B-Q4_K_M.gguf
 Qwen3.6-35B|-m $MODELDIR/Qwen3.6-35B-A3B-UD-Q4_K_M.gguf
+Qwen3.8-27B|-m $MODELDIR/Qwen3.8-27B-UD-Q4_K_M.gguf
 gpt-oss-20b-Q8|-m $MODELDIR/gpt-oss-20b-Q8_0.gguf
 gpt-oss-20b-Q4|-m $MODELDIR/gpt-oss-20b-Q4_K_M.gguf
 Hermes-4-14B|-m $MODELDIR/NousResearch_Hermes-4-14B-Q4_K_M.gguf

@@ -1,0 +1,24 @@
+{
+  "model": "Qwen3.8-27B-UD-Q4_K_M",
+  "served_model": "Qwen3.8-27B-UD-Q4_K_M",
+  "provider": null,
+  "request_id": "chatcmpl-n7b0GfNMDbCG17hs4JFQnlKfrn3EnCWu",
+  "server": "http://leia.packsin.com:7442",
+  "finish_reason": "stop",
+  "native_finish_reason": null,
+  "mode": "think=off",
+  "decode": {
+    "max_tokens": 16384,
+    "temperature": 0.0,
+    "thinking": "think=off"
+  },
+  "usage": {
+    "completion_tokens": 691,
+    "prompt_tokens": 616,
+    "total_tokens": 1307,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    }
+  },
+  "seconds": 56.3
+}

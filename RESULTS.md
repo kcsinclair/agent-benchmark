@@ -399,8 +399,10 @@ gemma-4-31B from 62% to 33% across the depth sweep and still loses.
 Measurement conditions: drift controls at the start, middle and end of the run
 came in at 74.04, 73.82 and 74.05 tok/s (0.2% spread), and the five models
 carried over from the 2026-08-04 run reproduced within 1%, so the table needs no
-thermal caveat. **gemma-4-31B's row is the 2026-08-04 measurement** — its model
-file had been deleted from the box, and the re-run is pending.
+thermal caveat. **gemma-4-31B's row was re-measured on 2026-08-26** on build
+`b10380`, after two failed attempts in August: it reads 287 / 12.2 / 10.9
+against the carried-over 288 / 12 / 11, so the earlier number stands and the
+row is no longer provisional.
 
 ## Caveats that change the conclusions
 
