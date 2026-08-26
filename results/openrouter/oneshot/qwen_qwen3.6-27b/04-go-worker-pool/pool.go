@@ -1,0 +1,117 @@
+package main
+
+import (
+	"context"
+	"errors"
+	"sync"
+)
+
+// Task is one unit of work.
+type Task func(ctx context.Context) (any, error)
+
+// Run executes tasks with at most `workers` running concurrently and returns
+// their results in the same order as the input slice.
+func Run(ctx context.Context, tasks []Task, workers int) ([]any, error) {
+	if workers < 1 {
+		return nil, errors.New("workers must be at least 1")
+	}
+	if len(tasks) == 0 {
+		return []any{}, nil
+	}
+
+	n := len(tasks)
+	results := make([]any, n)
+
+	// Create a cancellable context for tasks
+	taskCtx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	// Semaphore to limit concurrency
+	sem := make(chan struct{}, workers)
+
+	var wg sync.WaitGroup
+
+	// firstErr and firstErrMu protect the first error
+	var firstErr error
+	var firstErrMu sync.Mutex
+
+	// Track how many tasks have been started
+	var startedCount int
+	var startedMu sync.Mutex
+
+	// Channel to signal that a task has finished (for waiting)
+	doneCh := make(chan struct{}, n)
+
+	for i := 0; i < n; i++ {
+		// Check if we should stop starting new tasks
+		startedMu.Lock()
+		if firstErr != nil {
+			startedMu.Unlock()
+			break
+		}
+		startedCount++
+		startedMu.Unlock()
+
+		// Check if parent context is cancelled
+		if ctx.Err() != nil {
+			// Cancel task context and break
+			cancel()
+			break
+		}
+
+		// Acquire semaphore
+		select {
+		case sem <- struct{}{}:
+			// Got a slot
+		case <-ctx.Done():
+			// Parent context cancelled, stop starting new tasks
+			cancel()
+			break
+		}
+
+		wg.Add(1)
+		go func(idx int) {
+			defer wg.Done()
+			defer func() { <-sem }()
+			defer func() { doneCh <- struct{}{} }()
+
+			task := tasks[idx]
+			result, err := task(taskCtx)
+
+			if err != nil {
+				firstErrMu.Lock()
+				if firstErr == nil {
+					firstErr = err
+					// Cancel other tasks
+					cancel()
+				}
+				firstErrMu.Unlock()
+				return
+			}
+
+			// Check if we should store the result
+			firstErrMu.Lock()
+			hasError := firstErr != nil
+			firstErrMu.Unlock()
+
+			if !hasError {
+				results[idx] = result
+			}
+		}(i)
+	}
+
+	// Wait for all started tasks to finish
+	wg.Wait()
+
+	// Check for errors
+	if firstErr != nil {
+		return nil, firstErr
+	}
+
+	// Check if parent context was cancelled
+	if ctx.Err() != nil {
+		return nil, ctx.Err()
+	}
+
+	return results, nil
+}

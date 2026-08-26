@@ -1,0 +1,91 @@
+# parse_duration.py
+
+import re
+
+def parse_duration(text: str) -> float:
+    """
+    Parse a human‑readable duration string and return the total number of
+    seconds as a float.
+
+    Parameters
+    ----------
+    text : str
+        The duration string to parse.
+
+    Returns
+    -------
+    float
+        Total duration in seconds.
+
+    Raises
+    ------
+    TypeError
+        If ``text`` is not a string.
+    ValueError
+        If the string does not conform to the required format.
+    """
+    if not isinstance(text, str):
+        raise TypeError("text must be a string")
+
+    s = text.strip()
+    if not s:
+        raise ValueError("empty duration string")
+
+    # Handle optional leading minus sign
+    negative = False
+    if s[0] == '-':
+        negative = True
+        s = s[1:]
+
+    if not s:
+        raise ValueError("duration string missing components")
+
+    # Regular expression for a single component: number + unit
+    # Units are matched in the order ms, s, m, h to avoid partial matches.
+    component_re = re.compile(r'(\d+(?:\.\d+)?)(ms|s|m|h)')
+
+    # Order of units: lower value means larger unit
+    unit_order = {'h': 0, 'm': 1, 's': 2, 'ms': 3}
+    unit_factor = {'h': 3600.0, 'm': 60.0, 's': 1.0, 'ms': 0.001}
+
+    seen_units = set()
+    total_seconds = 0.0
+    last_order = -1
+    idx = 0
+
+    while idx < len(s):
+        match = component_re.match(s, idx)
+        if not match:
+            raise ValueError(f"invalid component at position {idx}")
+
+        number_str, unit = match.group(1), match.group(2)
+
+        # Convert number part to float
+        try:
+            number = float(number_str)
+        except ValueError:
+            raise ValueError(f"invalid number '{number_str}'")
+
+        # Check for repeated unit
+        if unit in seen_units:
+            raise ValueError(f"repeated unit '{unit}'")
+        seen_units.add(unit)
+
+        # Check unit order
+        order = unit_order[unit]
+        if order <= last_order:
+            raise ValueError(f"unit order violation: '{unit}' after previous unit")
+        last_order = order
+
+        # Accumulate seconds
+        total_seconds += number * unit_factor[unit]
+
+        idx = match.end()
+
+    if idx != len(s):
+        raise ValueError("invalid trailing characters")
+
+    if negative:
+        total_seconds = -total_seconds
+
+    return total_seconds

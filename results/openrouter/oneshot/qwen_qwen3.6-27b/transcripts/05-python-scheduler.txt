@@ -1,0 +1,117 @@
+```python
+def best_schedule(jobs: list[tuple[float, float, float]]) -> tuple[float, list[int]]:
+    """
+    Solve the Weighted Interval Scheduling problem in O(n log n) time.
+    
+    Args:
+        jobs: list of (start, end, weight) tuples
+        
+    Returns:
+        (total_weight, chosen_indices) where chosen_indices are sorted by start time
+    """
+    n = len(jobs)
+    if n == 0:
+        return (0.0, [])
+    
+    # Create list of (start, end, weight, original_index)
+    indexed_jobs = [(jobs[i][0], jobs[i][1], jobs[i][2], i) for i in range(n)]
+    
+    # Sort by end time (primary), then by start time (secondary) for stability
+    indexed_jobs.sort(key=lambda x: (x[1], x[0]))
+    
+    # Extract sorted end times for binary search
+    end_times = [job[1] for job in indexed_jobs]
+    
+    # dp[i] = maximum weight achievable using jobs[0..i] (in sorted order)
+    # We'll use a list for dp values
+    dp = [0.0] * n
+    
+    # For reconstruction, store which choice was made at each step
+    # choice[i] = True if we include job i, False if we skip it
+    # But we need to know the previous job index if we include job i
+    # prev[i] = index of the latest job that doesn't overlap with job i (in sorted order)
+    # If we include job i, we add its weight to dp[prev[i]] (or 0 if prev[i] is -1)
+    
+    import bisect
+    
+    # For each job in sorted order, find the latest job that ends <= current job's start
+    # This is the "compatible predecessor"
+    # We'll store for each job the index of its compatible predecessor in the sorted list
+    predecessor = [-1] * n
+    
+    for i in range(n):
+        start_i = indexed_jobs[i][0]
+        # Find the rightmost job with end_time <= start_i
+        # bisect_right gives the insertion point, so we want index - 1
+        pos = bisect.bisect_right(end_times, start_i, 0, i)
+        if pos > 0:
+            predecessor[i] = pos - 1
+        else:
+            predecessor[i] = -1
+    
+    # Compute dp values iteratively
+    # dp[i] = max(dp[i-1], weight_i + dp[predecessor[i]])
+    # We also need to track the decision for reconstruction
+    
+    # To save space and time, we can compute dp and store decisions
+    # decision[i] = 'include' or 'exclude'
+    # But for reconstruction, we need to know: if we included job i, what was the previous included job?
+    
+    # Let's store:
+    # dp[i] = best weight using subset of first i+1 jobs (sorted)
+    # include[i] = boolean, whether job i is included in the optimal solution for dp[i]
+    
+    include = [False] * n
+    
+    for i in range(n):
+        weight_i = indexed_jobs[i][2]
+        pred = predecessor[i]
+        
+        # Option 1: Include job i
+        if pred >= 0:
+            include_weight = weight_i + dp[pred]
+        else:
+            include_weight = weight_i
+        
+        # Option 2: Exclude job i (take best from previous)
+        if i > 0:
+            exclude_weight = dp[i - 1]
+        else:
+            exclude_weight = 0.0
+        
+        if include_weight >= exclude_weight:
+            dp[i] = include_weight
+            include[i] = True
+        else:
+            dp[i] = exclude_weight
+            include[i] = False
+    
+    # Reconstruct the solution
+    # Start from the last job and work backwards
+    chosen_sorted_indices = []  # indices in the sorted list
+    i = n - 1
+    while i >= 0:
+        if include[i]:
+            chosen_sorted_indices.append(i)
+            # Move to the predecessor
+            i = predecessor[i]
+        else:
+            i -= 1
+    
+    # Convert sorted indices back to original indices
+    chosen_original_indices = [indexed_jobs[i][3] for i in chosen_sorted_indices]
+    
+    # The chosen jobs are in reverse order of their sorted position (which is by end time)
+    # We need to sort by start time, breaking ties by original index ascending
+    # Get the actual job details for chosen jobs
+    chosen_jobs = [(jobs[idx][0], jobs[idx][1], jobs[idx][2], idx) for idx in chosen_original_indices]
+    
+    # Sort by start time, then by original index
+    chosen_jobs.sort(key=lambda x: (x[0], x[3]))
+    
+    final_indices = [job[3] for job in chosen_jobs]
+    
+    total_weight = dp[n - 1]
+    
+    return (total_weight, final_indices)
+```

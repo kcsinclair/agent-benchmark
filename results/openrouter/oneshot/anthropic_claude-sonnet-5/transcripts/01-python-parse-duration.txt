@@ -1,0 +1,71 @@
+```python
+"""
+parse_duration.py
+
+Parses human-readable duration strings into total seconds (float).
+"""
+
+import re
+
+_UNIT_SECONDS = {
+    "h": 3600.0,
+    "m": 60.0,
+    "s": 1.0,
+    "ms": 0.001,
+}
+
+_UNIT_ORDER = {"h": 0, "m": 1, "s": 2, "ms": 3}
+
+_COMPONENT_RE = re.compile(r"(\d+(?:\.\d+)?)(ms|h|m|s)")
+
+
+def parse_duration(text: str) -> float:
+    if not isinstance(text, str):
+        raise TypeError("parse_duration() expects a string")
+
+    s = text.strip()
+
+    if not s:
+        raise ValueError("empty duration string")
+
+    negative = False
+    if s[0] == "-":
+        negative = True
+        s = s[1:]
+
+    if not s:
+        raise ValueError("no components after sign")
+
+    pos = 0
+    total = 0.0
+    last_unit_rank = -1
+    found_any = False
+
+    while pos < len(s):
+        match = _COMPONENT_RE.match(s, pos)
+        if not match:
+            raise ValueError(f"invalid duration string: {text!r}")
+
+        number_str, unit = match.group(1), match.group(2)
+
+        rank = _UNIT_ORDER[unit]
+        if rank <= last_unit_rank:
+            raise ValueError(
+                f"units must be strictly descending and unique: {text!r}"
+            )
+        last_unit_rank = rank
+
+        value = float(number_str)
+        total += value * _UNIT_SECONDS[unit]
+        found_any = True
+
+        pos = match.end()
+
+    if not found_any or pos != len(s):
+        raise ValueError(f"invalid duration string: {text!r}")
+
+    if negative:
+        total = -total
+
+    return total
+```

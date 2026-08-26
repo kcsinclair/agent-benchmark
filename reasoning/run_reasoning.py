@@ -26,7 +26,11 @@ measures whether a model can be trusted to run an agent loop, not whether it can
 write a parser.
 
 Options:
-  -s, --server URL      llama.cpp server (default $BENCH_SERVER or leia)
+  -s, --server URL      llama.cpp server (default $BENCH_SERVER or leia), or
+                        https://openrouter.ai/api for frontier models
+      --key-file PATH   OpenRouter key ($OPENROUTER_API_KEY, then .env, then
+                        this path)
+      --provider NAME   pin the upstream provider and disable fallbacks
   -c, --categories LIST which to run (default all), e.g. -c trap,state
   -n, --count N         items per category (overrides per-category defaults)
       --seed N          item seed (default 1; change it for a fresh set)
@@ -53,32 +57,22 @@ sys.path.insert(0, HERE)
 sys.path.insert(0, os.path.join(REPO, "benchmark"))
 
 import categories as cat                                        # noqa: E402
-from run_http import (ApiError, api, list_models, slug, warmup,  # noqa: E402
-                      server_label, DEFAULT_SERVER)
+from run_http import (ApiError, build_payload, send, prepare,  # noqa: E402
+                      price_per_mtok, slug, warmup, server_label,
+                      DEFAULT_SERVER, DEFAULT_KEY_FILE)
 
 
 def ask(server, model, prompt, opts):
-    payload = {"model": model,
-               "messages": [{"role": "user", "content": prompt}],
-               "temperature": opts["temperature"],
-               "max_tokens": opts["max_tokens"]}
-    if opts["think"] == "off":
-        payload["chat_template_kwargs"] = {"enable_thinking": False}
-    if opts["reasoning_effort"]:
-        payload["reasoning_effort"] = opts["reasoning_effort"]
+    """-> (content, finish_reason, completion_tokens, seconds, dollars)"""
+    payload, _, _ = build_payload(model, prompt, opts)
     t0 = time.time()
-    try:
-        body = api(server, "/v1/chat/completions", payload, opts["timeout"])
-    except ApiError as e:
-        if "chat_template_kwargs" not in payload or "failed to load" in e.detail:
-            raise
-        payload.pop("chat_template_kwargs")
-        body = api(server, "/v1/chat/completions", payload, opts["timeout"])
+    body, _ = send(server, payload, opts)
     choice = (body.get("choices") or [{}])[0]
     msg = choice.get("message") or {}
+    usage = body.get("usage") or {}
     return (msg.get("content") or "", choice.get("finish_reason"),
-            (body.get("usage") or {}).get("completion_tokens", 0),
-            time.time() - t0)
+            usage.get("completion_tokens", 0), time.time() - t0,
+            float(usage.get("cost") or 0))
 
 
 def run_pass(model, opts, outdir):
@@ -88,19 +82,24 @@ def run_pass(model, opts, outdir):
         spec = cat.CATEGORIES[name]
         count = opts["count"] or spec["n"]
         items = cat.build(name, count, opts["seed"])
-        right, elapsed, wrong = 0, 0.0, []
+        right, elapsed, wrong, spent, failed = 0, 0.0, [], 0.0, 0
         print("\n== %s (%d items) ==" % (spec["label"], count))
         sys.stdout.flush()
         for i, (prompt, answer, check) in enumerate(items):
             try:
-                reply, finish, tokens, secs = ask(opts["server"], model,
-                                                  prompt, opts)
+                reply, finish, tokens, secs, cost = ask(opts["server"], model,
+                                                        prompt, opts)
             except (ApiError, urllib.error.URLError, OSError, ValueError) as e:
+                # counted apart from a wrong answer: the model never saw this
+                # item, so folding it into the score would deflate the result
+                # for an infrastructure reason and read as a worse model
                 print("  item %d: REQUEST FAILED (%s)" % (i + 1, e))
+                failed += 1
                 wrong.append({"item": i + 1, "expected": answer,
                               "reply": "request failed: %s" % e})
                 continue
             elapsed += secs
+            spent += cost
             ok = False
             try:
                 ok = bool(check(reply, answer))
@@ -117,9 +116,19 @@ def run_pass(model, opts, outdir):
                             "tokens": tokens, "finish": finish,
                             "reply": (reply or "").strip()[-2000:]})
         totals[name] = {"right": right, "count": count,
-                        "seconds": round(elapsed, 1)}
+                        "seconds": round(elapsed, 1), "failed": failed}
+        if spent:
+            totals[name]["cost_usd"] = round(spent, 4)
         pct = 100.0 * right / count if count else 0
-        print("  %d/%d correct (%.0f%%), %.0fs" % (right, count, pct, elapsed))
+        print("  %d/%d correct (%.0f%%), %.0fs%s"
+              % (right, count, pct, elapsed, ", $%.4f" % spent if spent else ""))
+        if failed >= count:
+            print("  NO items in this category got a reply — this category"
+                  " measured nothing. Do not read the 0 as a model result.")
+        elif failed:
+            print("  %d item(s) never got a reply — scored wrong, but that is"
+                  " the transport failing, not the model. Effective score"
+                  " %d/%d." % (failed, right, count - failed))
         for w in wrong[:opts["show_failures"]]:
             print("    item %d wanted %r, got: %s"
                   % (w["item"], w["expected"],
@@ -141,13 +150,25 @@ def run_model(model, opts):
     if not cat.TRAPS_AVAILABLE:
         print(" Note:    no trap bank (private harness absent) — scores are out"
               " of 88, not 102, and are not comparable with published runs")
-    print(" Decode:  temperature %s, thinking %s, seed %d"
-          % (opts["temperature"], opts["think"], opts["seed"]))
+    # built from a real payload: the header must not claim a decode setting the
+    # requests do not carry
+    _, _, decode = build_payload(model, "", opts)
+    temp = ("temperature %s" % decode["temperature"]
+            if decode.get("temperature") is not None
+            else "temperature OMITTED (%s)" % decode["temperature_note"])
+    if opts["openrouter"]:
+        rec = opts["models"].get(model) or {}
+        print(" Server:  %s  (OpenRouter, %s)"
+              % (opts["server"],
+                 "provider pinned to %s" % opts["provider"] if opts["provider"]
+                 else "fallbacks off"))
+        print(" Price:   %s per Mtok in/out" % (price_per_mtok(rec) or "unknown"))
+    print(" Decode:  %s, %s, seed %d" % (temp, decode["thinking"], opts["seed"]))
     print("=" * 62)
     sys.stdout.flush()
 
-    if opts["warmup"]:
-        secs, err = warmup(opts["server"], model, opts["timeout"])
+    if opts["warmup"] and not opts["openrouter"]:
+        secs, err = warmup(opts["server"], model, opts["timeout"], opts["key"])
         result["load_seconds"] = round(secs, 1)
         if err:
             print(" load FAILED after %.0fs: %s\n skipping\n" % (secs, err))
@@ -164,8 +185,17 @@ def run_model(model, opts):
         count = sum(t["count"] for t in totals.values())
         print("\n  pass total: %d/%d (%.0f%%)"
               % (right, count, 100.0 * right / count if count else 0))
+        spent = sum(t.get("cost_usd", 0) for t in totals.values())
+        if spent:
+            print("  pass cost: $%.4f" % spent)
+        nofail = sum(t.get("failed", 0) for t in totals.values())
+        if nofail:
+            print("  WARNING: %d of %d items never got a reply. Quote %d/%d,"
+                  " not %d/%d." % (nofail, count, right, count - nofail,
+                                   right, count))
         result["passes"].append({"pass": n, "dir": outdir, "totals": totals,
-                                 "right": right, "count": count})
+                                 "right": right, "count": count,
+                                 **({"cost_usd": round(spent, 4)} if spent else {})})
         sys.stdout.flush()
     return result
 
@@ -201,6 +231,9 @@ def summarise(results, wall, opts):
     if opts["repeat"] > 1:
         print(" * median of %d passes" % opts["repeat"])
     print(" wall clock: %.0f min" % (wall / 60.0))
+    spent = sum(p.get("cost_usd", 0) for r in results for p in r["passes"])
+    if spent:
+        print(" total cost: $%.4f (billed, not estimated)" % spent)
 
     path = os.path.join(opts["out"], "reasoning-summary-%s.json"
                         % time.strftime("%Y%m%d-%H%M%S"))
@@ -210,7 +243,8 @@ def summarise(results, wall, opts):
             json.dump({"wall_seconds": round(wall, 1), "track": "reasoning",
                        "settings": {k: opts[k] for k in
                                     ("temperature", "max_tokens", "think",
-                                     "repeat", "seed", "server", "categories")},
+                                     "repeat", "seed", "server", "categories",
+                                     "provider")},
                        "results": results}, fh, indent=2)
         print(" full detail: %s" % path)
     except OSError as e:
@@ -222,7 +256,8 @@ def main(argv):
             "count": 0, "seed": 1, "out": None, "max_tokens": 2048,
             "timeout": 900, "temperature": 0.0, "think": "off",
             "reasoning_effort": "", "repeat": 1, "warmup": True,
-            "show_failures": 2}
+            "show_failures": 2, "key_file": DEFAULT_KEY_FILE, "provider": "",
+            "key": None, "openrouter": False, "models": {}}
     models, i = [], 0
     while i < len(argv):
         a = argv[i]
@@ -232,6 +267,8 @@ def main(argv):
             return argv[i + 1]
         if a in ("-h", "--help"):        print(__doc__.strip()); return 0
         elif a in ("-s", "--server"):    opts["server"] = val(); i += 2
+        elif a == "--key-file":          opts["key_file"] = val(); i += 2
+        elif a == "--provider":          opts["provider"] = val(); i += 2
         elif a in ("-c", "--categories"):
             opts["categories"] = [x for x in val().replace(" ", "").split(",") if x]
             i += 2
@@ -264,10 +301,12 @@ def main(argv):
     if not models:
         print(__doc__.strip())
         return 2
-    known = dict(list_models(opts["server"]))
+    source = prepare(opts)
     for m in models:
-        if m not in known:
+        if m not in opts["models"]:
             sys.exit("run_reasoning: %r is not on %s" % (m, opts["server"]))
+    if source:
+        print("Key: %s" % source)
 
     started = time.time()
     results = [run_model(m, opts) for m in models]

@@ -1,0 +1,30 @@
+{
+  "wall_seconds": 128.6,
+  "settings": {
+    "temperature": 0.0,
+    "max_tokens": 16384,
+    "think": "off",
+    "repeat": 1,
+    "reasoning_effort": "",
+    "server": "https://openrouter.ai/api",
+    "provider": "Novita"
+  },
+  "results": [
+    {
+      "model": "google/gemma-4-31b-it",
+      "load_seconds": null,
+      "passes": [
+        {
+          "pass": 1,
+          "dir": "/Users/keith/Code/agent-benchmark/results/openrouter/oneshot/google_gemma-4-31b-it",
+          "generate_seconds": 125.2,
+          "wall_seconds": 125.2,
+          "trouble": [],
+          "cost_usd": 0.0019,
+          "score": 65,
+          "max": 68
+        }
+      ]
+    }
+  ]
+}

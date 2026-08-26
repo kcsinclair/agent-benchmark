@@ -1,0 +1,396 @@
+{
+  "wall_seconds": 2794.2,
+  "track": "agent",
+  "settings": {
+    "temperature": 0.0,
+    "max_tokens": 32768,
+    "max_turns": 12,
+    "think": "off",
+    "repeat": 3,
+    "server": "https://openrouter.ai/api",
+    "provider": "DeepInfra"
+  },
+  "results": [
+    {
+      "model": "openai/gpt-oss-20b",
+      "track": "agent",
+      "load_seconds": null,
+      "passes": [
+        {
+          "pass": 1,
+          "dir": "/Users/keith/Code/agent-benchmark/results/openrouter/agent/openai_gpt-oss-20b/pass1",
+          "problems": [
+            {
+              "problem": "01-python-parse-duration",
+              "turns": 2,
+              "tool_calls": 1,
+              "bad_calls": 0,
+              "files": [
+                "parse_duration.py"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 10828,
+              "stop": "stopped after 2 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.0015929899999999999,
+              "provider": "DeepInfra",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 120.0,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "02-js-lru-ttl-cache",
+              "turns": 2,
+              "tool_calls": 1,
+              "bad_calls": 0,
+              "files": [
+                "cache.mjs"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 14493,
+              "stop": "stopped after 2 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.00211071,
+              "provider": "DeepInfra",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 177.4,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "03-sql-analytics",
+              "turns": 6,
+              "tool_calls": 5,
+              "bad_calls": 0,
+              "files": [
+                "q1.sql",
+                "q2.sql",
+                "q2.sql",
+                "q3.sql",
+                "q4.sql"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 3258,
+              "stop": "stopped after 6 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.0006639,
+              "provider": "DeepInfra",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 45.9,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "04-go-worker-pool",
+              "turns": 1,
+              "tool_calls": 0,
+              "bad_calls": 0,
+              "files": [],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 32768,
+              "stop": "stopped after 1 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.00461188,
+              "provider": "DeepInfra",
+              "truncated_turns": 1,
+              "empty_replies": 1,
+              "seconds": 330.8,
+              "missing": [
+                "pool.go"
+              ],
+              "extra": []
+            },
+            {
+              "problem": "05-python-scheduler",
+              "turns": 4,
+              "tool_calls": 3,
+              "bad_calls": 1,
+              "files": [
+                "scheduler.py"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [
+                "read_file<|channel|>analysis"
+              ],
+              "tokens": 2112,
+              "stop": "stopped after 4 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.0005211,
+              "provider": "DeepInfra",
+              "truncated_turns": 0,
+              "empty_replies": 1,
+              "seconds": 23.4,
+              "missing": [],
+              "extra": []
+            }
+          ],
+          "seconds": 697.5,
+          "cost_usd": 0.0095,
+          "score": 57,
+          "max": 68
+        },
+        {
+          "pass": 2,
+          "dir": "/Users/keith/Code/agent-benchmark/results/openrouter/agent/openai_gpt-oss-20b/pass2",
+          "problems": [
+            {
+              "problem": "01-python-parse-duration",
+              "turns": 1,
+              "tool_calls": 0,
+              "bad_calls": 0,
+              "files": [],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 32768,
+              "stop": "stopped after 1 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.00461179,
+              "provider": "DeepInfra",
+              "truncated_turns": 1,
+              "empty_replies": 1,
+              "seconds": 289.7,
+              "missing": [
+                "parse_duration.py"
+              ],
+              "extra": []
+            },
+            {
+              "problem": "02-js-lru-ttl-cache",
+              "turns": 2,
+              "tool_calls": 1,
+              "bad_calls": 0,
+              "files": [
+                "cache.mjs"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 22678,
+              "stop": "stopped after 2 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.0032627900000000002,
+              "provider": "DeepInfra",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 189.9,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "03-sql-analytics",
+              "turns": 6,
+              "tool_calls": 5,
+              "bad_calls": 0,
+              "files": [
+                "q1.sql",
+                "q2.sql",
+                "q3.sql",
+                "q4.sql",
+                "q4.sql"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 3017,
+              "stop": "stopped after 6 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.00063385,
+              "provider": "DeepInfra",
+              "truncated_turns": 0,
+              "empty_replies": 1,
+              "seconds": 37.2,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "04-go-worker-pool",
+              "turns": 3,
+              "tool_calls": 2,
+              "bad_calls": 0,
+              "files": [
+                "pool.go",
+                "pool.go"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 38798,
+              "stop": "stopped after 3 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.00556477,
+              "provider": "DeepInfra",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 356.5,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "05-python-scheduler",
+              "turns": 2,
+              "tool_calls": 1,
+              "bad_calls": 0,
+              "files": [
+                "scheduler.py"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 3543,
+              "stop": "stopped after 2 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.0005747700000000001,
+              "provider": "DeepInfra",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 35.8,
+              "missing": [],
+              "extra": []
+            }
+          ],
+          "seconds": 909.1,
+          "cost_usd": 0.0146,
+          "score": 48,
+          "max": 68
+        },
+        {
+          "pass": 3,
+          "dir": "/Users/keith/Code/agent-benchmark/results/openrouter/agent/openai_gpt-oss-20b/pass3",
+          "problems": [
+            {
+              "problem": "01-python-parse-duration",
+              "turns": 2,
+              "tool_calls": 1,
+              "bad_calls": 0,
+              "files": [
+                "parse_duration.py"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 36494,
+              "stop": "stopped after 2 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.00518065,
+              "provider": "DeepInfra",
+              "truncated_turns": 1,
+              "empty_replies": 1,
+              "seconds": 346.2,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "02-js-lru-ttl-cache",
+              "turns": 2,
+              "tool_calls": 1,
+              "bad_calls": 0,
+              "files": [
+                "cache.mjs"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 9604,
+              "stop": "stopped after 2 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.00141698,
+              "provider": "DeepInfra",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 113.5,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "03-sql-analytics",
+              "turns": 5,
+              "tool_calls": 4,
+              "bad_calls": 0,
+              "files": [
+                "q1.sql",
+                "q2.sql",
+                "q3.sql",
+                "q4.sql"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 8885,
+              "stop": "stopped after 5 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.0014104,
+              "provider": "DeepInfra",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 107.0,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "04-go-worker-pool",
+              "turns": 2,
+              "tool_calls": 1,
+              "bad_calls": 0,
+              "files": [
+                "pool.go"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 65536,
+              "stop": "stopped after 2 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.01011866,
+              "provider": "DeepInfra",
+              "truncated_turns": 1,
+              "empty_replies": 1,
+              "seconds": 587.7,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "05-python-scheduler",
+              "turns": 2,
+              "tool_calls": 1,
+              "bad_calls": 0,
+              "files": [
+                "scheduler.py"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 2911,
+              "stop": "stopped after 2 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.00048833,
+              "provider": "DeepInfra",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 27.0,
+              "missing": [],
+              "extra": []
+            }
+          ],
+          "seconds": 1181.4,
+          "cost_usd": 0.0186,
+          "score": 54,
+          "max": 68
+        }
+      ]
+    }
+  ]
+}

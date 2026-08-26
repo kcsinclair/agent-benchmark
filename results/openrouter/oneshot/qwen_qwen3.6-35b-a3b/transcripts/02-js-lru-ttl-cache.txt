@@ -1,0 +1,132 @@
+```javascript
+export class LruTtlCache {
+  constructor({ capacity, defaultTtlMs = Infinity, now = () => Date.now() }) {
+    if (!Number.isInteger(capacity) || capacity < 1) {
+      throw new RangeError('capacity must be an integer >= 1');
+    }
+    this._capacity = capacity;
+    this._defaultTtlMs = defaultTtlMs;
+    this._now = now;
+    // Map stores: key -> { value, expiry }
+    // Map insertion order reflects LRU order (oldest inserted = least recently used)
+    // We'll use Map's iteration order for LRU: first entry is LRU, last is MRU
+    this._map = new Map();
+  }
+
+  _isExpired(expiry) {
+    if (expiry === Infinity) return false;
+    return this._now() >= expiry;
+  }
+
+  _purgeExpired() {
+    // We need to remove expired entries. Since we can't iterate and delete safely
+    // in a simple way, we'll collect keys to delete.
+    // But we need to be careful: we want to purge expired entries efficiently.
+    // Since we need O(1) for get/set/has/delete, and size/keys may need to purge,
+    // let's purge expired entries lazily when needed.
+    // For size and keys, we need to purge all expired entries.
+    // We can iterate and delete.
+    for (const [key, entry] of this._map) {
+      if (this._isExpired(entry.expiry)) {
+        this._map.delete(key);
+      }
+    }
+  }
+
+  _evictIfNeeded() {
+    // Evict expired entries first, then LRU entries if still over capacity
+    // First, purge all expired entries
+    this._purgeExpired();
+    
+    // If still over capacity, evict LRU entries (first in map iteration order)
+    while (this._map.size > this._capacity) {
+      // Get the first key (LRU)
+      const firstKey = this._map.keys().next().value;
+      this._map.delete(firstKey);
+    }
+  }
+
+  set(key, value, ttlMs) {
+    const expiry = ttlMs === undefined ? this._now() + this._defaultTtlMs : this._now() + ttlMs;
+    
+    // If the entry is already expired (ttlMs <= 0 or negative), we still set it but it's expired
+    // Actually, per semantics: ttlMs of 0 or negative means the entry is already expired.
+    // But we should still store it? Let's think: if we set an expired entry, it should be
+    // treated as expired. But for LRU purposes, should it be stored?
+    // The spec says: "Setting an existing key updates its value, its expiry, and makes it the most recently used."
+    // If the entry is expired, it will be removed when discovered. So we can store it and it will be
+    // cleaned up when needed.
+    
+    // Check if key already exists
+    if (this._map.has(key)) {
+      // Update existing entry
+      this._map.set(key, { value, expiry });
+      // Moving to end (MRU) is handled by Map.set
+    } else {
+      // New entry: first evict if needed
+      this._evictIfNeeded();
+      this._map.set(key, { value, expiry });
+    }
+    
+    return this;
+  }
+
+  get(key) {
+    if (!this._map.has(key)) {
+      return undefined;
+    }
+    
+    const entry = this._map.get(key);
+    
+    if (this._isExpired(entry.expiry)) {
+      this._map.delete(key);
+      return undefined;
+    }
+    
+    // Update recency: move to end (MRU)
+    // We need to re-insert to update order
+    const { value } = entry;
+    this._map.delete(key);
+    this._map.set(key, { value, expiry: entry.expiry });
+    
+    return value;
+  }
+
+  has(key) {
+    if (!this._map.has(key)) {
+      return false;
+    }
+    
+    const entry = this._map.get(key);
+    
+    if (this._isExpired(entry.expiry)) {
+      this._map.delete(key);
+      return false;
+    }
+    
+    return true;
+  }
+
+  delete(key) {
+    if (this._map.has(key)) {
+      this._map.delete(key);
+      return true;
+    }
+    return false;
+  }
+
+  get size() {
+    this._purgeExpired();
+    return this._map.size;
+  }
+
+  keys() {
+    this._purgeExpired();
+    // Return keys in order from MRU to LRU
+    // Map iteration is from oldest to newest (LRU to MRU)
+    // We need MRU to LRU, so reverse
+    const keyArray = Array.from(this._map.keys());
+    return keyArray.reverse();
+  }
+}
+```

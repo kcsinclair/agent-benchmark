@@ -1,0 +1,65 @@
+We need to produce four SQL queries. Provide them as separate files. The answer should include the content of each file. Provide the SELECT statements.
+
+We need to ensure correct joins and filters.
+
+q1: revenue per customer. Need to sum quantity * unit_price for completed orders. Join orders, order_items, products. Group by customer. Only customers with at least one completed order. So we can join customers to orders where status='completed', then to order_items and products. Use SUM. Round to 2 decimals. Order by revenue desc, customer_name asc.
+
+SQL:
+
+SELECT c.name AS customer_name,
+       ROUND(SUM(oi.quantity * p.unit_price), 2) AS revenue
+FROM customers c
+JOIN orders o ON o.customer_id = c.id
+JOIN order_items oi ON oi.order_id = o.id
+JOIN products p ON p.id = oi.product_id
+WHERE o.status = 'completed'
+GROUP BY c.id, c.name
+ORDER BY revenue DESC, customer_name ASC;
+
+We need to group by c.id, c.name. SQLite allows grouping by c.id only if we use c.name in SELECT? In SQLite, if you use GROUP BY c.id, you can select c.name because it's functionally dependent? In SQLite, you can select columns not in GROUP BY if they are functionally dependent on the group by columns? Actually SQLite allows it if the column is functionally dependent? I think SQLite 3.33+ has "only_full_group_by" off by default, so it's fine. But to be safe, group by c.id, c.name.
+
+q2: Top 3 products by units sold. Need to sum quantity across completed orders. Join orders, order_items, products. Filter status='completed'. Group by product. Order by units_sold desc, product_name asc. Limit 3. Exclude products with no completed sales. So we need to join only those with at least one completed order. Use same join. Query:
+
+SELECT p.name AS product_name,
+       SUM(oi.quantity) AS units_sold
+FROM products p
+JOIN order_items oi ON oi.product_id = p.id
+JOIN orders o ON o.id = oi.order_id
+WHERE o.status = 'completed'
+GROUP BY p.id, p.name
+ORDER BY units_sold DESC, product_name ASC
+LIMIT 3;
+
+q3: Customers with no orders at all. Need left join or anti-join. Use NOT EXISTS or LEFT JOIN with NULL. Query:
+
+SELECT c.name AS customer_name,
+       c.country
+FROM customers c
+LEFT JOIN orders o ON o.customer_id = c.id
+WHERE o.id IS NULL
+ORDER BY customer_name ASC;
+
+q4: Monthly revenue for 2025. Need revenue per month for completed orders in 2025. Use strftime('%Y-%m', o.ordered_at) as month. Filter year 2025. Sum revenue. Only months with non-zero revenue. Order by month ascending. Round revenue to 2 decimals.
+
+SELECT strftime('%Y-%m', o.ordered_at) AS month,
+       ROUND(SUM(oi.quantity * p.unit_price), 2) AS revenue
+FROM orders o
+JOIN order_items oi ON oi.order_id = o.id
+JOIN products p ON p.id = oi.product_id
+WHERE o.status = 'completed'
+  AND strftime('%Y', o.ordered_at) = '2025'
+GROUP BY month
+HAVING revenue > 0
+ORDER BY month ASC;
+
+But we used revenue alias in HAVING; SQLite may not allow alias in HAVING? It does allow alias in HAVING? I think yes. But to be safe, use SUM(...) > 0. So:
+
+HAVING SUM(oi.quantity * p.unit_price) > 0
+
+Also need to round to 2 decimals. So final SELECT.
+
+Also need to ensure month format '2025-01' etc. Use strftime('%Y-%m', o.ordered_at). Good.
+
+Now produce final answer: Provide four files content. Provide each file with SELECT statement. Provide no comments. Provide trailing semicolon optional. We'll include semicolons.
+
+Let's craft final answer.

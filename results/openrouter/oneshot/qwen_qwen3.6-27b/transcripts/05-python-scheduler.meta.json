@@ -1,0 +1,39 @@
+{
+  "model": "qwen/qwen3.6-27b",
+  "served_model": "qwen/qwen3.6-27b",
+  "provider": "DeepInfra",
+  "request_id": "gen-1786619031-3JWa73C4rNwdmctXPsHi",
+  "server": "https://openrouter.ai/api",
+  "finish_reason": "stop",
+  "native_finish_reason": "stop",
+  "mode": "think=off",
+  "decode": {
+    "max_tokens": 16384,
+    "temperature": 0.0,
+    "thinking": "think=off"
+  },
+  "usage": {
+    "prompt_tokens": 658,
+    "completion_tokens": 1130,
+    "total_tokens": 1788,
+    "cost": 0.00382656,
+    "is_byok": false,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+    },
+    "cost_details": {
+      "upstream_inference_cost": 0.00382656,
+      "upstream_inference_prompt_cost": 0.00021056,
+      "upstream_inference_completions_cost": 0.003616
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "image_tokens": 0,
+      "audio_tokens": 0
+    }
+  },
+  "seconds": 27.6
+}

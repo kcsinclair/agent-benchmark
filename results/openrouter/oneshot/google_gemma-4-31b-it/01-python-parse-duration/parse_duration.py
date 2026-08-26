@@ -1,0 +1,60 @@
+import re
+
+def parse_duration(text: str) -> float:
+    """
+    Parses a human-readable duration string and returns the total seconds as a float.
+    """
+    if not isinstance(text, str):
+        raise TypeError("Input must be a string")
+
+    # Strip leading and trailing whitespace
+    text = text.strip()
+    if not text:
+        raise ValueError("Duration string cannot be empty")
+
+    # Handle the optional leading minus sign
+    is_negative = False
+    if text.startswith('-'):
+        is_negative = True
+        text = text[1:]
+        if not text:
+            raise ValueError("Duration string cannot be just a minus sign")
+
+    # Regex to match a component: a number followed by a unit
+    # Number: digits, optional dot, digits. 
+    # No leading/trailing dots, no .5, no 5.
+    # Unit: h, m, s, or ms
+    component_pattern = r'(\d+(?:\.\d+)?)(h|m|s|ms)'
+    
+    # Find all matches
+    matches = re.findall(component_pattern, text)
+    
+    # Reconstruct the string from matches to ensure no invalid characters/whitespace exist
+    reconstructed = "".join(m[0] + m[1] for m in matches)
+    if reconstructed != text:
+        raise ValueError("Invalid duration format or characters")
+
+    # Unit conversion factors to seconds
+    unit_map = {
+        'h': 3600.0,
+        'm': 60.0,
+        's': 1.0,
+        'ms': 0.001
+    }
+    
+    # Order of units for validation
+    unit_order = ['h', 'm', 's', 'ms']
+    
+    total_seconds = 0.0
+    last_unit_index = -1
+    
+    for value_str, unit in matches:
+        # Check for strictly descending order and no repeats
+        current_unit_index = unit_order.index(unit)
+        if current_unit_index <= last_unit_index:
+            raise ValueError(f"Units must be in strictly descending order: {unit} follows a larger or equal unit")
+        
+        total_seconds += float(value_str) * unit_map[unit]
+        last_unit_index = current_unit_index
+
+    return -total_seconds if is_negative else total_seconds

@@ -1,0 +1,157 @@
+{
+  "wall_seconds": 305.1,
+  "track": "agent",
+  "settings": {
+    "temperature": 0.0,
+    "max_tokens": 8192,
+    "max_turns": 12,
+    "think": "off",
+    "repeat": 1,
+    "server": "https://openrouter.ai/api",
+    "provider": "DeepInfra"
+  },
+  "results": [
+    {
+      "model": "qwen/qwen3.6-27b",
+      "track": "agent",
+      "load_seconds": null,
+      "passes": [
+        {
+          "pass": 1,
+          "dir": "/Users/keith/Code/agent-benchmark/results/openrouter/agent/qwen_qwen3.6-27b",
+          "problems": [
+            {
+              "problem": "01-python-parse-duration",
+              "turns": 12,
+              "tool_calls": 12,
+              "bad_calls": 0,
+              "files": [
+                "parse_duration.py",
+                "test_parse_duration.py",
+                "test_parse_duration.py",
+                "test_parse_duration.py",
+                "test_parse_duration.py",
+                "test_parse_duration.py",
+                "test_parse_duration.py",
+                "parse_duration.py"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 8492,
+              "stop": "hit the 12 turn limit",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.05406879999999999,
+              "provider": "DeepInfra",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 159.1,
+              "missing": [],
+              "extra": [
+                "test_parse_duration.py"
+              ]
+            },
+            {
+              "problem": "02-js-lru-ttl-cache",
+              "turns": 3,
+              "tool_calls": 2,
+              "bad_calls": 0,
+              "files": [
+                "cache.mjs"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 1199,
+              "stop": "stopped after 3 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.00583936,
+              "provider": "DeepInfra",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 18.7,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "03-sql-analytics",
+              "turns": 2,
+              "tool_calls": 4,
+              "bad_calls": 0,
+              "files": [
+                "q1.sql",
+                "q2.sql",
+                "q3.sql",
+                "q4.sql"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 650,
+              "stop": "stopped after 2 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.00298976,
+              "provider": "DeepInfra",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 14.3,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "04-go-worker-pool",
+              "turns": 4,
+              "tool_calls": 3,
+              "bad_calls": 0,
+              "files": [
+                "pool.go"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 5872,
+              "stop": "stopped after 4 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.025842880000000002,
+              "provider": "DeepInfra",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 78.9,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "05-python-scheduler",
+              "turns": 4,
+              "tool_calls": 3,
+              "bad_calls": 0,
+              "files": [
+                "scheduler.py",
+                "test_scheduler.py"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 1857,
+              "stop": "stopped after 4 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.00915968,
+              "provider": "DeepInfra",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 30.5,
+              "missing": [],
+              "extra": [
+                "test_scheduler.py"
+              ]
+            }
+          ],
+          "seconds": 301.5,
+          "cost_usd": 0.0979,
+          "score": 68,
+          "max": 68
+        }
+      ]
+    }
+  ]
+}

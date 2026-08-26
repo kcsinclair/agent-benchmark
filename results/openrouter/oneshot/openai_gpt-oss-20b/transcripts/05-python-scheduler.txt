@@ -1,0 +1,112 @@
+**scheduler.py**
+
+```python
+#!/usr/bin/env python3
+"""
+Weighted interval scheduling – O(n log n) implementation.
+
+The function `best_schedule` receives a list of jobs
+(start, end, weight) and returns the maximum total weight
+together with one optimal set of job indices (sorted by start time).
+
+The algorithm is the classic dynamic‑programming solution
+with binary search for the predecessor job.
+"""
+
+from __future__ import annotations
+
+from bisect import bisect_right
+from typing import List, Tuple
+
+
+def best_schedule(jobs: List[Tuple[float, float, float]]) -> Tuple[float, List[int]]:
+    """
+    Return the maximum total weight and a list of indices of a
+    non‑overlapping subset of jobs that achieves it.
+
+    Parameters
+    ----------
+    jobs : list[tuple[float, float, float]]
+        Each tuple is (start, end, weight).  All jobs satisfy
+        start < end and weight > 0.
+
+    Returns
+    -------
+    tuple[float, list[int]]
+        (total_weight, chosen_indices)
+
+        * total_weight : float – the maximum achievable sum of weights.
+        * chosen_indices : list[int] – indices into the original `jobs`
+          list of one optimal subset, sorted by job start time
+          (ties broken by index ascending).
+
+    Notes
+    -----
+    * The function runs in O(n log n) time and O(n) memory.
+    * It uses only the Python standard library.
+    * No recursion is used – the implementation is fully iterative.
+    """
+    n = len(jobs)
+    if n == 0:
+        return 0.0, []
+
+    # ------------------------------------------------------------------
+    # 1. Sort jobs by end time, keep original indices.
+    # ------------------------------------------------------------------
+    # Each element: (original_index, start, end, weight)
+    sorted_jobs = sorted(
+        [(idx, start, end, weight) for idx, (start, end, weight) in enumerate(jobs)],
+        key=lambda x: x[2],  # sort by end time
+    )
+
+    # Pre‑compute list of end times for binary search
+    end_times = [job[2] for job in sorted_jobs]
+
+    # ------------------------------------------------------------------
+    # 2. Compute p[i] – the index of the last job that ends <= start_i
+    #    (in the sorted order).  p[0] = 0 for convenience.
+    # ------------------------------------------------------------------
+    p = [0] * (n + 1)  # 1‑based indexing
+    for i in range(1, n + 1):
+        start_i = sorted_jobs[i - 1][1]
+        # bisect_right returns the insertion point to keep end_times sorted,
+        # i.e. the number of jobs with end <= start_i
+        p[i] = bisect_right(end_times, start_i)
+
+    # ------------------------------------------------------------------
+    # 3. Dynamic programming: dp[i] = best weight using first i jobs
+    # ------------------------------------------------------------------
+    dp = [0.0] * (n + 1)  # dp[0] = 0
+    for i in range(1, n + 1):
+        job = sorted_jobs[i - 1]
+        weight_i = job[3]
+        incl = weight_i + dp[p[i]]
+        excl = dp[i - 1]
+        dp[i] = incl if incl > excl else excl
+
+    # ------------------------------------------------------------------
+    # 4. Reconstruct one optimal set of indices
+    # ------------------------------------------------------------------
+    selected: List[int] = []
+    i = n
+    while i > 0:
+        if dp[i] == dp[i - 1]:
+            # job i-1 not taken
+            i -= 1
+        else:
+            # job i-1 taken
+            selected.append(sorted_jobs[i - 1][0])  # original index
+            i = p[i]
+
+    # The selected indices are in reverse order of end times.
+    # Sort them by start time (and by index to break ties).
+    selected.sort(key=lambda idx: (jobs[idx][0], idx))
+
+    return dp[n], selected
+```
+
+The module contains only the required function and no side effects on import.  
+It satisfies the performance constraints: sorting (`O(n log n)`), binary
+search for each job (`O(log n)` per job), and a single linear pass for the
+dynamic programming and reconstruction.  The memory usage is linear in the
+number of jobs.

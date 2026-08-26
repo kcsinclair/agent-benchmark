@@ -1,0 +1,74 @@
+{
+  "wall_seconds": 325.4,
+  "track": "reasoning",
+  "settings": {
+    "temperature": 0.0,
+    "max_tokens": 2048,
+    "think": "off",
+    "repeat": 1,
+    "seed": 1,
+    "server": "https://openrouter.ai/api",
+    "categories": [
+      "state",
+      "constraint",
+      "compliance",
+      "abstention",
+      "trap",
+      "retrieval"
+    ],
+    "provider": "Anthropic"
+  },
+  "results": [
+    {
+      "model": "anthropic/claude-sonnet-5",
+      "load_seconds": null,
+      "passes": [
+        {
+          "pass": 1,
+          "dir": "/Users/keith/Code/agent-benchmark/results/openrouter/reasoning/anthropic_claude-sonnet-5",
+          "totals": {
+            "state": {
+              "right": 20,
+              "count": 20,
+              "seconds": 66.8,
+              "cost_usd": 0.0334
+            },
+            "constraint": {
+              "right": 20,
+              "count": 20,
+              "seconds": 78.5,
+              "cost_usd": 0.0457
+            },
+            "compliance": {
+              "right": 20,
+              "count": 20,
+              "seconds": 54.1,
+              "cost_usd": 0.0039
+            },
+            "abstention": {
+              "right": 20,
+              "count": 20,
+              "seconds": 51.4,
+              "cost_usd": 0.0076
+            },
+            "trap": {
+              "right": 14,
+              "count": 14,
+              "seconds": 39.9,
+              "cost_usd": 0.003
+            },
+            "retrieval": {
+              "right": 8,
+              "count": 8,
+              "seconds": 34.6,
+              "cost_usd": 0.2589
+            }
+          },
+          "right": 102,
+          "count": 102,
+          "cost_usd": 0.3525
+        }
+      ]
+    }
+  ]
+}

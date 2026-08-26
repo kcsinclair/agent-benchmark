@@ -1,0 +1,74 @@
+{
+  "wall_seconds": 382.1,
+  "track": "reasoning",
+  "settings": {
+    "temperature": 0.0,
+    "max_tokens": 2048,
+    "think": "off",
+    "repeat": 1,
+    "seed": 1,
+    "server": "https://openrouter.ai/api",
+    "categories": [
+      "state",
+      "constraint",
+      "compliance",
+      "abstention",
+      "trap",
+      "retrieval"
+    ],
+    "provider": "DeepInfra"
+  },
+  "results": [
+    {
+      "model": "openai/gpt-oss-20b",
+      "load_seconds": null,
+      "passes": [
+        {
+          "pass": 1,
+          "dir": "/Users/keith/Code/agent-benchmark/results/openrouter/reasoning/openai_gpt-oss-20b",
+          "totals": {
+            "state": {
+              "right": 20,
+              "count": 20,
+              "seconds": 71.6,
+              "cost_usd": 0.0009
+            },
+            "constraint": {
+              "right": 20,
+              "count": 20,
+              "seconds": 113.9,
+              "cost_usd": 0.0014
+            },
+            "compliance": {
+              "right": 20,
+              "count": 20,
+              "seconds": 49.3,
+              "cost_usd": 0.0004
+            },
+            "abstention": {
+              "right": 20,
+              "count": 20,
+              "seconds": 34.1,
+              "cost_usd": 0.0003
+            },
+            "trap": {
+              "right": 13,
+              "count": 14,
+              "seconds": 47.4,
+              "cost_usd": 0.0004
+            },
+            "retrieval": {
+              "right": 7,
+              "count": 8,
+              "seconds": 65.3,
+              "cost_usd": 0.0024
+            }
+          },
+          "right": 100,
+          "count": 102,
+          "cost_usd": 0.0058
+        }
+      ]
+    }
+  ]
+}

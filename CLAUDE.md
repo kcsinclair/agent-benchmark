@@ -106,6 +106,9 @@ Some models emit tool calls in their own syntax that llama.cpp does not parse
 into `tool_calls` (Qwen3-Coder emits `<function=write_file><parameter=…>` as
 plain text). `run_agent.py` recovers those but counts them separately — an
 off-the-shelf agent would see nothing, so the two are not the same result.
+OpenRouter normalises tool calls across vendors, so `native_calls` should read
+zero there; the same model scoring differently local vs hosted **because of the
+serving stack rather than the weights** is the point of running both.
 
 `test_extract_submission.sh` stubs `llama-cli` with a script that replays the
 reference solutions wrapped in prose, so it exercises `llama-cpp.sh` end to end
@@ -130,7 +133,10 @@ Four tracks, all documented in README.md and with results in RESULTS.md:
 one-shot (`run_http.py`), agent/tool-use (`run_agent.py`), reasoning
 (`reasoning/run_reasoning.py`), speed (`run_llama_bench.sh` +
 `collate_bench.py`). The runners create their own output directories.
-Machines are documented one file per box under `servers/`.
+Machines are documented one file per box under `servers/`. `servers/openrouter.md`
+is the exception that proves the rule: OpenRouter is a router, not a machine, so
+the unit that pins a hosted score is the **provider endpoint** recorded in each
+`.meta.json`, not the server name in the path.
 
 Run models on the llama.cpp server over HTTP — works from any machine, no local
 llama.cpp needed. This is the preferred path:
@@ -144,6 +150,90 @@ BENCH_SERVER=http://host:port ./benchmark/run_http.py <model-id>
 
 Default server is `http://leia.packsin.com:7442` (llama-server with `--jinja`,
 swapping models on demand — only one is resident, so a cold model costs a load).
+
+**Frontier models go through the same script**, pointed at OpenRouter. One
+client, one code path — a per-vendor adapter layer would make every difference
+between those layers a confound with the models they serve, which is the same
+reason llama.cpp is a fair comparison across local models:
+
+```bash
+./benchmark/run_http.py -s https://openrouter.ai/api --list-models claude
+./benchmark/run_http.py  -s https://openrouter.ai/api --provider Anthropic -g anthropic/claude-sonnet-5
+./benchmark/run_agent.py -s https://openrouter.ai/api --provider Anthropic anthropic/claude-sonnet-5
+./reasoning/run_reasoning.py -s https://openrouter.ai/api --provider Anthropic anthropic/claude-sonnet-5
+```
+
+All three tracks take the same `-s`, `--provider` and `--key-file`, and share
+one payload builder (`run_http.decorate`), so "only the model varies" holds
+across tracks as well as within one.
+
+The key is read from `$OPENROUTER_API_KEY`, then `OPENROUTER_API_KEY=` in the
+gitignored `.env`, then `--key-file` (default `~/.config/openrouter/key`). **This
+repo is public — never commit a key, and never paste one into a transcript.**
+
+Three things differ from the llama.cpp path and all three are traps:
+
+- **`--provider` is not optional for a result you intend to publish**, and for
+  open-weight models it is the whole experiment. One slug routes to many
+  upstreams — `anthropic/claude-sonnet-5` has eight endpoints across Amazon
+  Bedrock, Anthropic, Google and Azure, and `openai/gpt-oss-20b` has twelve
+  spanning **bf16, fp8 and fp4** — and `allow_fallbacks: false` alone does *not*
+  pin it: the first unpinned run here served from Amazon Bedrock. Since this
+  benchmark scores Q4_K_M and Q8_0 as separate contestants, an unpinned
+  open-weight run can silently be a worse quantisation than the local GGUF it is
+  being compared against. List the endpoints and their quantisation with
+  `/v1/models/<slug>/endpoints` before choosing. The runner records the served
+  provider in every `.meta.json` and flags a pass that drew on more than one.
+- **Decode parameters are per model, not fleet-wide.** Frontier Claude models
+  reject `temperature`, so the runner drops it for any model whose
+  `supported_parameters` omit it and prints `temperature OMITTED` instead of
+  claiming a temperature the request did not carry. Thinking is likewise
+  reported per model (`reasoning.effort`, not `chat_template_kwargs`) because it
+  is on by default on some models and cannot be disabled on others. Treat
+  OpenRouter's parameter list as a hint, not gospel — it lists `temperature` as
+  supported on `claude-opus-5`, which the vendor docs say rejects it.
+- **A refused thinking switch is retried, never scored.** DeepInfra's gpt-oss
+  endpoints reject `reasoning.effort: none` with *"Reasoning is mandatory for
+  this endpoint and cannot be disabled"*. Before that was handled, gpt-oss-20b
+  and gpt-oss-120b recorded **0/68 on every track** — a total failure that was
+  really a rejected parameter the model never saw. `run_http.send` now drops the
+  switch, retries once, and records `think=on (this endpoint mandates
+  reasoning)`. Any new back end that refuses a decode parameter belongs there
+  too: a silent zero reads as a terrible model.
+- **Cost is billed, not estimated.** `usage.cost` lands in each `.meta.json` and
+  totals in the summary, which makes cost-per-check nearly free to compute.
+- **A provider can bill for tokens and return nothing.** Novita served
+  `qwen/qwen3-coder-30b-a3b-instruct` with `content: None`, `reasoning: None`,
+  `refusal: None` and `finish_reason: stop` while billing 791 completion
+  tokens — three of five problems came back blank and the model scored 22/68
+  against 57/68 locally. SiliconFlow, Alibaba and DigitalOcean all returned
+  2700–3000 characters for the identical request, so it was the provider, not
+  the model. `run_http.py` already prints `EMPTY answer — no content at all`
+  for this; **read the trouble list before recording a score**, and when a
+  hosted model scores far below its local GGUF, check `completion_tokens`
+  against the transcript size before believing it.
+
+**Open question — sampling is not actually held constant.** The runner sets
+`temperature` and `max_tokens` and nothing else, so every other sampling knob
+falls back to a default that differs between llama.cpp and each OpenRouter
+provider. `qwen3-coder-30b` accepts `top_p`, `top_k` and `repetition_penalty`;
+`gemma-4-31b` also accepts `min_p` and `top_a`. A default `repetition_penalty`
+other than 1.0 changes the output **even at temperature 0**, because it
+reweights the logits before the argmax — greedy decoding is not automatically
+identical decoding. This is a live candidate for why two separate models
+(gemma-4-31b, qwen3-coder-30b) scored *lower* hosted at higher precision than
+they did locally at Q4: the serving stack's defaults, not the weights. Pinning
+`top_p: 1, top_k: 0, repetition_penalty: 1` where `supported_parameters` allows
+it would make decoding explicit rather than inherited — but it changes decode
+semantics, so everything collected before the change becomes incomparable and
+would need re-running. Decide before the next sweep, not during one.
+
+Two caveats when reporting a frontier score. The 68-check coding track is
+**saturated** — Claude Sonnet 5 scored 68/68 on its first answer for $0.05 — so
+it no longer discriminates at the top; look to the reasoning `state`/`constraint`
+categories, the agent track, and cost-per-check. And the five prompts have been
+public on GitHub since the push, so a recent frontier model may have seen them
+while a local GGUF from before it cannot have — say so next to the number.
 
 **Thinking is disabled by default (`--think off`).** These are reasoning models,
 and under greedy decoding they fall into repetition loops: gemma-4-26B spent all
@@ -253,6 +343,8 @@ benchmark/scrub_results.py        strips grader detail out of results/
 benchmark/submissions/            default grading target (currently empty)
 results/<server>/{oneshot,agent,speed}/   all measured results, server first
 servers/<name>.md                 specs and quirks of each machine
+servers/openrouter.md             the hosted "server": a router, not a box —
+                                  the provider endpoint is the real unit
 benchmark/extract_submission.py   transcript -> deliverable files
 benchmark/test_run_all.sh         self-test for the grading script
 benchmark/test_extract_submission.sh  self-test for extraction + llama-cpp.sh

@@ -1,0 +1,155 @@
+{
+  "wall_seconds": 522.0,
+  "track": "agent",
+  "settings": {
+    "temperature": 0.0,
+    "max_tokens": 32768,
+    "max_turns": 12,
+    "think": "off",
+    "repeat": 1,
+    "server": "https://openrouter.ai/api",
+    "provider": "DeepInfra"
+  },
+  "results": [
+    {
+      "model": "openai/gpt-oss-20b",
+      "track": "agent",
+      "load_seconds": null,
+      "passes": [
+        {
+          "pass": 1,
+          "dir": "/Users/keith/Code/agent-benchmark/results/openrouter/agent/openai_gpt-oss-20b",
+          "problems": [
+            {
+              "problem": "01-python-parse-duration",
+              "turns": 2,
+              "tool_calls": 1,
+              "bad_calls": 0,
+              "files": [
+                "parse_duration.py"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 5732,
+              "stop": "stopped after 2 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.00088027,
+              "provider": "DeepInfra",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 56.1,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "02-js-lru-ttl-cache",
+              "turns": 3,
+              "tool_calls": 2,
+              "bad_calls": 0,
+              "files": [
+                "cache.mjs",
+                "cache.mjs"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 17414,
+              "stop": "stopped after 3 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.0026210799999999996,
+              "provider": "DeepInfra",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 164.7,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "03-sql-analytics",
+              "turns": 8,
+              "tool_calls": 7,
+              "bad_calls": 0,
+              "files": [
+                "q1.sql",
+                "q2.sql",
+                "q2.sql",
+                "q3.sql",
+                "q4.sql",
+                "q4.sql"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 4166,
+              "stop": "stopped after 8 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.0008885799999999999,
+              "provider": "DeepInfra",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 47.5,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "04-go-worker-pool",
+              "turns": 2,
+              "tool_calls": 1,
+              "bad_calls": 0,
+              "files": [
+                "pool.go"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 12228,
+              "stop": "stopped after 2 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.00177639,
+              "provider": "DeepInfra",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 136.2,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "05-python-scheduler",
+              "turns": 8,
+              "tool_calls": 7,
+              "bad_calls": 5,
+              "files": [
+                "scheduler.py",
+                "scheduler.py"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [
+                "write_file<|channel|>commentary",
+                "write_file<|channel|>commentary",
+                "write_file<|channel|>commentary",
+                "write_file<|channel|>commentary",
+                "write_file<|channel|>commentary"
+              ],
+              "tokens": 10372,
+              "stop": "stopped after 8 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.00254816,
+              "provider": "DeepInfra",
+              "truncated_turns": 0,
+              "empty_replies": 1,
+              "seconds": 114.8,
+              "missing": [],
+              "extra": []
+            }
+          ],
+          "seconds": 519.3,
+          "cost_usd": 0.0087,
+          "score": 56,
+          "max": 68
+        }
+      ]
+    }
+  ]
+}

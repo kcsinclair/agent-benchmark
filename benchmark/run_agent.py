@@ -17,7 +17,11 @@ is a different (and riskier) experiment. So this measures tool discipline and
 one-shot correctness together, not self-repair.
 
 Options:
-  -s, --server URL      llama.cpp server (default $BENCH_SERVER or leia)
+  -s, --server URL      llama.cpp server (default $BENCH_SERVER or leia), or
+                        https://openrouter.ai/api for frontier models
+      --key-file PATH   OpenRouter key ($OPENROUTER_API_KEY, then .env, then
+                        this path)
+      --provider NAME   pin the upstream provider and disable fallbacks
   -o, --only LIST       problems to run, e.g. -o 1,3
       --out DIR         output root (default results/<server>/agent)
   -m, --max-tokens N    per turn (default 8192)
@@ -47,8 +51,9 @@ import urllib.error
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import extract_submission as ex          # noqa: E402
-from run_http import (ApiError, api, list_models, slug, warmup, grade,  # noqa: E402
-                      selected, default_out, DEFAULT_SERVER, HERE, REPO)
+from run_http import (ApiError, decorate, send, prepare, price_per_mtok,  # noqa: E402
+                      slug, warmup, grade, selected, default_out,
+                      DEFAULT_SERVER, DEFAULT_KEY_FILE, HERE, REPO)
 
 PROBLEMS = sorted(ex.PROBLEMS)
 
@@ -94,6 +99,8 @@ TOOLS = [
 # does exactly this. Ignoring it would score the server, not the model — but a
 # native-format call is NOT the same as a clean OpenAI one, because an
 # off-the-shelf agent would not see it either, so the two are counted apart.
+# OpenRouter normalises tool calls across vendors, so this should stay at zero
+# there — if it does not, that is a finding, not something to quietly paper over.
 NATIVE_FN = re.compile(r"<function=([\w.-]+)>(.*?)(?:</function>|\Z)", re.S)
 NATIVE_ARG = re.compile(r"<parameter=([\w.-]+)>\n?(.*?)\n?(?:</parameter>|\Z)", re.S)
 TOOL_CALL_JSON = re.compile(r"<tool_call>\s*(\{.*?\})\s*</tool_call>", re.S)
@@ -178,22 +185,13 @@ def dispatch(call, outdir, stats):
 
 def agent_turn(server, model, messages, opts):
     payload = {"model": model, "messages": messages, "tools": TOOLS,
-               "temperature": opts["temperature"],
                "max_tokens": opts["max_tokens"]}
-    if opts["think"] == "off":
-        payload["chat_template_kwargs"] = {"enable_thinking": False}
-    if opts["reasoning_effort"]:
-        payload["reasoning_effort"] = opts["reasoning_effort"]
-    try:
-        body = api(server, "/v1/chat/completions", payload, opts["timeout"])
-    except ApiError as e:
-        if "chat_template_kwargs" not in payload or "failed to load" in e.detail:
-            raise
-        payload.pop("chat_template_kwargs")
-        body = api(server, "/v1/chat/completions", payload, opts["timeout"])
+    # decode settings are per model and per back end — see run_http.decorate
+    decorate(payload, model, opts)
+    body, _ = send(server, payload, opts)
     choice = (body.get("choices") or [{}])[0]
-    return choice.get("message") or {}, choice.get("finish_reason"), \
-        body.get("usage") or {}
+    return (choice.get("message") or {}, choice.get("finish_reason"),
+            body.get("usage") or {}, body.get("provider"))
 
 
 def run_problem(model, problem, opts, outdir):
@@ -204,18 +202,31 @@ def run_problem(model, problem, opts, outdir):
     stats = {"problem": problem, "turns": 0, "tool_calls": 0, "bad_calls": 0,
              "files": [], "rejected_paths": [], "unknown_tools": [],
              "tokens": 0, "stop": None, "prose_only": False,
-             "native_calls": 0}
+             "native_calls": 0, "cost": 0.0, "provider": None,
+             "truncated_turns": 0, "empty_replies": 0}
     messages = [{"role": "user", "content": prompt}]
     t0 = time.time()
 
     for turn in range(opts["max_turns"]):
         stats["turns"] = turn + 1
         try:
-            msg, finish, usage = agent_turn(opts["server"], model, messages, opts)
+            msg, finish, usage, provider = agent_turn(
+                opts["server"], model, messages, opts)
         except (ApiError, urllib.error.URLError, OSError, ValueError) as e:
             stats["stop"] = "request failed: %s" % e
             break
         stats["tokens"] += usage.get("completion_tokens", 0) or 0
+        stats["cost"] += float(usage.get("cost") or 0)
+        stats["provider"] = provider or stats["provider"]
+        if finish == "length":
+            stats["truncated_turns"] += 1
+        # a turn that bills tokens and returns neither text nor a tool call is
+        # the provider failing, not the model: Novita did exactly this for
+        # qwen3-coder-30b (791 tokens, content None) and it read as a model
+        # that could not answer. The agent track keeps no transcript, so this
+        # counter is the only trace left afterwards.
+        if not (msg.get("content") or "").strip() and not msg.get("tool_calls"):
+            stats["empty_replies"] += 1
         content = msg.get("content") or ""
         calls = msg.get("tool_calls") or []
         native = []
@@ -265,9 +276,24 @@ def run_problem(model, problem, opts, outdir):
                      % stats["native_calls"])
     if stats["prose_only"]:
         flags.append("ANSWERED IN PROSE — never called a tool")
-    print("  %-26s %2d turn(s) %2d call(s) %5.0fs  %s"
+    # a turn that hits the cap before emitting a tool call is a budget artefact,
+    # not tool indiscipline. It bites hardest when an endpoint mandates
+    # reasoning: the chain of thought eats a max_tokens tuned for models that
+    # answer directly, and the model never gets to call write_file. Scoring that
+    # as 0 says the model cannot drive an agent, which is not what was measured.
+    if stats["truncated_turns"]:
+        flags.append("TRUNCATED on %d turn(s) at the %d-token cap — raise"
+                     " --max-tokens before reading this score"
+                     % (stats["truncated_turns"], opts["max_tokens"]))
+    if stats["empty_replies"]:
+        flags.append("EMPTY reply on %d turn(s) — billed tokens, no content and"
+                     " no tool call; suspect the provider, not the model"
+                     % stats["empty_replies"])
+    print("  %-26s %2d turn(s) %2d call(s) %5.0fs %s %s"
           % (problem[:26], stats["turns"], stats["tool_calls"],
-             stats["seconds"], "; ".join(flags) or "clean"))
+             stats["seconds"],
+             "$%.4f" % stats["cost"] if stats["cost"] else "",
+             "; ".join(flags) or "clean"))
     sys.stdout.flush()
     return stats
 
@@ -277,17 +303,35 @@ def run_model(model, opts):
     if not opts["keep"] and os.path.isdir(base) and not opts["only"]:
         subprocess.call(["rm", "-rf", base])
 
+    # derived from a real payload so the header cannot claim a decode setting
+    # the requests do not carry
+    probe = {"max_tokens": opts["max_tokens"]}
+    _, decode = decorate(probe, model, opts)
+    temp = ("temperature %s" % decode["temperature"]
+            if decode.get("temperature") is not None
+            else "temperature OMITTED (%s)" % decode["temperature_note"])
+
     print("=" * 60)
     print(" Model:   %s  (agent / tool-use track)" % model)
+    if opts["openrouter"]:
+        rec = opts["models"].get(model) or {}
+        tools_ok = "tools" in (rec.get("supported_parameters") or [])
+        print(" Server:  %s  (OpenRouter, %s)%s"
+              % (opts["server"],
+                 "provider pinned to %s" % opts["provider"] if opts["provider"]
+                 else "fallbacks off",
+                 "" if tools_ok else
+                 "\n WARNING: this model does not advertise tool support"))
+        print(" Price:   %s per Mtok in/out" % (price_per_mtok(rec) or "unknown"))
     print(" Output:  %s" % base)
-    print(" Limits:  %d turns, %d tokens per turn, thinking %s"
-          % (opts["max_turns"], opts["max_tokens"], opts["think"]))
+    print(" Limits:  %d turns, %d tokens per turn, %s, %s"
+          % (opts["max_turns"], opts["max_tokens"], temp, decode["thinking"]))
     print("=" * 60)
     sys.stdout.flush()
 
     result = {"model": model, "track": "agent", "load_seconds": None, "passes": []}
-    if opts["warmup"]:
-        secs, err = warmup(opts["server"], model, opts["timeout"])
+    if opts["warmup"] and not opts["openrouter"]:
+        secs, err = warmup(opts["server"], model, opts["timeout"], opts["key"])
         result["load_seconds"] = round(secs, 1)
         if err:
             print(" load FAILED after %.0fs: %s\n skipping this model\n" % (secs, err))
@@ -307,6 +351,9 @@ def run_model(model, opts):
                                      os.path.join(outdir, problem)))
         entry = {"pass": n, "dir": outdir, "problems": stats,
                  "seconds": round(sum(s["seconds"] for s in stats), 1)}
+        spent = sum(s["cost"] for s in stats)
+        if spent:
+            entry["cost_usd"] = round(spent, 4)
         print()
         scored = grade(outdir, "%s agent pass %d" % (model, n))
         if scored:
@@ -322,8 +369,10 @@ def summarise(results, wall, opts):
     print(" AGENT TRACK — %d model(s), %d pass(es), %d-turn limit"
           % (len(results), opts["repeat"], opts["max_turns"]))
     print("=" * 84)
-    print(" %-40s %-16s %6s %7s %6s %s"
-          % ("model", "score", "turns", "calls", "bad", "notes"))
+    priced = any("cost_usd" in p for r in results for p in r["passes"])
+    print(" %-40s %-16s %6s %7s %6s %s%s"
+          % ("model", "score", "turns", "calls", "bad",
+             "cost      " if priced else "", "notes"))
     print(" " + "-" * 82)
     for r in results:
         if r.get("error"):
@@ -345,14 +394,34 @@ def summarise(results, wall, opts):
             notes.append("stray files")
         if any("limit" in (p["stop"] or "") for p in allp):
             notes.append("hit turn limit")
-        print(" %-40s %-16s %6.1f %7.1f %6d %s"
+        trunc = sum(p.get("truncated_turns", 0) for p in allp)
+        if trunc:
+            notes.append("TRUNCATED %dx — score not trustworthy" % trunc)
+        blank = sum(p.get("empty_replies", 0) for p in allp)
+        if blank:
+            notes.append("EMPTY %dx — suspect the provider" % blank)
+        # differing providers can mean differing quantisation, which this
+        # benchmark scores as a different contestant, not the same one
+        served = {p["provider"] for p in allp if p["provider"]}
+        if len(served) > 1:
+            notes.append("MIXED PROVIDERS: %s — pin one" % ", ".join(sorted(served)))
+        elif served:
+            notes.append("via %s" % served.pop())
+        spent = sum(p.get("cost_usd", 0) for p in r["passes"])
+        print(" %-40s %-16s %6.1f %7.1f %6d %s%s"
               % (r["model"][:40], cell,
                  sum(p["turns"] for p in allp) / float(len(allp)),
                  sum(p["tool_calls"] for p in allp) / float(len(allp)),
-                 sum(p["bad_calls"] for p in allp), ", ".join(notes)))
+                 sum(p["bad_calls"] for p in allp),
+                 "$%-9.4f" % spent if priced else "", ", ".join(notes)))
     print(" " + "-" * 82)
     print(" turns/calls are per problem, averaged. total wall clock: %.0f min"
           % (wall / 60.0))
+    if priced:
+        print(" total cost: $%.4f (billed, not estimated). An agent run costs"
+              " more than a one-shot"
+              % sum(p.get("cost_usd", 0) for r in results for p in r["passes"]))
+        print(" because every turn resends the whole conversation.")
     path = os.path.join(opts["out"], "agent-summary-%s.json"
                         % time.strftime("%Y%m%d-%H%M%S"))
     try:
@@ -361,7 +430,7 @@ def summarise(results, wall, opts):
             json.dump({"wall_seconds": round(wall, 1), "track": "agent",
                        "settings": {k: opts[k] for k in
                                     ("temperature", "max_tokens", "max_turns",
-                                     "think", "repeat", "server")},
+                                     "think", "repeat", "server", "provider")},
                        "results": results}, fh, indent=2)
         print(" full detail: %s" % path)
     except OSError as e:
@@ -372,7 +441,9 @@ def main(argv):
     opts = {"server": DEFAULT_SERVER, "only": "", "out": None,
             "max_tokens": 8192, "max_turns": 12, "timeout": 1800,
             "temperature": 0.0, "think": "off", "reasoning_effort": "",
-            "repeat": 1, "keep": False, "warmup": True}
+            "repeat": 1, "keep": False, "warmup": True,
+            "key_file": DEFAULT_KEY_FILE, "provider": "", "key": None,
+            "openrouter": False, "models": {}}
     models, i = [], 0
     while i < len(argv):
         a = argv[i]
@@ -382,6 +453,8 @@ def main(argv):
             return argv[i + 1]
         if a in ("-h", "--help"):       print(__doc__.strip()); return 0
         elif a in ("-s", "--server"):   opts["server"] = val(); i += 2
+        elif a == "--key-file":         opts["key_file"] = val(); i += 2
+        elif a == "--provider":         opts["provider"] = val(); i += 2
         elif a in ("-o", "--only"):     opts["only"] = val(); i += 2
         elif a == "--out":              opts["out"] = val(); i += 2
         elif a in ("-m", "--max-tokens"): opts["max_tokens"] = int(val()); i += 2
@@ -402,10 +475,12 @@ def main(argv):
     if not models:
         print(__doc__.strip())
         return 2
-    known = dict(list_models(opts["server"]))
+    source = prepare(opts)
     for m in models:
-        if m not in known:
+        if m not in opts["models"]:
             sys.exit("run_agent: %r is not on %s" % (m, opts["server"]))
+    if source:
+        print("Key: %s" % source)
 
     started = time.time()
     results = [run_model(m, opts) for m in models]

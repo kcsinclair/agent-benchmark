@@ -1,0 +1,34 @@
+{
+  "wall_seconds": 45.4,
+  "settings": {
+    "temperature": 0.0,
+    "max_tokens": 16384,
+    "think": "off",
+    "repeat": 1,
+    "reasoning_effort": "",
+    "server": "https://openrouter.ai/api",
+    "provider": "Novita"
+  },
+  "results": [
+    {
+      "model": "qwen/qwen3-coder-30b-a3b-instruct",
+      "load_seconds": null,
+      "passes": [
+        {
+          "pass": 1,
+          "dir": "/Users/keith/Code/agent-benchmark/results/openrouter/oneshot/qwen_qwen3-coder-30b-a3b-instruct",
+          "generate_seconds": 44.5,
+          "wall_seconds": 44.6,
+          "trouble": [
+            "02-js-lru-ttl-cache: empty answer",
+            "03-sql-analytics: empty answer",
+            "04-go-worker-pool: empty answer"
+          ],
+          "cost_usd": 0.0012,
+          "score": 22,
+          "max": 68
+        }
+      ]
+    }
+  ]
+}

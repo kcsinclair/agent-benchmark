@@ -1,0 +1,30 @@
+{
+  "wall_seconds": 295.9,
+  "settings": {
+    "temperature": 0.0,
+    "max_tokens": 16384,
+    "think": "off",
+    "repeat": 1,
+    "reasoning_effort": "",
+    "server": "https://openrouter.ai/api",
+    "provider": "DeepInfra"
+  },
+  "results": [
+    {
+      "model": "openai/gpt-oss-20b",
+      "load_seconds": null,
+      "passes": [
+        {
+          "pass": 1,
+          "dir": "/Users/keith/Code/agent-benchmark/results/openrouter/oneshot/openai_gpt-oss-20b",
+          "generate_seconds": 292.4,
+          "wall_seconds": 292.4,
+          "trouble": [],
+          "cost_usd": 0.0038,
+          "score": 68,
+          "max": 68
+        }
+      ]
+    }
+  ]
+}

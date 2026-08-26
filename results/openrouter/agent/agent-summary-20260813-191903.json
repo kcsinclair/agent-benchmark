@@ -1,0 +1,134 @@
+{
+  "wall_seconds": 0.8,
+  "track": "agent",
+  "settings": {
+    "temperature": 0.0,
+    "max_tokens": 8192,
+    "max_turns": 12,
+    "think": "off",
+    "repeat": 1,
+    "server": "https://openrouter.ai/api",
+    "provider": "DeepInfra"
+  },
+  "results": [
+    {
+      "model": "openai/gpt-oss-20b",
+      "track": "agent",
+      "load_seconds": null,
+      "passes": [
+        {
+          "pass": 1,
+          "dir": "/Users/keith/Code/agent-benchmark/results/openrouter/agent/openai_gpt-oss-20b",
+          "problems": [
+            {
+              "problem": "01-python-parse-duration",
+              "turns": 1,
+              "tool_calls": 0,
+              "bad_calls": 0,
+              "files": [],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 0,
+              "stop": "request failed: HTTP 400: Reasoning is mandatory for this endpoint and cannot be disabled.",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.0,
+              "provider": null,
+              "seconds": 0.1,
+              "missing": [
+                "parse_duration.py"
+              ],
+              "extra": []
+            },
+            {
+              "problem": "02-js-lru-ttl-cache",
+              "turns": 1,
+              "tool_calls": 0,
+              "bad_calls": 0,
+              "files": [],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 0,
+              "stop": "request failed: HTTP 400: Reasoning is mandatory for this endpoint and cannot be disabled.",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.0,
+              "provider": null,
+              "seconds": 0.1,
+              "missing": [
+                "cache.mjs"
+              ],
+              "extra": []
+            },
+            {
+              "problem": "03-sql-analytics",
+              "turns": 1,
+              "tool_calls": 0,
+              "bad_calls": 0,
+              "files": [],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 0,
+              "stop": "request failed: HTTP 400: Reasoning is mandatory for this endpoint and cannot be disabled.",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.0,
+              "provider": null,
+              "seconds": 0.1,
+              "missing": [
+                "q1.sql",
+                "q2.sql",
+                "q3.sql",
+                "q4.sql"
+              ],
+              "extra": []
+            },
+            {
+              "problem": "04-go-worker-pool",
+              "turns": 1,
+              "tool_calls": 0,
+              "bad_calls": 0,
+              "files": [],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 0,
+              "stop": "request failed: HTTP 400: Reasoning is mandatory for this endpoint and cannot be disabled.",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.0,
+              "provider": null,
+              "seconds": 0.1,
+              "missing": [
+                "pool.go"
+              ],
+              "extra": []
+            },
+            {
+              "problem": "05-python-scheduler",
+              "turns": 1,
+              "tool_calls": 0,
+              "bad_calls": 0,
+              "files": [],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 0,
+              "stop": "request failed: HTTP 400: Reasoning is mandatory for this endpoint and cannot be disabled.",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.0,
+              "provider": null,
+              "seconds": 0.1,
+              "missing": [
+                "scheduler.py"
+              ],
+              "extra": []
+            }
+          ],
+          "seconds": 0.5,
+          "score": 0,
+          "max": 68
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "wall_seconds": 464.5,
+  "settings": {
+    "temperature": 0.0,
+    "max_tokens": 16384,
+    "think": "off",
+    "repeat": 1,
+    "reasoning_effort": "",
+    "server": "https://openrouter.ai/api",
+    "provider": "DeepInfra"
+  },
+  "results": [
+    {
+      "model": "qwen/qwen3.6-35b-a3b",
+      "load_seconds": null,
+      "passes": [
+        {
+          "pass": 1,
+          "dir": "/Users/keith/Code/agent-benchmark/results/openrouter/oneshot/qwen_qwen3.6-35b-a3b",
+          "generate_seconds": 461.2,
+          "wall_seconds": 461.2,
+          "trouble": [
+            "04-go-worker-pool: repetition loop"
+          ],
+          "cost_usd": 0.0192,
+          "score": 63,
+          "max": 68
+        }
+      ]
+    }
+  ]
+}

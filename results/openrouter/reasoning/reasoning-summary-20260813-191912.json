@@ -1,0 +1,67 @@
+{
+  "wall_seconds": 8.6,
+  "track": "reasoning",
+  "settings": {
+    "temperature": 0.0,
+    "max_tokens": 2048,
+    "think": "off",
+    "repeat": 1,
+    "seed": 1,
+    "server": "https://openrouter.ai/api",
+    "categories": [
+      "state",
+      "constraint",
+      "compliance",
+      "abstention",
+      "trap",
+      "retrieval"
+    ],
+    "provider": "DeepInfra"
+  },
+  "results": [
+    {
+      "model": "openai/gpt-oss-20b",
+      "load_seconds": null,
+      "passes": [
+        {
+          "pass": 1,
+          "dir": "/Users/keith/Code/agent-benchmark/results/openrouter/reasoning/openai_gpt-oss-20b",
+          "totals": {
+            "state": {
+              "right": 0,
+              "count": 20,
+              "seconds": 0.0
+            },
+            "constraint": {
+              "right": 0,
+              "count": 20,
+              "seconds": 0.0
+            },
+            "compliance": {
+              "right": 0,
+              "count": 20,
+              "seconds": 0.0
+            },
+            "abstention": {
+              "right": 0,
+              "count": 20,
+              "seconds": 0.0
+            },
+            "trap": {
+              "right": 0,
+              "count": 14,
+              "seconds": 0.0
+            },
+            "retrieval": {
+              "right": 0,
+              "count": 8,
+              "seconds": 0.0
+            }
+          },
+          "right": 0,
+          "count": 102
+        }
+      ]
+    }
+  ]
+}

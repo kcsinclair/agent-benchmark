@@ -1,0 +1,89 @@
+```python
+import re
+
+def parse_duration(text: str) -> float:
+    if not isinstance(text, str):
+        raise TypeError("Input must be a string")
+    
+    # Strip leading and trailing whitespace
+    text = text.strip()
+    
+    if not text:
+        raise ValueError("Empty string is not a valid duration")
+    
+    # Check for leading minus sign
+    negative = False
+    if text.startswith('-'):
+        negative = True
+        text = text[1:]
+    
+    if not text:
+        raise ValueError("Missing components after minus sign")
+    
+    # Define valid units and their multipliers in seconds
+    units = {
+        'h': 3600.0,
+        'm': 60.0,
+        's': 1.0,
+        'ms': 0.001
+    }
+    
+    # Regular expression to match a component
+    pattern = r'(\d+(?:\.\d+)?)\s*([hms]+)'
+    
+    matches = re.findall(pattern, text)
+    
+    if not matches:
+        raise ValueError("Invalid format: missing or malformed components")
+    
+    # Check that all characters are consumed
+    total_length = 0
+    for match in matches:
+        total_length += len(match[0]) + len(match[1])
+    
+    if total_length != len(text):
+        raise ValueError("Invalid format: unexpected characters")
+    
+    # Validate order and uniqueness
+    unit_order = ['h', 'm', 's', 'ms']
+    seen_units = set()
+    last_unit_index = -1
+    
+    result = 0.0
+    
+    for number_str, unit in matches:
+        # Validate number format
+        if not re.match(r'^\d+(?:\.\d+)?$', number_str):
+            raise ValueError(f"Invalid number format: {number_str}")
+        
+        # Convert to float
+        try:
+            number = float(number_str)
+        except ValueError:
+            raise ValueError(f"Invalid number: {number_str}")
+        
+        # Check if unit is valid
+        if unit not in units:
+            raise ValueError(f"Invalid unit: {unit}")
+        
+        # Check order
+        unit_index = unit_order.index(unit)
+        if unit_index <= last_unit_index:
+            raise ValueError(f"Units must be in descending order: {unit} follows {unit_order[last_unit_index]}")
+        
+        last_unit_index = unit_index
+        
+        # Check for duplicate units
+        if unit in seen_units:
+            raise ValueError(f"Unit {unit} appears more than once")
+        
+        seen_units.add(unit)
+        
+        # Add to result
+        result += number * units[unit]
+    
+    if negative:
+        result = -result
+    
+    return result
+```

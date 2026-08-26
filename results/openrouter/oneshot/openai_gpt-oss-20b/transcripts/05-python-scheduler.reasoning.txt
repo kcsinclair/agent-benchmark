@@ -1,0 +1,31 @@
+We need to implement weighted interval scheduling with up to 200k jobs. O(n log n). Use DP with binary search. Need to return indices of chosen jobs sorted by start time. We can sort jobs by end time, compute p[i] = last job that ends <= start_i. Use binary search on sorted ends. DP[i] = max(DP[i-1], weight_i + DP[p[i]]). Also need to reconstruct indices. Use iterative DP arrays of length n+1. For reconstruction, we can store choice: if DP[i] == DP[i-1] then skip job i-1; else include job i-1. But careful: DP indices offset: sorted_jobs list of length n. We'll use DP[0] = 0. For i from 1..n: job = sorted_jobs[i-1]. p[i] is index of last job that ends <= job.start. Since DP array uses 1-based indexing, p[i] will be index in DP (0..i-1). So DP[i] = max(DP[i-1], job.weight + DP[p[i]]). For reconstruction, we can iterate i from n down to 1: if DP[i] == DP[i-1], skip; else include job index sorted_jobs[i-1][3] (original index). Then set i = p[i]. After loop, we have list of selected original indices in reverse order of sorted by end. But we need sorted by start time. We can sort the selected indices by start time (and index tie). But we can also reconstruct in order of start by using sorted_jobs order? Actually sorted by end, not start. So after collecting indices, we can sort them by (jobs[idx][0], idx). That yields start sorted. Complexity O(k log k) where k <= n. Acceptable.
+
+Edge cases: empty jobs -> return (0.0, []). Use float.
+
+We need to ensure memory usage: DP array of length n+1 floats, p array of length n+1 ints. For n=200k, fine.
+
+Implementation details: Use bisect_right on list of end times. For each job sorted by end, compute p[i] = bisect_right(end_times, job.start) -> gives index of first end > start, so last <= start is index-1. But we need DP index: p[i] = index. Because DP index corresponds to number of jobs considered up to that index. Since end_times sorted ascending, bisect_right returns position where start would be inserted to keep sorted. That position is number of jobs with end <= start. So p[i] = that position. Good.
+
+We need to store original index for each job. So sorted_jobs = sorted(enumerate(jobs), key=lambda x: x[1][1])? Actually we need to sort by end time. So sorted_jobs = sorted([(idx, start, end, weight) for idx,(start,end,weight) in enumerate(jobs)], key=lambda x: x[2])? Wait x[2] is end. But we also need to keep start, weight. So we can store tuple (idx, start, end, weight). Then sorted_jobs sorted by end. Then end_times = [job[2] for job in sorted_jobs].
+
+Compute p array: p = [0]*(n+1). For i in 1..n: job = sorted_jobs[i-1]; p[i] = bisect_right(end_times, job[1])? Wait job[1] is start. So p[i] = bisect_right(end_times, job[1])? But end_times is sorted by end. We need last job with end <= start. So bisect_right(end_times, job[1]) returns index of first end > start. So p[i] = that index. Good.
+
+DP: dp = [0.0]*(n+1). For i in 1..n: job = sorted_jobs[i-1]; incl = job[3] + dp[p[i]]; excl = dp[i-1]; dp[i] = max(incl, excl). Also we might want to store decision: choose[i] = True if incl > excl else False. But we can reconstruct by comparing dp[i] and dp[i-1] as described.
+
+Reconstruction: selected = [] ; i = n; while i > 0: if dp[i] == dp[i-1]: i -= 1; else: selected.append(sorted_jobs[i-1][0]); i = p[i]; After loop, selected reversed? We appended in reverse order of sorted_jobs indices (by end). But we need sorted by start. So we can sort selected by (jobs[idx][0], idx). That yields correct order.
+
+Return total_weight = dp[n], selected_sorted.
+
+Edge: floating precision: use float. dp values may be large but fine.
+
+Complexities: O(n log n). Use bisect from bisect module.
+
+We need to ensure no recursion. Use loops.
+
+Also need to handle case where jobs empty: return (0.0, []).
+
+Let's craft code.
+
+Also need to ensure module importable. So just define function.
+
+Let's produce final answer.

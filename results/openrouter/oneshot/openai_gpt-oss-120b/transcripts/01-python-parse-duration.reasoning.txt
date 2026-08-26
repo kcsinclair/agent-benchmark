@@ -1,0 +1,142 @@
+We need to write a Python module parse_duration.py with function parse_duration that parses according to rules.
+
+Implementation details:
+
+- Input must be str, else TypeError.
+- Strip whitespace at both ends; if any internal whitespace (i.e., after stripping, if any whitespace character present) raise ValueError.
+- Check optional leading '-'.
+- Then parse components sequentially. Use regex? Could use re to find number+unit pattern.
+
+Constraints: units order descending: h > m > s > ms. Must appear at most once.
+
+Approach:
+
+- Define unit order list: ['h','m','s','ms'] with mapping to seconds factor: h=3600, m=60, s=1, ms=0.001.
+
+- After optional '-', we have remaining string. We'll iterate using regex pattern that matches number (non-negative decimal) followed by unit (h|m|s|ms). Number pattern: (?:\d+(?:\.\d+)?|\d*\.\d+?)? Actually rule: digits with optional fractional part, but cannot start with '.'; must have at least one digit before optional dot. So pattern: \d+(?:\.\d+)? . This disallows .5. Also disallows trailing dot because after dot must have at least one digit. So pattern: r'\d+(?:\.\d+)?'.
+
+- Then unit pattern: (h|m|s|ms). But note ms is two letters, must be matched before s to avoid partial match. Use regex with alternation: (h|m|ms|s) but order matters: ms before s. So pattern: (h|m|ms|s). Actually we need to ensure ms is recognized as unit, not as 'm' then 's'. Since we parse sequentially, after number we need to match unit; if we match 'm' then next component may start with 's', but that would be okay? Example "500ms": number 500, unit ms. If we match 'm' then leftover 's' would be parsed as number? Not valid. So we need to match longest unit first. Use regex with lookahead? Simpler: after number, check if string startswith 'ms', else check other units.
+
+Simpler: manual parsing: while string not empty:
+
+- Parse number: read digits, optional '.' and digits. Use regex at start: r'\d+(?:\.\d+)?'.
+
+- If no match at start: raise ValueError.
+
+- Convert to float.
+
+- Remove matched number.
+
+- Determine unit: check if remaining startswith 'ms', then unit='ms', else if startswith 'h','m','s' (single char). If none, raise ValueError.
+
+- Ensure unit order descending: keep last_unit_index = -1 initially. For each unit, get its index in order list. Must be greater than last_unit_index (since descending order means earlier units have lower index). Actually order list = ['h','m','s','ms']; descending means you can only go from earlier to later in list (i.e., index increasing). So require current_index > last_index. Also ensure not repeated: if current_index <= last_index raise ValueError.
+
+- Add value * factor to total.
+
+- Remove unit from string.
+
+- Continue.
+
+After loop, ensure at least one component parsed.
+
+Edge Cases:
+
+- Input after stripping may be empty -> ValueError.
+
+- Internal whitespace: after stripping, if any whitespace char in string, raise ValueError. Use if any(c.isspace() for c in s): raise.
+
+- Leading minus: detect and set sign = -1.
+
+- Ensure entire string consumed; if leftover after parsing components, raise ValueError.
+
+- Return sign * total.
+
+Testing with examples.
+
+Implement parse_duration function.
+
+Add __all__ = ['parse_duration'].
+
+Add docstring.
+
+Make sure to raise TypeError if not isinstance(text, str).
+
+Implementation details:
+
+def parse_duration(text):
+    if not isinstance(text, str):
+        raise TypeError("text must be a string")
+    s = text.strip()
+    if not s:
+        raise ValueError("empty duration")
+    # internal whitespace check
+    if any(ch.isspace() for ch in s):
+        raise ValueError("whitespace not allowed inside duration")
+    sign = 1
+    if s[0] == '-':
+        sign = -1
+        s = s[1:]
+        if not s:
+            raise ValueError("no components after sign")
+    total = 0.0
+    last_index = -1
+    units = ['h','m','s','ms']
+    factors = {'h':3600.0,'m':60.0,'s':1.0,'ms':0.001}
+    pattern = re.compile(r'\d+(?:\.\d+)?')
+    while s:
+        m = pattern.match(s)
+        if not m:
+            raise ValueError(f"expected number at: {s}")
+        num_str = m.group(0)
+        try:
+            value = float(num_str)
+        except ValueError:
+            raise ValueError("invalid number")
+        s = s[m.end():]
+        # unit detection
+        if s.startswith('ms'):
+            unit = 'ms'
+            s = s[2:]
+        elif s and s[0] in ('h','m','s'):
+            unit = s[0]
+            s = s[1:]
+        else:
+            raise ValueError(f"expected unit after number at: {s}")
+        idx = units.index(unit)
+        if idx <= last_index:
+            raise ValueError("units out of order or repeated")
+        total += value * factors[unit]
+        last_index = idx
+    return sign * total
+
+Edge Cases: "1h30m" works. "1m1h": after parsing 1m, idx=1, last_index=1; next unit h idx=0 <= last_index => error.
+
+"1h1h": second h idx=0 <= last_index => error.
+
+"5": after number, s empty, unit detection fails => ValueError.
+
+"250ms": after number, s startswith 'ms' => unit ms.
+
+Check "1.5h": number pattern matches "1.5". Good.
+
+Check "0.25ms": number pattern matches "0.25". Good.
+
+Check "5s500ms": after parsing 5s, s = "500ms". Works.
+
+Check internal whitespace: "1h 30m": after strip, s contains space, any whitespace => error.
+
+Check leading/trailing whitespace: strip handles.
+
+Check sign: "-45m": sign -1, s = "45m". Works.
+
+Check empty after sign: "-" => raise ValueError.
+
+Return float.
+
+Add import re.
+
+Add __all__.
+
+That's it.
+
+Now produce final file content.

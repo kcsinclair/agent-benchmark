@@ -1,0 +1,74 @@
+{
+  "wall_seconds": 157.7,
+  "track": "reasoning",
+  "settings": {
+    "temperature": 0.0,
+    "max_tokens": 2048,
+    "think": "off",
+    "repeat": 1,
+    "seed": 1,
+    "server": "https://openrouter.ai/api",
+    "categories": [
+      "state",
+      "constraint",
+      "compliance",
+      "abstention",
+      "trap",
+      "retrieval"
+    ],
+    "provider": "Novita"
+  },
+  "results": [
+    {
+      "model": "qwen/qwen3-coder-30b-a3b-instruct",
+      "load_seconds": null,
+      "passes": [
+        {
+          "pass": 1,
+          "dir": "/Users/keith/Code/agent-benchmark/results/openrouter/reasoning/qwen_qwen3-coder-30b-a3b-instruct",
+          "totals": {
+            "state": {
+              "right": 5,
+              "count": 20,
+              "seconds": 38.1,
+              "cost_usd": 0.0005
+            },
+            "constraint": {
+              "right": 5,
+              "count": 20,
+              "seconds": 27.5,
+              "cost_usd": 0.0003
+            },
+            "compliance": {
+              "right": 5,
+              "count": 20,
+              "seconds": 27.8,
+              "cost_usd": 0.0001
+            },
+            "abstention": {
+              "right": 8,
+              "count": 20,
+              "seconds": 28.6,
+              "cost_usd": 0.0003
+            },
+            "trap": {
+              "right": 8,
+              "count": 14,
+              "seconds": 13.7,
+              "cost_usd": 0.0001
+            },
+            "retrieval": {
+              "right": 3,
+              "count": 8,
+              "seconds": 21.8,
+              "cost_usd": 0.0054
+            }
+          },
+          "right": 34,
+          "count": 102,
+          "cost_usd": 0.0067
+        }
+      ]
+    }
+  ]
+}

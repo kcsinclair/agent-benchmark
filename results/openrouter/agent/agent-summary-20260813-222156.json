@@ -1,0 +1,144 @@
+{
+  "wall_seconds": 0.7,
+  "track": "agent",
+  "settings": {
+    "temperature": 0.0,
+    "max_tokens": 32768,
+    "max_turns": 12,
+    "think": "off",
+    "repeat": 1,
+    "server": "https://openrouter.ai/api",
+    "provider": "DeepInfra"
+  },
+  "results": [
+    {
+      "model": "qwen/qwen3.6-35b-a3b",
+      "track": "agent",
+      "load_seconds": null,
+      "passes": [
+        {
+          "pass": 1,
+          "dir": "/Users/keith/Code/agent-benchmark/results/openrouter/agent/qwen_qwen3.6-35b-a3b",
+          "problems": [
+            {
+              "problem": "01-python-parse-duration",
+              "turns": 1,
+              "tool_calls": 0,
+              "bad_calls": 0,
+              "files": [],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 0,
+              "stop": "request failed: HTTP 404: No endpoints found for qwen/qwen3.6-35b-a3b.",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.0,
+              "provider": null,
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 0.1,
+              "missing": [
+                "parse_duration.py"
+              ],
+              "extra": []
+            },
+            {
+              "problem": "02-js-lru-ttl-cache",
+              "turns": 1,
+              "tool_calls": 0,
+              "bad_calls": 0,
+              "files": [],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 0,
+              "stop": "request failed: HTTP 404: No endpoints found for qwen/qwen3.6-35b-a3b.",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.0,
+              "provider": null,
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 0.1,
+              "missing": [
+                "cache.mjs"
+              ],
+              "extra": []
+            },
+            {
+              "problem": "03-sql-analytics",
+              "turns": 1,
+              "tool_calls": 0,
+              "bad_calls": 0,
+              "files": [],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 0,
+              "stop": "request failed: HTTP 404: No endpoints found for qwen/qwen3.6-35b-a3b.",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.0,
+              "provider": null,
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 0.1,
+              "missing": [
+                "q1.sql",
+                "q2.sql",
+                "q3.sql",
+                "q4.sql"
+              ],
+              "extra": []
+            },
+            {
+              "problem": "04-go-worker-pool",
+              "turns": 1,
+              "tool_calls": 0,
+              "bad_calls": 0,
+              "files": [],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 0,
+              "stop": "request failed: HTTP 404: No endpoints found for qwen/qwen3.6-35b-a3b.",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.0,
+              "provider": null,
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 0.1,
+              "missing": [
+                "pool.go"
+              ],
+              "extra": []
+            },
+            {
+              "problem": "05-python-scheduler",
+              "turns": 1,
+              "tool_calls": 0,
+              "bad_calls": 0,
+              "files": [],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 0,
+              "stop": "request failed: HTTP 404: No endpoints found for qwen/qwen3.6-35b-a3b.",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.0,
+              "provider": null,
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 0.1,
+              "missing": [
+                "scheduler.py"
+              ],
+              "extra": []
+            }
+          ],
+          "seconds": 0.5,
+          "score": 0,
+          "max": 68
+        }
+      ]
+    }
+  ]
+}

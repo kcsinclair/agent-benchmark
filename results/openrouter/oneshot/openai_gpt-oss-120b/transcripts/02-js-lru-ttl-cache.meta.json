@@ -1,0 +1,39 @@
+{
+  "model": "openai/gpt-oss-120b",
+  "served_model": "openai/gpt-oss-120b",
+  "provider": "DeepInfra",
+  "request_id": "gen-1786614250-It3KRVGfHreDBEavfg3E",
+  "server": "https://openrouter.ai/api",
+  "finish_reason": "stop",
+  "native_finish_reason": "stop",
+  "mode": "think=on (this endpoint mandates reasoning)",
+  "decode": {
+    "max_tokens": 16384,
+    "temperature": 0.0,
+    "thinking": "think=on (this endpoint mandates reasoning)"
+  },
+  "usage": {
+    "prompt_tokens": 669,
+    "completion_tokens": 2275,
+    "total_tokens": 2944,
+    "cost": 0.000411503,
+    "is_byok": false,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+    },
+    "cost_details": {
+      "upstream_inference_cost": 0.000411503,
+      "upstream_inference_prompt_cost": 2.4753e-05,
+      "upstream_inference_completions_cost": 0.00038675
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 1199,
+      "image_tokens": 0,
+      "audio_tokens": 0
+    }
+  },
+  "seconds": 147.9
+}

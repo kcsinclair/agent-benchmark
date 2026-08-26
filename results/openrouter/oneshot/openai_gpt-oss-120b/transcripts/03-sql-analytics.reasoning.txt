@@ -1,0 +1,56 @@
+We need to produce four SQL queries.
+
+q1: revenue per customer for completed orders. Need to join customers, orders (status='completed'), order_items, products. Compute sum(quantity*unit_price). Group by customer. Only customers with at least one completed order. Use ROUND(...,2) as revenue. Order by revenue desc, name asc.
+
+SQL:
+
+SELECT c.name AS customer_name,
+       ROUND(SUM(oi.quantity * p.unit_price), 2) AS revenue
+FROM customers c
+JOIN orders o ON o.customer_id = c.id AND o.status = 'completed'
+JOIN order_items oi ON oi.order_id = o.id
+JOIN products p ON p.id = oi.product_id
+GROUP BY c.id, c.name
+HAVING SUM(oi.quantity * p.unit_price) > 0
+ORDER BY revenue DESC, customer_name ASC;
+
+But need at least one completed order; if revenue zero maybe still count? If they have completed order but revenue zero (possible if quantity zero? quantity not zero). So fine.
+
+q2: top 3 products by units sold across completed orders. Need sum(quantity). Group by product. Order by units_sold desc, product_name asc. Limit 3.
+
+SELECT p.name AS product_name,
+       SUM(oi.quantity) AS units_sold
+FROM products p
+JOIN order_items oi ON oi.product_id = p.id
+JOIN orders o ON o.id = oi.order_id AND o.status = 'completed'
+GROUP BY p.id, p.name
+HAVING SUM(oi.quantity) > 0
+ORDER BY units_sold DESC, product_name ASC
+LIMIT 3;
+
+q3: customers with no orders at all. Use NOT EXISTS.
+
+SELECT c.name AS customer_name,
+       c.country
+FROM customers c
+WHERE NOT EXISTS (SELECT 1 FROM orders o WHERE o.customer_id = c.id)
+ORDER BY customer_name ASC;
+
+q4: monthly revenue for 2025. Need month string '2025-01' etc. Use strftime('%Y-%m', o.ordered_at). Filter year 2025. Sum revenue. Only months with non-zero revenue. Round to 2 decimals.
+
+SELECT strftime('%Y-%m', o.ordered_at) AS month,
+       ROUND(SUM(oi.quantity * p.unit_price), 2) AS revenue
+FROM orders o
+JOIN order_items oi ON oi.order_id = o.id
+JOIN products p ON p.id = oi.product_id
+WHERE o.status = 'completed'
+  AND strftime('%Y', o.ordered_at) = '2025'
+GROUP BY month
+HAVING revenue <> 0
+ORDER BY month ASC;
+
+But can't refer to alias in HAVING; need repeat expression or use SUM. Use HAVING SUM(oi.quantity * p.unit_price) <> 0.
+
+Thus final queries.
+
+Now produce four files content.

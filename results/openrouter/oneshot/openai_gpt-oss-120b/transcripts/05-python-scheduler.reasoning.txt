@@ -1,0 +1,114 @@
+We need to implement weighted interval scheduling O(n log n). Input list of (start, end, weight). Need to return total weight and list of original indices sorted by start time (tie by index). Approach: sort jobs by end time (or start?). Classic DP: sort by end time, compute p[i] = index of last job that ends <= start_i. Then DP[i] = max(DP[i-1], weight_i + DP[p[i]]). Need to reconstruct solution.
+
+We also need to output indices sorted by start time (and tie by index). The DP order is by end time; reconstruction yields indices in that order (by end). Then we can sort final list by start then index.
+
+Implementation details: n up to 200k, O(n log n). Use bisect to find p[i] quickly.
+
+Steps:
+
+- Enumerate jobs with original index.
+- Sort by end, then start maybe for tie-breaking? For DP we need stable ordering: sort by end ascending, if equal end, maybe start ascending, then index. This ensures deterministic p.
+
+- Build arrays: starts, ends, weights, orig_idx.
+
+- Build list of ends for binary search.
+
+- For each i (0-indexed), find p[i] = rightmost j < i such that ends[j] <= starts[i]. Use bisect_right(ends, starts[i]) - 1.
+
+- DP array of length n+1, DP[0]=0. For i from 1..n: job i-1 in sorted list. Option1 = DP[i-1]; Option2 = weight[i-1] + DP[p[i-1]+1] (since DP index shift). Choose max; also store decision boolean.
+
+- After DP, reconstruct: start from i=n, while i>0: if decision[i] (choose job i-1) then add its original index to result list, set i = p[i-1]+1 else i -=1.
+
+- After reconstruction, we have list of indices in reverse order of sorted by end (since we go backwards). Reverse to get increasing end order. Then sort by start time (original start) and tie by index.
+
+- Need to compute total weight as DP[n] (float). Return (total_weight, sorted_indices).
+
+Edge Cases: floating point weights; DP uses float.
+
+Complexities: O(n log n) due to sorting and binary search.
+
+Potential memory: O(n). Works.
+
+Implementation details: Use typing list[tuple[float,float,float]]; but Python 3.9+ supports list[tuple[...]].
+
+Make sure to import bisect.
+
+Testing with example.
+
+Let's craft code.
+
+Potential pitfalls: When multiple jobs have same end time, p calculation using bisect_right ensures we can include jobs that end exactly at start.
+
+Sorting for DP: we need ends list for bisect. Use list of ends after sorting.
+
+Implementation:
+
+def best_schedule(jobs):
+    if not jobs:
+        return (0.0, [])
+    # enumerate
+    enumerated = [(s, e, w, i) for i, (s, e, w) in enumerate(jobs)]
+    # sort by end, then start, then index
+    enumerated.sort(key=lambda x: (x[1], x[0], x[3]))
+    n = len(enumerated)
+    starts = [e[0] for e in enumerated]
+    ends = [e[1] for e in enumerated]
+    weights = [e[2] for e in enumerated]
+    orig_idx = [e[3] for e in enumerated]
+
+    # compute p
+    import bisect
+    p = [0]*n
+    for i in range(n):
+        # find rightmost job with end <= start[i]
+        j = bisect.bisect_right(ends, starts[i]) - 1
+        p[i] = j  # may be -1
+    # DP
+    dp = [0.0]*(n+1)
+    choose = [False]* (n+1)  # choose[i] indicates job i-1 chosen
+    for i in range(1, n+1):
+        # job index i-1
+        opt1 = dp[i-1]
+        opt2 = weights[i-1] + dp[p[i-1]+1]  # if p=-1, dp[0]
+        if opt2 > opt1:
+            dp[i] = opt2
+            choose[i] = True
+        else:
+            dp[i] = opt1
+            choose[i] = False
+    # reconstruct
+    i = n
+    selected = []
+    while i > 0:
+        if choose[i]:
+            selected.append(orig_idx[i-1])
+            i = p[i-1] + 1
+        else:
+            i -= 1
+    selected.reverse()
+    # sort by start then index
+    selected.sort(key=lambda idx: (jobs[idx][0], idx))
+    total = dp[n]
+    return (total, selected)
+
+Potential issue: choose array only indicates if job i-1 chosen at DP[i]; but we need to know for reconstruction. Works.
+
+Edge Cases: ties where opt2 == opt1: we can choose either; we choose not to pick (since >). That's fine.
+
+Complexities: O(n log n).
+
+Testing with example.
+
+Let's run mental test: jobs list as given. Should produce total 13.0 and indices [2,6] sorted by start: job2 start 0, job6 start 6. Works.
+
+Potential large n recursion not used.
+
+Make sure to include __all__ maybe.
+
+Add docstring.
+
+Return float total weight; ensure it's float.
+
+Ok.
+
+Now produce final answer: Provide scheduler.py content.

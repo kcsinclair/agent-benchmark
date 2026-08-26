@@ -1,0 +1,80 @@
+{
+  "wall_seconds": 74.4,
+  "track": "reasoning",
+  "settings": {
+    "temperature": 0.0,
+    "max_tokens": 2048,
+    "think": "off",
+    "repeat": 1,
+    "seed": 1,
+    "server": "https://openrouter.ai/api",
+    "categories": [
+      "state",
+      "constraint",
+      "compliance",
+      "abstention",
+      "trap",
+      "retrieval"
+    ],
+    "provider": "DeepInfra"
+  },
+  "results": [
+    {
+      "model": "qwen/qwen3.6-27b",
+      "load_seconds": null,
+      "passes": [
+        {
+          "pass": 1,
+          "dir": "/Users/keith/Code/agent-benchmark/results/openrouter/reasoning/qwen_qwen3.6-27b",
+          "totals": {
+            "state": {
+              "right": 5,
+              "count": 20,
+              "seconds": 11.7,
+              "failed": 0,
+              "cost_usd": 0.0009
+            },
+            "constraint": {
+              "right": 11,
+              "count": 20,
+              "seconds": 11.3,
+              "failed": 0,
+              "cost_usd": 0.0007
+            },
+            "compliance": {
+              "right": 20,
+              "count": 20,
+              "seconds": 18.1,
+              "failed": 0,
+              "cost_usd": 0.0006
+            },
+            "abstention": {
+              "right": 20,
+              "count": 20,
+              "seconds": 12.9,
+              "failed": 0,
+              "cost_usd": 0.0009
+            },
+            "trap": {
+              "right": 13,
+              "count": 14,
+              "seconds": 10.8,
+              "failed": 0,
+              "cost_usd": 0.0004
+            },
+            "retrieval": {
+              "right": 8,
+              "count": 8,
+              "seconds": 9.5,
+              "failed": 0,
+              "cost_usd": 0.026
+            }
+          },
+          "right": 77,
+          "count": 102,
+          "cost_usd": 0.0295
+        }
+      ]
+    }
+  ]
+}

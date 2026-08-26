@@ -1,0 +1,1026 @@
+{
+  "model": "qwen/qwen3-coder-30b-a3b-instruct",
+  "seed": 1,
+  "results": [
+    {
+      "category": "state",
+      "item": 1,
+      "ok": true,
+      "expected": "8",
+      "seconds": 1.4,
+      "tokens": 1,
+      "finish": "stop",
+      "reply": "8"
+    },
+    {
+      "category": "state",
+      "item": 2,
+      "ok": false,
+      "expected": "26",
+      "seconds": 2.1,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "14"
+    },
+    {
+      "category": "state",
+      "item": 3,
+      "ok": false,
+      "expected": "4",
+      "seconds": 3.8,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "10"
+    },
+    {
+      "category": "state",
+      "item": 4,
+      "ok": false,
+      "expected": "3",
+      "seconds": 1.4,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "14"
+    },
+    {
+      "category": "state",
+      "item": 5,
+      "ok": false,
+      "expected": "36",
+      "seconds": 1.4,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "14"
+    },
+    {
+      "category": "state",
+      "item": 6,
+      "ok": false,
+      "expected": "11",
+      "seconds": 1.4,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "14"
+    },
+    {
+      "category": "state",
+      "item": 7,
+      "ok": false,
+      "expected": "14",
+      "seconds": 6.4,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "10"
+    },
+    {
+      "category": "state",
+      "item": 8,
+      "ok": false,
+      "expected": "11",
+      "seconds": 1.4,
+      "tokens": 1,
+      "finish": "stop",
+      "reply": "7"
+    },
+    {
+      "category": "state",
+      "item": 9,
+      "ok": false,
+      "expected": "7",
+      "seconds": 1.5,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "12"
+    },
+    {
+      "category": "state",
+      "item": 10,
+      "ok": false,
+      "expected": "5",
+      "seconds": 1.6,
+      "tokens": 1,
+      "finish": "stop",
+      "reply": "6"
+    },
+    {
+      "category": "state",
+      "item": 11,
+      "ok": false,
+      "expected": "4",
+      "seconds": 1.4,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "10"
+    },
+    {
+      "category": "state",
+      "item": 12,
+      "ok": false,
+      "expected": "13",
+      "seconds": 1.4,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "11"
+    },
+    {
+      "category": "state",
+      "item": 13,
+      "ok": false,
+      "expected": "1",
+      "seconds": 1.3,
+      "tokens": 1,
+      "finish": "stop",
+      "reply": "3"
+    },
+    {
+      "category": "state",
+      "item": 14,
+      "ok": true,
+      "expected": "0",
+      "seconds": 2.8,
+      "tokens": 230,
+      "finish": "stop",
+      "reply": "Let me work through each step:\n\nInitial state: A=8, B=9, D=2\n\nStep 1: Remove 1 from D\nD = 2 - 1 = 1\nA=8, B=9, D=1\n\nStep 2: Swap D and A\nA = D = 1\nD = A = 8\nA=1, B=9, D=8\n\nStep 3: Swap A and D\nD = A = 1\nA = D = 8\nA=8, B=9, D=1\n\nStep 4: Swap B and A\nA = B = 9\nB = A = 8\nA=9, B=8, D=1\n\nStep 5: Add 3 to B\nB = 8 + 3 = 11\nA=9, B=11, D=1\n\nStep 6: Remove 9 from A\nA = 9 - 9 = 0\nA=0, B=11, D=1\n\n0"
+    },
+    {
+      "category": "state",
+      "item": 15,
+      "ok": true,
+      "expected": "8",
+      "seconds": 3.3,
+      "tokens": 272,
+      "finish": "stop",
+      "reply": "Let me work through each step carefully.\n\nInitial state: A=3, D=9, B=2\n\nStep 1: Move 2 from B to D\n- B: 2-2 = 0\n- D: 9+2 = 11\n- A=3, D=11, B=0\n\nStep 2: Swap the contents of A and B\n- A: 0\n- B: 3\n- D=11, B=3, A=0\n\nStep 3: Move 6 from D to B\n- D: 11-6 = 5\n- B: 3+6 = 9\n- A=0, D=5, B=9\n\nStep 4: Add 3 to D\n- D: 5+3 = 8\n- A=0, D=8, B=9\n\nStep 5: Add 6 to A\n- A: 0+6 = 6\n- A=6, D=8, B=9\n\nStep 6: Swap the contents of B and D\n- B: 8\n- D: 9\n- A=6, B=8, D=9\n\nAt the end, B contains 8."
+    },
+    {
+      "category": "state",
+      "item": 16,
+      "ok": true,
+      "expected": "15",
+      "seconds": 3.2,
+      "tokens": 266,
+      "finish": "stop",
+      "reply": "Let me work through each step systematically.\n\nInitial state: D=2, A=7, B=3\n\nStep 1: Add 2 to A\nA = 7 + 2 = 9\nD=2, A=9, B=3\n\nStep 2: Swap D and B\nD = B = 3\nB = D = 2\nD=3, A=9, B=2\n\nStep 3: Move 6 from A to D\nA = 9 - 6 = 3\nD = 3 + 6 = 9\nD=9, A=3, B=2\n\nStep 4: Move 1 from A to B\nA = 3 - 1 = 2\nB = 2 + 1 = 3\nD=9, A=2, B=3\n\nStep 5: Double B\nB = 3 \u00d7 2 = 6\nD=9, A=2, B=6\n\nStep 6: Move 9 from D to B\nD = 9 - 9 = 0\nB = 6 + 9 = 15\nD=0, A=2, B=15\n\nB = 15"
+    },
+    {
+      "category": "state",
+      "item": 17,
+      "ok": false,
+      "expected": "1",
+      "seconds": 1.4,
+      "tokens": 1,
+      "finish": "stop",
+      "reply": "3"
+    },
+    {
+      "category": "state",
+      "item": 18,
+      "ok": false,
+      "expected": "15",
+      "seconds": 1.5,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "14"
+    },
+    {
+      "category": "state",
+      "item": 19,
+      "ok": false,
+      "expected": "7",
+      "seconds": 1.4,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "12"
+    },
+    {
+      "category": "state",
+      "item": 20,
+      "ok": false,
+      "expected": "5",
+      "seconds": 1.5,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "10"
+    },
+    {
+      "category": "constraint",
+      "item": 1,
+      "ok": false,
+      "expected": "2",
+      "seconds": 1.3,
+      "tokens": 1,
+      "finish": "stop",
+      "reply": "4"
+    },
+    {
+      "category": "constraint",
+      "item": 2,
+      "ok": false,
+      "expected": "2",
+      "seconds": 6.1,
+      "tokens": 1,
+      "finish": "stop",
+      "reply": "3"
+    },
+    {
+      "category": "constraint",
+      "item": 3,
+      "ok": false,
+      "expected": "1",
+      "seconds": 1.4,
+      "tokens": 1,
+      "finish": "stop",
+      "reply": "3"
+    },
+    {
+      "category": "constraint",
+      "item": 4,
+      "ok": false,
+      "expected": "3",
+      "seconds": 0.7,
+      "tokens": 1,
+      "finish": "stop",
+      "reply": "4"
+    },
+    {
+      "category": "constraint",
+      "item": 5,
+      "ok": false,
+      "expected": "2",
+      "seconds": 1.4,
+      "tokens": 1,
+      "finish": "stop",
+      "reply": "4"
+    },
+    {
+      "category": "constraint",
+      "item": 6,
+      "ok": false,
+      "expected": "2",
+      "seconds": 1.4,
+      "tokens": 1,
+      "finish": "stop",
+      "reply": "3"
+    },
+    {
+      "category": "constraint",
+      "item": 7,
+      "ok": false,
+      "expected": "2",
+      "seconds": 1.3,
+      "tokens": 1,
+      "finish": "stop",
+      "reply": "4"
+    },
+    {
+      "category": "constraint",
+      "item": 8,
+      "ok": false,
+      "expected": "2",
+      "seconds": 1.3,
+      "tokens": 1,
+      "finish": "stop",
+      "reply": "3"
+    },
+    {
+      "category": "constraint",
+      "item": 9,
+      "ok": false,
+      "expected": "3",
+      "seconds": 1.4,
+      "tokens": 1,
+      "finish": "stop",
+      "reply": "4"
+    },
+    {
+      "category": "constraint",
+      "item": 10,
+      "ok": true,
+      "expected": "4",
+      "seconds": 1.4,
+      "tokens": 1,
+      "finish": "stop",
+      "reply": "4"
+    },
+    {
+      "category": "constraint",
+      "item": 11,
+      "ok": true,
+      "expected": "3",
+      "seconds": 1.4,
+      "tokens": 1,
+      "finish": "stop",
+      "reply": "3"
+    },
+    {
+      "category": "constraint",
+      "item": 12,
+      "ok": false,
+      "expected": "1",
+      "seconds": 1.4,
+      "tokens": 1,
+      "finish": "stop",
+      "reply": "3"
+    },
+    {
+      "category": "constraint",
+      "item": 13,
+      "ok": false,
+      "expected": "2",
+      "seconds": 1.4,
+      "tokens": 1,
+      "finish": "stop",
+      "reply": "3"
+    },
+    {
+      "category": "constraint",
+      "item": 14,
+      "ok": true,
+      "expected": "3",
+      "seconds": 1.4,
+      "tokens": 1,
+      "finish": "stop",
+      "reply": "3"
+    },
+    {
+      "category": "constraint",
+      "item": 15,
+      "ok": false,
+      "expected": "2",
+      "seconds": 1.4,
+      "tokens": 1,
+      "finish": "stop",
+      "reply": "3"
+    },
+    {
+      "category": "constraint",
+      "item": 16,
+      "ok": false,
+      "expected": "4",
+      "seconds": 1.3,
+      "tokens": 1,
+      "finish": "stop",
+      "reply": "3"
+    },
+    {
+      "category": "constraint",
+      "item": 17,
+      "ok": false,
+      "expected": "4",
+      "seconds": 6.1,
+      "tokens": 1,
+      "finish": "stop",
+      "reply": "3"
+    },
+    {
+      "category": "constraint",
+      "item": 18,
+      "ok": true,
+      "expected": "3",
+      "seconds": 1.6,
+      "tokens": 1,
+      "finish": "stop",
+      "reply": "3"
+    },
+    {
+      "category": "constraint",
+      "item": 19,
+      "ok": true,
+      "expected": "3",
+      "seconds": 1.4,
+      "tokens": 1,
+      "finish": "stop",
+      "reply": "3"
+    },
+    {
+      "category": "constraint",
+      "item": 20,
+      "ok": false,
+      "expected": "2",
+      "seconds": 1.9,
+      "tokens": 1,
+      "finish": "stop",
+      "reply": "3"
+    },
+    {
+      "category": "compliance",
+      "item": 1,
+      "ok": false,
+      "expected": "cedar,birch,alder",
+      "seconds": 2.1,
+      "tokens": 8,
+      "finish": "stop",
+      "reply": "cedar, birch, alder"
+    },
+    {
+      "category": "compliance",
+      "item": 2,
+      "ok": true,
+      "expected": "vast blue salty",
+      "seconds": 1.4,
+      "tokens": 4,
+      "finish": "stop",
+      "reply": "Vast blue endless"
+    },
+    {
+      "category": "compliance",
+      "item": 3,
+      "ok": false,
+      "expected": "Chile",
+      "seconds": 1.4,
+      "tokens": 1,
+      "finish": "stop",
+      "reply": "Germany"
+    },
+    {
+      "category": "compliance",
+      "item": 4,
+      "ok": true,
+      "expected": "vast blue salty",
+      "seconds": 1.4,
+      "tokens": 4,
+      "finish": "stop",
+      "reply": "Vast blue endless"
+    },
+    {
+      "category": "compliance",
+      "item": 5,
+      "ok": true,
+      "expected": "PARIS",
+      "seconds": 1.3,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "PARIS"
+    },
+    {
+      "category": "compliance",
+      "item": 6,
+      "ok": true,
+      "expected": "vast blue salty",
+      "seconds": 1.3,
+      "tokens": 4,
+      "finish": "stop",
+      "reply": "Vast blue endless"
+    },
+    {
+      "category": "compliance",
+      "item": 7,
+      "ok": true,
+      "expected": "85",
+      "seconds": 1.4,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "85"
+    },
+    {
+      "category": "compliance",
+      "item": 8,
+      "ok": false,
+      "expected": "the seven quiet river runs far",
+      "seconds": 1.4,
+      "tokens": 6,
+      "finish": "stop",
+      "reply": "seven days a week i run"
+    },
+    {
+      "category": "compliance",
+      "item": 9,
+      "ok": false,
+      "expected": "cedar,birch,alder",
+      "seconds": 1.4,
+      "tokens": 8,
+      "finish": "stop",
+      "reply": "cedar, birch, alder"
+    },
+    {
+      "category": "compliance",
+      "item": 10,
+      "ok": false,
+      "expected": "vast blue salty cold deep",
+      "seconds": 1.4,
+      "tokens": 5,
+      "finish": "stop",
+      "reply": "Vast endless blue waves"
+    },
+    {
+      "category": "compliance",
+      "item": 11,
+      "ok": true,
+      "expected": "red green blue",
+      "seconds": 1.5,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "red blue green"
+    },
+    {
+      "category": "compliance",
+      "item": 12,
+      "ok": false,
+      "expected": "vast blue salty cold deep",
+      "seconds": 1.8,
+      "tokens": 5,
+      "finish": "stop",
+      "reply": "Vast endless blue waves"
+    },
+    {
+      "category": "compliance",
+      "item": 13,
+      "ok": false,
+      "expected": "the blue quiet river runs far",
+      "seconds": 1.5,
+      "tokens": 7,
+      "finish": "stop",
+      "reply": "the sky is blue today and warm"
+    },
+    {
+      "category": "compliance",
+      "item": 14,
+      "ok": false,
+      "expected": "Chile",
+      "seconds": 1.5,
+      "tokens": 1,
+      "finish": "stop",
+      "reply": "Germany"
+    },
+    {
+      "category": "compliance",
+      "item": 15,
+      "ok": true,
+      "expected": "{\"animal\":\"raven\",\"x\":7,\"total\":23}",
+      "seconds": 11.0,
+      "tokens": 20,
+      "finish": "stop",
+      "reply": "{\"animal\": \"raven\", \"x\": 7, \"total\": 23}"
+    },
+    {
+      "category": "compliance",
+      "item": 16,
+      "ok": true,
+      "expected": "cedar,birch,alder",
+      "seconds": 1.5,
+      "tokens": 8,
+      "finish": "stop",
+      "reply": "cedar,birch,alder"
+    },
+    {
+      "category": "compliance",
+      "item": 17,
+      "ok": false,
+      "expected": "vast blue salty cold deep",
+      "seconds": 1.6,
+      "tokens": 5,
+      "finish": "stop",
+      "reply": "Vast blue endless waves"
+    },
+    {
+      "category": "compliance",
+      "item": 18,
+      "ok": true,
+      "expected": "red green blue",
+      "seconds": 5.5,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "red blue green"
+    },
+    {
+      "category": "compliance",
+      "item": 19,
+      "ok": true,
+      "expected": "vast blue salty cold",
+      "seconds": 1.5,
+      "tokens": 5,
+      "finish": "stop",
+      "reply": "Vast blue waves endless"
+    },
+    {
+      "category": "compliance",
+      "item": 20,
+      "ok": false,
+      "expected": "cedar,birch,alder",
+      "seconds": 8.1,
+      "tokens": 8,
+      "finish": "stop",
+      "reply": "cedar, birch, alder"
+    },
+    {
+      "category": "abstention",
+      "item": 1,
+      "ok": true,
+      "expected": "3",
+      "seconds": 1.4,
+      "tokens": 1,
+      "finish": "stop",
+      "reply": "3"
+    },
+    {
+      "category": "abstention",
+      "item": 2,
+      "ok": true,
+      "expected": "UNKNOWN",
+      "seconds": 1.5,
+      "tokens": 1,
+      "finish": "stop",
+      "reply": "UNKNOWN"
+    },
+    {
+      "category": "abstention",
+      "item": 3,
+      "ok": true,
+      "expected": "5",
+      "seconds": 1.4,
+      "tokens": 1,
+      "finish": "stop",
+      "reply": "5"
+    },
+    {
+      "category": "abstention",
+      "item": 4,
+      "ok": true,
+      "expected": "UNKNOWN",
+      "seconds": 2.1,
+      "tokens": 1,
+      "finish": "stop",
+      "reply": "UNKNOWN"
+    },
+    {
+      "category": "abstention",
+      "item": 5,
+      "ok": true,
+      "expected": "UNKNOWN",
+      "seconds": 1.3,
+      "tokens": 1,
+      "finish": "stop",
+      "reply": "UNKNOWN"
+    },
+    {
+      "category": "abstention",
+      "item": 6,
+      "ok": true,
+      "expected": "27",
+      "seconds": 1.9,
+      "tokens": 25,
+      "finish": "stop",
+      "reply": "9 \u00d7 3 = 27\n\nThe Fairwater depot can handle 27 lorries per day in total."
+    },
+    {
+      "category": "abstention",
+      "item": 7,
+      "ok": true,
+      "expected": "UNKNOWN",
+      "seconds": 1.3,
+      "tokens": 1,
+      "finish": "stop",
+      "reply": "UNKNOWN"
+    },
+    {
+      "category": "abstention",
+      "item": 8,
+      "ok": true,
+      "expected": "28",
+      "seconds": 2.6,
+      "tokens": 62,
+      "finish": "stop",
+      "reply": "28\n\nThe Fairwater depot has 7 loading bays, and each bay handles 4 lorries per day. Therefore, the total number of lorries the Fairwater depot can handle per day is 7 bays \u00d7 4 lorries/bay = 28 lorries per day."
+    },
+    {
+      "category": "abstention",
+      "item": 9,
+      "ok": true,
+      "expected": "6",
+      "seconds": 1.3,
+      "tokens": 1,
+      "finish": "stop",
+      "reply": "6"
+    },
+    {
+      "category": "abstention",
+      "item": 10,
+      "ok": true,
+      "expected": "UNKNOWN",
+      "seconds": 2.2,
+      "tokens": 1,
+      "finish": "stop",
+      "reply": "UNKNOWN"
+    },
+    {
+      "category": "abstention",
+      "item": 11,
+      "ok": true,
+      "expected": "24",
+      "seconds": 2.0,
+      "tokens": 62,
+      "finish": "stop",
+      "reply": "24\n\nThe Brindle depot has 6 loading bays, and each bay handles 4 lorries per day. Therefore, the total number of lorries the Brindle depot can handle per day is 6 bays \u00d7 4 lorries per bay = 24 lorries per day."
+    },
+    {
+      "category": "abstention",
+      "item": 12,
+      "ok": true,
+      "expected": "12",
+      "seconds": 2.1,
+      "tokens": 62,
+      "finish": "stop",
+      "reply": "12\n\nThe Fairwater depot has 6 loading bays, and each bay handles 2 lorries per day. Therefore, the total number of lorries the Fairwater depot can handle per day is 6 bays \u00d7 2 lorries per bay = 12 lorries per day."
+    },
+    {
+      "category": "abstention",
+      "item": 13,
+      "ok": true,
+      "expected": "9",
+      "seconds": 1.3,
+      "tokens": 1,
+      "finish": "stop",
+      "reply": "9"
+    },
+    {
+      "category": "abstention",
+      "item": 14,
+      "ok": true,
+      "expected": "UNKNOWN",
+      "seconds": 1.4,
+      "tokens": 1,
+      "finish": "stop",
+      "reply": "UNKNOWN"
+    },
+    {
+      "category": "abstention",
+      "item": 15,
+      "ok": true,
+      "expected": "18",
+      "seconds": 1.6,
+      "tokens": 24,
+      "finish": "stop",
+      "reply": "9 loading bays \u00d7 2 lorries per bay per day = 18 lorries per day\n\n18"
+    },
+    {
+      "category": "abstention",
+      "item": 16,
+      "ok": true,
+      "expected": "UNKNOWN",
+      "seconds": 1.3,
+      "tokens": 1,
+      "finish": "stop",
+      "reply": "UNKNOWN"
+    },
+    {
+      "category": "abstention",
+      "item": 17,
+      "ok": true,
+      "expected": "UNKNOWN",
+      "seconds": 1.3,
+      "tokens": 1,
+      "finish": "stop",
+      "reply": "UNKNOWN"
+    },
+    {
+      "category": "abstention",
+      "item": 18,
+      "ok": true,
+      "expected": "36",
+      "seconds": 1.8,
+      "tokens": 62,
+      "finish": "stop",
+      "reply": "36\n\nThe Kelso depot has 9 loading bays, and each bay handles 4 lorries per day. Therefore, the total number of lorries the Kelso depot can handle per day is 9 bays \u00d7 4 lorries per bay = 36 lorries per day."
+    },
+    {
+      "category": "abstention",
+      "item": 19,
+      "ok": true,
+      "expected": "6",
+      "seconds": 1.4,
+      "tokens": 1,
+      "finish": "stop",
+      "reply": "6"
+    },
+    {
+      "category": "abstention",
+      "item": 20,
+      "ok": true,
+      "expected": "8",
+      "seconds": 1.4,
+      "tokens": 1,
+      "finish": "stop",
+      "reply": "8"
+    },
+    {
+      "category": "trap",
+      "item": 1,
+      "ok": false,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 6.7,
+      "tokens": 1,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 2,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 1.5,
+      "tokens": 1,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 3,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 2.3,
+      "tokens": 1,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 4,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 1.4,
+      "tokens": 1,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 5,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 0.9,
+      "tokens": 1,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 6,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 1.5,
+      "tokens": 1,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 7,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 1.6,
+      "tokens": 1,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 8,
+      "ok": false,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 1.4,
+      "tokens": 1,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 9,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 1.5,
+      "tokens": 1,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 10,
+      "ok": false,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 1.3,
+      "tokens": 1,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 11,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 1.4,
+      "tokens": 1,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 12,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 1.3,
+      "tokens": 1,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 13,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 1.3,
+      "tokens": 1,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 14,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 1.4,
+      "tokens": 1,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "retrieval",
+      "item": 1,
+      "ok": true,
+      "expected": "196",
+      "seconds": 9.0,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "196"
+    },
+    {
+      "category": "retrieval",
+      "item": 2,
+      "ok": true,
+      "expected": "982",
+      "seconds": 2.6,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "982"
+    },
+    {
+      "category": "retrieval",
+      "item": 3,
+      "ok": true,
+      "expected": "786",
+      "seconds": 2.4,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "786"
+    },
+    {
+      "category": "retrieval",
+      "item": 4,
+      "ok": true,
+      "expected": "423",
+      "seconds": 2.4,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "423"
+    },
+    {
+      "category": "retrieval",
+      "item": 5,
+      "ok": true,
+      "expected": "665",
+      "seconds": 2.4,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "665"
+    },
+    {
+      "category": "retrieval",
+      "item": 6,
+      "ok": true,
+      "expected": "338",
+      "seconds": 2.5,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "338"
+    },
+    {
+      "category": "retrieval",
+      "item": 7,
+      "ok": true,
+      "expected": "623",
+      "seconds": 2.5,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "623"
+    },
+    {
+      "category": "retrieval",
+      "item": 8,
+      "ok": true,
+      "expected": "134",
+      "seconds": 2.6,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "134"
+    }
+  ]
+}

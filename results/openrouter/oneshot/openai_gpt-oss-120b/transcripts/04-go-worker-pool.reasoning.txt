@@ -1,0 +1,500 @@
+We need to implement Run with bounded concurrency, ordering, fail fast, context cancellation.
+
+We need to return results slice in order. Approach: use a worker pool with a task channel that includes index and task. Use a result slice preallocated. Use a sync.WaitGroup to wait for workers. Use a context.WithCancel to cancel tasks when error occurs or parent ctx cancelled.
+
+We need to detect first error. Use an atomic or channel to capture first error. When a task returns error, we cancel the derived context (cancelFunc) and store error (maybe via sync.Once). Also need to stop feeding new tasks after error or parent ctx cancellation.
+
+Implementation steps:
+
+func Run(ctx context.Context, tasks []Task, workers int) ([]any, error) {
+    if workers < 1 {
+        return nil, errors.New("workers must be >= 1")
+    }
+    if len(tasks) == 0 {
+        return nil, nil
+    }
+
+    // derived context for tasks
+    taskCtx, cancel := context.WithCancel(ctx)
+    defer cancel() // ensure cancel at end
+
+    type job struct {
+        idx int
+        task Task
+    }
+
+    jobCh := make(chan job)
+    // result slice
+    results := make([]any, len(tasks))
+
+    var wg sync.WaitGroup
+    var once sync.Once
+    var firstErr error
+
+    // worker function
+    worker := func() {
+        defer wg.Done()
+        for j := range jobCh {
+            // run task with taskCtx
+            res, err := j.task(taskCtx)
+            if err != nil {
+                // capture first error
+                once.Do(func() {
+                    firstErr = err
+                    cancel() // cancel other tasks
+                })
+                // we still need to store maybe nil? Not needed because we will return nil slice.
+                continue
+            }
+            // store result only if no error yet? If error later, we will ignore results.
+            // But need to avoid race with other workers storing results after error; but we can still store; not used.
+            results[j.idx] = res
+        }
+    }
+
+    // start workers
+    if workers > len(tasks) {
+        workers = len(tasks)
+    }
+    wg.Add(workers)
+    for i := 0; i < workers; i++ {
+        go worker()
+    }
+
+    // feed jobs
+    // need to stop feeding if ctx done or error already captured.
+    // Use select on ctx.Done() and maybe a done channel.
+    feedErr := func() error {
+        for i, t := range tasks {
+            select {
+            case <-ctx.Done():
+                // parent cancelled before we could send
+                // cancel tasks and return ctx.Err()
+                cancel()
+                // close channel to stop workers
+                close(jobCh)
+                // wait for workers
+                wg.Wait()
+                // return ctx.Err()
+                return ctx.Err()
+            case jobCh <- job{idx: i, task: t}:
+                // continue
+            }
+        }
+        close(jobCh)
+        return nil
+    }()
+
+    // Wait for workers to finish
+    wg.Wait()
+
+    // Determine final error
+    if feedErr != nil {
+        // feedErr may be ctx.Err()
+        return nil, feedErr
+    }
+    if firstErr != nil {
+        return nil, firstErr
+    }
+    return results, nil
+}
+
+But need to ensure that if a task returns error, we stop feeding new tasks. In current code, feeding continues even after error because we only cancel context but still send jobs. However workers will still read from channel; they may start tasks after cancel, but tasks will get cancelled context; but requirement: tasks that have not yet started must never start. So we must stop feeding new tasks after first error is observed. Since we cannot know when error occurs while feeding concurrently, we need a way to stop feeding when error occurs. Use a channel errorSignal that workers can send when they encounter error, and feeding loop selects on that channel to stop.
+
+Implementation: have an errorCh := make(chan struct{}) closed when first error occurs (or ctx cancelled). Use sync.Once to close it.
+
+When worker gets error, once.Do(func(){ firstErr = err; cancel(); close(errCh) }) . Then feeding loop selects on errCh as well.
+
+Similarly for ctx cancellation: we can also close errCh when ctx.Done().
+
+Simplify: use a single done channel (stopCh) that is closed when we need to stop feeding (error or parent ctx cancelled). Use sync.Once to close.
+
+Implementation details:
+
+stopCh := make(chan struct{})
+var stopOnce sync.Once
+stop := func() {
+    stopOnce.Do(func(){ close(stopCh) })
+}
+
+In worker error case: once.Do(func(){ firstErr = err; cancel(); stop() })
+In feeding loop: select {
+case <-ctx.Done():
+    stop()
+    // after loop, we will return ctx.Err()
+case <-stopCh:
+    // stop feeding early
+    break out
+case jobCh <- job{...}:
+    // continue
+}
+
+But we need to break out of outer loop when stopCh closed. Use for i, t := range tasks { select ... } and after break we need to close jobCh and wait.
+
+Edge Cases: If stop occurs due to error, we still need to close jobCh to signal workers no more jobs. Also need to ensure we don't deadlock: workers may be blocked on receiving from jobCh; closing it will cause range to exit.
+
+Implementation steps:
+
+- Create jobCh buffered? Not needed; unbuffered works but may cause deadlock if feeding loop blocked while workers busy; but that's okay because workers will read as soon as they finish tasks. However we also need to ensure we don't block feeding when stop occurs; we can use select with stopCh.
+
+Pseudo:
+
+func Run(...){
+    // validation
+    // create derived ctx
+    // result slice
+    // channels
+    jobCh := make(chan job)
+    stopCh := make(chan struct{})
+    var stopOnce sync.Once
+    stop := func(){ stopOnce.Do(func(){ close(stopCh) }) }
+
+    var wg sync.WaitGroup
+    var errOnce sync.Once
+    var firstErr error
+
+    worker := func(){
+        defer wg.Done()
+        for j := range jobCh {
+            // if context already cancelled, we could skip but still need to respect requirement: tasks not started after cancel must not start.
+            // Since we will stop feeding after cancel, there will be no new jobs.
+            // However there may be jobs already queued before cancel; they may be started. That's okay because they were already started.
+            // So we just run.
+            res, err := j.task(taskCtx)
+            if err != nil {
+                errOnce.Do(func(){
+                    firstErr = err
+                    cancel()
+                    stop()
+                })
+                continue
+            }
+            results[j.idx] = res
+        }
+    }
+
+    // start workers
+    if workers > len(tasks) { workers = len(tasks) }
+    wg.Add(workers)
+    for i:=0;i<workers;i++{
+        go worker()
+    }
+
+    // feed jobs
+    feedErr := error(nil)
+    for i, t := range tasks {
+        select {
+        case <-ctx.Done():
+            // parent cancelled
+            feedErr = ctx.Err()
+            stop()
+            break
+        case <-stopCh:
+            // error already occurred
+            break
+        case jobCh <- job{idx:i, task:t}:
+            // sent
+        }
+        // if we broke due to stop, need to break outer loop
+        if feedErr != nil || (stopOnce != nil && ???) // easier: after select, check if stopCh closed via non-blocking? Not needed; we can use a flag.
+    }
+
+But we need to break out of loop when stopCh closed. Since select case <-stopCh will fire when closed, we can handle it. However after stopCh closed, we still need to exit loop. So we can have a boolean stopped = false; after select case <-stopCh: stopped = true; break.
+
+Implementation:
+
+stopped := false
+for i, t := range tasks {
+    if stopped {
+        break
+    }
+    select {
+    case <-ctx.Done():
+        feedErr = ctx.Err()
+        stop()
+        stopped = true
+    case <-stopCh:
+        stopped = true
+    case jobCh <- job{idx:i, task:t}:
+        // continue
+    }
+}
+close(jobCh)
+wg.Wait()
+
+Now decide final error:
+
+if feedErr != nil {
+    return nil, feedErr
+}
+if firstErr != nil {
+    return nil, firstErr
+}
+return results, nil
+
+Edge Cases: If parent ctx cancelled after some tasks started, feed loop may still be sending jobs; but we will detect ctx.Done() and stop feeding. Already queued jobs may still be in channel; they may be started. That's okay because they were queued before cancellation; but requirement says "stop starting new tasks" after cancellation. Since we stop feeding, no new jobs will be queued. However there may be jobs already queued (sent) before cancellation; they will start. That's acceptable? The spec says "stop starting new tasks" after cancellation; but if they were already queued, they are considered started? The spec: "stop starting new tasks, cancel the task context, wait for started tasks". If we already sent them to channel, they haven't started yet but are queued. Ideally we should not start them after cancellation. To guarantee, we need to ensure that after cancellation we also prevent workers from picking up jobs that were queued before cancellation. That's tricky. Simpler: we can make jobCh buffered of size workers, and we only send jobs when a worker is ready (i.e., we can use a semaphore). But spec may accept that queued tasks may start; but they were already "started" in sense of being scheduled. Usually acceptable.
+
+But we can improve: Use a semaphore channel to limit concurrency and also to coordinate feeding: each time we send a job, we acquire a token from a semaphore that workers release after finishing. This ensures that at most workers tasks are in flight, and we only send next job when a worker is ready, meaning we won't have queued tasks beyond workers. This also ensures that after cancellation we won't have pending jobs waiting in channel because we stop feeding and no token is held.
+
+Implementation: Use a buffered channel sem := make(chan struct{}, workers). Initially fill with workers tokens? Actually we want to limit concurrency: before sending a job, we acquire token (i.e., send struct{} into sem). Worker after finishing releases token (receive from sem). But we also have workers reading from jobCh; we could just have a single goroutine feeding jobs sequentially and workers reading; but we need to ensure that we don't queue tasks beyond workers. Using unbuffered jobCh with workers reading ensures that at most workers tasks are started concurrently because each worker reads a job and runs it; but there could be more jobs queued if we send them faster than workers consume; but with unbuffered channel, send blocks until a worker receives, so we won't queue more than workers. However we have multiple workers reading concurrently; each send will be received by any idle worker; if all workers busy, send blocks, so we won't queue tasks. So unbuffered channel is fine.
+
+Thus after cancellation, if we stop feeding, there may be a send blocked waiting for a worker; but we will break out of loop after stopCh closed; but the send may be blocked. To avoid deadlock, we need to select with stopCh and ctx.Done() while sending. That's what we did.
+
+Thus after cancellation, we close jobCh; but if a send is blocked, we need to ensure we don't close channel while send is blocked (panic). So we need to ensure we break out before closing. In our loop, we use select to send; if stopCh closed, we break before attempting send. So no blocked send.
+
+Edge Cases: If a worker returns error and calls stop(), the stopCh closed; the feeding loop may be blocked on select case jobCh <- job; but select includes case <-stopCh, which will be ready, so it will choose that case and break, not send. Good.
+
+Now we need to ensure we close jobCh after loop (even if early break). That's fine.
+
+Now we need to ensure we wait for workers after cancel. Workers will exit when jobCh closed; they may still be processing tasks that were already started. They will finish and exit.
+
+Now we need to ensure we propagate first error correctly. Use errOnce.
+
+Potential race: firstErr set after cancel; but we also may have feedErr (ctx.Err). If both happen, we need to prioritize first error? The spec: if any task returns error, return that error; if parent ctx cancelled, return ctx.Err(). If both happen, whichever occurs first should be returned. Our logic: feedErr set only when ctx.Done() observed; if a task error occurs earlier, errOnce will set firstErr and cancel; ctx may also be cancelled later (maybe due to cancel). In that case, feedErr may be set after we already have firstErr. At the end we check feedErr first; that would incorrectly return ctx.Err even though task error earlier. So we need to prioritize first error. We can capture first error via a channel or sync.Once that also records error source. Use errOnce to capture any error (including ctx.Err). When ctx cancelled, we can also call errOnce.Do(func(){ firstErr = ctx.Err(); cancel(); stop() }) . But we also need to stop feeding. In feeding loop, when ctx.Done() we set feedErr but also call errOnce.Do(...). Simpler: treat ctx cancellation as error as well.
+
+Implementation: Have a function setError(err error) that does once.Do(func(){ firstErr = err; cancel(); stop() }). Then in worker error case call setError(err). In feeding loop when ctx.Done() we call setError(ctx.Err()) and break.
+
+Then after wg.Wait, we return nil, firstErr (if not nil) else results.
+
+If no error, firstErr nil.
+
+Edge Cases: If tasks slice empty, return nil slice and nil error.
+
+Now implement.
+
+Need to import context, errors, sync.
+
+Define Task type and Run function.
+
+Make sure to use any (Go 1.22). Use any alias.
+
+Implementation details:
+
+type Task func(ctx context.Context) (any, error)
+
+func Run(ctx context.Context, tasks []Task, workers int) ([]any, error) {
+    if workers < 1 {
+        return nil, errors.New("workers must be >= 1")
+    }
+    if len(tasks) == 0 {
+        return nil, nil
+    }
+
+    // derived context for tasks
+    taskCtx, cancel := context.WithCancel(ctx)
+    defer cancel()
+
+    type job struct {
+        idx  int
+        task Task
+    }
+
+    jobCh := make(chan job)
+    stopCh := make(chan struct{})
+    var stopOnce sync.Once
+    stop := func() { stopOnce.Do(func() { close(stopCh) }) }
+
+    var wg sync.WaitGroup
+    var errOnce sync.Once
+    var firstErr error
+
+    setError := func(err error) {
+        errOnce.Do(func() {
+            firstErr = err
+            cancel()
+            stop()
+        })
+    }
+
+    // start workers
+    if workers > len(tasks) {
+        workers = len(tasks)
+    }
+    wg.Add(workers)
+    for i := 0; i < workers; i++ {
+        go func() {
+            defer wg.Done()
+            for j := range jobCh {
+                // run task
+                res, err := j.task(taskCtx)
+                if err != nil {
+                    setError(err)
+                    continue
+                }
+                // store result only if no error yet (optional)
+                // we can store anyway
+                // but need to protect against race with other workers? each index unique, so fine.
+                // However if error occurs later, we will ignore results.
+                // So store.
+                // Ensure we don't write after cancellation? It's okay.
+                // Use results slice defined later.
+                // We'll need results variable accessible.
+                // We'll capture via closure.
+                // We'll define results slice before workers.
+                // We'll need to assign inside worker; results is shared, but each index unique, no race.
+                // So fine.
+                // We'll need to have results variable defined outside.
+                // We'll assign after we define results.
+                // We'll need to capture results via pointer.
+                // We'll define results slice before launching workers.
+                // So we need to move results definition earlier.
+                // We'll do that now.
+                // Actually we defined results later; but we can still assign because results is defined earlier.
+                // We'll define results now.
+                // We'll restructure code: define results slice before launching workers.
+                // We'll adjust later.
+                // For now placeholder.
+                // We'll store after we have results variable.
+                // We'll use a closure variable.
+                // We'll just store after we have results defined.
+                // We'll restructure code accordingly.
+                // We'll just store after we have results defined.
+                // We'll need to capture results via outer variable.
+                // We'll do that.
+                // So we need to move results definition before launching workers.
+                // We'll adjust code after this block.
+                // For now, we can just ignore storing; but we need results for success.
+                // We'll restructure later.
+                // Let's break out of this analysis and rewrite final code.
+                _ = res // placeholder
+            }
+        }()
+    }
+
+But we need results slice defined before workers. Let's restructure final code.
+
+Implementation final:
+
+func Run(ctx context.Context, tasks []Task, workers int) ([]any, error) {
+    if workers < 1 {
+        return nil, errors.New("workers must be >= 1")
+    }
+    if len(tasks) == 0 {
+        return nil, nil
+    }
+
+    taskCtx, cancel := context.WithCancel(ctx)
+    defer cancel()
+
+    results := make([]any, len(tasks))
+
+    type job struct {
+        idx  int
+        task Task
+    }
+
+    jobCh := make(chan job)
+    stopCh := make(chan struct{})
+    var stopOnce sync.Once
+    stop := func() { stopOnce.Do(func() { close(stopCh) }) }
+
+    var wg sync.WaitGroup
+    var errOnce sync.Once
+    var firstErr error
+
+    setError := func(err error) {
+        errOnce.Do(func() {
+            firstErr = err
+            cancel()
+            stop()
+        })
+    }
+
+    // worker
+    worker := func() {
+        defer wg.Done()
+        for j := range jobCh {
+            res, err := j.task(taskCtx)
+            if err != nil {
+                setError(err)
+                continue
+            }
+            // store result; safe because each idx unique
+            results[j.idx] = res
+        }
+    }
+
+    if workers > len(tasks) {
+        workers = len(tasks)
+    }
+    wg.Add(workers)
+    for i := 0; i < workers; i++ {
+        go worker()
+    }
+
+    // feed jobs
+    stopped := false
+    for i, t := range tasks {
+        if stopped {
+            break
+        }
+        select {
+        case <-ctx.Done():
+            setError(ctx.Err())
+            stopped = true
+        case <-stopCh:
+            stopped = true
+        case jobCh <- job{idx: i, task: t}:
+            // sent
+        }
+    }
+    // no more jobs
+    close(jobCh)
+
+    wg.Wait()
+
+    if firstErr != nil {
+        return nil, firstErr
+    }
+    return results, nil
+}
+
+Now check semantics:
+
+- workers <1 returns error.
+
+- len(tasks)==0 returns nil slice, nil error.
+
+- Bounded concurrency: unbuffered channel ensures at most workers tasks concurrently.
+
+- Fail fast: setError cancels context and stops feeding; workers already started will finish; tasks not started will not be sent because feeding stops; but there may be tasks already queued (sent) but not yet started because workers busy; they will be received later after cancellation; they will run with cancelled context; spec says tasks not yet started must never start. Our implementation may still start them because they are already queued. However they will see cancelled context; but they still start. Might be acceptable? Might be considered violation. To avoid, we need to ensure that after cancellation, workers do not start new tasks even if they are already queued. We can modify worker loop to check taskCtx.Err() before executing each job: if taskCtx.Err()!=nil { // skip execution } else run. But they still "start" but quickly return. The spec says "tasks that have not yet started must never start". If we skip execution, they effectively didn't start. So we can add check:
+
+for j := range jobCh {
+    select {
+    case <-taskCtx.Done():
+        // don't start, just continue to drain
+        continue
+    default:
+    }
+    // run
+}
+
+But we also need to ensure we still drain channel to let workers exit. So we can check before calling task.
+
+Implementation:
+
+for j := range jobCh {
+    if taskCtx.Err() != nil {
+        // skip execution
+        continue
+    }
+    res, err := j.task(taskCtx)
+    ...
+}
+
+Thus after cancellation, workers will just skip tasks.
+
+Now tasks that were queued but not yet started will be skipped.
+
+Now final code.
+
+Need to import packages: context, errors, sync.
+
+Make sure to use any.
+
+Edge Cases: When ctx cancelled, setError called, stopCh closed, feeding loop stops, close(jobCh). Workers may still have tasks in channel; they will read them, see taskCtx.Err()!=nil and skip.
+
+Now final code.
+
+Testing: We'll produce final answer.
+

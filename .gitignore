@@ -6,3 +6,9 @@ __pycache__/
 
 # backup of the pre-portability run_all.sh, kept locally only
 *.orig
+
+# API keys for the hosted-model runs. This repo is public: a key committed here
+# is a key published, so ignore every shape of it, not just the one in use.
+.env
+.env.*
+*.key

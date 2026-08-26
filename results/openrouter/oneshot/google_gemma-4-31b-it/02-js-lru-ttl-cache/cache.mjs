@@ -1,0 +1,141 @@
+/**
+ * LruTtlCache implements a Least Recently Used (LRU) cache with 
+ * Time-To-Live (TTL) expiration.
+ */
+export class LruTtlCache {
+  constructor({ capacity, defaultTtlMs = Infinity, now = () => Date.now() }) {
+    if (!Number.isInteger(capacity) || capacity < 1) {
+      throw new RangeError('Capacity must be an integer >= 1');
+    }
+
+    this._capacity = capacity;
+    this._defaultTtlMs = defaultTtlMs;
+    this._now = now;
+    
+    // Map preserves insertion order. 
+    // We treat the "end" of the map as Most Recently Used (MRU)
+    // and the "start" as Least Recently Used (LRU).
+    this._cache = new Map();
+  }
+
+  /**
+   * Internal helper to check if an entry is expired.
+   */
+  _isExpired(expiry) {
+    if (expiry === Infinity) return false;
+    return this._now() >= expiry;
+  }
+
+  /**
+   * Internal helper to remove an entry and return true if it existed.
+   */
+  _remove(key) {
+    return this._cache.delete(key);
+  }
+
+  /**
+   * Inserts or updates a value.
+   * O(1) amortized.
+   */
+  set(key, value, ttlMs) {
+    const expiry = this._now() + (ttlMs ?? this._defaultTtlMs);
+
+    // If key exists, remove it first to update position to MRU
+    if (this._cache.has(key)) {
+      this._cache.delete(key);
+    }
+
+    // Eviction logic if at capacity
+    if (this._cache.size >= this._capacity) {
+      // 1. Try to evict any expired entries first
+      for (const [k, entry] of this._cache.entries()) {
+        if (this._isExpired(entry.expiry)) {
+          this._cache.delete(k);
+        }
+      }
+
+      // 2. If still over capacity, evict the LRU (the first entry in the Map)
+      if (this._cache.size >= this._capacity) {
+        const firstKey = this._cache.keys().next().value;
+        this._cache.delete(firstKey);
+      }
+    }
+
+    this._cache.set(key, { value, expiry });
+    return this;
+  }
+
+  /**
+   * Retrieves a value and marks it as MRU.
+   * O(1) amortized.
+   */
+  get(key) {
+    const entry = this._cache.get(key);
+    if (!entry) return undefined;
+
+    if (this._isExpired(entry.expiry)) {
+      this._remove(key);
+      return undefined;
+    }
+
+    // Refresh recency: delete and re-insert
+    this._cache.delete(key);
+    this._cache.set(key, entry);
+
+    return entry.value;
+  }
+
+  /**
+   * Checks if key exists and is not expired.
+   * O(1) amortized.
+   */
+  has(key) {
+    const entry = this._cache.get(key);
+    if (!entry) return false;
+
+    if (this._isExpired(entry.expiry)) {
+      this._remove(key);
+      return false;
+    }
+
+    return true;
+  }
+
+  /**
+   * Removes an entry.
+   * O(1) amortized.
+   */
+  delete(key) {
+    return this._remove(key);
+  }
+
+  /**
+   * Returns number of live entries. Purges expired entries.
+   */
+  get size() {
+    const currentTime = this._now();
+    for (const [key, entry] of this._cache.entries()) {
+      if (entry.expiry !== Infinity && currentTime >= entry.expiry) {
+        this._cache.delete(key);
+      }
+    }
+    return this._cache.size;
+  }
+
+  /**
+   * Returns live keys from MRU to LRU.
+   */
+  keys() {
+    // Filter out expired entries first
+    const liveKeys = [];
+    for (const [key, entry] of this._cache.entries()) {
+      if (!this._isExpired(entry.expiry)) {
+        liveKeys.push(key);
+      } else {
+        this._cache.delete(key);
+      }
+    }
+    // Map order is LRU -> MRU, so we reverse for MRU -> LRU
+    return liveKeys.reverse();
+  }
+}

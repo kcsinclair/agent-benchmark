@@ -1,0 +1,74 @@
+{
+  "wall_seconds": 732.9,
+  "track": "reasoning",
+  "settings": {
+    "temperature": 0.0,
+    "max_tokens": 2048,
+    "think": "off",
+    "repeat": 1,
+    "seed": 1,
+    "server": "https://openrouter.ai/api",
+    "categories": [
+      "state",
+      "constraint",
+      "compliance",
+      "abstention",
+      "trap",
+      "retrieval"
+    ],
+    "provider": "Novita"
+  },
+  "results": [
+    {
+      "model": "google/gemma-4-31b-it",
+      "load_seconds": null,
+      "passes": [
+        {
+          "pass": 1,
+          "dir": "/Users/keith/Code/agent-benchmark/results/openrouter/reasoning/google_gemma-4-31b-it",
+          "totals": {
+            "state": {
+              "right": 8,
+              "count": 20,
+              "seconds": 29.5,
+              "cost_usd": 0.0003
+            },
+            "constraint": {
+              "right": 13,
+              "count": 20,
+              "seconds": 22.1,
+              "cost_usd": 0.0003
+            },
+            "compliance": {
+              "right": 20,
+              "count": 20,
+              "seconds": 25.0,
+              "cost_usd": 0.0002
+            },
+            "abstention": {
+              "right": 18,
+              "count": 20,
+              "seconds": 24.3,
+              "cost_usd": 0.0003
+            },
+            "trap": {
+              "right": 14,
+              "count": 14,
+              "seconds": 17.8,
+              "cost_usd": 0.0002
+            },
+            "retrieval": {
+              "right": 8,
+              "count": 8,
+              "seconds": 13.8,
+              "cost_usd": 0.0109
+            }
+          },
+          "right": 81,
+          "count": 102,
+          "cost_usd": 0.0122
+        }
+      ]
+    }
+  ]
+}

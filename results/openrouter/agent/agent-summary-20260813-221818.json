@@ -1,0 +1,151 @@
+{
+  "wall_seconds": 638.2,
+  "track": "agent",
+  "settings": {
+    "temperature": 0.0,
+    "max_tokens": 8192,
+    "max_turns": 12,
+    "think": "off",
+    "repeat": 1,
+    "server": "https://openrouter.ai/api",
+    "provider": "SiliconFlow"
+  },
+  "results": [
+    {
+      "model": "qwen/qwen3-coder-30b-a3b-instruct",
+      "track": "agent",
+      "load_seconds": null,
+      "passes": [
+        {
+          "pass": 1,
+          "dir": "/Users/keith/Code/agent-benchmark/results/openrouter/agent/qwen_qwen3-coder-30b-a3b-instruct",
+          "problems": [
+            {
+              "problem": "01-python-parse-duration",
+              "turns": 2,
+              "tool_calls": 1,
+              "bad_calls": 0,
+              "files": [
+                "parse_duration.py"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 819,
+              "stop": "stopped after 2 turn(s)",
+              "prose_only": false,
+              "native_calls": 1,
+              "cost": 0.00043281,
+              "provider": "SiliconFlow",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 42.2,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "02-js-lru-ttl-cache",
+              "turns": 2,
+              "tool_calls": 1,
+              "bad_calls": 0,
+              "files": [
+                "cache.mjs"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 910,
+              "stop": "stopped after 2 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.00046053,
+              "provider": "SiliconFlow",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 53.4,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "03-sql-analytics",
+              "turns": 6,
+              "tool_calls": 5,
+              "bad_calls": 0,
+              "files": [
+                "q1.sql",
+                "q2.sql",
+                "q3.sql",
+                "q4.sql"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 678,
+              "stop": "stopped after 6 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.0008049299999999999,
+              "provider": "SiliconFlow",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 67.5,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "04-go-worker-pool",
+              "turns": 2,
+              "tool_calls": 1,
+              "bad_calls": 0,
+              "files": [
+                "pool.go"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 671,
+              "stop": "stopped after 2 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.0003766,
+              "provider": "SiliconFlow",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 44.4,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "05-python-scheduler",
+              "turns": 8,
+              "tool_calls": 7,
+              "bad_calls": 0,
+              "files": [
+                "scheduler.py",
+                "scheduler.py",
+                "scheduler.py",
+                "scheduler.py",
+                "scheduler.py",
+                "scheduler.py",
+                "scheduler.py"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 7692,
+              "stop": "stopped after 8 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.004920160000000001,
+              "provider": "SiliconFlow",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 429.2,
+              "missing": [],
+              "extra": []
+            }
+          ],
+          "seconds": 636.7,
+          "cost_usd": 0.007,
+          "score": 47,
+          "max": 68
+        }
+      ]
+    }
+  ]
+}

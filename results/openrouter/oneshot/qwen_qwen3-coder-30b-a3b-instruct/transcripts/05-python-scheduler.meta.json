@@ -1,0 +1,39 @@
+{
+  "model": "qwen/qwen3-coder-30b-a3b-instruct",
+  "served_model": "qwen/qwen3-coder-30b-a3b-instruct",
+  "provider": "SiliconFlow",
+  "request_id": "gen-1786622834-ztE8x8MooAOMFZBlqmUw",
+  "server": "https://openrouter.ai/api",
+  "finish_reason": "stop",
+  "native_finish_reason": "stop",
+  "mode": "think=n/a (no reasoning switch on this model)",
+  "decode": {
+    "max_tokens": 16384,
+    "temperature": 0.0,
+    "thinking": "think=n/a (no reasoning switch on this model)"
+  },
+  "usage": {
+    "prompt_tokens": 636,
+    "completion_tokens": 1028,
+    "total_tokens": 1664,
+    "cost": 0.00033236,
+    "is_byok": false,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+    },
+    "cost_details": {
+      "upstream_inference_cost": 0.00033236,
+      "upstream_inference_prompt_cost": 4.452e-05,
+      "upstream_inference_completions_cost": 0.00028784
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "image_tokens": 0,
+      "audio_tokens": 0
+    }
+  },
+  "seconds": 24.1
+}
