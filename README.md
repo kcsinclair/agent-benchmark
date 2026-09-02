@@ -1,7 +1,17 @@
 # TL;DR
 
-# Setup your environment
-Check .env.example and docs
+# Get it and setup your environment
+Check .env.example and docs [[RUNNING.md]]
+
+You will need to ask for access to the harness submodule which is deliberately not public to keep it out of training data.  Happy to share to humans.
+
+```
+git clone --recurse-submodules git@github.com:kcsinclair/agent-benchmark.git
+cd agent-benchmark
+cp .env.example .env && chmod 600 .env    # then paste your key and profiles
+./bench.sh doctor
+./bench.sh selftest
+```
 
 # Run a benchmark
 ```
