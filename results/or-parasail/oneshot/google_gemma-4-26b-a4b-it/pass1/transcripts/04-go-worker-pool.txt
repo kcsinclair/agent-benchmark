@@ -1,0 +1,117 @@
+```go
+package main
+
+import (
+	"context"
+	"errors"
+	"sync"
+)
+
+// Task is one unit of work.
+type Task func(ctx context.Context) (any, error)
+
+// result wraps the output of a task to be sent over a channel.
+type result struct {
+	index int
+	val   any
+	err   error
+}
+
+// Run executes tasks with at most `workers` running concurrently and returns
+// their results in the same order as the input slice.
+func Run(ctx context.Context, tasks []Task, workers int) ([]any, error) {
+	if workers < 1 {
+		return nil, errors.New("workers must be at least 1")
+	}
+
+	n := len(tasks)
+	if n == 0 {
+		return []any{}, nil
+	}
+
+	// Create a derived context that we can cancel internally if a task fails
+	// or if the parent context is cancelled.
+	runCtx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	results := make([]any, n)
+	resChan := make(chan result, n)
+	
+	// semaphore limits the number of concurrent goroutines.
+	semaphore := make(chan struct{}, workers)
+	
+	// wg ensures we wait for all started goroutines to finish to prevent leaks.
+	var wg sync.WaitGroup
+
+	// errOnce ensures we only capture the first error that occurs.
+	var errOnce sync.Once
+	var firstErr error
+
+	// taskLauncher is responsible for feeding tasks into the worker pool.
+	// It stops if the context is cancelled or an error occurs.
+	go func() {
+		for i := 0; i < n; i++ {
+			select {
+			case <-runCtx.Done():
+				// Stop launching new tasks if context is cancelled or error occurred.
+				return
+			case semaphore <- struct{}{}:
+				// Acquired a slot in the worker pool.
+				wg.Add(1)
+				go func(idx int) {
+					defer wg.Done()
+					defer func() { <-semaphore }() // Release slot
+
+					val, err := tasks[idx](runCtx)
+					
+					// If an error occurred, capture it once and cancel the runCtx
+					// to signal other running tasks and stop the launcher.
+					if err != nil {
+						errOnce.Do(func() {
+							firstErr = err
+							cancel()
+						})
+					}
+
+					resChan <- result{index: idx, val: val, err: err}
+				}(i)
+			}
+		}
+	}()
+
+	// Wait for all started tasks to complete in a separate goroutine.
+	// This allows us to close the channel and proceed to collection.
+	go func() {
+		wg.Wait()
+		close(resChan)
+	}()
+
+	// Collect results.
+	// We must loop through the results sent to resChan.
+	// Even if an error occurs, we must drain the channel to ensure wg.Wait() completes.
+	receivedCount := 0
+	for res := range resChan {
+		receivedCount++
+		if res.err != nil {
+			// If we haven't captured an error yet, capture this one.
+			// (Though errOnce in the goroutine usually handles this).
+			errOnce.Do(func() {
+				firstErr = res.err
+				cancel()
+			})
+		}
+		// We store results in the slice by index to maintain order.
+		// Note: if firstErr is set, the final return will ignore these.
+		if res.val != nil || res.err == nil {
+			results[res.index] = res.val
+		}
+	}
+
+	// If an error was captured (either from a task or context cancellation), return nil and the error.
+	if firstErr != nil {
+		return nil, firstErr
+	}
+
+	return results, nil
+}
+```

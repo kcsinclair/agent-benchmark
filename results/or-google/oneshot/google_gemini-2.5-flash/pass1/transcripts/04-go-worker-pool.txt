@@ -1,0 +1,99 @@
+```go
+package main
+
+import (
+	"context"
+	"errors"
+	"fmt"
+	"sync"
+)
+
+// Task is one unit of work.
+type Task func(ctx context.Context) (any, error)
+
+// Run executes tasks with at most `workers` running concurrently and returns
+// their results in the same order as the input slice.
+func Run(ctx context.Context, tasks []Task, workers int) ([]any, error) {
+	if workers < 1 {
+		return nil, errors.New("workers must be at least 1")
+	}
+
+	if len(tasks) == 0 {
+		return []any{}, nil
+	}
+
+	results := make([]any, len(tasks))
+	errChan := make(chan error, 1) // Buffered to prevent blocking if an error occurs
+	taskChan := make(chan int, len(tasks))
+	var wg sync.WaitGroup
+
+	// Create a cancellable context for all tasks
+	taskCtx, cancelTasks := context.WithCancel(ctx)
+	defer cancelTasks() // Ensure all task contexts are cancelled when Run exits
+
+	// Start worker goroutines
+	for i := 0; i < workers; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for taskIdx := range taskChan {
+				select {
+				case <-taskCtx.Done():
+					// Parent context or an error cancelled tasks.
+					// Don't start new tasks, just exit.
+					return
+				default:
+					// Continue with the task
+				}
+
+				result, err := tasks[taskIdx](taskCtx)
+				if err != nil {
+					select {
+					case errChan <- err:
+						// Successfully sent the first error
+					default:
+						// Another error already sent, ignore this one
+					}
+					cancelTasks() // Cancel all other tasks
+					return
+				}
+				results[taskIdx] = result
+			}
+		}()
+	}
+
+	// Distribute tasks to workers
+	go func() {
+		for i := 0; i < len(tasks); i++ {
+			select {
+			case <-taskCtx.Done():
+				// Parent context or an error cancelled tasks.
+				// Stop sending new tasks.
+				return
+			case taskChan <- i:
+				// Task sent
+			}
+		}
+		close(taskChan) // No more tasks to send
+	}()
+
+	// Wait for all workers to finish or for an error/cancellation
+	go func() {
+		wg.Wait()
+		close(errChan) // All workers are done, no more errors will be sent
+	}()
+
+	select {
+	case err := <-errChan:
+		// An error occurred in one of the tasks
+		// Ensure all workers are done before returning
+		wg.Wait()
+		return nil, err
+	case <-ctx.Done():
+		// The parent context was cancelled
+		cancelTasks() // Ensure all tasks are cancelled
+		wg.Wait()     // Wait for all workers to finish
+		return nil, ctx.Err()
+	}
+}
+```

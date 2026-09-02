@@ -1,0 +1,52 @@
+**Implementing Cache Logic**
+
+My focus is on defining the constructor for `LruTtlCache`. I'm carefully considering the parameters: `capacity` as a mandatory integer, `defaultTtlMs` with a default of infinity, and `now` for time resolution.
+
+**Refining Map Order**
+
+I'm currently exploring how to leverage JavaScript's `Map` to efficiently manage the least recently used (LRU) and most recently used (MRU) entries. My goal is to ensure iteration over `map.keys()` accurately reflects this order, allowing me to easily identify and evict the LRU item when needed.
+
+**Evaluating Eviction Rules**
+
+I'm re-examining how expired keys are handled. It appears that `map.keys()` might not automatically purge them, which contradicts the requirement for a live, ordered list. I need to confirm if `size` getter performs purging and how `set` interacts with existing expired entries during eviction.
+
+**Testing Expiration Scenarios**
+
+I'm now testing the behavior when setting an entry that's already expired or has a TTL of zero or less. I need to confirm if such entries are stored at all or immediately discarded, and how this impacts existing cache entries.
+
+**Considering Cache Behavior**
+
+I'm analyzing the `set` operation, specifically how to handle already expired entries and when to evict items to respect capacity. My current thought is that if a new entry is already expired or if the cache is full and we're adding a new item, it should be handled gracefully without adding to the map.
+
+**Refining Eviction Loop**
+
+I'm revising the eviction logic. It seems a `while` loop is more robust than a single pass to ensure capacity constraints are always met after purging expired items, potentially evicting multiple LRU entries if needed.
+
+**Validating Eviction Logic**
+
+I've confirmed that deleting keys from a JavaScript `Map` preserves the insertion order of remaining elements, ensuring the LRU-MRU sequence is maintained. My `get size()` logic now correctly purges expired entries and returns the count of live ones, aligning with the requirements.
+
+**Reversing Map Keys**
+
+I've confirmed that reversing `Array.from(this.#map.keys())` efficiently produces the MRU to LRU order needed. I'm also addressing constructor argument validation, specifically ensuring `capacity` is a positive integer.
+
+**Validating Constructor Inputs**
+
+I'm meticulously checking constructor arguments to ensure robustness. Specifically, `capacity` must be a positive integer; I'm refining the validation to catch `NaN`, non-numeric strings, `null`, `undefined`, `Infinity`, zero, and negative numbers, throwing a `RangeError` for invalid inputs.
+
+**Clarifying Delete Behavior**
+
+I'm scrutinizing the `delete(key)` method. I need to ascertain if calling it on an expired key should return true or false, and whether it must explicitly check for expiry or if `Map.delete` handles this implicitly. The requirement is to remove the entry if something was removed.
+
+**Confirming Delete Logic**
+
+I'm finalizing the `delete(key)` implementation. My current thinking is that if the key exists but is expired, it should be removed from the internal map but `delete` should return `false` as it wasn't a valid, live entry to begin with.
+
+**Refining Set Logic**
+
+I'm revisiting the `set` method, specifically handling cases where the provided `ttlMs` is undefined, negative, or zero. My current approach is to use `??` for the default TTL and calculate `expiresAt` correctly. I'm also considering how to prevent storing entries that are immediately expired due to a non-positive TTL, ensuring they are gracefully discarded.
+
+**Refining Eviction Logic**
+
+I'm solidifying the eviction strategy. My current refinement involves a `while` loop for purging expired items to ensure capacity is strictly maintained, potentially removing multiple LRU entries if necessary to accommodate new additions. This approach is proving more robust.
+

@@ -1,0 +1,76 @@
+```sql
+-- q1.sql
+SELECT
+  c.name AS customer_name,
+  ROUND(SUM(oi.quantity * p.unit_price), 2) AS revenue
+FROM customers AS c
+JOIN orders AS o
+  ON c.id = o.customer_id
+JOIN order_items AS oi
+  ON o.id = oi.order_id
+JOIN products AS p
+  ON oi.product_id = p.id
+WHERE
+  o.status = 'completed'
+GROUP BY
+  c.id,
+  c.name
+ORDER BY
+  revenue DESC,
+  customer_name ASC;
+```
+
+```sql
+-- q2.sql
+SELECT
+  p.name AS product_name,
+  SUM(oi.quantity) AS units_sold
+FROM products AS p
+JOIN order_items AS oi
+  ON p.id = oi.product_id
+JOIN orders AS o
+  ON oi.order_id = o.id
+WHERE
+  o.status = 'completed'
+GROUP BY
+  p.id,
+  p.name
+ORDER BY
+  units_sold DESC,
+  product_name ASC
+LIMIT 3;
+```
+
+```sql
+-- q3.sql
+SELECT
+  c.name AS customer_name,
+  c.country
+FROM customers AS c
+LEFT JOIN orders AS o
+  ON c.id = o.customer_id
+WHERE
+  o.id IS NULL
+ORDER BY
+  customer_name ASC;
+```
+
+```sql
+-- q4.sql
+SELECT
+  strftime('%Y-%m', o.ordered_at) AS month,
+  ROUND(SUM(oi.quantity * p.unit_price), 2) AS revenue
+FROM orders AS o
+JOIN order_items AS oi
+  ON o.id = oi.order_id
+JOIN products AS p
+  ON oi.product_id = p.id
+WHERE
+  o.status = 'completed' AND strftime('%Y', o.ordered_at) = '2025'
+GROUP BY
+  month
+HAVING
+  revenue > 0
+ORDER BY
+  month ASC;
+```

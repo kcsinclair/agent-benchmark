@@ -1,0 +1,109 @@
+export class LruTtlCache {
+  #capacity;
+  #defaultTtlMs;
+  #now;
+  #map;
+
+  constructor({ capacity, defaultTtlMs = Infinity, now = () => Date.now() } = {}) {
+    if (typeof capacity !== 'number' || !Number.isInteger(capacity) || capacity < 1) {
+      throw new RangeError('capacity must be an integer >= 1');
+    }
+    this.#capacity = capacity;
+    this.#defaultTtlMs = defaultTtlMs;
+    this.#now = now;
+    this.#map = new Map();
+  }
+
+  #isExpired(entry) {
+    if (entry.expiresAt === Infinity) {
+      return false;
+    }
+    return this.#now() >= entry.expiresAt;
+  }
+
+  set(key, value, ttlMs) {
+    const ttl = ttlMs ?? this.#defaultTtlMs;
+    const expiresAt = ttl === Infinity ? Infinity : this.#now() + ttl;
+
+    this.#map.delete(key);
+
+    if (expiresAt !== Infinity && this.#now() >= expiresAt) {
+      return this;
+    }
+
+    if (this.#map.size >= this.#capacity) {
+      for (const [k, entry] of this.#map) {
+        if (this.#isExpired(entry)) {
+          this.#map.delete(k);
+        }
+      }
+    }
+
+    while (this.#map.size >= this.#capacity) {
+      const lruKey = this.#map.keys().next().value;
+      this.#map.delete(lruKey);
+    }
+
+    this.#map.set(key, { value, expiresAt });
+    return this;
+  }
+
+  get(key) {
+    const entry = this.#map.get(key);
+    if (!entry) {
+      return undefined;
+    }
+
+    if (this.#isExpired(entry)) {
+      this.#map.delete(key);
+      return undefined;
+    }
+
+    this.#map.delete(key);
+    this.#map.set(key, entry);
+    return entry.value;
+  }
+
+  has(key) {
+    const entry = this.#map.get(key);
+    if (!entry) {
+      return false;
+    }
+
+    if (this.#isExpired(entry)) {
+      this.#map.delete(key);
+      return false;
+    }
+
+    return true;
+  }
+
+  delete(key) {
+    const entry = this.#map.get(key);
+    if (!entry) {
+      return false;
+    }
+
+    const expired = this.#isExpired(entry);
+    this.#map.delete(key);
+    return !expired;
+  }
+
+  get size() {
+    for (const [key, entry] of this.#map) {
+      if (this.#isExpired(entry)) {
+        this.#map.delete(key);
+      }
+    }
+    return this.#map.size;
+  }
+
+  keys() {
+    for (const [key, entry] of this.#map) {
+      if (this.#isExpired(entry)) {
+        this.#map.delete(key);
+      }
+    }
+    return Array.from(this.#map.keys()).reverse();
+  }
+}

@@ -1,0 +1,93 @@
+import re
+
+def parse_duration(text: str) -> float:
+    """
+    Parses a human-readable duration string and returns the total
+    number of seconds as a float.
+
+    Args:
+        text: The duration string to parse.
+
+    Returns:
+        The total number of seconds as a float.
+
+    Raises:
+        TypeError: If the input is not a string.
+        ValueError: If the input string violates any of the formatting rules.
+    """
+    if not isinstance(text, str):
+        raise TypeError("Input must be a string.")
+
+    text = text.strip()
+    if not text:
+        raise ValueError("Duration string cannot be empty.")
+
+    sign = 1.0
+    if text.startswith('-'):
+        sign = -1.0
+        text = text[1:]
+
+    if not text:
+        raise ValueError("Duration string cannot be just a minus sign.")
+
+    total_seconds = 0.0
+    last_unit_index = -1  # To enforce strictly descending order
+
+    # Define units and their conversion factors to seconds
+    # Order matters here for parsing and validation
+    units = {
+        'h': {'value': 3600.0, 'index': 0},
+        'm': {'value': 60.0, 'index': 1},
+        's': {'value': 1.0, 'index': 2},
+        'ms': {'value': 0.001, 'index': 3}
+    }
+
+    # Regex to match a number followed by a unit
+    # Number: (?:[0-9]+\.?[0-9]*|\.[0-9]+)
+    # This allows "1.5", "2", ".5" but not "5." or "."
+    # The problem statement says "no bare . or .5" and "no trailing dot (5. is invalid)".
+    # Let's refine the number regex to match "2", "1.5", "0.25" but not ".5" or "5."
+    # A number must start with a digit, optionally followed by a fractional part.
+    # This means `[0-9]+(\.[0-9]*)?` for integers or decimals starting with a digit.
+    # However, `[0-9]+(\.[0-9]+)?` is better for "1.5", "2", "0.25" and disallows "5."
+    # The problem states "no bare . or .5". ".5" is a valid number in many contexts,
+    # but the problem implies it should start with a digit.
+    # Let's use `[0-9]+(?:\.[0-9]+)?` for numbers like "2", "1.5", "0.25".
+    # This ensures it starts with a digit and if there's a decimal, it's followed by digits.
+    # This also correctly rejects "5." (trailing dot) and ".5" (bare dot).
+    component_pattern = re.compile(r'([0-9]+(?:\.[0-9]+)?)(h|m|s|ms)')
+
+    # Find all components
+    components = []
+    current_pos = 0
+    while current_pos < len(text):
+        match = component_pattern.match(text, current_pos)
+        if not match:
+            raise ValueError(f"Invalid duration format or unexpected characters at '{text[current_pos:]}'.")
+
+        num_str, unit_str = match.groups()
+        components.append((float(num_str), unit_str))
+        current_pos = match.end()
+
+    if current_pos != len(text):
+        raise ValueError(f"Invalid duration format or unexpected characters at '{text[current_pos:]}'.")
+
+    if not components:
+        raise ValueError("At least one component is required.")
+
+    seen_units = set()
+    for value, unit in components:
+        if unit in seen_units:
+            raise ValueError(f"Unit '{unit}' repeated.")
+        seen_units.add(unit)
+
+        unit_info = units[unit]
+        current_unit_index = unit_info['index']
+
+        if current_unit_index <= last_unit_index:
+            raise ValueError(f"Units are not in strictly descending order. '{unit}' appeared after a smaller or equal unit.")
+        last_unit_index = current_unit_index
+
+        total_seconds += value * unit_info['value']
+
+    return sign * total_seconds

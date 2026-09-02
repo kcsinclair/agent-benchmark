@@ -1,0 +1,16 @@
+**Analyzing Schema Definitions**
+
+I'm currently dissecting the provided schema, paying close attention to the relationships and data types within the `customers`, `products`, `orders`, and `order_items` tables. My focus is on understanding how these entities interact to form a cohesive data structure for order processing.
+
+**Refining Revenue Calculation**
+
+I'm revisiting the revenue calculation for each customer. My current focus is ensuring the query accurately reflects revenue only from completed orders and correctly handles potential edge cases, like orders with no associated items. I'm verifying the joins and the `WHERE` clause to ensure precise aggregation.
+
+**Validating Join Logic**
+
+I'm re-evaluating the implications of `JOIN` operations, specifically considering scenarios where an order might lack associated items. I'm also confirming the correct grouping strategy, opting for grouping by `c.id` to ensure data integrity and clarity.
+
+**Filtering by Month Format**
+
+I'm confirming the date formatting for monthly revenue. The prompt specifies `'YYYY-MM'` format, and I'm verifying that `strftime('%Y-%m', ...)` is the appropriate function to achieve this, as opposed to `substr`.
+

@@ -179,18 +179,6 @@
           "max": 68
         }
       ]
-    },
-    {
-      "model": "gpt-oss-120b-MXFP4",
-      "load_seconds": 32.5,
-      "passes": [],
-      "error": "HTTP 500: model name=gpt-oss-120b-MXFP4 failed to load"
-    },
-    {
-      "model": "moonshotai_Kimi-Linear-48B-A3B-Instruct-Q4_K_M",
-      "load_seconds": 0.0,
-      "passes": [],
-      "error": "<urlopen error [Errno 61] Connection refused>"
     }
   ]
 }

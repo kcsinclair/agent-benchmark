@@ -1,0 +1,103 @@
+import re
+
+def parse_duration(text: str) -> float:
+    """
+    Parses a human-readable duration string and returns the total number of seconds.
+    """
+    if not isinstance(text, str):
+        raise TypeError("Input must be a string")
+
+    # 1. Strip leading/trailing whitespace
+    s = text.strip()
+    if not s:
+        raise ValueError("Empty duration string")
+
+    # 2. Handle sign
+    sign = 1.0
+    if s.startswith('-'):
+        sign = -1.0
+        s = s[1:]
+    elif s.startswith('+'):
+        # Rule 1 says no leading '+', so we treat this as invalid
+        raise ValueError("Leading '+' is not allowed")
+
+    # 3. Define units and their multipliers to seconds
+    # Order is important for validation (descending)
+    units_order = [('h', 3600.0), ('m', 60.0), ('s', 1.0), ('ms', 0.001)]
+    
+    # 4. Regex for a single component:
+    # Number: digits, optional dot, followed by digits. 
+    # Must not be just '.' or end in '.' or start with '.'.
+    # We use a lookahead/lookbehind approach or strict pattern.
+    # Pattern: \d+(\.\d+)?
+    # Unit: h|m|s|ms
+    # Note: 'ms' must be checked before 'm' to avoid partial matching.
+    
+    # We will use a regex to find all components and then validate the structure.
+    # This regex captures the number part and the unit part.
+    # Component pattern: (\d+(?:\.\d+)?)(h|m|s|ms)
+    # However, we must ensure there are no invalid characters between components.
+    
+    # Let's build the full string pattern.
+    # A valid string is a sequence of (number + unit).
+    # We'll use findall to get components and then check if the reconstructed 
+    # string matches the original to ensure no illegal whitespace/chars.
+    
+    pattern = r'^(\d+(?:\.\d+)?)(h|m|s|ms)$'
+    
+    # Since components are concatenated, we can't just use findall on the whole string
+    # easily without ensuring the whole string is consumed.
+    # We'll use a loop to consume the string from left to right.
+    
+    total_seconds = 0.0
+    used_units = []
+    current_pos = 0
+    
+    # Regex to match one component: number + unit
+    # We use a non-greedy approach or specific ordering for units
+    comp_regex = re.compile(r'^(\d+(?:\.\d+)?)(h|m|s|ms)')
+
+    while current_pos < len(s):
+        match = comp_regex.match(s[current_pos:])
+        if not match:
+            raise ValueError("Invalid component format or missing unit")
+        
+        val_str, unit_str = match.groups()
+        
+        # Validate number format (Rule 1: no bare '.', no trailing '.')
+        # The regex \d+(?:\.\d+)? already handles this:
+        # '5.' won't match because the group (?:\.\d+)? requires digits after dot.
+        # '.5' won't match because it requires \d+ at start.
+        
+        # Validate unit order and uniqueness (Rule 2)
+        if unit_str in used_units:
+            raise ValueError(f"Repeated unit: {unit_str}")
+        
+        # Check descending order
+        if used_units:
+            last_unit = used_units[-1]
+            if units_order.index((unit_str, 0)) < units_order.index((last_unit, 0)):
+                # This is actually checking if the index in units_order is higher.
+                # units_order is [h, m, s, ms]. 
+                # If current unit is 'm' (index 1) and last was 'h' (index 0), 1 < 0 is False.
+                # We want to ensure current index > last index.
+                pass # logic below is cleaner
+            
+            # Correct logic: find index in units_order. Current index must be > last index.
+            idx_current = next(i for i, (u, _) in enumerate(units_order) if u == unit_str)
+            idx_last = next(i for i, (u, _) in enumerate(units_order) if u == last_unit)
+            if idx_current <= idx_last:
+                raise ValueError("Units must be in strictly descending order")
+
+        # Calculate seconds
+        multiplier = next(m for u, m in units_order if u == unit_str)
+        total_seconds += float(val_str) * multiplier
+        
+        used_units.append(unit_str)
+        current_pos += len(match.group(0))
+
+    # Rule 3: At least one component required
+    if not used_units:
+        raise ValueError("At least one component is required")
+
+    return total_seconds * sign

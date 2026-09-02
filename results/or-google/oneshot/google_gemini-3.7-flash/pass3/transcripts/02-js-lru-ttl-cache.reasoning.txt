@@ -1,0 +1,28 @@
+**Analyzing Cache Requirements**
+
+I'm currently dissecting the `LruTtlCache` specifications. My focus is on understanding the constructor's parameters: `capacity`, `defaultTtlMs`, and `now`. I'm ensuring I grasp each constraint before proceeding to implementation details.
+
+**Refining Eviction Logic**
+
+I'm now drilling into the `set` method's eviction strategy. Specifically, I'm clarifying the order of operations: purge expired entries first, *then* evict the least recently used if capacity is still exceeded. This detail is crucial.
+
+**Clarifying Expiration Handling**
+
+I'm now examining edge cases around zero or negative TTL values. Specifically, I'm confirming whether such entries are inserted and immediately expired, or if the standard eviction logic applies first when a key is set. I'm also verifying that existing keys with new TTLs are correctly updated and re-prioritized.
+
+**Confirming Delete Behavior**
+
+I'm now solidifying the `delete` operation's handling of expired versus non-expired keys. My current understanding is that regardless of expiration status, if a key exists in the underlying map, `delete` will remove it and return `true`.
+
+**Updating Size and Keys**
+
+I'm now refining the logic for the `size` getter. I've confirmed it requires purging expired entries before returning the count. For `keys()`, I'm working on correctly reversing the insertion order from the map to achieve MRU-to-LRU ordering while also filtering out expired entries.
+
+**Revising Set Logic**
+
+I'm now reconsidering the `set` operation for existing keys. My prior assumption was that replacement wouldn't trigger capacity checks, but I'm questioning if the eviction logic should still apply to ensure consistency, especially concerning expired entries before the actual insertion.
+
+**Validating Constructor Inputs**
+
+I'm now confirming the constructor's input validation, ensuring `capacity` is a positive integer. I'm also exploring how to handle the optional `defaultTtlMs` and `now` parameters, considering scenarios where the options object itself might not be provided.
+

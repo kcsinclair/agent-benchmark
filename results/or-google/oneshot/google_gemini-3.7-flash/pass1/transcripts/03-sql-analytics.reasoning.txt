@@ -1,0 +1,16 @@
+**Analyzing Query Requirements**
+
+I'm currently dissecting the specific needs of each of the four SQL queries, starting with their schema dependencies. My focus is on understanding how each query interacts with the `customers`, `products`, `orders`, and `order_items` tables to ensure accurate data retrieval.
+
+**Refining Revenue Calculation**
+
+I'm now focusing on the exact revenue calculation for `q1.sql`. I've confirmed that only 'completed' orders contribute and that revenue is `quantity * unit_price`, rounded to two decimal places. The joins ensure that only orders with associated items are considered.
+
+**Validating Query Logic**
+
+I'm now verifying the logic for `q2.sql` and `q3.sql`. For `q2`, I've confirmed the use of `SUM(oi.quantity)` and the `WHERE o.status = 'completed'` clause, ensuring correct unit calculation and filtering. For `q3`, I've validated that the `LEFT JOIN` with a `WHERE o.id IS NULL` condition accurately identifies customers with no associated orders.
+
+**Confirming Query Approaches**
+
+I've confirmed that my `LEFT JOIN` approach for identifying customers without orders (`q3.sql`) is functionally equivalent and standard compared to using `NOT IN`. My focus now shifts to `q4.sql`, specifically on the date filtering and month formatting.
+

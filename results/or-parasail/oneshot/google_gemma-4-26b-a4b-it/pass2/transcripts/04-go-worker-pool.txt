@@ -1,0 +1,422 @@
+```go
+package main
+
+import (
+	"context"
+	"errors"
+	"sync"
+)
+
+// Task is one unit of work.
+type Task func(ctx context.Context) (any, error)
+
+// result wraps the output of a task to maintain order and error state.
+type result struct {
+	index int
+	val   any
+	err   error
+}
+
+// Run executes tasks with at most `workers` running concurrently and returns
+// their results in the same order as the input slice.
+func Run(ctx context.Context, tasks []Task, workers int) ([]any, error) {
+	if workers < 1 {
+		return nil, errors.New("workers must be at least 1")
+	}
+
+	n := len(tasks)
+	if n == 0 {
+		return []any{}, nil
+	}
+
+	// Create a derived context that we can cancel internally if a task fails
+	// or if the parent context is cancelled.
+	runCtx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	results := make([]any, n)
+	
+	// taskChan feeds the indices of tasks to be processed.
+	taskChan := make(chan int)
+	// resChan collects results from workers.
+	resChan := make(chan result)
+	
+	// wg ensures we wait for all started goroutines to finish to prevent leaks.
+	var wg sync.WaitGroup
+
+	// errorOnce ensures we only capture the first error that occurs.
+	var errOnce sync.Once
+	var firstErr error
+
+	// Helper to capture the first error and trigger cancellation.
+	setError := func(err error) {
+		if err != nil {
+			errOnce.Do(func() {
+				firstErr = err
+				cancel()
+			})
+		}
+	}
+
+	// Start the worker pool.
+	for i := 0; i < workers; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for idx := range taskChan {
+				// Check if we should even start this task.
+				select {
+				case <-runCtx.Done():
+					return
+				default:
+				}
+
+				val, err := tasks[idx](runCtx)
+				
+				// Send result back.
+				// Note: We use a select here because if Run has already returned 
+				// due to an error, resChan might not be drained.
+				// However, since we wait for wg.Wait() before returning, 
+				// resChan will always be drained by the main loop.
+				resChan <- result{index: idx, val: val, err: err}
+				
+				if err != nil {
+					setError(err)
+				}
+			}
+		}()
+	}
+
+	// Dispatcher goroutine: feeds tasks into the pool.
+	go func() {
+		defer close(taskChan)
+		for i := 0; i < n; i++ {
+			select {
+			case <-runCtx.Done():
+				return
+			case taskChan <- i:
+			}
+		}
+	}()
+
+	// Collector loop: processes results as they come in.
+	// We must collect exactly 'n' results or stop early on error.
+	// But wait: if we stop early on error, we still need to wait for 
+	// workers to finish to satisfy the "no goroutine leaks" requirement.
+	
+	completedCount := 0
+	for completedCount < n {
+		select {
+		case res := <-resChan:
+			if res.err != nil {
+				setError(res.err)
+				// We don't return immediately; we must allow the loop to 
+				// continue or the workers to finish so wg.Wait() can be called.
+				// However, the requirement says "return (nil, err)".
+				// To satisfy "wait for started tasks", we break and let the 
+				// cleanup logic handle it.
+				goto finished
+			}
+			results[res.index] = res.val
+			completedCount++
+		case <-runCtx.Done():
+			// If the context was cancelled (either by parent or by setError),
+			// we must drain the resChan to prevent workers from blocking.
+			// The workers will eventually exit because taskChan is closed 
+			// or they check runCtx.Done().
+			goto finished
+		}
+	}
+
+finished:
+	// Wait for all workers to exit to ensure no leaks.
+	// We close taskChan in the dispatcher, so workers will eventually exit.
+	// But the dispatcher might be blocked on taskChan <- i. 
+	// The dispatcher's select on runCtx.Done() handles that.
+	
+	// We need to ensure the dispatcher is finished or the workers are finished.
+	// The safest way is to close taskChan and wait.
+	// Since we can't close taskChan from here easily without knowing if 
+	// the dispatcher is done, we rely on the fact that the dispatcher 
+	// goroutine exits when runCtx is cancelled.
+	
+	// To prevent the collector from hanging if workers are still trying to send to resChan:
+	// We must ensure resChan is drained or workers exit.
+	// Let's refine: The workers exit when taskChan is closed OR runCtx is cancelled.
+	// The dispatcher exits when runCtx is cancelled OR it finishes.
+	
+	// We need to close taskChan to signal workers to stop if they aren't 
+	// checking runCtx.Done() frequently enough.
+	// Actually, the dispatcher is already a goroutine. Let's just wait.
+	
+	// To avoid a deadlock where workers are blocked on resChan <- and 
+	// the main loop has exited, we must drain resChan in a separate goroutine 
+	// or ensure the main loop stays alive.
+	
+	// Correct approach: 
+	// 1. Close taskChan when dispatcher is done.
+	// 2. Wait for workers.
+	// 3. Close resChan.
+	// 4. Return.
+	
+	// Let's adjust the logic slightly to be more robust.
+	// (The logic above is slightly flawed regarding the resChan deadlock).
+	// Re-implementing the collection logic below.
+	return runWithRobustCollection(ctx, tasks, workers)
+}
+
+// runWithRobustCollection is a cleaner implementation of the logic above.
+func runWithRobustCollection(ctx context.Context, tasks []Task, workers int) ([]any, error) {
+	if workers < 1 {
+		return nil, errors.New("workers must be at least 1")
+	}
+	n := len(tasks)
+	if n == 0 {
+		return []any{}, nil
+	}
+
+	runCtx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	taskChan := make(chan int)
+	resChan := make(chan result)
+	var wg sync.WaitGroup
+
+	var errOnce sync.Once
+	var firstErr error
+	setError := func(err error) {
+		if err != nil {
+			errOnce.Do(func() {
+				firstErr = err
+				cancel()
+			})
+		}
+	}
+
+	// Workers
+	for i := 0; i < workers; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for idx := range taskChan {
+				select {
+				case <-runCtx.Done():
+					return
+				default:
+				}
+
+				val, err := tasks[idx](runCtx)
+				
+				// Use a select to avoid blocking on resChan if the collector has exited
+				select {
+				case resChan <- result{index: idx, val: val, err: err}:
+					if err != nil {
+						setError(err)
+					}
+				case <-runCtx.Done():
+					return
+				}
+			}
+		}()
+	}
+
+	// Dispatcher
+	go func() {
+		defer close(taskChan)
+		for i := 0; i < n; i++ {
+			select {
+			case <-runCtx.Done():
+				return
+			case taskChan <- i:
+			}
+		}
+	}()
+
+	// Closer: closes resChan once all workers are done.
+	go func() {
+		wg.Wait()
+		close(resChan)
+	}()
+
+	results := make([]any, n)
+	count := 0
+	for count < n {
+		select {
+		case res, ok := <-resChan:
+			if !ok {
+				// resChan closed, meaning all workers finished.
+				// This happens if we finished all tasks or an error occurred.
+				goto end
+			}
+			if res.err != nil {
+				// This should have been caught by setError, but for safety:
+				setError(res.err)
+				goto end
+			}
+			results[res.index] = res.val
+			count++
+		case <-runCtx.Done():
+			// If context is cancelled, we must wait for workers to finish 
+			// to avoid leaks, but we can return immediately.
+			// However, we must drain resChan to prevent workers from blocking.
+			// The "Closer" goroutine and the "ok" check in the loop handle this.
+			goto end
+		}
+	}
+
+end:
+	// Wait for all workers to finish to ensure no leaks.
+	wg.Wait()
+
+	if firstErr != nil {
+		// If the error was due to context cancellation, return ctx.Err()
+		// if the parent context was the one cancelled.
+		if errors.Is(firstErr, context.Canceled) && ctx.Err() != nil {
+			return nil, ctx.Err()
+		}
+		return nil, firstErr
+	}
+	
+	// If we exited because of context cancellation but no task error occurred.
+	if runCtx.Err() != nil && firstErr == nil {
+		return nil, runCtx.Err()
+	}
+
+	return results, nil
+}
+```
+
+Wait, I noticed I included a helper function `runWithRobustCollection` inside `Run` but the prompt asks for `Run` to be the entry point. I will consolidate the logic into a single clean `Run` function.
+
+```go
+package main
+
+import (
+	"context"
+	"errors"
+	"sync"
+)
+
+// Task is one unit of work.
+type Task func(ctx context.Context) (any, error)
+
+// Run executes tasks with at most `workers` running concurrently and returns
+// their results in the same order as the input slice.
+func Run(ctx context.Context, tasks []Task, workers int) ([]any, error) {
+	if workers < 1 {
+		return nil, errors.New("workers must be at least 1")
+	}
+
+	n := len(tasks)
+	if n == 0 {
+		return []any{}, nil
+	}
+
+	runCtx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	taskChan := make(chan int)
+	resChan := make(chan result)
+	var wg sync.WaitGroup
+
+	var errOnce sync.Once
+	var firstErr error
+	setError := func(err error) {
+		if err != nil {
+			errOnce.Do(func() {
+				firstErr = err
+				cancel()
+			})
+		}
+	}
+
+	// Start workers
+	for i := 0; i < workers; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for idx := range taskChan {
+				select {
+				case <-runCtx.Done():
+					return
+				default:
+				}
+
+				val, err := tasks[idx](runCtx)
+
+				select {
+				case resChan <- result{index: idx, val: val, err: err}:
+					if err != nil {
+						setError(err)
+					}
+				case <-runCtx.Done():
+					return
+				}
+			}
+		}()
+	}
+
+	// Dispatcher
+	go func() {
+		defer close(taskChan)
+		for i := 0; i < n; i++ {
+			select {
+			case <-runCtx.Done():
+				return
+			case taskChan <- i:
+			}
+		}
+	}()
+
+	// Closer: ensures resChan is closed after all workers exit.
+	go func() {
+		wg.Wait()
+		close(resChan)
+	}()
+
+	results := make([]any, n)
+	completed := 0
+
+	// Collector
+	for completed < n {
+		select {
+		case res, ok := <-resChan:
+			if !ok {
+				goto finished
+			}
+			if res.err != nil {
+				// This is handled by setError, but we catch it here to exit loop.
+				goto finished
+			}
+			results[res.index] = res.val
+			completed++
+		case <-runCtx.Done():
+			goto finished
+		}
+	}
+
+finished:
+	// Wait for all workers to finish to prevent leaks.
+	wg.Wait()
+
+	if firstErr != nil {
+		// If the error is context cancellation, check if it was the parent or internal.
+		if errors.Is(firstErr, context.Canceled) && ctx.Err() != nil {
+			return nil, ctx.Err()
+		}
+		return nil, firstErr
+	}
+
+	if runCtx.Err() != nil {
+		return nil, runCtx.Err()
+	}
+
+	return results, nil
+}
+
+type result struct {
+	index int
+	val   any
+	err   error
+}
+```

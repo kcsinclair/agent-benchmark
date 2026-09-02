@@ -1,0 +1,56 @@
+**Implementing Pool Logic**
+
+I'm currently focused on the core `Run` function logic. My thoughts are revolving around effectively managing the worker goroutines, distributing tasks, and collecting results while respecting the `context.Context` for cancellation. Error handling and ensuring all tasks are accounted for are key concerns.
+
+**Refining Fail-Fast Mechanism**
+
+I'm now deeply analyzing the fail-fast requirements. My attention is on ensuring that upon encountering the first error, new tasks are immediately halted from initiation. I'm also focused on how to efficiently cancel the `context` for any tasks that have already begun, and critically, how to wait for these in-progress tasks to gracefully finish without leaking resources, before ultimately returning the error.
+
+**Validating Inputs Early**
+
+I'm now considering the initial validation steps. My focus is on handling invalid worker counts and empty task lists efficiently. I'm also pondering the precedence of a pre-canceled context versus these explicit conditions, aiming for clear and predictable behavior before launching any goroutines.
+
+**Handling Task Allocation**
+
+My thoughts are now on how workers will receive their tasks. I'm considering whether to pre-populate a channel with all task indices or dispatch work on demand. The key is ensuring that even if an error occurs, workers gracefully stop processing new items and respect any context cancellations.
+
+**Checking Task States**
+
+I'm now examining the interaction between context cancellation and ongoing task execution. My primary concern is ensuring tasks that haven't started yet are truly prevented from doing so, while also properly canceling the context for those already running to allow for graceful termination.
+
+**Ensuring Clean Exits**
+
+I'm now contemplating the crucial exit conditions. My focus is on ensuring that all initiated tasks, even if errors occur or the parent context is cancelled, gracefully complete or terminate without resource leaks. I'm refining how `sync.Once` and a shared error variable interact with context cancellation to accurately capture the *first* error encountered or the context's cancellation error.
+
+**Refining Error Propagation**
+
+I'm now considering edge cases where context cancellation might lead to tasks returning `ctx.Err()`. My focus is on ensuring the *first* encountered error is consistently captured, whether it's a task-specific error or the context's cancellation error. I'm refining the final return logic to prioritize a non-nil `firstErr` before checking the context's status.
+
+**Managing Task Ordering**
+
+I'm now thinking about task execution order and potential race conditions with cancellation. My focus is on ensuring that even if an early task fails and triggers cancellation, already assigned task indices are still processed correctly, and that subsequent tasks gracefully handle the cancellation context without overwriting the initial error.
+
+**Confirming Termination Logic**
+
+I'm now analyzing a specific scenario involving task failure and cancellation. My current thought is to confirm that when a task fails, it triggers cancellation, and that all workers will exit gracefully after their current or next attempt to acquire a task, preventing any new tasks from starting and avoiding leaks.
+
+**Validating Inputs First**
+
+I'm now prioritizing input validation. My focus is on ensuring the worker count is at least one and handling an empty task list correctly, checking the worker count *before* the task list to adhere to the specified error handling precedence.
+
+**Validating Initial State**
+
+I'm now ensuring that the initial state is correctly handled. My focus is on confirming that an empty task list results in an immediate, successful return without attempting to process any tasks or starting workers. I'm also verifying the results slice initialization to guarantee it matches the task count.
+
+**Capturing First Error**
+
+I'm now confirming how the first error is captured. My thoughts are that `sync.Once` guarantees thread-safe execution, ensuring only the initial error or context cancellation error is recorded. I'm also verifying that if the parent context cancels, tasks correctly return `ctx.Err()`, which is then handled as the first error.
+
+**Refining Error Return Logic**
+
+I'm now considering how errors are returned when the parent context is cancelled. My focus is on ensuring that even if tasks complete with `nil` or domain-specific errors after cancellation, the `ctx.Err()` is correctly propagated as the primary error, especially if no other domain error has already been captured as `firstErr`. I'm also verifying the worker count logic to ensure it correctly caps goroutines by the number of tasks.
+
+**Observing Cancellation Impact**
+
+I'm currently analyzing a critical scenario: what happens if `taskCtx` is cancelled right after a task index is claimed but before it's executed? My thoughts are focusing on how the `if taskCtx.Err() != nil { return }` guard prevents execution, and how this impacts subsequent task startup and the overall `wg.Wait()`. I'm also considering if existing running tasks gracefully handle the cancellation.
+

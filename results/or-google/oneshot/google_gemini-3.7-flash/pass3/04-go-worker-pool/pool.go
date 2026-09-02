@@ -1,0 +1,90 @@
+package main
+
+import (
+	"context"
+	"errors"
+	"sync"
+)
+
+// Task is one unit of work.
+type Task func(ctx context.Context) (any, error)
+
+// Run executes tasks with at most `workers` running concurrently and returns
+// their results in the same order as the input slice.
+func Run(ctx context.Context, tasks []Task, workers int) ([]any, error) {
+	if workers < 1 {
+		return nil, errors.New("workers must be at least 1")
+	}
+	if len(tasks) == 0 {
+		return []any{}, nil
+	}
+
+	taskCtx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	results := make([]any, len(tasks))
+
+	numWorkers := workers
+	if numWorkers > len(tasks) {
+		numWorkers = len(tasks)
+	}
+
+	var (
+		mu       sync.Mutex
+		firstErr error
+	)
+
+	setFirstErr := func(err error) {
+		mu.Lock()
+		if firstErr == nil {
+			firstErr = err
+		}
+		mu.Unlock()
+		cancel()
+	}
+
+	taskCh := make(chan int)
+	var wg sync.WaitGroup
+
+	for i := 0; i < numWorkers; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for idx := range taskCh {
+				if taskCtx.Err() != nil {
+					return
+				}
+				res, err := tasks[idx](taskCtx)
+				if err != nil {
+					setFirstErr(err)
+					return
+				}
+				results[idx] = res
+			}
+		}()
+	}
+
+ProducerLoop:
+	for i := 0; i < len(tasks); i++ {
+		if taskCtx.Err() != nil {
+			break
+		}
+		select {
+		case <-taskCtx.Done():
+			break ProducerLoop
+		case taskCh <- i:
+		}
+	}
+	close(taskCh)
+
+	wg.Wait()
+
+	if firstErr != nil {
+		return nil, firstErr
+	}
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
+
+	return results, nil
+}

@@ -1,0 +1,50 @@
+{
+  "wall_seconds": 240.3,
+  "settings": {
+    "temperature": 0.0,
+    "max_tokens": 16384,
+    "think": "off",
+    "repeat": 3,
+    "reasoning_effort": "",
+    "server": "https://openrouter.ai/api",
+    "provider": "DeepInfra"
+  },
+  "results": [
+    {
+      "model": "google/gemma-4-31b-it",
+      "load_seconds": null,
+      "passes": [
+        {
+          "pass": 1,
+          "dir": "/Users/keith/Code/agent-benchmark/results/or-deepinfra/oneshot/google_gemma-4-31b-it/pass1",
+          "generate_seconds": 58.3,
+          "wall_seconds": 58.3,
+          "trouble": [],
+          "cost_usd": 0.0016,
+          "score": 68,
+          "max": 68
+        },
+        {
+          "pass": 2,
+          "dir": "/Users/keith/Code/agent-benchmark/results/or-deepinfra/oneshot/google_gemma-4-31b-it/pass2",
+          "generate_seconds": 91.3,
+          "wall_seconds": 91.3,
+          "trouble": [],
+          "cost_usd": 0.0019,
+          "score": 65,
+          "max": 68
+        },
+        {
+          "pass": 3,
+          "dir": "/Users/keith/Code/agent-benchmark/results/or-deepinfra/oneshot/google_gemma-4-31b-it/pass3",
+          "generate_seconds": 80.8,
+          "wall_seconds": 80.9,
+          "trouble": [],
+          "cost_usd": 0.0015,
+          "score": 65,
+          "max": 68
+        }
+      ]
+    }
+  ]
+}

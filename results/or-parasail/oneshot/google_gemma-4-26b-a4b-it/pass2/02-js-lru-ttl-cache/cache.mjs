@@ -1,0 +1,141 @@
+/**
+ * LruTtlCache implementation
+ * 
+ * Uses a Map to maintain insertion order, which in JavaScript 
+ * allows for O(1) access and O(1) recency updates by deleting 
+ * and re-inserting keys.
+ */
+export class LruTtlCache {
+  #capacity;
+  #defaultTtlMs;
+  #now;
+  #cache; // Map<key, { value, expiry }>
+
+  constructor({ capacity, defaultTtlMs = Infinity, now = () => Date.now() }) {
+    if (!Number.isInteger(capacity) || capacity < 1) {
+      throw new RangeError("Capacity must be an integer >= 1");
+    }
+    this.#capacity = capacity;
+    this.#defaultTtlMs = defaultTtlMs;
+    this.#now = now;
+    this.#cache = new Map();
+  }
+
+  /**
+   * Internal helper to purge expired entries.
+   * Since we cannot guarantee all expired entries are at the end of the Map,
+   * we must iterate. However, the requirement for O(1) amortized applies to 
+   * standard operations.
+   */
+  #purgeExpired() {
+    const currentTime = this.#now();
+    for (const [key, entry] of this.#cache.entries()) {
+      if (entry.expiry !== Infinity && currentTime >= entry.expiry) {
+        this.#cache.delete(key);
+      }
+    }
+  }
+
+  /**
+   * Returns the number of live (non-expired) entries.
+   * Purges expired entries before returning.
+   */
+  get size() {
+    this.#purgeExpired();
+    return this.#cache.size;
+  }
+
+  /**
+   * Inserts or replaces an entry.
+   * Updates recency and expiry.
+   */
+  set(key, value, ttlMs) {
+    const currentTime = this.#now();
+    const ttl = ttlMs !== undefined ? ttlMs : this.#defaultTtlMs;
+    const expiry = ttl === Infinity ? Infinity : currentTime + ttl;
+
+    // If key exists, remove it first to update recency (move to end of Map)
+    if (this.#cache.has(key)) {
+      this.#cache.delete(key);
+    }
+
+    // If at capacity, try to make room
+    if (this.#cache.size >= this.#capacity) {
+      // 1. Try to purge expired entries first
+      this.#purgeExpired();
+
+      // 2. If still at capacity, evict the LRU (the first item in Map)
+      if (this.#cache.size >= this.#capacity) {
+        const firstKey = this.#cache.keys().next().value;
+        this.#cache.delete(firstKey);
+      }
+    }
+
+    this.#cache.set(key, { value, expiry });
+    return this;
+  }
+
+  /**
+   * Returns value and updates recency.
+   * Returns undefined if absent or expired.
+   */
+  get(key) {
+    const entry = this.#cache.get(key);
+    if (!entry) return undefined;
+
+    const currentTime = this.#now();
+    if (entry.expiry !== Infinity && currentTime >= entry.expiry) {
+      this.#cache.delete(key);
+      return undefined;
+    }
+
+    // Refresh recency: delete and re-insert
+    this.#cache.delete(key);
+    this.#cache.set(key, entry);
+    return entry.value;
+  }
+
+  /**
+   * Returns true if present and not expired.
+   * Does NOT affect recency.
+   */
+  has(key) {
+    const entry = this.#cache.get(key);
+    if (!entry) return false;
+
+    const currentTime = this.#now();
+    if (entry.expiry !== Infinity && currentTime >= entry.expiry) {
+      this.#cache.delete(key);
+      return false;
+    }
+
+    return true;
+  }
+
+  /**
+   * Removes the entry.
+   */
+  delete(key) {
+    return this.#cache.delete(key);
+  }
+
+  /**
+   * Returns array of live keys from MRU to LRU.
+   */
+  keys() {
+    const currentTime = this.#now();
+    const liveKeys = [];
+    
+    // Map iteration is insertion order (LRU -> MRU).
+    // We need MRU -> LRU, so we collect and reverse.
+    // We must also ensure we only return live keys.
+    for (const [key, entry] of this.#cache.entries()) {
+      if (entry.expiry === Infinity || currentTime < entry.expiry) {
+        liveKeys.push(key);
+      }
+    }
+    
+    // Since Map is LRU -> MRU, reverse to get MRU -> LRU
+    return liveKeys.reverse();
+  }
+}

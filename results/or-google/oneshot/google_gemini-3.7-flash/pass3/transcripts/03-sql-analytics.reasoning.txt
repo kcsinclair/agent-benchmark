@@ -1,0 +1,20 @@
+**Analyzing Query Requirements**
+
+I'm currently dissecting the specific needs of each of the four SQL queries based on the provided schema. My focus is on understanding the precise data each query aims to retrieve and how it relates to the `customers`, `products`, and `orders` tables.
+
+**Refining Revenue Calculation**
+
+I'm double-checking the revenue calculation. While the initial join seems to cover completed orders with items, I'm considering edge cases. Specifically, I want to ensure that customers with completed orders but no associated order items aren't misrepresented, though standard database design implies order items would exist for completed orders.
+
+**Validating Customer Aggregation**
+
+I'm now scrutinizing how customer data is aggregated. While `GROUP BY c.id` is technically sufficient in SQLite, explicitly including `c.name` in the `GROUP BY` clause ensures better portability and clarity. I've also confirmed that customers with zero completed orders are correctly excluded by the status filter.
+
+**Confirming Top Product Selection**
+
+I'm verifying the logic for identifying the top 3 products. The current approach correctly sums quantities from completed orders via joins to `products`, `order_items`, and `orders`, groups by product, and orders by units sold, effectively isolating the top performers as required.
+
+**Finalizing Query Logic**
+
+I've refined the SQL for customers without orders, opting for the `LEFT JOIN` with `IS NULL` for clarity and standard practice. For monthly revenue, I've confirmed the use of `strftime` for date formatting and added a `HAVING` clause to ensure only months with non-zero revenue are included.
+

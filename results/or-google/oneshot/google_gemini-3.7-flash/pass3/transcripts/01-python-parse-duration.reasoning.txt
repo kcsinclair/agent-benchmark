@@ -1,0 +1,48 @@
+**Developing parse_duration Module**
+
+I'm currently focused on constructing a robust `parse_duration` Python module. My primary objective is to create a function capable of accepting a string input representing a duration and accurately converting it into a floating-point number, likely representing seconds. I'm carefully considering edge cases and various formatting possibilities for the input string to ensure comprehensive functionality.
+
+**Refining Unit Handling**
+
+I'm refining the unit handling logic, specifically ensuring that only valid units like 'h', 'm', 's', and 'ms' are accepted. I'm also developing precise regular expressions to validate the numeric components, excluding malformed inputs such as exponents or leading/trailing decimal points. This is crucial for accurate conversion to seconds.
+
+**Validating Input Format**
+
+I'm implementing strict validation for the input duration string. This involves checking for the correct order of units (hours before minutes, etc.), ensuring each unit appears at most once, and verifying that no separators are present. Any deviation from these rules will result in a `ValueError`. I'm also handling negative durations and ensuring the string isn't empty after removing the sign.
+
+**Tokenizing Duration String**
+
+I'm now focusing on how to break down the duration string into its constituent parts. This involves identifying both the numerical value and its associated unit, while carefully considering potential ambiguities like 'm' and 'ms'. My current approach is to construct a regular expression that can reliably extract these components, ensuring that units like 'ms' are prioritized over 'm'.
+
+**Parsing Components Precisely**
+
+I'm refining the component parsing logic. The goal is to tokenize strings like "1.5h20ms" into discrete number-unit pairs, such as (1.5, 'h') and (20, 'ms'). I'm developing a regex that specifically looks for a numeric part (integer or float) followed immediately by a valid unit, ensuring that units like 'ms' are matched before single-character units to prevent errors.
+
+**Validating Remaining Input**
+
+I'm ensuring that after tokenizing, the entire input string is consumed by valid components. My current strategy involves iterating with `re.match` from the current position, advancing the position to the end of each match. If at any point a match fails, it signals an invalid format. Once the entire string is parsed this way, I confirm completion.
+
+**Validating Component Structure**
+
+I'm refining the component parsing to handle malformed numbers. My current strategy is to use `re.match` with a component regex that specifically expects a numeric part followed by a unit. For inputs like "1.5.0h", the regex correctly fails to match because the structure after the initial valid numeric part isn't a recognized unit. This ensures only correctly formed numeric-unit pairs are tokenized.
+
+**Testing Edge Cases**
+
+I am diligently testing various edge cases to ensure robust parsing. This includes examining inputs like "1.5h", "1.0ms", "1.h", ".5s", "+1h", "1e2h", and "1h " to verify that my component parsing and overall validation logic correctly identify and reject malformed or ambiguous durations.
+
+**Checking Unit Order**
+
+I am refining the logic for validating unit order. My current approach uses `UNIT_ORDER` and `UNIT_FACTORS` to ensure components appear in descending size and are not duplicated. I'm carefully testing scenarios like "1h30m" and "1m1h" to guarantee that invalid orderings or repeated units correctly raise `ValueError`.
+
+**Finalizing Calculations**
+
+I'm solidifying the calculation of total seconds, accounting for the sign of the duration. I'm paying close attention to the case where the calculated duration is zero, ensuring that a negative sign applied to zero is handled consistently. This step aims to deliver accurate, signed total seconds.
+
+**Handling Zero Durations**
+
+I'm resolving the nuances around zero durations. While `-0.0` is a valid float in Python and `parse_duration("-0s")` correctly produces `-0.0` which is equivalent to `0.0`, I am ensuring consistent behavior for negative zero. My focus now is on verifying that potential regex subtleties are handled gracefully.
+
+**Testing Error Cases**
+
+I am meticulously testing various error conditions to ensure robust handling. This involves verifying that inputs like "10", "", "   ", "-", "--1h", "- 1h", and non-string types such as integers or None correctly raise `ValueError` or `TypeError` as expected. I'm also confirming the function signature and typing align with the specifications.
+

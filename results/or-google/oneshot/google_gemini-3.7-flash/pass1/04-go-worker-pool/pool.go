@@ -1,0 +1,89 @@
+package main
+
+import (
+	"context"
+	"errors"
+	"sync"
+	"sync/atomic"
+)
+
+// Task is one unit of work.
+type Task func(ctx context.Context) (any, error)
+
+// Run executes tasks with at most `workers` running concurrently and returns
+// their results in the same order as the input slice.
+func Run(ctx context.Context, tasks []Task, workers int) ([]any, error) {
+	if workers < 1 {
+		return nil, errors.New("pool: worker count must be at least 1")
+	}
+	if len(tasks) == 0 {
+		return []any{}, nil
+	}
+
+	taskCtx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	results := make([]any, len(tasks))
+
+	var (
+		firstErr error
+		errOnce  sync.Once
+	)
+
+	recordError := func(err error) {
+		errOnce.Do(func() {
+			firstErr = err
+			cancel()
+		})
+	}
+
+	numWorkers := workers
+	if numWorkers > len(tasks) {
+		numWorkers = len(tasks)
+	}
+
+	var (
+		nextIndex int64
+		wg        sync.WaitGroup
+	)
+
+	wg.Add(numWorkers)
+	for w := 0; w < numWorkers; w++ {
+		go func() {
+			defer wg.Done()
+			for {
+				if taskCtx.Err() != nil {
+					return
+				}
+
+				idx := int(atomic.AddInt64(&nextIndex, 1) - 1)
+				if idx >= len(tasks) {
+					return
+				}
+
+				if taskCtx.Err() != nil {
+					return
+				}
+
+				res, err := tasks[idx](taskCtx)
+				if err != nil {
+					recordError(err)
+					return
+				}
+
+				results[idx] = res
+			}
+		}()
+	}
+
+	wg.Wait()
+
+	if firstErr != nil {
+		return nil, firstErr
+	}
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
+
+	return results, nil
+}

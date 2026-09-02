@@ -1,0 +1,106 @@
+```python
+import re
+
+def parse_duration(text: str) -> float:
+    """
+    Parses a human-readable duration string and returns the total number of seconds.
+    """
+    if not isinstance(text, str):
+        raise TypeError("Input must be a string.")
+
+    # 1. Strip leading/trailing whitespace
+    s = text.strip()
+    if not s:
+        raise ValueError("Empty duration string.")
+
+    # 2. Handle sign
+    multiplier = 1.0
+    if s.startswith('-'):
+        multiplier = -1.0
+        s = s[1:]
+    elif s.startswith('+'):
+        # The prompt says "no leading +", implying it's invalid for the number,
+        # but a leading + for the whole string isn't explicitly forbidden/allowed.
+        # However, rule 1 says "No leading +", so we treat it as invalid.
+        raise ValueError("Leading '+' is not allowed.")
+
+    # 3. Define units and their conversion to seconds
+    # Order is important for validation: h, m, s, ms
+    units_map = {
+        'h': 3600.0,
+        'm': 60.0,
+        's': 1.0,
+        'ms': 0.001
+    }
+    unit_order = ['h', 'm', 's', 'ms']
+
+    # 4. Regex to find components
+    # Rule 1: Non-negative decimals (digits with optional fractional part)
+    # Valid: 2, 1.5, 0.25. Invalid: .5, 5., +5, 5e1
+    # Pattern: digit(s) followed by optional (dot followed by digit(s))
+    num_pattern = r'\d+(?:\.\d+)?'
+    # Units: h, m, s, or ms
+    unit_pattern = r'(h|m|s|ms)'
+    
+    # Full component pattern
+    component_regex = re.compile(f'^({num_pattern})({unit_pattern})$')
+
+    total_seconds = 0.0
+    last_unit_index = -1
+    
+    # We need to consume the string component by component
+    remaining = s
+    
+    # Check for invalid characters/whitespace in the middle
+    # If there is any whitespace in the stripped string, it's invalid (Rule 5)
+    if ' ' in s:
+        raise ValueError("Whitespace found within duration string.")
+
+    while remaining:
+        # Try to match a component at the start of the remaining string
+        match = None
+        # We must check all possible unit lengths (ms is 2 chars, others 1)
+        # But the regex handles the unit part. We just need to find where the component ends.
+        
+        # Since components are concatenated, we can't just use re.findall because 
+        # we need to ensure the whole string is consumed and order is correct.
+        
+        # Let's use a more manual approach to ensure strictness
+        found_component = False
+        for i in range(len(remaining), 0, -1):
+            substring = remaining[:i]
+            m = component_regex.fullmatch(substring)
+            if m:
+                val_str, unit_str = m.groups()
+                
+                # Rule 1: Validate number format (already handled by regex, 
+                # but regex ensures no trailing/leading dots)
+                val = float(val_str)
+                
+                # Rule 2: Check order and uniqueness
+                current_unit_index = unit_order.index(unit_str)
+                if current_unit_index <= last_unit_index:
+                    raise ValueError("Units must be in strictly descending order and unique.")
+                
+                total_seconds += val * units_map[unit_str]
+                last_unit_index = current_unit_index
+                remaining = remaining[i:]
+                found_component = True
+                break
+        
+        if not found_component:
+            raise ValueError("Invalid component or format.")
+
+    # Rule 3: At least one component is required
+    # If the loop finished and total_seconds is 0 but the string was not empty, 
+    # it might be because the string was just a sign or something.
+    # But the 'remaining' logic and 'found_component' check handle this.
+    # If the loop never ran or failed, it raises ValueError.
+    
+    # Final check: if the original string was just "-"
+    if not s:
+        raise ValueError("No components found.")
+
+    return total_seconds * multiplier
+
+```

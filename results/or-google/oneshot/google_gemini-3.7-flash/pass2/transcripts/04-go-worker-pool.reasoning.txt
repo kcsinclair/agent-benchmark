@@ -1,0 +1,76 @@
+**Processing Task Execution**
+
+I'm currently focused on defining how `pool.go` will manage concurrent task execution. My thoughts are solidifying around establishing a worker pool mechanism that respects the specified concurrency limit while efficiently distributing incoming `Task` functions. The next step is to flesh out the error handling and result aggregation logic.
+
+**Designing Task Dispatch**
+
+My focus has shifted to how I'll orchestrate the execution of these tasks. I'm envisioning a system that dispatches work to an available worker, ensuring we never exceed the `workers` limit. The crucial challenge now is ensuring fail-fast behavior and proper context cancellation across all concurrently running tasks.
+
+**Refining Task Assignment**
+
+I'm now concentrating on the specifics of task assignment. My current thinking leans towards using a channel to feed task indices to the workers, ensuring each task is picked up only once. I need to carefully implement the cancellation propagation within this dispatch loop to handle early termination scenarios gracefully.
+
+**Handling Worker Errors**
+
+My current focus is on how a worker's error triggers cancellation. If a worker calls `cancel()`, the feeder goroutine will cease sending tasks and close the task channel. I'm considering how tasks already in the channel, or about to be picked up by a worker, are handled in this scenario.
+
+**Implementing Cancellation Logic**
+
+I'm now deeply engaged in how a worker's error precipitates broader cancellation. My current analysis suggests that when a worker triggers `cancel()`, the feeder goroutine will promptly exit its `select` loop upon detecting `ctx.Done()`, subsequently closing the task channel. This mechanism appears robust for handling tasks still in transit or awaiting processing.
+
+**Clarifying Error Scenarios**
+
+I'm now focused on the nuanced interplay between task-returned errors and parent context cancellation. My analysis confirms that the `sync.Once` mechanism correctly captures the first error encountered, prioritizing it if a task fails before parent context cancellation is detected. If the parent context cancels first, its error will be propagated.
+
+**Validating Error Returns**
+
+I'm now analyzing the precise conditions for returning errors. My thoughts confirm that `firstErr` correctly captures the earliest task-level failure. If no task error occurs, I'll correctly propagate the `parentCtx.Err()`, ensuring both the first encountered error and pending task halting requirements are met.
+
+**Ensuring Task Cleanup**
+
+My current focus is on ensuring that any tasks already initiated will gracefully abort upon context cancellation. I'm validating that even after `cancel()` is called due to a task error, the `Run` function will still wait for all actively executing tasks to complete, thereby preventing any goroutine leaks. This involves ensuring `taskCtx.Done()` is checked prior to task execution to avoid starting tasks unnecessarily.
+
+**Handling Concurrent Errors**
+
+My current thinking is focused on the edge case where multiple tasks fail concurrently. I've confirmed that `sync.Once` correctly captures only the very first error encountered, effectively handling simultaneous failures. My latest analysis is now scrutinizing the feeder goroutine for any potential leaks when cancellation occurs.
+
+**Preventing Feeder Blocks**
+
+I've been meticulously examining potential deadlocks within the feeder goroutine. My analysis confirms that the `taskCtx.Done()` channel being closed guarantees the `select` statement will always unblock, preventing the feeder from blocking indefinitely. This addresses the concern of workers exiting while the feeder is mid-send.
+
+**Validating Edge Cases**
+
+I'm currently examining scenarios where the number of workers exceeds available tasks and when the parent context is already cancelled. My thoughts confirm the use of `min(workers, len(tasks))` handles the worker count gracefully, and a pre-cancelled context will be handled by the initial validation, preventing premature execution.
+
+**Analyzing Initial Context State**
+
+I'm now re-evaluating the initial context check. My thoughts confirm that if the parent context is already cancelled upon entry, I must immediately return `nil, ctx.Err()`. This ensures no new tasks begin, fulfilling requirement 4, and aligns with requirement 5's specified error return for a cancelled context.
+
+**Checking Task Initiation**
+
+I am verifying that before a worker actually executes a task, it checks `taskCtx.Done()`. This ensures that if the context is cancelled between receiving the task index and starting its execution, the task won't proceed unnecessarily. This also directly supports the fail-fast requirement.
+
+**Verifying Task Acquisition**
+
+I'm confirming that a worker correctly acquires a task index from `taskCh`. If `taskCh` is closed, the `for idx := range taskCh` loop will terminate gracefully for that worker, preventing any further attempts to read from a closed channel. This ensures worker termination aligns with feeder closure.
+
+**Handling Concurrent Task Failures**
+
+I'm analyzing a critical scenario: what happens if a task is received, the context is checked (and is fine), but before it executes, another worker fails and calls `cancel()`? My thoughts confirm that if the task cooperates and checks `taskCtx.Done()`, it will exit promptly upon seeing the cancellation. I'm now considering what happens if a task finishes successfully but the cancellation occurred *while* it was running. My analysis indicates the worker will exit gracefully on its next loop iteration.
+
+**Refining Error Propagation**
+
+I'm now solidifying the error return logic. My analysis indicates that `sync.Once` correctly captures the very first task error. If no task error occurs, I'll propagate the parent context's error. This ensures that either the initial task failure or the parent context cancellation error is always returned.
+
+**Finalizing Return Conditions**
+
+My focus is now on the final return statement. I've confirmed that if `firstErr` holds an error, it will be returned. Otherwise, I'll return `ctx.Err()` if the parent context was cancelled. This covers all scenarios, ensuring the correct error is propagated or `results` are returned upon successful completion.
+
+**Confirming Import Requirements**
+
+I'm verifying the necessary imports. My thoughts confirm that `context`, `errors`, and `sync` are all required for the current implementation. I've also reviewed the package-level declarations, including the `Task` function signature.
+
+**Validating Concurrency Mechanics**
+
+I'm currently focused on the intricate dance of concurrent task execution. My thoughts are solidifying around the `worker` goroutines properly consuming from `taskCh` and the `feeder` goroutine's graceful exit upon `taskCtx.Done()`. I'm also confirming that the `defer close(taskCh)` ensures no goroutine leaks by closing the channel when the feeder exits.
+

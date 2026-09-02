@@ -1,0 +1,123 @@
+```javascript
+/**
+ * LruTtlCache implementation.
+ * Uses a Map to maintain insertion order for LRU semantics.
+ * In JavaScript, Map.prototype.keys() returns keys in insertion order.
+ * By deleting and re-setting a key, we move it to the "most recent" position.
+ */
+export class LruTtlCache {
+  #capacity;
+  #defaultTtlMs;
+  #now;
+  #cache; // Map<key, { value, expiry }>
+
+  constructor({ capacity, defaultTtlMs = Infinity, now = () => Date.now() }) {
+    if (!Number.isInteger(capacity) || capacity < 1) {
+      throw new RangeError("Capacity must be an integer >= 1");
+    }
+    this.#capacity = capacity;
+    this.#defaultTtlMs = defaultTtlMs;
+    this.#now = now;
+    this.#cache = new Map();
+  }
+
+  /**
+   * Internal helper to check if an entry is expired.
+   * @param {number} expiry 
+   * @returns {boolean}
+   */
+  #isExpired(expiry) {
+    if (expiry === Infinity) return false;
+    return this.#now() >= expiry;
+  }
+
+  /**
+   * Internal helper to purge expired entries from the entire cache.
+   * This is called during size/keys/set to ensure accuracy.
+   */
+  #purgeExpired() {
+    for (const [key, entry] of this.#cache.entries()) {
+      if (this.#isExpired(entry.expiry)) {
+        this.#cache.delete(key);
+      }
+    }
+  }
+
+  set(key, value, ttlMs) {
+    const expiry = this.#now() + (ttlMs ?? this.#defaultTtlMs);
+
+    // If key exists, remove it first to update recency (move to end of Map)
+    if (this.#cache.has(key)) {
+      this.#cache.delete(key);
+    }
+
+    // If at capacity, we must make room
+    if (this.#cache.size >= this.#capacity) {
+      // 1. Try to find an expired entry to evict first
+      let evictedExpired = false;
+      for (const [k, entry] of this.#cache.entries()) {
+        if (this.#isExpired(entry.expiry)) {
+          this.#cache.delete(k);
+          evictedExpired = true;
+          break; // Evict one expired entry
+        }
+      }
+
+      // 2. If still at capacity (no expired entries found), evict LRU (the first key in Map)
+      if (!evictedExpired && this.#cache.size >= this.#capacity) {
+        const firstKey = this.#cache.keys().next().value;
+        this.#cache.delete(firstKey);
+      }
+    }
+
+    this.#cache.set(key, { value, expiry });
+    return this;
+  }
+
+  get(key) {
+    const entry = this.#cache.get(key);
+
+    if (!entry) return undefined;
+
+    if (this.#isExpired(entry.expiry)) {
+      this.#cache.delete(key);
+      return undefined;
+    }
+
+    // Refresh recency: delete and re-insert
+    this.#cache.delete(key);
+    this.#cache.set(key, entry);
+
+    return entry.value;
+  }
+
+  has(key) {
+    const entry = this.#cache.get(key);
+
+    if (!entry) return false;
+
+    if (this.#isExpired(entry.expiry)) {
+      this.#cache.delete(key);
+      return false;
+    }
+
+    return true;
+  }
+
+  delete(key) {
+    return this.#cache.delete(key);
+  }
+
+  get size() {
+    this.#purgeExpired();
+    return this.#cache.size;
+  }
+
+  keys() {
+    this.#purgeExpired();
+    // Map keys are in insertion order (LRU -> MRU). 
+    // Requirement asks for MRU -> LRU.
+    return Array.from(this.#cache.keys()).reverse();
+  }
+}
+```

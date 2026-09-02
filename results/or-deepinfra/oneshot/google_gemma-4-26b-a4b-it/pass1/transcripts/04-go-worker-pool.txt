@@ -1,0 +1,117 @@
+```go
+package main
+
+import (
+	"context"
+	"errors"
+	"sync"
+)
+
+// Task is one unit of work.
+type Task func(ctx context.Context) (any, error)
+
+// result wraps the output of a task to be sent over a channel.
+type result struct {
+	index int
+	val   any
+	err   error
+}
+
+// Run executes tasks with at most `workers` running concurrently and returns
+// their results in the same order as the input slice.
+func Run(ctx context.Context, tasks []Task, workers int) ([]any, error) {
+	if workers < 1 {
+		return nil, errors.New("workers must be at least 1")
+	}
+
+	n := len(tasks)
+	if n == 0 {
+		return []any{}, nil
+	}
+
+	// Create a derived context that we can cancel if a task fails
+	// or if the parent context is cancelled.
+	runCtx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	results := make([]any, n)
+	resChan := make(chan result, n)
+	
+	// semaphore limits concurrency
+	sem := make(chan struct{}, workers)
+	
+	// wg ensures we wait for all started goroutines to finish to prevent leaks.
+	var wg sync.WaitGroup
+
+	// We use a separate goroutine to dispatch tasks to avoid blocking the main loop.
+	// This allows us to monitor for errors or context cancellation immediately.
+	go func() {
+		for i := 0; i < n; i++ {
+			// Check if we should stop starting new tasks.
+			select {
+			case <-runCtx.Done():
+				return
+			case sem <- struct{}{}:
+				// Acquired slot
+			}
+
+			wg.Add(1)
+			go func(idx int) {
+				defer wg.Done()
+				defer func() { <-sem }() // Release slot
+
+				val, err := tasks[idx](runCtx)
+				resChan <- result{index: idx, val: val, err: err}
+				
+				if err != nil {
+					// If a task fails, signal all other running tasks to stop.
+					cancel()
+				}
+			}(i)
+		}
+	}()
+
+	// Monitor results.
+	var firstErr error
+	completedCount := 0
+
+	for completedCount < n {
+		select {
+		case res := <-resChan:
+			completedCount++
+			if res.err != nil {
+				// Capture the first error encountered.
+				if firstErr == nil {
+					firstErr = res.err
+					cancel() // Stop starting new tasks and signal running ones.
+				}
+			} else {
+				results[res.index] = res.val
+			}
+		case <-runCtx.Done():
+			// If the context was cancelled (either by parent or by a task error),
+			// we must wait for all active goroutines to finish to satisfy the 
+			// "no goroutine leaks" requirement.
+			if firstErr == nil {
+				firstErr = runCtx.Err()
+			}
+			// Drain the channel to ensure we don't block the workers.
+			// We loop until all tasks that were actually started have reported back.
+			// However, the simplest way to ensure no leaks is to wait for the wg.
+			goto wait
+		}
+	}
+
+wait:
+	// Wait for all goroutines to finish before returning.
+	wg.Wait()
+	// Close channel to prevent any potential leaks if we were using range.
+	// (Though not strictly necessary here as we exit).
+
+	if firstErr != nil {
+		return nil, firstErr
+	}
+
+	return results, nil
+}
+```

@@ -1,0 +1,44 @@
+**Implementing LruTtlCache**
+
+I'm focused on implementing `LruTtlCache` in `cache.mjs`. My current task involves meticulously checking the requirements, including handling capacity, the default TTL, and the `now` function for timestamps, to ensure all edge cases are addressed.
+
+**Refining Cache Eviction Logic**
+
+I'm currently diving deeper into the eviction logic for `LruTtlCache`. Specifically, I'm pondering the implications of setting keys with a `ttlMs` of zero or less, and how that interacts with the capacity constraints when the cache is already full. The goal is to ensure correct behavior without unintended side effects.
+
+**Prioritizing Eviction Strategy**
+
+I'm currently concentrating on the precise eviction strategy when the cache reaches capacity. My thoughts are revolving around the scenario of adding a new key that would exceed the limit. The plan is to first clear out any expired entries before considering the least recently used item for removal. I'm also considering how updating an existing key should impact its recency without affecting the overall capacity count.
+
+**Optimizing Eviction Pathways**
+
+I'm currently refining the eviction process. My focus is on ensuring that expired entries are efficiently cleared before resorting to LRU eviction when capacity is reached. I'm also considering how to handle `get` and `has` operations to correctly remove expired items without affecting recency or returning incorrect data.
+
+**Clarifying Eviction Rules**
+
+I'm currently focusing on the exact behavior of `delete` and how `size` should function, specifically regarding expired entries. My thoughts are solidifying on ensuring `size` accurately reflects only live, non-expired items by purging those that have passed their TTL. I've also finalized the logic for the `keys()` method, confirming that reversing the Map's natural iteration order correctly provides keys from MRU to LRU.
+
+**Validating Expiration Logic**
+
+I'm currently scrutinizing the expiration conditions, especially regarding `ttlMs` of zero or negative values and how they correctly signify immediate expiration. I'm also confirming that `Infinity` for `ttlMs` indeed results in an entry that never expires. The calculation for `expiresAt` in the `set` method is under review to ensure it handles `Infinity` and zero/negative TTLs appropriately.
+
+**Refining Set Logic**
+
+I'm currently revisiting the `set` method. My focus is on the eviction logic when capacity is reached. I've realized that updating an existing key shouldn't trigger eviction, as it doesn't change the map's size. I'm also considering the edge case where capacity is one, and how that interacts with existing entries and new sets.
+
+**Testing Eviction Scenarios**
+
+I'm currently testing edge cases related to eviction and expiration. I've confirmed that when setting a new key and an expired entry exists, the expired entry is removed first, allowing the new key to be added without violating capacity. I'm also verifying that if the cache is full and no entries are expired, the least recently used item is correctly removed before a new key is set. Furthermore, I'm evaluating the time complexity of the `get` method, ensuring its O(1) amortized performance, and have begun scrutinizing the `has` method's expiration handling.
+
+**Validating Size and Deletion**
+
+I'm currently validating the `size` getter and `delete` method's behavior with expired entries. My thoughts confirm that `size` correctly purges expired entries before returning the count of live ones, and that `delete` returns the expected boolean based on the key's presence, regardless of expiration.
+
+**Refining Keys Iteration**
+
+I'm currently examining the `keys()` method. I've confirmed that purging expired entries first, then reversing the remaining keys from the Map, correctly provides the desired MRU-to-LRU order. This ensures `size` is accurate before iteration.
+
+**Validating Capacity Initialization**
+
+I'm now scrutinizing the `capacity` initialization. My thoughts indicate that invalid values such as zero, negative numbers, non-integers, `NaN`, or `Infinity` should all correctly throw a `RangeError` to prevent improper cache behavior.
+

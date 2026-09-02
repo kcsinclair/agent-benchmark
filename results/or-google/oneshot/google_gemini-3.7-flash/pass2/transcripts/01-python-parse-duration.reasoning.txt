@@ -1,0 +1,28 @@
+**Developing Parsing Logic**
+
+I'm currently focused on implementing the core `parse_duration` function. My immediate priority is ensuring robust type checking for the input `text` argument, specifically raising a `TypeError` if it's not a string. This foundational step is crucial before I proceed to the more complex parsing rules.
+
+**Refining Component Validation**
+
+I'm now detailing the validation for the duration's individual components. Specifically, I'm working on the precise regex for numbers, ensuring it handles integers and decimals but rejects invalid formats. I'm also defining the allowed units (`h`, `m`, `s`, `ms`) and their corresponding values in seconds, while establishing the rule for strictly descending unit order.
+
+**Validating Input Format**
+
+My current focus is on solidifying the validation logic. I'm specifically implementing checks for incorrect unit ordering and ensuring that each unit appears at most once. I'm also refining the regex to correctly handle both single-character and the two-character 'ms' unit, and I'm working on the final complete match validation to reject any remaining unparsed characters.
+
+**Implementing Component Parsing**
+
+My focus has shifted to the granular parsing of duration components. I'm now refining the regex to accurately capture numerical values and units, ensuring validation of unit order and uniqueness. I'm also integrating the logic to convert these components into seconds, considering potential negative values and empty input strings.
+
+**Testing Edge Cases**
+
+I'm thoroughly testing the parsing logic against various edge cases, including empty input, trailing garbage, and internal whitespace. I'm verifying that incorrect formats like multiple decimal points or unknown units correctly raise `ValueError`, and I'm confirming that negative numbers and leading zeros are handled as expected.
+
+**Verifying Unit Matching**
+
+I'm currently confirming that the regex for components correctly prioritizes 'ms' over 'm' to avoid misinterpretation. I've tested this with sample inputs and confirmed that the order in the alternation is crucial for accurate parsing. I've also verified the unit multipliers and the structure of the component regex.
+
+**Processing Component Values**
+
+I am now focusing on extracting and converting the numerical values associated with each duration unit into seconds. This involves handling potential floating-point numbers and applying the correct multiplier based on the unit identified. I am also ensuring that the total seconds accumulate correctly, preparing for the final negative sign application.
+

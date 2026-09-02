@@ -1,0 +1,66 @@
+```python
+"""Duration string parser module."""
+
+import re
+
+_COMPONENT_RE = re.compile(r"(\d+(?:\.\d+)?)(ms|h|m|s)")
+
+_UNIT_FACTORS = {
+    "h": 3600.0,
+    "m": 60.0,
+    "s": 1.0,
+    "ms": 0.001,
+}
+
+_UNIT_ORDER = {
+    "h": 0,
+    "m": 1,
+    "s": 2,
+    "ms": 3,
+}
+
+
+def parse_duration(text: str) -> float:
+    """Parse a human-readable duration string into total seconds as a float."""
+    if not isinstance(text, str):
+        raise TypeError(f"Expected str, got {type(text).__name__}")
+
+    stripped = text.strip()
+    if not stripped:
+        raise ValueError("Empty duration string")
+
+    negative = False
+    if stripped.startswith("-"):
+        negative = True
+        stripped = stripped[1:]
+        if not stripped:
+            raise ValueError("Missing duration components after '-'")
+
+    pos = 0
+    total_seconds = 0.0
+    last_unit_order = -1
+    components_found = 0
+
+    while pos < len(stripped):
+        match = _COMPONENT_RE.match(stripped, pos)
+        if not match:
+            raise ValueError(f"Invalid duration component at position {pos}: {stripped[pos:]!r}")
+
+        number_str, unit = match.groups()
+        unit_order = _UNIT_ORDER[unit]
+
+        if unit_order <= last_unit_order:
+            raise ValueError(
+                f"Invalid unit order or repeated unit '{unit}' at position {pos}"
+            )
+        last_unit_order = unit_order
+
+        total_seconds += float(number_str) * _UNIT_FACTORS[unit]
+        components_found += 1
+        pos = match.end()
+
+    if components_found == 0:
+        raise ValueError("No valid duration components found")
+
+    return -total_seconds if negative else total_seconds
+```

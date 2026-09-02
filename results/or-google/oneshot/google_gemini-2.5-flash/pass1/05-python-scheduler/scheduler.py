@@ -1,0 +1,121 @@
+def best_schedule(jobs: list[tuple[float, float, float]]) -> tuple[float, list[int]]:
+    """
+    Finds the maximum weight non-overlapping subset of jobs.
+
+    Args:
+        jobs: A list of (start, end, weight) tuples.
+
+    Returns:
+        A tuple (total_weight, chosen_indices) where total_weight is the
+        maximum achievable sum of weights and chosen_indices are the indices
+        into the input list of one optimal subset, sorted by the job's start
+        time (break ties by index ascending).
+    """
+    n = len(jobs)
+    if n == 0:
+        return (0.0, [])
+
+    # Augment jobs with their original indices and sort by end time.
+    # If end times are equal, sort by start time, then by original index.
+    # This sorting is crucial for the O(N log N) dynamic programming approach.
+    indexed_jobs = sorted(
+        [(job[0], job[1], job[2], i) for i, job in enumerate(jobs)],
+        key=lambda x: (x[1], x[0], x[3])
+    )
+
+    # dp[i] will store the maximum weight achievable considering jobs up to index i-1
+    dp = [0.0] * (n + 1)
+    # prev_job[i] will store the index of the job that immediately precedes
+    # the job at indexed_jobs[i-1] in an optimal schedule ending at indexed_jobs[i-1].
+    # This is used for reconstructing the path.
+    prev_job_idx = [-1] * (n + 1)
+
+    # For each job, find the latest non-overlapping job before it.
+    # This uses binary search (bisect_right) on the sorted end times.
+    # We need to find the largest index `j` such that `indexed_jobs[j][1] <= indexed_jobs[i][0]`.
+    # Since `indexed_jobs` is sorted by end time, we can use a list of end times
+    # for efficient searching.
+    end_times = [job[1] for job in indexed_jobs]
+
+    # Helper function to find the latest non-overlapping job
+    def find_latest_non_overlapping(current_job_start_time, high):
+        # We are looking for the largest index `j` such that `indexed_jobs[j][1] <= current_job_start_time`.
+        # `bisect_right` returns an insertion point which comes after (to the right of)
+        # any existing entries of the value in the list.
+        # So, `bisect_right(end_times, current_job_start_time, hi=high)` will give us
+        # the index `k` such that all elements `end_times[p]` for `p < k` satisfy
+        # `end_times[p] <= current_job_start_time`.
+        # We need the largest such `p`, which is `k-1`.
+        low = 0
+        ans = -1
+        while low <= high:
+            mid = (low + high) // 2
+            if end_times[mid] <= current_job_start_time:
+                ans = mid
+                low = mid + 1
+            else:
+                high = mid - 1
+        return ans
+
+    # Iterate through the sorted jobs to fill the DP table
+    for i in range(1, n + 1):
+        current_job_start, current_job_end, current_job_weight, original_idx = indexed_jobs[i - 1]
+
+        # Case 1: Don't include the current job
+        # The maximum weight is the same as considering jobs up to i-1.
+        option1_weight = dp[i - 1]
+
+        # Case 2: Include the current job
+        # Find the latest non-overlapping job before the current job.
+        # We search in the range [0, i-2] because indexed_jobs[i-1] is the current job.
+        p_idx = find_latest_non_overlapping(current_job_start, i - 2)
+
+        # The weight from previous non-overlapping jobs
+        prev_weight_if_included = dp[p_idx + 1] if p_idx != -1 else 0.0
+        option2_weight = current_job_weight + prev_weight_if_included
+
+        # Choose the better option
+        if option2_weight >= option1_weight:
+            dp[i] = option2_weight
+            # Store the index of the previous job in the optimal schedule
+            # If p_idx is -1, it means no previous job, so we store -1.
+            # Otherwise, we store p_idx, which is the index in `indexed_jobs`
+            # (0-based) of the job that precedes the current job.
+            prev_job_idx[i] = p_idx
+        else:
+            dp[i] = option1_weight
+            # If we don't include the current job, the previous decision
+            # for dp[i-1] carries over. We store i-1 to indicate that
+            # the optimal path for dp[i] comes from dp[i-1].
+            prev_job_idx[i] = i - 1
+
+    # Reconstruct the solution
+    chosen_indices = []
+    current_dp_idx = n
+    while current_dp_idx > 0:
+        # If prev_job_idx[current_dp_idx] is current_dp_idx - 1, it means
+        # we did not include the job indexed_jobs[current_dp_idx - 1].
+        # We just move to the previous state.
+        if prev_job_idx[current_dp_idx] == current_dp_idx - 1:
+            current_dp_idx -= 1
+        else:
+            # We included the job indexed_jobs[current_dp_idx - 1].
+            # Add its original index to the list.
+            chosen_indices.append(indexed_jobs[current_dp_idx - 1][3])
+            # Move to the state corresponding to the previous non-overlapping job.
+            # If prev_job_idx[current_dp_idx] is -1, it means no previous job,
+            # so we stop. Otherwise, we move to prev_job_idx[current_dp_idx] + 1
+            # because dp array is 1-indexed.
+            current_dp_idx = prev_job_idx[current_dp_idx] + 1
+
+    # The chosen_indices are collected in reverse order of processing (by end time).
+    # We need to sort them by start time (and then original index for ties).
+    # To do this efficiently, we can retrieve the original job objects and sort.
+    final_chosen_jobs_with_indices = []
+    for original_idx in chosen_indices:
+        final_chosen_jobs_with_indices.append((jobs[original_idx][0], original_idx))
+
+    final_chosen_jobs_with_indices.sort(key=lambda x: (x[0], x[1]))
+    sorted_chosen_indices = [idx for _, idx in final_chosen_jobs_with_indices]
+
+    return (dp[n], sorted_chosen_indices)

@@ -1,0 +1,36 @@
+**Developing Parsing Functionality**
+
+I'm currently focused on building the core Python module, specifically the `parse_duration` function. My immediate priority is implementing robust type checking to ensure only string inputs are processed, raising a `TypeError` for any other type. This lays the groundwork for the parsing logic.
+
+**Refining Duration Parsing**
+
+I'm now delving into the specifics of duration string parsing. My focus is on handling whitespace, specifically stripping leading/trailing characters while disallowing internal whitespace. I'm also defining the number format for components, ensuring it's a non-negative decimal, and establishing the valid units and their strict descending order of appearance.
+
+**Designing Component Matching**
+
+I'm now considering how to extract duration components. I'm evaluating whether a single, strict regex can capture the entire string or if an iterative scanning approach is better. I'm also refining the handling of negative signs and ensuring that empty strings or invalid formats after stripping lead to a `ValueError`.
+
+**Validating Component Extraction**
+
+I'm now refining the extraction process using a regex. I've realized `finditer` is suitable, but it necessitates checks for complete text coverage, at least one match, and crucially, strictly descending unit order. Whitespace will also inherently cause span failures, simplifying handling.
+
+**Refining Numeric Matching**
+
+I'm currently evaluating numeric formats, considering cases like "01h" and "5.0.0h". I need to ensure my regex correctly handles non-negative decimals, disallowing leading zeros unless it's a single zero in "0" or "0.x". The potential for invalid sequences like "5." or ".5" requires careful regex design to prevent partial matches and subsequent errors.
+
+**Refining Unit Matching**
+
+I'm currently focused on the order of unit matching within the regex to prevent incorrect parsing, ensuring "ms" is checked before "m." I'm also implementing a strict descending order validation for units, raising a `ValueError` for any out-of-order or duplicate units detected during parsing.
+
+**Handling Negative Durations**
+
+I'm now refining negative duration handling. I've confirmed that a leading hyphen negates the entire duration. The edge case of `-0s` or `-0h` is being reviewed, and while Python treats `0.0` and `-0.0` as equal, I'm ensuring the internal representation correctly applies the negation for clarity.
+
+**Processing Duration Components**
+
+I am now integrating the numeric and unit matching logic. The regex successfully captures the value and unit, and I'm implementing checks for strictly descending unit order. I'm also handling the conversion to seconds, applying the negation if a leading hyphen was present.
+
+**Iterating Component Extraction**
+
+I'm now refining the iterative extraction process. Using `finditer`, I'm advancing the position in the string after each successful component match. This ensures I process the entire duration string sequentially and can later validate that all parts were consumed correctly, preventing partial or malformed inputs from passing.
+

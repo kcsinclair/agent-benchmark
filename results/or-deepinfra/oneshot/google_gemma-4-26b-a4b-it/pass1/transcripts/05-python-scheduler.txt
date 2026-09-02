@@ -1,0 +1,100 @@
+```python
+import bisect
+
+def best_schedule(jobs: list[tuple[float, float, float]]) -> tuple[float, list[int]]:
+    """
+    Solves the Weighted Interval Scheduling problem in O(n log n) time.
+    
+    Args:
+        jobs: A list of (start, end, weight) tuples.
+        
+    Returns:
+        A tuple (total_weight, chosen_indices) where chosen_indices are the 
+        original indices of the jobs in the optimal subset, sorted by start time.
+    """
+    if not jobs:
+        return (0.0, [])
+
+    # We need to keep track of original indices to return them at the end.
+    # Store as (end, start, weight, original_index)
+    # Sorting by end time is the standard approach for this DP.
+    indexed_jobs = []
+    for i, (s, e, w) in enumerate(jobs):
+        indexed_jobs.append({'s': s, 'e': e, 'w': w, 'id': i})
+
+    # Sort jobs by end time
+    indexed_jobs.sort(key=lambda x: x['e'])
+    
+    n = len(indexed_jobs)
+    
+    # dp[i] will store the maximum weight using a subset of the first i jobs.
+    # dp_ends[i] will store the end time of the last job in that optimal subset.
+    # To reconstruct the path, we store the index of the previous job used.
+    dp = [0.0] * (n + 1)
+    # parent[i] stores the index (in indexed_jobs) of the job that preceded 
+    # job i in the optimal sequence ending at i.
+    # prev_dp_idx[i] stores the index in the dp array of the best solution 
+    # available before job i.
+    prev_dp_idx = [0] * (n + 1)
+    # used_job[i] is True if the i-th job (1-indexed in dp) was included in dp[i]
+    used_job = [False] * (n + 1)
+    # job_at_dp[i] stores which job index (from indexed_jobs) resulted in dp[i]
+    job_at_dp = [-1] * (n + 1)
+
+    # To find the latest non-overlapping job efficiently, we use binary search.
+    # We need a list of end times to use bisect_right.
+    end_times = [job['e'] for job in indexed_jobs]
+
+    for i in range(1, n + 1):
+        current_job = indexed_jobs[i-1]
+        
+        # Find the latest job that ends before or at the current job's start time.
+        # bisect_right returns the leftmost insertion point that maintains order.
+        # We want the largest index j such that end_times[j-1] <= current_job['s']
+        idx = bisect.bisect_right(end_times, current_job['s'])
+        
+        # Option 1: Include current_job
+        weight_if_included = current_job['w'] + dp[idx]
+        
+        # Option 2: Exclude current_job
+        weight_if_excluded = dp[i-1]
+        
+        if weight_if_included > weight_if_excluded:
+            dp[i] = weight_if_included
+            used_job[i] = True
+            prev_dp_idx[i] = idx
+            job_at_dp[i] = i - 1
+        else:
+            dp[i] = weight_if_excluded
+            used_job[i] = False
+            prev_dp_idx[i] = i - 1
+            job_at_dp[i] = -1
+
+    # Reconstruct the solution
+    chosen_indices = []
+    curr = n
+    while curr > 0:
+        if used_job[curr]:
+            job_idx = job_at_dp[curr]
+            chosen_indices.append(indexed_jobs[job_idx]['id'])
+            curr = prev_dp_idx[curr]
+        else:
+            curr = prev_dp_idx[curr]
+
+    # The problem asks for indices sorted by the job's start time.
+    # Since we reconstructed backwards, we reverse and then sort by start time.
+    # However, the requirement is: "sorted by the job's start time (break ties by index ascending)".
+    # Let's collect the actual job objects to sort them correctly.
+    
+    final_jobs = []
+    for idx in chosen_indices:
+        final_jobs.append((jobs[idx][0], idx))
+    
+    # Sort by start time (x[0]), then by original index (x[1])
+    final_jobs.sort()
+    
+    result_indices = [item[1] for item in final_jobs]
+    
+    return (float(dp[n]), result_indices)
+
+```

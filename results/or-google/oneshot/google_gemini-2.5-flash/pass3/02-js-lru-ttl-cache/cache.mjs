@@ -1,0 +1,219 @@
+// cache.mjs
+export class LruTtlCache {
+  #capacity;
+  #defaultTtlMs;
+  #now;
+  #cache; // Map to store key-value pairs and metadata
+  #lruList; // Doubly linked list to maintain recency order
+
+  constructor({ capacity, defaultTtlMs = Infinity, now = () => Date.now() }) {
+    if (!Number.isInteger(capacity) || capacity < 1) {
+      throw new RangeError("Capacity must be an integer >= 1.");
+    }
+
+    this.#capacity = capacity;
+    this.#defaultTtlMs = defaultTtlMs;
+    this.#now = now;
+    this.#cache = new Map();
+    this.#lruList = new LruList(); // Custom doubly linked list
+  }
+
+  #getExpiryTime(ttlMs) {
+    if (ttlMs === Infinity) {
+      return Infinity;
+    }
+    const effectiveTtl = ttlMs ?? this.#defaultTtlMs;
+    if (effectiveTtl <= 0) {
+      return this.#now(); // Already expired
+    }
+    return this.#now() + effectiveTtl;
+  }
+
+  #isExpired(entry) {
+    return entry.expiryTime !== Infinity && this.#now() >= entry.expiryTime;
+  }
+
+  #deleteEntry(key) {
+    const entry = this.#cache.get(key);
+    if (entry) {
+      this.#lruList.remove(entry.node);
+      this.#cache.delete(key);
+      return true;
+    }
+    return false;
+  }
+
+  #purgeExpiredEntries() {
+    // Iterate from the least recently used to find expired entries
+    let currentNode = this.#lruList.tail;
+    while (currentNode) {
+      const entry = currentNode.value;
+      if (this.#isExpired(entry)) {
+        const keyToDelete = entry.key;
+        currentNode = currentNode.prev; // Move before deleting
+        this.#deleteEntry(keyToDelete);
+      } else {
+        currentNode = currentNode.prev;
+      }
+    }
+  }
+
+  set(key, value, ttlMs) {
+    const expiryTime = this.#getExpiryTime(ttlMs);
+    const existingEntry = this.#cache.get(key);
+
+    if (existingEntry) {
+      // Update existing entry
+      existingEntry.value = value;
+      existingEntry.expiryTime = expiryTime;
+      this.#lruList.moveToFront(existingEntry.node);
+    } else {
+      // Add new entry
+      this.#purgeExpiredEntries(); // Purge expired before checking capacity
+
+      if (this.#cache.size >= this.#capacity) {
+        // Evict LRU if still over capacity
+        const lruKey = this.#lruList.tail.value.key;
+        this.#deleteEntry(lruKey);
+      }
+
+      const newEntry = { key, value, expiryTime, node: null };
+      const newNode = this.#lruList.add(newEntry);
+      newEntry.node = newNode;
+      this.#cache.set(key, newEntry);
+    }
+    return this;
+  }
+
+  get(key) {
+    const entry = this.#cache.get(key);
+    if (!entry) {
+      return undefined;
+    }
+
+    if (this.#isExpired(entry)) {
+      this.#deleteEntry(key);
+      return undefined;
+    }
+
+    this.#lruList.moveToFront(entry.node);
+    return entry.value;
+  }
+
+  has(key) {
+    const entry = this.#cache.get(key);
+    if (!entry) {
+      return false;
+    }
+
+    if (this.#isExpired(entry)) {
+      this.#deleteEntry(key);
+      return false;
+    }
+    return true;
+  }
+
+  delete(key) {
+    return this.#deleteEntry(key);
+  }
+
+  get size() {
+    this.#purgeExpiredEntries();
+    return this.#cache.size;
+  }
+
+  keys() {
+    this.#purgeExpiredEntries();
+    const result = [];
+    let currentNode = this.#lruList.head;
+    while (currentNode) {
+      result.push(currentNode.value.key);
+      currentNode = currentNode.next;
+    }
+    return result;
+  }
+}
+
+// --- Doubly Linked List Implementation for LRU ---
+class Node {
+  constructor(value) {
+    this.value = value;
+    this.prev = null;
+    this.next = null;
+  }
+}
+
+class LruList {
+  constructor() {
+    this.head = null;
+    this.tail = null;
+  }
+
+  // Add a new node to the front of the list (most recently used)
+  add(value) {
+    const newNode = new Node(value);
+    if (!this.head) {
+      this.head = newNode;
+      this.tail = newNode;
+    } else {
+      newNode.next = this.head;
+      this.head.prev = newNode;
+      this.head = newNode;
+    }
+    return newNode;
+  }
+
+  // Move an existing node to the front of the list
+  moveToFront(node) {
+    if (node === this.head) {
+      return; // Already at the front
+    }
+
+    // If it's the tail, update the tail
+    if (node === this.tail) {
+      this.tail = node.prev;
+      if (this.tail) {
+        this.tail.next = null;
+      }
+    }
+
+    // Remove node from its current position
+    if (node.prev) {
+      node.prev.next = node.next;
+    }
+    if (node.next) {
+      node.next.prev = node.prev;
+    }
+
+    // Place node at the front
+    node.next = this.head;
+    node.prev = null;
+    if (this.head) {
+      this.head.prev = node;
+    }
+    this.head = node;
+
+    // If the list was empty before, this node is also the tail
+    if (!this.tail) {
+      this.tail = node;
+    }
+  }
+
+  // Remove a node from the list
+  remove(node) {
+    if (node === this.head) {
+      this.head = node.next;
+    }
+    if (node === this.tail) {
+      this.tail = node.prev;
+    }
+    if (node.prev) {
+      node.prev.next = node.next;
+    }
+    if (node.next) {
+      node.next.prev = node.prev;
+    }
+    node.prev = null;
+    node.next = null;
+  }
+}

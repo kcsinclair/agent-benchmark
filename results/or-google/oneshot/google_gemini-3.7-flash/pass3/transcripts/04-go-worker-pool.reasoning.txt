@@ -1,0 +1,88 @@
+**Implementing Pool Logic**
+
+I'm currently focused on the core logic for the `Run` function. My primary concern is ensuring that the results from the executed tasks are returned in the same order as the input `tasks` slice, even though execution might be concurrent. I'm exploring how best to manage this ordering while leveraging the specified number of workers.
+
+**Designing Worker Pool**
+
+My current focus is on structuring the worker pool. I'm setting up a cancellable context to manage task lifetimes and stop new work from starting upon cancellation. The plan is to handle task results and errors by ensuring they are returned in the original task order, even with concurrent execution.
+
+**Refining Task Cancellation**
+
+I'm refining the cancellation logic. The goal is to immediately cancel all pending operations if any task encounters an error or completes. I'm also considering how to propagate cancellation signals from the parent context or individual task errors to ensure no new tasks begin execution after cancellation is initiated.
+
+**Structuring Task Distribution**
+
+My current focus is on structuring the task distribution mechanism. I'm exploring using a channel of task indices, potentially pre-filled, for workers to pull from. Crucially, I'm ensuring that before any worker executes a task, it checks the context for cancellation to adhere to the "no new work" rule.
+
+**Executing Task Logic**
+
+I am now implementing the core execution loop for each worker. I'm prioritizing checking the context's cancellation status *before* a worker picks up and begins processing a new task index from the channel, ensuring no work proceeds if a cancellation signal has been received.
+
+**Tracing Context Cancellation**
+
+I'm carefully tracing the context cancellation flow. I need to ensure `parentCtx` cancellation is handled correctly in the producer's select statement, especially when both `ctx.Done()` and `taskCh <- i` are ready. My focus is on preventing race conditions and ensuring timely termination.
+
+**Handling Context Readiness**
+
+I am refining how context cancellation interacts with task channel sends. My current focus is on ensuring that if the context is done, I don't attempt to send a task index to the channel, thus preventing new work from being initiated even if the channel send is ready. I'm also closely examining how workers react to cancellation after they've already picked up a task index, aiming for immediate termination.
+
+**Detecting Cancellation Races**
+
+I'm scrutinizing potential race conditions around context cancellation. Specifically, I'm verifying that if an error triggers cancellation, any worker checking the context *after* cancellation is invoked will correctly abort before starting a new task. My focus is on confirming that tasks that haven't begun execution are definitively prevented from starting.
+
+**Observing Concurrent Errors**
+
+I'm analyzing how concurrent task errors are handled. My current focus is on the `setFirstErr` function to ensure only the very first error encountered is stored and propagated, while still ensuring all started tasks complete or are cancelled gracefully.
+
+**Verifying Error Prioritization**
+
+I'm verifying that custom task errors correctly supersede context cancellation errors when setting the `firstErr`. My analysis shows that even if a task returns `ctx.Err()` due to cancellation initiated by another task's custom error, the custom error is correctly preserved as the primary error returned by `Run`. This ensures the original cause of failure is surfaced.
+
+**Analyzing Error Propagation**
+
+I am meticulously examining how errors and context cancellations interact. My primary concern is ensuring that if a task returns a custom error *after* the parent context has been cancelled, that custom error is correctly captured and returned, rather than the `context.Canceled` error. I'm verifying the priority of `firstErr` over `parentCtx.Err()`.
+
+**Prioritizing Custom Errors**
+
+I'm analyzing the scenario where a task error occurs after parent context cancellation. I'm confirming that my `firstErr` logic correctly captures and returns the custom task error, even if `ctx.Err()` is subsequently detected, ensuring the original failure source is prioritized.
+
+**Analyzing Context Cancellation**
+
+I am carefully tracing the context cancellation flow. My focus is on understanding the precise timing of `defer cancel()` versus `return` statements, particularly when `parentCtx` is cancelled or a task produces an error. I am verifying how `ctx.Err()` behaves in these scenarios to ensure the correct error is ultimately returned.
+
+**Confirming Race Condition Prevention**
+
+I'm confirming that even if a worker has just received a task index, the context cancellation check correctly prevents execution if another task's error has already triggered cancellation. This ensures no new tasks begin after the cancellation signal has been issued.
+
+**Detecting Concurrent Task Starts**
+
+I'm scrutinizing the precise moment a worker picks up a task. My current thinking is that if the context isn't yet cancelled when a worker reads an index, the task is allowed to start. Any cancellation triggered concurrently *after* this point but *before* the worker begins processing that specific task index will be correctly detected and prevent subsequent tasks from starting.
+
+**Preventing Channel Hangs**
+
+I've confirmed that the `taskCh <- i` operation will not indefinitely hang. If an error occurs and `cancel()` is called, the context done channel will become ready, unblocking the producer. This allows the producer to close `taskCh`, and workers will exit gracefully upon detecting the cancelled context, preventing any deadlock scenarios.
+
+**Validating Edge Cases**
+
+I'm confirming that if `workers` is less than 1, an error is returned immediately. I've also verified that an empty task slice correctly results in an empty return slice and no error. The logic for limiting the number of spawned workers to `len(tasks)` also seems sound and optimal, particularly with an unbuffered `taskCh`.
+
+**Confirming Concurrency Boundaries**
+
+I've verified that the design strictly adheres to the specified `workers` limit for concurrent task execution. My checks confirm that even with an unbuffered channel, the producer correctly handles context cancellation to prevent indefinite hangs, ensuring graceful worker termination and avoiding deadlocks.
+
+**Validating Input Constraints**
+
+I am confirming the handling of edge cases for input parameters. Specifically, I've ensured that invalid `workers` counts (less than 1) and empty `tasks` slices are correctly managed, returning appropriate errors or empty results as expected by the requirements.
+
+**Refining Error Logic**
+
+I'm now meticulously verifying that if `firstErr` is set by a task's custom error, it takes precedence over a later `ctx.Err()` from context cancellation. This ensures the original, specific failure is always reported, even during broader cancellations, and that already-started tasks are still awaited before returning.
+
+**Verifying Package Structure**
+
+I'm confirming that the package declaration is correct and that only the explicitly required identifiers, `Task` and `Run`, are exported. I've also checked that the necessary imports (`context`, `errors`, `sync`) are present and that there's no extraneous `func main`.
+
+**Refining Producer Logic**
+
+I am ensuring that the producer loop correctly handles context cancellation. If `taskCtx.Err()` is not nil, I break out immediately. Crucially, within the `select` statement, I ensure that if `taskCtx.Done()` is ready, I do *not* attempt to send to `taskCh`, preventing new work initiation after cancellation.
+

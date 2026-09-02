@@ -1,0 +1,50 @@
+{
+  "wall_seconds": 480.9,
+  "settings": {
+    "temperature": 0.0,
+    "max_tokens": 16384,
+    "think": "off",
+    "repeat": 3,
+    "reasoning_effort": "",
+    "server": "https://openrouter.ai/api",
+    "provider": "Google"
+  },
+  "results": [
+    {
+      "model": "google/gemini-3.7-flash",
+      "load_seconds": null,
+      "passes": [
+        {
+          "pass": 1,
+          "dir": "/Users/keith/Code/agent-benchmark/results/or-google/oneshot/google_gemini-3.7-flash/pass1",
+          "generate_seconds": 165.9,
+          "wall_seconds": 165.9,
+          "trouble": [],
+          "cost_usd": 0.0716,
+          "score": 68,
+          "max": 68
+        },
+        {
+          "pass": 2,
+          "dir": "/Users/keith/Code/agent-benchmark/results/or-google/oneshot/google_gemini-3.7-flash/pass2",
+          "generate_seconds": 147.0,
+          "wall_seconds": 147.0,
+          "trouble": [],
+          "cost_usd": 0.0703,
+          "score": 65,
+          "max": 68
+        },
+        {
+          "pass": 3,
+          "dir": "/Users/keith/Code/agent-benchmark/results/or-google/oneshot/google_gemini-3.7-flash/pass3",
+          "generate_seconds": 157.7,
+          "wall_seconds": 157.7,
+          "trouble": [],
+          "cost_usd": 0.076,
+          "score": 68,
+          "max": 68
+        }
+      ]
+    }
+  ]
+}

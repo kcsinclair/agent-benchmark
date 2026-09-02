@@ -1,0 +1,85 @@
+import bisect
+
+def best_schedule(jobs: list[tuple[float, float, float]]) -> tuple[float, list[int]]:
+    """
+    Solves the Weighted Interval Scheduling problem in O(n log n) time.
+    
+    Args:
+        jobs: A list of (start, end, weight) tuples.
+        
+    Returns:
+        A tuple (total_weight, chosen_indices) where chosen_indices are the 
+        original indices of the jobs in the optimal subset, sorted by start time.
+    """
+    if not jobs:
+        return (0.0, [])
+
+    # We need to keep track of original indices to return them at the end.
+    # Store as (end, start, weight, original_index)
+    indexed_jobs = []
+    for i, (s, e, w) in enumerate(jobs):
+        indexed_jobs.append((e, s, w, i))
+
+    # Sort jobs by end time to facilitate dynamic programming.
+    # O(n log n)
+    indexed_jobs.sort()
+
+    n = len(indexed_jobs)
+    
+    # dp[i] will store the maximum weight achievable using a subset of the 
+    # first i jobs (from the sorted list).
+    # dp_indices[i] will store the index of the job that was added to achieve dp[i].
+    # prev_dp_idx[i] will store the index in the dp array of the previous compatible job.
+    dp = [0.0] * (n + 1)
+    # To reconstruct the path, we store which job index was used to reach dp[i]
+    # and which dp index we came from.
+    parent_dp_idx = [-1] * (n + 1)
+    used_job_idx = [-1] * (n + 1)
+
+    # Extract end times for binary search
+    end_times = [job[0] for job in indexed_jobs]
+
+    for i in range(1, n + 1):
+        curr_end, curr_start, curr_weight, curr_orig_idx = indexed_jobs[i-1]
+        
+        # Find the latest job that ends before or at the current job's start time.
+        # bisect_right finds the first index where end_time > curr_start.
+        # Subtracting 1 gives the last index where end_time <= curr_start.
+        idx = bisect.bisect_right(end_times, curr_start)
+        
+        # Option 1: Include the current job
+        weight_if_included = curr_weight + dp[idx]
+        
+        # Option 2: Exclude the current job
+        weight_if_excluded = dp[i-1]
+        
+        if weight_if_included > weight_if_excluded:
+            dp[i] = weight_if_included
+            used_job_idx[i] = curr_orig_idx
+            parent_dp_idx[i] = idx
+        else:
+            dp[i] = weight_if_excluded
+            used_job_idx[i] = -1 # Signifies we didn't pick job i-1
+            parent_dp_idx[i] = i - 1
+
+    # Reconstruct the solution
+    chosen_indices = []
+    curr = n
+    while curr > 0:
+        if used_job_idx[curr] != -1:
+            chosen_indices.append(used_job_idx[curr])
+            curr = parent_dp_idx[curr]
+        else:
+            curr = parent_dp_idx[curr]
+
+    # The problem requires indices sorted by the job's start time.
+    # Since we collected them by backtracking, they are in reverse order of end times.
+    # We sort them based on the start time of the original jobs.
+    chosen_indices.sort(key=lambda idx: jobs[idx][0])
+    
+    # Note: The problem says "break ties by index ascending". 
+    # Python's sort is stable, but to be explicit:
+    # We can use a tuple (start_time, original_index) for the sort key.
+    chosen_indices.sort(key=lambda idx: (jobs[idx][0], idx))
+
+    return (float(dp[n]), chosen_indices)
