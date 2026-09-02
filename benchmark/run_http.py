@@ -69,6 +69,13 @@ Options:
                         a distribution, not a measurement.
       --no-warmup       skip the load request that makes a swapping server
                         resident before timing starts
+      --no-probe        skip the one-token request that settles the decode
+                        before the run. The probe exists because no metadata
+                        says a switch will be refused — some endpoints
+                        advertise `reasoning` and then reject `effort: none` —
+                        so without it the header claims a setting the requests
+                        do not carry, and every request pays a rejected round
+                        trip to rediscover the same refusal.
   -g, --grade           run run_all.sh on each model when it finishes
   -k, --keep            keep an existing output dir instead of clearing it
   -h, --help            this message
@@ -302,8 +309,17 @@ def decorate(payload, model, opts):
         decode["temperature"] = opts["temperature"]
 
     mode = "think=on"
+    # A refusal, once seen, is final for this model: no metadata predicts it.
+    # DeepInfra's gpt-oss and Google's Gemini both advertise `reasoning` and
+    # `reasoning_effort` in supported_parameters and then reject
+    # `effort: none`, so the only signal is the rejection itself. Remembering
+    # it turns one refusal per request — 15 on a 3-pass sweep, 306 on a 3-pass
+    # reasoning run — into one for the whole run. See probe().
+    refused = opts.get("think_refused", {}).get(model)
     if opts["openrouter"]:
-        if opts["think"] == "off":
+        if refused:
+            mode = refused
+        elif opts["think"] == "off":
             if accepts and "reasoning" not in accepts:
                 mode = "think=n/a (no reasoning switch on this model)"
             else:
@@ -317,6 +333,8 @@ def decorate(payload, model, opts):
             # route to several, and this benchmark treats differing
             # quantisations as separate contestants
             payload["provider"] = {"allow_fallbacks": False}
+    elif refused:
+        mode = refused
     elif opts["think"] == "off":
         payload["chat_template_kwargs"] = {"enable_thinking": False}
         mode = "think=off"
@@ -326,6 +344,47 @@ def decorate(payload, model, opts):
         mode += ", effort=%s" % opts["reasoning_effort"]
     decode["thinking"] = mode
     return mode, decode
+
+
+def explain_no_endpoints(payload, opts, detail):
+    """Turn OpenRouter's bare 404 into the reason. -> message
+
+    "No endpoints found" means the filters on the request removed every
+    candidate endpoint, not that the model is missing — it passed the
+    /v1/models check at startup. Two filters do it, and they need opposite
+    fixes, so guessing at one of them sends you looking in the wrong place:
+    a `--provider` pin that does not serve this model at all, or a max_tokens
+    above every remaining endpoint's cap. Ask which, rather than assuming.
+    """
+    model = payload.get("model")
+    cap = payload.get("max_tokens")
+    names, caps, count = [], [], 0
+    try:
+        body = api(opts["server"], "/v1/models/%s/endpoints" % model,
+                   timeout=30, key=opts["key"])
+        eps = ((body.get("data") or {}).get("endpoints")) or []
+        count = len(eps)
+        names = sorted({e.get("provider_name") for e in eps
+                        if e.get("provider_name")})
+        caps = [e.get("max_completion_tokens") or 0 for e in eps]
+    except Exception:
+        pass
+
+    msg = "%s — no endpoint can serve this request." % detail
+    pin = opts.get("provider")
+    if pin and names and pin not in names:
+        msg += (" The pin --provider %r serves none of it: %d endpoint(s) offer"
+                " this model, from %s. A vendor prefix in the slug names who"
+                " made the weights, not who serves them."
+                % (pin, count, ", ".join(names)))
+    elif caps and cap and cap > max(caps):
+        msg += (" max_tokens=%s exceeds every endpoint's cap (highest is %s)."
+                % (cap, max(caps)))
+    else:
+        msg += (" max_tokens=%s may exceed the pinned provider's"
+                " max_completion_tokens; check /v1/models/<slug>/endpoints"
+                % cap)
+    return msg
 
 
 def send(server, payload, opts, decode=None):
@@ -351,11 +410,7 @@ def send(server, payload, opts, decode=None):
         # 404 that reads like the model does not exist. Raising --max-tokens to
         # cure a truncation once made a whole run unroutable and scored 0/68.
         if "no endpoints found" in (e.detail or "").lower():
-            cap = payload.get("max_tokens")
-            raise ApiError(e.code, "%s — no endpoint can serve this request. "
-                           "max_tokens=%s may exceed the pinned provider's "
-                           "max_completion_tokens; check "
-                           "/v1/models/<slug>/endpoints" % (e.detail, cap))
+            raise ApiError(e.code, explain_no_endpoints(payload, opts, e.detail))
         # `e` is unbound once this block ends, so keep what the retry needs
         detail = e.detail or ""
         low = detail.lower()
@@ -367,7 +422,11 @@ def send(server, payload, opts, decode=None):
             note = "think=on (this endpoint mandates reasoning)"
         else:
             raise
-    print("  (%s — retrying with %s)" % (detail[:70], note))
+    # remember it, so the rest of the run sends the accepted shape first time
+    # rather than paying a rejected round trip per request
+    opts.setdefault("think_refused", {})[payload.get("model")] = note
+    print("  (%s — retrying with %s; kept for the rest of this run)"
+          % (detail[:70], note))
     sys.stdout.flush()
     if decode is not None:
         decode["thinking"] = note
@@ -449,6 +508,39 @@ def warmup(server, model, timeout, key=None, attempts=3, pause=30):
                 sys.stdout.flush()
                 time.sleep(pause)
     return time.time() - t0, last
+
+
+def probe(model, opts):
+    """Settle the decode parameters before the run instead of during it.
+    -> (effective thinking mode, fatal error or None)
+
+    Nothing in the model metadata predicts a refusal. DeepInfra's gpt-oss and
+    Google's Gemini both list `reasoning` and `reasoning_effort` in
+    `supported_parameters` and then reject `effort: none` outright, so the only
+    reliable signal is the rejection. Asking for it deliberately with a
+    one-token request costs a single round trip and buys two things: the run
+    header states the decode that will actually be sent rather than the one
+    that was requested, and `send` stops re-discovering the same refusal on
+    every subsequent request.
+
+    Only a *deterministic* failure is reported back as fatal: an endpoint filter
+    that removes every candidate will remove it for every request, so failing
+    the whole sweep to relearn that is pure waste — five problems times three
+    passes, each with the same 404. Anything else is left for the real requests
+    to report and retry, because a probe that aborts on a transient blip turns
+    a slow network into a dead sweep.
+    """
+    payload = {"model": model, "messages": [{"role": "user", "content": "hi"}],
+               "max_tokens": 1}
+    _, decode = decorate(payload, model, opts)
+    try:
+        send(opts["server"], payload, opts, decode)
+    except ApiError as e:
+        if "no endpoint" in (e.detail or "").lower():
+            return decode["thinking"], e
+    except (urllib.error.URLError, OSError):
+        pass
+    return decode["thinking"], None
 
 
 def grade(outdir, label):
@@ -551,6 +643,26 @@ def run_pass(model, opts, outdir):
 
 def run_model(model, opts):
     base = os.path.join(opts["out"], slug(model))
+
+    # Probe before clearing anything. A hosted endpoint needs no load, so the
+    # decode can be settled before it is claimed — and a request this
+    # configuration can never route is not a result, so wiping the previous run
+    # to record it would destroy the only real data in there.
+    fatal = None
+    if opts["openrouter"] and opts["probe"]:
+        _, fatal = probe(model, opts)
+    if fatal is not None:
+        print("=" * 60)
+        print(" Model:   %s" % model)
+        print(" NOT RUN: %s" % fatal)
+        print(" No request was sent and nothing was written; any previous run"
+              " in\n          %s is untouched." % base)
+        print("=" * 60)
+        print()
+        sys.stdout.flush()
+        return {"model": model, "load_seconds": None, "passes": [],
+                "error": str(fatal), "unrun": True}
+
     if not opts["keep"] and os.path.isdir(base) and not opts["only"]:
         subprocess.call(["rm", "-rf", base])
 
@@ -592,7 +704,14 @@ def run_model(model, opts):
             result["error"] = err
             return result
         print(" model resident after %.0fs (load time excluded from the"
-              " per-problem timings below)\n" % secs)
+              " per-problem timings below)" % secs)
+        # only now is there a template to ask; a cold probe would just have
+        # paid for the load twice
+        if opts["probe"]:
+            settled, _ = probe(model, opts)
+            if settled != mode:
+                print(" decode revised by probe: %s" % settled)
+        print()
         sys.stdout.flush()
 
     for n in range(1, opts["repeat"] + 1):
@@ -634,7 +753,8 @@ def main(argv):
     opts = {"server": DEFAULT_SERVER, "only": "", "out": None,
             "max_tokens": 16384, "timeout": 1800, "temperature": 0.0,
             "think": "off", "reasoning_effort": "", "grade": False, "keep": False,
-            "repeat": 1, "warmup": True, "key_file": DEFAULT_KEY_FILE,
+            "repeat": 1, "warmup": True, "probe": True, "think_refused": {},
+            "key_file": DEFAULT_KEY_FILE,
             "provider": "", "key": None, "openrouter": False, "models": {}}
     models = []
     listing = None
@@ -669,6 +789,7 @@ def main(argv):
         elif a == "--reasoning-effort": opts["reasoning_effort"] = val(); i += 2
         elif a in ("-r", "--repeat"):   opts["repeat"] = int(val()); i += 2
         elif a == "--no-warmup":        opts["warmup"] = False; i += 1
+        elif a == "--no-probe":         opts["probe"] = False; i += 1
         elif a in ("-g", "--grade"):    opts["grade"] = True; i += 1
         elif a in ("-k", "--keep"):     opts["keep"] = True; i += 1
         elif a.startswith("-"):         sys.exit("run_http: unknown option %r" % a)
@@ -704,7 +825,10 @@ def main(argv):
         results.append(run_model(model, opts))
 
     summarise(results, time.time() - started, opts)
-    return 0
+    # a run where no model was ever asked anything is a configuration error, not
+    # a result: exit non-zero so a caller chaining tracks stops here instead of
+    # walking into the same wall on the next one
+    return 1 if all(r.get("unrun") for r in results) else 0
 
 
 def summarise(results, wall, opts):
@@ -732,7 +856,12 @@ def summarise(results, wall, opts):
         gen = sum(p["generate_seconds"] for p in r["passes"])
         spent = sum(p.get("cost_usd", 0) for p in r["passes"])
         load = "%.0fs" % r["load_seconds"] if r["load_seconds"] is not None else "-"
-        if r.get("error"):
+        if r.get("unrun"):
+            # not a load failure and not a score: the request could never be
+            # routed, so calling it 0/68 or "FAILED TO LOAD" would both be
+            # claims about a model that was never asked anything
+            cell = "NOT RUN (see above)"
+        elif r.get("error"):
             cell = "FAILED TO LOAD"
         elif not scores:
             cell = "not graded"
@@ -751,11 +880,18 @@ def summarise(results, wall, opts):
         total = sum(p.get("cost_usd", 0) for r in results for p in r["passes"])
         print(" total cost: $%.4f (as billed by the provider, not estimated)"
               % total)
-    if opts["repeat"] > 1:
+    if opts["repeat"] > 1 and any(r.get("passes") for r in results):
         print(" score column shows the median, with every pass in brackets;"
               " spread is sampling noise,")
         print(" not model quality — identical requests at temperature 0 do not"
               " return identical output here.")
+
+    # Summaries are timestamped and never overwritten, so one written for a run
+    # that measured nothing survives every later run and reads as a result. Do
+    # not create it — the console output above is the whole story.
+    if not any(r.get("passes") for r in results):
+        print(" no summary written: nothing was measured")
+        return
 
     path = os.path.join(opts["out"], "summary-%s.json"
                         % time.strftime("%Y%m%d-%H%M%S"))

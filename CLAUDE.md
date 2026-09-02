@@ -37,6 +37,55 @@ Consequences to keep in mind when working here:
 
 ## Commands
 
+`bench.sh` is the front door and the thing to reach for first. It resolves a
+**profile** — a named endpoint in the gitignored `.env` — into flags the runners
+already accept, so it adds no behaviour of its own and scores produced through it
+stay comparable with every row in RESULTS.md. `-n` prints the command instead of
+running it, which is the fastest way to check what a profile expands to.
+
+```bash
+./bench.sh doctor                        # toolchain, harness, profiles, ssh
+./bench.sh selftest                      # 90 self-test cases, then reference = 68/68
+./bench.sh profiles                      # what is configured; never prints a key
+./bench.sh models    <profile> [filter]
+./bench.sh oneshot   <profile> <model>…  # coding, 1 pass, graded
+./bench.sh oneshot3  <profile> <model>…  # coding, 3 passes, graded
+./bench.sh reasoning <profile> <model>…
+./bench.sh all       <profile> <model>…  # both at 3 passes + combined scorecard
+./bench.sh speed                         # llama-bench sweep, then collate
+./bench.sh table                         # one table of every score in results/
+./bench.sh scrub -- --check              # redact traps before publishing
+./bench.sh grade <dir> [label]           # -> run_all.sh
+./bench.sh -n oneshot3 <profile> <model> # print the command, run nothing
+./bench.sh oneshot <profile> <model> -- --think on   # after --, verbatim to the runner
+```
+
+Profiles are `BENCH_PROFILE_<NAME>_{URL,KEY,KEY_FILE,PROVIDER,LABEL,ARGS}`; only
+`_URL` is required. `.env` is parsed by both `bench.sh` and
+`run_http.read_dotenv` with the same rules and is never sourced. Two things
+worth knowing when editing this:
+
+- **`_LABEL` exists because `server_label()` collides.** It takes the first
+  dot-segment of the hostname, so `api.openai.com` and `api.anthropic.com` both
+  become `api`. `bench.sh` therefore always passes an explicit `--out
+  results/<label>/<track>` rather than letting the runner derive it.
+- **The key is bridged through `$OPENROUTER_API_KEY`**, which `load_key` checks
+  first — that is why no runner needed changing. `resolve_profile` restores the
+  pre-existing value between profiles, so walking every profile in one process
+  (`profiles`, `doctor`) cannot report profile B as working on profile A's key.
+  Auth still only attaches to `openrouter.ai` URLs; widening that means changing
+  `is_openrouter`/`load_key`, not `bench.sh`.
+
+`bench.sh speed` reaches the box over ssh even when it is the local box, keeping
+one code path. It pins the output directory with `BENCH_SPEED_LABEL` because
+`run_llama_bench.sh` names it after the ssh host — with `--host localhost` the
+numbers would land in `results/localhost/speed`, where `collate_bench.py` can no
+longer join them to the scores. It also passes that directory to
+`collate_bench.py` explicitly, whose no-argument default is the first
+`results/*/speed` alphabetically.
+
+Full workflow, Linux setup and the failure modes are in RUNNING.md.
+
 Grade a submission directory (paths are relative to your shell's cwd, not to the
 script):
 
@@ -64,7 +113,13 @@ Self-tests — run the matching one after touching either script:
 ```bash
 ./benchmark/test_run_all.sh            # 17 cases: hangs, compile failures, bad flags
 ./benchmark/test_extract_submission.sh # 11 cases: transcript shapes, full pipeline
+./benchmark/test_bench.sh              # 41 cases: profile resolution, key never printed
 ```
+
+`test_bench.sh` runs entirely under `bench.sh -n` against a throwaway `.env`, so
+it needs no model, no network and no grading. Two of its cases assert that a
+dummy key never appears in any output — keep those if you touch `profiles` or
+`key_source`.
 
 Reasoning track (general ability, not coding — 102 items, six categories):
 
@@ -91,6 +146,7 @@ Agent track and speed sweep:
 ./benchmark/run_agent.py <model-id>             # tool-use track (grades automatically)
 ./benchmark/run_llama_bench.sh                  # stops llama-server on leia!
 ./benchmark/collate_bench.py                    # speed joined to scores
+./benchmark/collate_results.py                  # every score, across all labels
 ```
 
 `run_agent.py` gives the model `write_file`/`read_file`/`list_files` and grades
@@ -192,14 +248,38 @@ Three things differ from the llama.cpp path and all three are traps:
   is on by default on some models and cannot be disabled on others. Treat
   OpenRouter's parameter list as a hint, not gospel — it lists `temperature` as
   supported on `claude-opus-5`, which the vendor docs say rejects it.
-- **A refused thinking switch is retried, never scored.** DeepInfra's gpt-oss
-  endpoints reject `reasoning.effort: none` with *"Reasoning is mandatory for
-  this endpoint and cannot be disabled"*. Before that was handled, gpt-oss-20b
-  and gpt-oss-120b recorded **0/68 on every track** — a total failure that was
-  really a rejected parameter the model never saw. `run_http.send` now drops the
-  switch, retries once, and records `think=on (this endpoint mandates
-  reasoning)`. Any new back end that refuses a decode parameter belongs there
-  too: a silent zero reads as a terrible model.
+- **A refused thinking switch is probed for, retried, and remembered — never
+  scored.** DeepInfra's gpt-oss and Google's Gemini endpoints reject
+  `reasoning.effort: none` with *"Reasoning is mandatory for this endpoint and
+  cannot be disabled"*. Before that was handled, gpt-oss-20b and gpt-oss-120b
+  recorded **0/68 on every track** — a total failure that was really a rejected
+  parameter the model never saw. `run_http.send` drops the switch, retries once,
+  records `think=on (this endpoint mandates reasoning)`, and stores it in
+  `opts["think_refused"][model]` so `decorate` sends the accepted shape from
+  then on. `run_http.probe` triggers that discovery up front with a one-token
+  request, because **no metadata predicts it** — those endpoints advertise both
+  `reasoning` and `reasoning_effort` and refuse the value anyway, so the
+  rejection is the only signal. Two reasons it is worth a request: the run
+  header would otherwise claim `think=off` on requests that carry `think=on`,
+  and every request would re-pay the rejection (15 on a 3-pass coding sweep, 306
+  on a 3-pass reasoning run). `--no-probe` turns it off. Any new back end that
+  refuses a decode parameter belongs in `send` too: a silent zero reads as a
+  terrible model.
+- **A run that was never routable is `unrun`, not a score.** `probe` returns a
+  *fatal* error only for the deterministic class — "no endpoints found", i.e.
+  the filters on the request emptied the endpoint list — because that will
+  happen identically on every request. Five rules follow, and they are the
+  whole point of the flag: the probe runs **before** `rm -rf base`, so a
+  misconfigured run cannot destroy the previous good one; the model is skipped;
+  the summary cell reads **`NOT RUN (see above)`**, never `FAILED TO LOAD`
+  (nothing was loaded) and never `0/68` (nothing was asked); **no summary JSON
+  is written when no model produced a pass**, since summaries are timestamped
+  and never overwritten, so a junk one outlives every later run; and the
+  process **exits 1**, which is what makes `bench.sh all` skip the reasoning
+  track instead of hitting the same wall and printing the error twice.
+  `explain_no_endpoints` says which filter did it — a `--provider` that serves
+  none of this model, or a `max_tokens` above every endpoint's cap — because
+  the two need opposite fixes.
 - **Cost is billed, not estimated.** `usage.cost` lands in each `.meta.json` and
   totals in the summary, which makes cost-per-check nearly free to compute.
 - **A provider can bill for tokens and return nothing.** Novita served
@@ -283,12 +363,15 @@ the default PATH, so `run_all.sh` probes `python3.14 … python3.10` by name
 before falling back, and warns when only 3.9 is available (a submission using
 3.10+ syntax would fail to import and score 0 unfairly).
 
-**Portability status.** Every test so far ran on macOS with bash 3.2 and *no*
-coreutils, i.e. the built-in watchdog path plus a stand-in `timeout` binary. The
-Linux/bash-5/real-GNU-`timeout` combination has not been executed yet — that is
-what the GitHub push is for. Run `benchmark/test_run_all.sh` there before
-trusting any Linux scorecard, and if something differs, suspect `timeout`
-semantics or interpreter discovery before suspecting the graders.
+**Portability status.** Every test up to the Linux move ran on macOS with bash
+3.2 and *no* coreutils, i.e. the built-in watchdog path plus a stand-in
+`timeout` binary. Linux exercises bash 5, real GNU `timeout` and a different
+interpreter-discovery outcome for the first time. `./bench.sh doctor` followed by
+`./bench.sh selftest` is the check to run on any new box before trusting a
+scorecard from it, and if something differs, suspect `timeout` semantics or
+interpreter discovery before suspecting the graders. A missing `node` or `go`
+caps the total silently — `run_all.sh` exits 1 to say so, but `run_http.grade`
+discards that exit code, which is why `doctor` checks for them up front.
 
 Scores are only comparable across machines when the toolchain matches: the run
 header prints the resolved python/node/go versions and whether `-race` was
@@ -333,6 +416,10 @@ failure as conclusive.
 ## Layout and conventions
 
 ```
+bench.sh                        one entry point for every track, profile-driven
+.env.example                    profile template; committed via a !negation in
+                                .gitignore, which `.env.*` would otherwise eat
+RUNNING.md                      server setup + day-to-day workflow
 PROMPT_1..5.md                  verbatim copies of the five problems/*/PROMPT.md
 benchmark/problems/<n>/PROMPT.md  what a contestant is given
 harness/                          PRIVATE submodule (agent-benchmark-harness):
@@ -340,6 +427,9 @@ harness/                          PRIVATE submodule (agent-benchmark-harness):
   solutions/<n>/                    reference solutions, must score 68/68
   reasoning/trap_items.py           the hand-authored trap bank
 benchmark/scrub_results.py        strips grader detail out of results/
+benchmark/collate_results.py      one table of every score across results/*/
+                                  (summary-first; collate_bench.py is
+                                  speed-first and needs a speed sweep)
 benchmark/submissions/            default grading target (currently empty)
 results/<server>/{oneshot,agent,speed}/   all measured results, server first
 servers/<name>.md                 specs and quirks of each machine

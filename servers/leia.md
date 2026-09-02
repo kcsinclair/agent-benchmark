@@ -162,6 +162,18 @@ exist here, `rocm-smi` does.
 
 ## History
 
+- **2026-09-01** — the benchmark harness now runs **on this box** rather than
+  from a Mac over the network, so the local profile is
+  `http://localhost:7442` and Linux/bash-5/GNU-`timeout` is the path being
+  exercised for the first time. Run `./bench.sh doctor` and `./bench.sh
+  selftest` here before trusting a scorecard: the reference solutions must score
+  68/68, and a missing toolchain caps a total silently. The speed sweep still
+  goes over ssh — to `localhost` — which keeps one code path but needs
+  `ssh-copy-id $USER@localhost` and `loginctl enable-linger $USER`, or
+  `systemctl --user stop llama-server.service` fails over a non-login
+  connection and the sweep dies before measuring anything. `BENCH_SPEED_LABEL=leia`
+  keeps its output in `results/leia/speed` instead of `results/localhost/speed`,
+  where `collate_bench.py` could no longer join it to the scores.
 - **2026-08-12** — upgraded llama.cpp from `b9892-ee445f93d` (built 07-18) to
   `b10380-0b1bad14f`, because `Muse-Glimmer-30B` failed to load with
   `unknown model architecture: 'muse-glimmer'`; that architecture was merged

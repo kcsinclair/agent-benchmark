@@ -33,6 +33,8 @@ Options:
   -r, --repeat N        N passes per model, report median and spread
   -k, --keep            keep existing output instead of clearing
       --no-warmup       skip the load request before timing
+      --no-probe        skip the one-token request that settles the decode
+                        before the run (see run_http.probe)
   -h, --help            this message
 
 Beyond the score, each problem records how the model behaved: turns used, tool
@@ -52,7 +54,7 @@ import urllib.error
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import extract_submission as ex          # noqa: E402
 from run_http import (ApiError, decorate, send, prepare, price_per_mtok,  # noqa: E402
-                      slug, warmup, grade, selected, default_out,
+                      slug, warmup, probe, grade, selected, default_out,
                       DEFAULT_SERVER, DEFAULT_KEY_FILE, HERE, REPO)
 
 PROBLEMS = sorted(ex.PROBLEMS)
@@ -303,10 +305,15 @@ def run_model(model, opts):
     if not opts["keep"] and os.path.isdir(base) and not opts["only"]:
         subprocess.call(["rm", "-rf", base])
 
-    # derived from a real payload so the header cannot claim a decode setting
-    # the requests do not carry
-    probe = {"max_tokens": opts["max_tokens"]}
-    _, decode = decorate(probe, model, opts)
+    # settle the decode first, so the header cannot claim a setting the
+    # requests do not carry (a hosted endpoint has nothing to load)
+    fatal = None
+    if opts["openrouter"] and opts["probe"]:
+        _, fatal = probe(model, opts)
+
+    # derived from a real payload for the same reason
+    sample = {"max_tokens": opts["max_tokens"]}
+    _, decode = decorate(sample, model, opts)
     temp = ("temperature %s" % decode["temperature"]
             if decode.get("temperature") is not None
             else "temperature OMITTED (%s)" % decode["temperature_note"])
@@ -330,6 +337,12 @@ def run_model(model, opts):
     sys.stdout.flush()
 
     result = {"model": model, "track": "agent", "load_seconds": None, "passes": []}
+    if fatal is not None:
+        print(" NOT RUN: %s\n No request was sent and nothing was written.\n"
+              % fatal)
+        result["error"] = str(fatal)
+        result["unrun"] = True
+        return result
     if opts["warmup"] and not opts["openrouter"]:
         secs, err = warmup(opts["server"], model, opts["timeout"], opts["key"])
         result["load_seconds"] = round(secs, 1)
@@ -337,7 +350,12 @@ def run_model(model, opts):
             print(" load FAILED after %.0fs: %s\n skipping this model\n" % (secs, err))
             result["error"] = err
             return result
-        print(" model resident after %.0fs\n" % secs)
+        print(" model resident after %.0fs" % secs)
+        if opts["probe"]:
+            settled, _ = probe(model, opts)
+            if settled != decode["thinking"]:
+                print(" decode revised by probe: %s" % settled)
+        print()
 
     for n in range(1, opts["repeat"] + 1):
         outdir = base if opts["repeat"] == 1 else os.path.join(base, "pass%d" % n)
@@ -376,7 +394,8 @@ def summarise(results, wall, opts):
     print(" " + "-" * 82)
     for r in results:
         if r.get("error"):
-            print(" %-40s %s" % (r["model"][:40], "FAILED TO LOAD"))
+            print(" %-40s %s" % (r["model"][:40],
+                  "NOT RUN (see above)" if r.get("unrun") else "FAILED TO LOAD"))
             continue
         allp = [p for pas in r["passes"] for p in pas["problems"]]
         scores = [p["score"] for p in r["passes"] if "score" in p]
@@ -422,6 +441,12 @@ def summarise(results, wall, opts):
               " more than a one-shot"
               % sum(p.get("cost_usd", 0) for r in results for p in r["passes"]))
         print(" because every turn resends the whole conversation.")
+    # never overwritten, so one written for a run that measured nothing would
+    # survive every later run and read as a result
+    if not any(r.get("passes") for r in results):
+        print(" no summary written: nothing was measured")
+        return
+
     path = os.path.join(opts["out"], "agent-summary-%s.json"
                         % time.strftime("%Y%m%d-%H%M%S"))
     try:
@@ -441,7 +466,8 @@ def main(argv):
     opts = {"server": DEFAULT_SERVER, "only": "", "out": None,
             "max_tokens": 8192, "max_turns": 12, "timeout": 1800,
             "temperature": 0.0, "think": "off", "reasoning_effort": "",
-            "repeat": 1, "keep": False, "warmup": True,
+            "repeat": 1, "keep": False, "warmup": True, "probe": True,
+            "think_refused": {},
             "key_file": DEFAULT_KEY_FILE, "provider": "", "key": None,
             "openrouter": False, "models": {}}
     models, i = [], 0
@@ -466,6 +492,7 @@ def main(argv):
         elif a in ("-r", "--repeat"):   opts["repeat"] = int(val()); i += 2
         elif a in ("-k", "--keep"):     opts["keep"] = True; i += 1
         elif a == "--no-warmup":        opts["warmup"] = False; i += 1
+        elif a == "--no-probe":         opts["probe"] = False; i += 1
         elif a.startswith("-"):         sys.exit("run_agent: unknown option %r" % a)
         else:                           models.append(a); i += 1
 
@@ -485,7 +512,9 @@ def main(argv):
     started = time.time()
     results = [run_model(m, opts) for m in models]
     summarise(results, time.time() - started, opts)
-    return 0
+    # nothing was ever asked: a configuration error, not a result — exit
+    # non-zero so a caller chaining tracks stops instead of repeating it
+    return 1 if results and all(r.get("unrun") for r in results) else 0
 
 
 if __name__ == "__main__":

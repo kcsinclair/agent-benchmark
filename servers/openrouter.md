@@ -54,11 +54,63 @@ result predates a correction and should not be read — see below.
 
 ## Quirks worth knowing
 
-- **DeepInfra's gpt-oss endpoints mandate reasoning.** They reject
-  `reasoning: {effort: "none"}` with *"Reasoning is mandatory for this endpoint
-  and cannot be disabled"*. `run_http.send` retries without the switch and
-  records `think=on (this endpoint mandates reasoning)`. Consequence: gpt-oss
-  scores here are **not** decode-comparable with leia's `--think off` runs.
+- **A `~` prefix marks a floating alias, which cannot be pinned and must not be
+  recorded.** `~google/gemini-flash-latest` returns an *empty* `endpoints` list
+  from `/v1/models/<slug>/endpoints`, so there is no provider to pin and no
+  quantisation to read — the one thing this file says is mandatory is
+  structurally unavailable. It currently resolves to `google/gemini-3.7-flash`
+  (identical $0.75/$3.75 pricing, confirmed by testing), but *currently* is the
+  problem: what it serves changes without the slug changing, so the row cannot
+  be reproduced later. It also scores under a different directory —
+  `google_gemini-flash-latest` rather than `google_gemini-3.7-flash` — so the
+  same model recorded under both names reads as two contestants. Use an alias to
+  look, the concrete slug to record.
+- **Some endpoints mandate reasoning, and no metadata says which.** DeepInfra's
+  gpt-oss and Google's Gemini both reject `reasoning: {effort: "none"}` with
+  *"Reasoning is mandatory for this endpoint and cannot be disabled"* — while
+  advertising both `reasoning` and `reasoning_effort` in
+  `supported_parameters`. The refusal is the only signal, so `run_http.probe`
+  asks for it deliberately with a one-token request before the run, and
+  `send` remembers it per model. Without that memo every request rediscovered
+  it: 15 rejected round trips on a 3-pass coding sweep, 306 on a 3-pass
+  reasoning run. Consequence unchanged: those scores are **not**
+  decode-comparable with leia's `--think off` runs, and the header and
+  `.meta.json` say so rather than claiming `think=off`.
+- **A vendor prefix in the slug is not the provider.** `google/gemma-4-31b-it`
+  is served by **16 endpoints and not one of them is Google** — the prefix names
+  who made the weights. Pinning `--provider Google` removed every candidate and
+  returned a bare `404 No endpoints found`, which reads like the model does not
+  exist. `run_http.explain_no_endpoints` now asks the endpoints API which
+  filter actually emptied the list and names the providers that do serve it, and
+  `probe` treats it as fatal so the model is skipped rather than failing
+  identically once per problem per pass. The rule: a **closed** model's prefix
+  usually is its provider (`anthropic/`, `openai/`), an **open-weight** one's
+  never reliably is.
+- **A provider pin is not a quantisation pin.** DeepInfra offers
+  `gemma-4-31b-it` on three endpoints — `deepinfra/turbo` at fp4,
+  `deepinfra/fp8`, and `deepinfra/ultra` at fp8 — so `--provider DeepInfra`
+  still leaves fp4-vs-fp8 to the router, and `.meta.json` records the provider
+  name, not the tier. Since this benchmark scores Q4_K_M and Q8_0 as separate
+  contestants, prefer a provider offering exactly **one** endpoint for that
+  slug; there, the pin fixes the quantisation too. For `gemma-4-31b-it` that is
+  everyone except DeepInfra — e.g. Novita (bf16), CoreWeave (fp4), Cerebras
+  (fp16), SiliconFlow (fp8).
+- **Check the cap before pinning.** The runner asks for `max_tokens 16384` by
+  default, which alone rules out Venice (8192), Friendli (8192) and
+  `deepinfra/ultra` (8192) for this model — the same bare 404, a different
+  cause.
+- **`Google` means Vertex; `Google AI Studio` is the other one.** Both are
+  Google serving the same weights, but OpenRouter's display name for Vertex AI
+  is bare `Google`, so `--provider Google` does *not* mean "let Google pick".
+  The difference that matters here: **no Vertex endpoint advertises
+  `temperature`** (checked across all six `gemini-3.7-flash` endpoints), while
+  all three AI Studio ones do. `decorate` decides whether to send temperature
+  from the *model-level* `supported_parameters`, which is the union over
+  endpoints and therefore includes it — so pinning Vertex sends a temperature
+  the endpoint does not claim to accept, and reports it as sent. Prefer
+  `Google AI Studio` for a temperature-0 run. Watch the tier too: the
+  `google-vertex/global/flex` endpoint was at 79% uptime over 24h while plain
+  `google-vertex/global` was at 99.6%.
 - **Endpoints cap `max_tokens` independently, and exceeding it makes a request
   unroutable.** DeepInfra serves `qwen3.6-35b-a3b` at 16384 completion tokens;
   asking for 32768 with the provider pinned returns a bare

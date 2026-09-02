@@ -1,3 +1,24 @@
+# TL;DR
+
+# Setup your environment
+Check .env.example and docs
+
+# Run a benchmark
+```
+./bench.sh all google google/gemini-2.5-flash
+```
+
+# Scrub results to redact test results
+```
+./benchmark/scrub_results.py --check results/    # read-only, exit 1 if anything leaks
+./benchmark/scrub_results.py results/            # rewrite in place
+```
+
+# Update summary table
+```
+./bench.sh table
+```
+
 # Coding Model Benchmark — 5 Problems, Mixed Languages
 
 A small benchmark for comparing how well models (or humans) actually write code.
@@ -85,8 +106,27 @@ Grade an existing submissions directory:
 ./benchmark/run_all.sh results/leia/oneshot/<model>/pass1 "Some Model"
 ```
 
-Run a model on a llama.cpp server and grade it in one pass (works from any
-machine — no local llama.cpp needed):
+Run a model and grade it in one pass. `bench.sh` takes a **profile** — a named
+endpoint defined in the gitignored `.env`, carrying the URL, the key and the
+provider pin — so the only thing you type per run is the model:
+
+```bash
+cp .env.example .env && chmod 600 .env   # then edit it
+./bench.sh doctor                        # can this machine run and grade?
+./bench.sh profiles                      # what is configured (never the keys)
+
+./bench.sh oneshot3  <profile> <model>   # coding, 3 passes, graded
+./bench.sh reasoning <profile> <model>   # reasoning track
+./bench.sh all       <profile> <model>   # both, then one combined scorecard
+./bench.sh speed                         # llama-bench sweep, collated
+```
+
+[RUNNING.md](RUNNING.md) covers setting a server up, configuring providers, and
+the failure modes that produce a confident wrong number.
+
+The wrapper only assembles flags the runners already accept, so every track is
+still available directly — `./bench.sh -n <anything>` prints the command it
+would run:
 
 ```bash
 ./benchmark/run_http.py --list-models
@@ -202,11 +242,20 @@ beat the real answer.
 - Go 1.22+ with a C compiler (problem 4 uses `go run -race`)
 - bash 3.2+ (stock macOS is fine)
 
+Nothing to install beyond those: every script here is standard library only.
+
 `timeout`/`gtimeout` is used when installed; without it `run_all.sh` falls back
 to its own watchdog, so GNU coreutils is not required. macOS ships Python 3.9 at
 `/usr/bin/python3` — `run_all.sh` looks for a newer `python3.x` on PATH and
 warns if it can only find 3.9, since submissions using 3.10+ syntax would
 otherwise fail to load and score 0 unfairly.
+
+`./bench.sh doctor` checks all of this on the machine you are about to run on,
+and `./bench.sh selftest` follows it with every self-test plus the reference
+solutions, which must score 68/68. Run both on a new box before recording a
+score: a missing `node` or `go` caps the total silently, and a missing C
+compiler drops the race detector from problem 4. See
+[RUNNING.md](RUNNING.md) for the Linux setup.
 
 ## Fairness rules (worth enforcing)
 
@@ -241,6 +290,9 @@ write your own `harness` — the contract is one `SCORE: n/m` line on stdout.
 ## Layout
 
 ```
+bench.sh                              one entry point for every track
+.env.example                          profile template — copy to .env (gitignored)
+RUNNING.md                            server setup and the day-to-day workflow
 benchmark/problems/<name>/PROMPT.md   what you give to the contestant
 harness/problems/<name>/              the grader — PRIVATE submodule
 harness/solutions/<name>/             reference solutions — PRIVATE submodule
@@ -252,7 +304,7 @@ benchmark/run_agent.py                agent / tool-use track
 benchmark/extract_submission.py       transcript -> deliverable files
 benchmark/run_llama_bench.sh          speed sweep over ssh
 benchmark/collate_bench.py            joins speed to scores
-benchmark/test_*.sh                   self-tests for the above
+benchmark/test_*.sh                   self-tests for the above, incl. bench.sh
 reasoning/categories.py               item generators + mechanical checkers
 reasoning/run_reasoning.py            reasoning track runner
 reasoning/test_reasoning.py           self-test for the generators

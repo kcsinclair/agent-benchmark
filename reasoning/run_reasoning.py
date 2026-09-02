@@ -42,6 +42,8 @@ Options:
       --reasoning-effort E   low|medium|high for models that take it
   -r, --repeat N        passes per model; report median and spread
       --no-warmup       skip the load request before timing
+      --no-probe        skip the one-token request that settles the decode
+                        before the run (see run_http.probe)
       --show-failures N print N wrong answers per category (default 2)
   -h, --help            this message
 """
@@ -58,7 +60,7 @@ sys.path.insert(0, os.path.join(REPO, "benchmark"))
 
 import categories as cat                                        # noqa: E402
 from run_http import (ApiError, build_payload, send, prepare,  # noqa: E402
-                      price_per_mtok, slug, warmup, server_label,
+                      price_per_mtok, slug, warmup, probe, server_label,
                       DEFAULT_SERVER, DEFAULT_KEY_FILE)
 
 
@@ -144,6 +146,23 @@ def run_pass(model, opts, outdir):
 def run_model(model, opts):
     base = os.path.join(opts["out"], slug(model))
     result = {"model": model, "load_seconds": None, "passes": []}
+
+    # settled before anything is claimed or written; see run_http.probe
+    fatal = None
+    if opts["openrouter"] and opts["probe"]:
+        _, fatal = probe(model, opts)
+    if fatal is not None:
+        print("=" * 62)
+        print(" Model:   %s  (reasoning track)" % model)
+        print(" NOT RUN: %s" % fatal)
+        print(" No request was sent and nothing was written.")
+        print("=" * 62)
+        print()
+        sys.stdout.flush()
+        result["error"] = str(fatal)
+        result["unrun"] = True
+        return result
+
     print("=" * 62)
     print(" Model:   %s  (reasoning track)" % model)
     print(" Items:   %s" % ", ".join(opts["categories"]))
@@ -167,6 +186,7 @@ def run_model(model, opts):
     print("=" * 62)
     sys.stdout.flush()
 
+
     if opts["warmup"] and not opts["openrouter"]:
         secs, err = warmup(opts["server"], model, opts["timeout"], opts["key"])
         result["load_seconds"] = round(secs, 1)
@@ -175,6 +195,10 @@ def run_model(model, opts):
             result["error"] = err
             return result
         print(" model resident after %.0fs" % secs)
+        if opts["probe"]:
+            settled, _ = probe(model, opts)
+            if settled != decode["thinking"]:
+                print(" decode revised by probe: %s" % settled)
 
     for n in range(1, opts["repeat"] + 1):
         outdir = base if opts["repeat"] == 1 else os.path.join(base, "pass%d" % n)
@@ -213,7 +237,8 @@ def summarise(results, wall, opts):
     print(" " + "-" * (len(head) - 1))
     for r in results:
         if r.get("error"):
-            print(" %-34s %s" % (r["model"][:34], "FAILED TO LOAD"))
+            print(" %-34s %s" % (r["model"][:34],
+                  "NOT RUN (see above)" if r.get("unrun") else "FAILED TO LOAD"))
             continue
         scores = [p["right"] for p in r["passes"]]
         count = r["passes"][0]["count"]
@@ -228,12 +253,18 @@ def summarise(results, wall, opts):
             row += "%10s " % ("%d/%d" % (sorted(got)[len(got) // 2], tot))
         print(row)
     print(" " + "-" * (len(head) - 1))
-    if opts["repeat"] > 1:
+    if opts["repeat"] > 1 and any(r.get("passes") for r in results):
         print(" * median of %d passes" % opts["repeat"])
     print(" wall clock: %.0f min" % (wall / 60.0))
     spent = sum(p.get("cost_usd", 0) for r in results for p in r["passes"])
     if spent:
         print(" total cost: $%.4f (billed, not estimated)" % spent)
+
+    # never overwritten, so one written for a run that measured nothing would
+    # survive every later run and read as a result
+    if not any(r.get("passes") for r in results):
+        print(" no summary written: nothing was measured")
+        return
 
     path = os.path.join(opts["out"], "reasoning-summary-%s.json"
                         % time.strftime("%Y%m%d-%H%M%S"))
@@ -255,7 +286,8 @@ def main(argv):
     opts = {"server": DEFAULT_SERVER, "categories": list(cat.CATEGORIES),
             "count": 0, "seed": 1, "out": None, "max_tokens": 2048,
             "timeout": 900, "temperature": 0.0, "think": "off",
-            "reasoning_effort": "", "repeat": 1, "warmup": True,
+            "reasoning_effort": "", "repeat": 1, "warmup": True, "probe": True,
+            "think_refused": {},
             "show_failures": 2, "key_file": DEFAULT_KEY_FILE, "provider": "",
             "key": None, "openrouter": False, "models": {}}
     models, i = [], 0
@@ -282,6 +314,7 @@ def main(argv):
         elif a == "--reasoning-effort":  opts["reasoning_effort"] = val(); i += 2
         elif a in ("-r", "--repeat"):    opts["repeat"] = int(val()); i += 2
         elif a == "--no-warmup":         opts["warmup"] = False; i += 1
+        elif a == "--no-probe":          opts["probe"] = False; i += 1
         elif a == "--show-failures":     opts["show_failures"] = int(val()); i += 2
         elif a.startswith("-"):          sys.exit("run_reasoning: unknown option %r" % a)
         else:                            models.append(a); i += 1
@@ -311,7 +344,9 @@ def main(argv):
     started = time.time()
     results = [run_model(m, opts) for m in models]
     summarise(results, time.time() - started, opts)
-    return 0
+    # nothing was ever asked: a configuration error, not a result — exit
+    # non-zero so a caller chaining tracks stops instead of repeating it
+    return 1 if results and all(r.get("unrun") for r in results) else 0
 
 
 if __name__ == "__main__":
