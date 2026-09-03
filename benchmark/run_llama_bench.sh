@@ -71,6 +71,7 @@ Qwen3.6-35B|-m $MODELDIR/Qwen3.6-35B-A3B-UD-Q4_K_M.gguf
 Qwen3.8-27B|-m $MODELDIR/Qwen3.8-27B-UD-Q4_K_M.gguf
 gpt-oss-20b-Q8|-m $MODELDIR/gpt-oss-20b-Q8_0.gguf
 gpt-oss-20b-Q4|-m $MODELDIR/gpt-oss-20b-Q4_K_M.gguf
+gpt-oss-20b-UD-Q8_K_XL|-m $MODELDIR/gpt-oss-20b-UD-Q8_K_XL.gguf
 Hermes-4-14B|-m $MODELDIR/NousResearch_Hermes-4-14B-Q4_K_M.gguf
 Llama-3-14B|-m $MODELDIR/Llama-3-14B-Instruct-v1.Q4_K_M.gguf
 Qwen3VL-8B|-m $MODELDIR/Qwen3VL-8B-Uncensored-HauhauCS-Aggressive-Q4_K_M.gguf
@@ -121,7 +122,7 @@ restore() {
 trap restore EXIT HUP INT TERM
 
 if [ "$STOP_SERVER" = "1" ] && [ "$DRY" = "0" ]; then
-  echo "stopping $UNIT on $HOST (Lexi will be unavailable until this finishes)"
+  echo "stopping $UNIT on $HOST (llama.cpp server will be unavailable until this finishes)"
   ssh -o ConnectTimeout=20 "$HOST" "systemctl --user stop $UNIT" || die "could not stop $UNIT"
 fi
 

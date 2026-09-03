@@ -9,14 +9,13 @@ def best_schedule(jobs: list[tuple[float, float, float]]) -> tuple[float, list[i
         
     Returns:
         A tuple (total_weight, chosen_indices) where chosen_indices are the 
-        indices of the jobs in the original input list.
+        original indices of the jobs in the optimal subset, sorted by start time.
     """
     if not jobs:
         return (0.0, [])
 
-    # 1. Store original indices and sort jobs by end time.
+    # 1. Store original indices and sort jobs by their end times.
     # Sorting by end time is the standard approach for the DP solution.
-    # indexed_jobs: (start, end, weight, original_index)
     indexed_jobs = []
     for i, (s, e, w) in enumerate(jobs):
         indexed_jobs.append((s, e, w, i))
@@ -28,54 +27,54 @@ def best_schedule(jobs: list[tuple[float, float, float]]) -> tuple[float, list[i
     # dp[i] will store the maximum weight achievable using a subset of the first i jobs.
     dp = [0.0] * (n + 1)
     # parent[i] stores whether the i-th job (1-indexed) was included in the optimal solution for dp[i].
-    # If included, parent[i] = index of the last compatible job. Otherwise, parent[i] = -1.
+    # If included, we store the index of the previous compatible job.
     parent = [-1] * (n + 1)
     
-    # To perform binary search on end times efficiently.
+    # To efficiently find the last job that doesn't overlap with the current job,
+    # we maintain a list of end times of the sorted jobs.
     end_times = [job[1] for job in indexed_jobs]
     
     for i in range(1, n + 1):
-        start, end, weight, idx = indexed_jobs[i-1]
+        start, end, weight, original_idx = indexed_jobs[i-1]
         
-        # Find the rightmost job that ends before or at the start time of the current job.
-        # bisect_right finds the insertion point to maintain order.
-        # Since we want end_time <= start, bisect_right on end_times gives the index 
-        # of the first element > start. The element before that is <= start.
-        prev_idx = bisect.bisect_right(end_times, start)
+        # Find the rightmost job that ends <= current job's start time.
+        # bisect_right returns the insertion point which is (index + 1).
+        idx = bisect.bisect_right(end_times, start)
         
-        # We must ensure we don't pick the current job itself if it's the one found.
-        # Since end_times is sorted and we are at index i-1, and start < end,
-        # prev_idx will naturally be <= i-1.
-        if prev_idx > i - 1:
-            prev_idx = i - 1
-            
-        # Option 1: Include job i-1. Total weight = weight + dp[prev_idx]
-        # Option 2: Exclude job i-1. Total weight = dp[i-1]
-        include_weight = weight + dp[prev_idx]
-        exclude_weight = dp[i-1]
+        # We only care about jobs that end before or at the start of the current job.
+        # Since end_times is sorted, we check the job at index (idx - 1).
+        # However, bisect_right gives us the count of elements <= start.
+        # If idx is 3, it means jobs at index 0, 1, 2 in indexed_jobs end <= start.
+        # The max weight for those is dp[idx].
         
-        if include_weight > exclude_weight:
-            dp[i] = include_weight
-            parent[i] = prev_idx # Mark that we included job i-1 and came from prev_idx
+        # Option 1: Include the current job
+        weight_with_current = weight + dp[idx]
+        
+        # Option 2: Exclude the current job
+        weight_without_current = dp[i-1]
+        
+        if weight_with_current > weight_without_current:
+            dp[i] = weight_with_current
+            parent[i] = idx # Mark that we took job i and the previous state was dp[idx]
         else:
-            dp[i] = exclude_weight
-            parent[i] = -2 # Mark that we excluded job i-1
+            dp[i] = weight_without_current
+            parent[i] = -2 # Mark that we skipped job i
 
     # Backtrack to find the indices of the chosen jobs.
     chosen_indices = []
     curr = n
     while curr > 0:
         if parent[curr] == -2:
-            # Job curr-1 was not included.
             curr -= 1
         else:
-            # Job curr-1 was included.
+            # Job (curr-1) was included.
             job_idx = indexed_jobs[curr-1][3]
             chosen_indices.append(job_idx)
             curr = parent[curr]
             
     # The problem asks for indices sorted by the job's start time.
-    # We retrieve the start times from the original jobs list.
+    # We can sort the chosen indices based on the original jobs' start times.
+    # Since we need to break ties by index ascending, we use (start, original_index).
     chosen_indices.sort(key=lambda idx: (jobs[idx][0], idx))
     
     return (float(dp[n]), chosen_indices)

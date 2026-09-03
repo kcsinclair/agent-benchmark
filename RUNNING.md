@@ -16,9 +16,10 @@ scores collected through it are directly comparable with everything already in
 ./bench.sh doctor                                    # can this machine run and grade?
 ./bench.sh selftest                                  # do the graders still agree with it?
 ./bench.sh oneshot3  anthropic anthropic/claude-sonnet-5    # coding, 3 passes, graded
+./bench.sh agent     anthropic anthropic/claude-sonnet-5    # tool-use, always graded
 ./bench.sh reasoning anthropic anthropic/claude-sonnet-5    # 102 reasoning items
-./bench.sh all       anthropic anthropic/claude-sonnet-5    # both, then one scorecard
-./bench.sh speed                                     # llama-bench sweep, collated
+./bench.sh all       anthropic anthropic/claude-sonnet-5    # all three, then one scorecard
+./bench.sh speed     leia all                        # llama-bench sweep, collated
 ```
 
 ## Set up a Linux box
@@ -43,7 +44,7 @@ Then, before recording any number from this machine:
 
 ```bash
 ./bench.sh doctor      # toolchain, harness, profiles, ssh — every line must PASS
-./bench.sh selftest    # 90 self-test cases, then the reference solutions
+./bench.sh selftest    # 123 self-test cases, then the reference solutions
 ```
 
 `selftest` ends by grading the reference solutions, which **must** score 68/68.
@@ -113,9 +114,25 @@ is a limit of the current runners, not of the profile format; `profiles` prints
 ./bench.sh models    anthropic claude          # what the endpoint offers, filtered
 ./bench.sh oneshot   anthropic <model>         # coding, one pass, graded
 ./bench.sh oneshot3  anthropic <model>         # coding, three passes, graded
+./bench.sh agent     anthropic <model>         # tool-use, one pass, always graded
+./bench.sh agent3    anthropic <model>         # tool-use, three passes
 ./bench.sh reasoning anthropic <model> -r 3    # reasoning, three passes
-./bench.sh all       anthropic <model>         # both at three passes, one scorecard
+./bench.sh all       anthropic <model>         # all three at three passes, one scorecard
 ```
+
+`agent` is the same 68 checks as `oneshot` against the same endpoint; what
+changes is that the model has to drive `write_file` to score at all, so a model
+that writes perfect code into the chat window scores zero. There is no `-g`:
+`run_agent.py` always grades, and `bench.sh` refuses a `-- -g` passthrough up
+front rather than letting the run abort after the coding track has already
+finished.
+
+`all` runs coding, then reasoning, then agent, and ends with one scorecard
+covering all three. Agent goes last on purpose: it is the dearest track — every
+turn resends the whole conversation — and the one most likely to fail for a
+reason that has nothing to do with the answers, so the other two are on disk
+before it starts. Budget for it: a full `all` costs appreciably more than the
+`oneshot3` + `reasoning` pair it used to be.
 
 Useful flags, in front of or behind the subcommand — both are accepted:
 
@@ -127,8 +144,8 @@ Useful flags, in front of or behind the subcommand — both are accepted:
 ```
 
 Everything after `--` reaches the runner verbatim, so the full flag surface of
-`run_http.py` and `run_reasoning.py` is still available without `bench.sh`
-having to mirror it.
+`run_http.py`, `run_agent.py` and `run_reasoning.py` is still available without
+`bench.sh` having to mirror it.
 
 Several models in one invocation is one line:
 
@@ -172,11 +189,48 @@ pinned run can silently change precision between passes.
 ## The speed track runs on the box itself
 
 ```bash
-./bench.sh speed              # sweep every model, then collate against the scores
-./bench.sh -n speed           # show the two commands without running them
-./bench.sh speed -- --models Qwen3.8-27B,gpt-oss-120b
-./bench.sh speed -- --list    # the model table
+./bench.sh speed leia all                    # every model on leia, then collate
+./bench.sh speed leia Qwen3.8-27B gpt-oss-120b   # just these two
+./bench.sh speed leia gpt-oss-20b-Q8_0.gguf  # a .gguf name resolves to its label
+./bench.sh -n speed leia all                 # show the two commands, run nothing
+./bench.sh speed                             # usage, and the model table
+./bench.sh speed-table leia                  # the table again, measuring nothing
 ```
+
+**Both arguments are required.** A sweep stops the llama.cpp server on the box
+it names, so neither the box nor the model list is defaulted into — an
+absent-minded `./bench.sh speed` used to take the whole endpoint down for hours.
+An unknown model is a usage error listing the table rather than a sweep that
+silently measures nothing; an ambiguous one (`gemma`) lists the candidates.
+
+The box names `results/<box>/speed` — the same directory its scores live in,
+which is what `collate_bench.py` joins on — and is the ssh target too unless
+`.env` says otherwise. `BENCH_SPEED_{HOST,LABEL}` configures the box named by
+`BENCH_SPEED_LABEL` (on leia: label `leia`, reached over ssh at whatever
+`BENCH_SPEED_HOST` says); any second box is `BENCH_SPEED_<BOX>_{SSH,MODELDIR,BINDIR}`.
+
+The model table itself lives in `benchmark/run_llama_bench.sh` — adding a model
+there is what makes it selectable here. Anything after `--` still reaches that
+script verbatim (`./bench.sh speed leia all -- -r 5 -c 120`).
+
+`speed-table` is the read-only half: the same table over numbers already
+measured, joined to the one-shot and agent scores. It touches nothing on the box,
+so unlike a sweep it is safe to run while the endpoint is serving.
+
+```bash
+./bench.sh speed-table leia                  # the table this box's sweep produced
+./bench.sh speed-table leia -- -o table.md   # write it out instead of printing
+./bench.sh speed-table                       # usage, and which boxes have a sweep
+```
+
+It takes a box for the same reason `speed` does: `collate_bench.py`'s own default
+is the first `results/*/speed` alphabetically, which is a quiet way to read
+another machine's numbers. A box with no sweep is a usage error naming the ones
+that have one, not an empty table.
+
+This is speed-first and covers one box, the one-shot track and the agent track.
+`./bench.sh table` is the complement — every score in `results/`, hosted
+endpoints included, but no speed columns. Nothing merges the two.
 
 **This stops `llama-server` for the duration.** The router keeps up to three
 models resident, which is memory `llama-bench` needs, and `models_autoload`
@@ -196,11 +250,12 @@ loginctl enable-linger "$USER"       # or `systemctl --user stop` fails over ssh
 Without lingering, the systemd user session does not survive a non-login ssh
 connection, the stop fails, and the sweep dies before measuring anything.
 
-`BENCH_SPEED_LABEL` in `.env` is not cosmetic. `run_llama_bench.sh` names its
-output directory after the ssh host, so with `BENCH_SPEED_HOST=localhost` the
-numbers would land in `results/localhost/speed`, stranded from the scores in
-`results/leia/` that `collate_bench.py` joins them to. `bench.sh` passes the
-directory explicitly on both sides for the same reason: given no argument,
+The box argument is not cosmetic. `run_llama_bench.sh` names its output
+directory after the ssh host, so with `BENCH_SPEED_HOST=localhost` the numbers
+would land in `results/localhost/speed`, stranded from the scores in
+`results/leia/` that `collate_bench.py` joins them to — which is why `bench.sh`
+derives the directory from the box you named and passes it explicitly. It passes
+it to the collator for the same reason: given no argument,
 `collate_bench.py` takes the first `results/*/speed` alphabetically, which need
 not be the one just written.
 
@@ -214,6 +269,8 @@ results/<label>/oneshot/<model>/passN/      several passes
                         transcripts/<problem>.meta.json      provider, usage, decode, timing
                         <problem>/<deliverables>            extracted, and what gets graded
 results/<label>/oneshot/summary-<ts>.json   one per invocation, never overwritten
+results/<label>/agent/<model>[/passN]/<problem>/<deliverables>   what it wrote
+results/<label>/agent/agent-summary-<ts>.json   plus turns, tool calls, bad calls
 results/<label>/reasoning/<model>[/passN]/items.json
 results/<label>/reasoning/reasoning-summary-<ts>.json
 results/<label>/speed/<model>.json          llama-bench output, plus runlog.jsonl

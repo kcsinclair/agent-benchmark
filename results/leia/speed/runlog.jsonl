@@ -6,10 +6,8 @@
 {"label":"control-middle","seconds":14,"temp_before":"59.9","temp_after":"56.9","file":"control-middle.json"}
 {"label":"Qwen3.6-27B","seconds":195,"temp_before":"54.9","temp_after":"63.0","file":"Qwen3.6-27B.json"}
 {"label":"Qwen3.6-35B","seconds":64,"temp_before":"60.6","temp_after":"60.6","file":"Qwen3.6-35B.json"}
-{"label":"Kimi-Linear-48B","error":true}
 {"label":"control-end","seconds":10,"temp_before":"45.6","temp_after":"55.9","file":"control-end.json"}
 {"label":"control-start","seconds":13,"temp_before":"30.5","temp_after":"45.5","file":"control-start.json"}
-{"label":"gemma-4-31B","error":true}
 {"label":"gemma-4-26B","seconds":48,"temp_before":"41.5","temp_after":"53.6","file":"gemma-4-26B.json"}
 {"label":"gpt-oss-120b","seconds":136,"temp_before":"51.8","temp_after":"55.9","file":"gpt-oss-120b.json"}
 {"label":"Qwen3-Coder-30B","seconds":69,"temp_before":"54.4","temp_after":"62.1","file":"Qwen3-Coder-30B.json"}
@@ -39,3 +37,11 @@
 {"label":"control-middle","seconds":8,"temp_before":"62.6","temp_after":"62.2","file":"control-middle.json"}
 {"label":"Qwen3.8-27B","seconds":191,"temp_before":"60.4","temp_after":"67.4","file":"Qwen3.8-27B.json"}
 {"label":"control-end","seconds":8,"temp_before":"65.1","temp_after":"64.4","file":"control-end.json"}
+{"label":"control-start","seconds":13,"temp_before":"30.8","temp_after":"46.0","file":"control-start.json"}
+{"label":"gpt-oss-20b-UD-Q8_K_XL","seconds":50,"temp_before":"44.0","temp_after":"57.0","file":"gpt-oss-20b-UD-Q8_K_XL.json"}
+{"label":"control-middle","seconds":7,"temp_before":"54.4","temp_after":"54.1","file":"control-middle.json"}
+{"label":"control-end","seconds":7,"temp_before":"52.0","temp_after":"54.2","file":"control-end.json"}
+{"label":"control-start","seconds":7,"temp_before":"31.2","temp_after":"46.8","file":"control-start.json"}
+{"label":"gemma-4-31B","seconds":240,"temp_before":"44.8","temp_after":"65.1","file":"gemma-4-31B.json"}
+{"label":"control-middle","seconds":8,"temp_before":"62.5","temp_after":"63.1","file":"control-middle.json"}
+{"label":"control-end","seconds":8,"temp_before":"60.9","temp_after":"62.6","file":"control-end.json"}

@@ -2,7 +2,7 @@
   "model": "google/gemma-4-31b-it",
   "served_model": "google/gemma-4-31b-it",
   "provider": "DeepInfra",
-  "request_id": "gen-1788253177-fTyvMncKjXpkyrJywuYa",
+  "request_id": "gen-1788311148-8UCn69HVMZOr7zGeesKn",
   "server": "https://openrouter.ai/api",
   "finish_reason": "stop",
   "native_finish_reason": "stop",
@@ -14,9 +14,9 @@
   },
   "usage": {
     "prompt_tokens": 700,
-    "completion_tokens": 431,
-    "total_tokens": 1131,
-    "cost": 0.00020954,
+    "completion_tokens": 403,
+    "total_tokens": 1103,
+    "cost": 0.00020002,
     "is_byok": false,
     "prompt_tokens_details": {
       "cached_tokens": 0,
@@ -25,9 +25,9 @@
       "video_tokens": 0
     },
     "cost_details": {
-      "upstream_inference_cost": 0.00020954,
+      "upstream_inference_cost": 0.00020002,
       "upstream_inference_prompt_cost": 6.3e-05,
-      "upstream_inference_completions_cost": 0.00014654
+      "upstream_inference_completions_cost": 0.00013702
     },
     "completion_tokens_details": {
       "reasoning_tokens": 0,
@@ -35,5 +35,5 @@
       "audio_tokens": 0
     }
   },
-  "seconds": 8.2
+  "seconds": 5.4
 }

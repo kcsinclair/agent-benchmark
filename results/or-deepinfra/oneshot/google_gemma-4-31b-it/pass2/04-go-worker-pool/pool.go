@@ -18,11 +18,10 @@ func Run(ctx context.Context, tasks []Task, workers int) ([]any, error) {
 
 	numTasks := len(tasks)
 	if numTasks == 0 {
-		return nil, nil
+		return []any{}, nil
 	}
 
-	// Create a derived context to cancel all running tasks if one fails
-	// or if the parent context is cancelled.
+	// Create a derived context to cancel all running tasks if one fails or parent is cancelled.
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
@@ -35,7 +34,7 @@ func Run(ctx context.Context, tasks []Task, workers int) ([]any, error) {
 	var errOnce sync.Once
 	var firstErr error
 	
-	// wg ensures we wait for all started goroutines to finish before returning.
+	// wg tracks active worker goroutines to prevent leaks.
 	var wg sync.WaitGroup
 
 	// Start the worker pool.
@@ -57,7 +56,7 @@ func Run(ctx context.Context, tasks []Task, workers int) ([]any, error) {
 					if err != nil {
 						errOnce.Do(func() {
 							firstErr = err
-							cancel() // Signal all other workers to stop and cancel their tasks.
+							cancel() // Signal all other workers to stop and abort tasks.
 						})
 						return
 					}
@@ -68,24 +67,22 @@ func Run(ctx context.Context, tasks []Task, workers int) ([]any, error) {
 		}()
 	}
 
-	// Feed tasks into the channel.
+	// Feed tasks into the pool.
 	go func() {
 		defer close(taskChan)
 		for i := 0; i < numTasks; i++ {
 			select {
 			case <-ctx.Done():
-				// Stop feeding tasks if context is cancelled or an error occurred.
 				return
 			case taskChan <- i:
-				// Task sent to worker.
 			}
 		}
 	}()
 
-	// Wait for all workers to exit.
+	// Wait for all workers to finish.
 	wg.Wait()
 
-	// If an error occurred (either from a task or the parent context), return it.
+	// If a task failed or the context was cancelled, return the error.
 	if firstErr != nil {
 		return nil, firstErr
 	}

@@ -1,0 +1,47 @@
+{
+  "wall_seconds": 362.7,
+  "settings": {
+    "temperature": 0.0,
+    "max_tokens": 16384,
+    "think": "off",
+    "repeat": 3,
+    "reasoning_effort": "",
+    "server": "http://leia.packsin.com:7442",
+    "provider": ""
+  },
+  "results": [
+    {
+      "model": "gemma-4-26B-A4B-it-UD-Q8_K_XL",
+      "load_seconds": 14.0,
+      "passes": [
+        {
+          "pass": 1,
+          "dir": "/opt/agent-benchmark/results/leia/oneshot/gemma-4-26B-A4B-it-UD-Q8_K_XL/pass1",
+          "generate_seconds": 109.8,
+          "wall_seconds": 109.8,
+          "trouble": [],
+          "score": 54,
+          "max": 68
+        },
+        {
+          "pass": 2,
+          "dir": "/opt/agent-benchmark/results/leia/oneshot/gemma-4-26B-A4B-it-UD-Q8_K_XL/pass2",
+          "generate_seconds": 117.2,
+          "wall_seconds": 117.2,
+          "trouble": [],
+          "score": 54,
+          "max": 68
+        },
+        {
+          "pass": 3,
+          "dir": "/opt/agent-benchmark/results/leia/oneshot/gemma-4-26B-A4B-it-UD-Q8_K_XL/pass3",
+          "generate_seconds": 117.5,
+          "wall_seconds": 117.5,
+          "trouble": [],
+          "score": 54,
+          "max": 68
+        }
+      ]
+    }
+  ]
+}

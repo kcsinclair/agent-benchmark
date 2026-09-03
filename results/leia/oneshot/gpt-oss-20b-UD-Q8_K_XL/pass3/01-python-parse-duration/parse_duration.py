@@ -1,0 +1,107 @@
+"""
+parse_duration module
+
+Provides a single function `parse_duration` that converts a human‑readable
+duration string into a number of seconds (float).
+
+The function follows the rules described in the problem statement and
+raises `ValueError` for any malformed input.  Passing a non‑string
+argument raises `TypeError`.
+"""
+
+import re
+from typing import Dict
+
+__all__ = ["parse_duration"]
+
+
+# Mapping of unit to its order (lower index = larger unit)
+_UNIT_ORDER: Dict[str, int] = {"h": 0, "m": 1, "s": 2, "ms": 3}
+
+# Conversion factor from unit to seconds
+_UNIT_FACTOR: Dict[str, float] = {"h": 3600.0, "m": 60.0, "s": 1.0, "ms": 0.001}
+
+
+# Regular expression that matches a single component: number + unit
+_COMPONENT_RE = re.compile(r"(\d+(?:\.\d+)?)(h|m|s|ms)")
+
+
+def parse_duration(text: str) -> float:
+    """
+    Parse a duration string and return the total number of seconds.
+
+    Parameters
+    ----------
+    text : str
+        The duration string to parse.
+
+    Returns
+    -------
+    float
+        The total duration in seconds.
+
+    Raises
+    ------
+    TypeError
+        If *text* is not a string.
+    ValueError
+        If *text* does not conform to the required format.
+    """
+    if not isinstance(text, str):
+        raise TypeError("parse_duration expects a string")
+
+    # Strip leading/trailing whitespace
+    s = text.strip()
+    if not s:
+        raise ValueError("empty duration string")
+
+    # No whitespace allowed inside the string
+    if any(c.isspace() for c in s):
+        raise ValueError("whitespace not allowed inside duration string")
+
+    # Handle optional leading minus sign
+    sign = 1
+    if s[0] == "-":
+        sign = -1
+        s = s[1:]
+    elif s[0] == "+":
+        raise ValueError("leading '+' not allowed")
+
+    if not s:
+        raise ValueError("duration string missing components")
+
+    pos = 0
+    total_seconds = 0.0
+    prev_order = -1
+    seen_units = set()
+
+    while pos < len(s):
+        match = _COMPONENT_RE.match(s, pos)
+        if not match:
+            raise ValueError(f"invalid component at position {pos}")
+
+        number_str, unit = match.group(1), match.group(2)
+
+        # Check unit order
+        order = _UNIT_ORDER[unit]
+        if order <= prev_order:
+            raise ValueError(f"unit '{unit}' out of order or repeated")
+        if unit in seen_units:
+            raise ValueError(f"unit '{unit}' repeated")
+        seen_units.add(unit)
+        prev_order = order
+
+        # Convert number to float and accumulate
+        try:
+            value = float(number_str)
+        except ValueError:
+            raise ValueError(f"invalid number '{number_str}'")
+        total_seconds += value * _UNIT_FACTOR[unit]
+
+        pos = match.end()
+
+    # After parsing all components, we should be at the end of the string
+    if pos != len(s):
+        raise ValueError("unexpected trailing characters")
+
+    return sign * total_seconds

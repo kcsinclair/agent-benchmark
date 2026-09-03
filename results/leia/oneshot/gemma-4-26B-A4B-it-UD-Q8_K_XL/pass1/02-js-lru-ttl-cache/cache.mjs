@@ -1,0 +1,124 @@
+/**
+ * LruTtlCache implementation
+ * 
+ * Uses a Map to maintain insertion order, which in JavaScript 
+ * allows for O(1) access and O(1) recency updates by deleting 
+ * and re-inserting keys.
+ */
+export class LruTtlCache {
+  #capacity;
+  #defaultTtlMs;
+  #now;
+  #cache; // Map<key, { value, expiry }>
+
+  constructor({ capacity, defaultTtlMs = Infinity, now = () => Date.now() }) {
+    if (!Number.isInteger(capacity) || capacity < 1) {
+      throw new RangeError("Capacity must be an integer >= 1");
+    }
+    this.#capacity = capacity;
+    this.#defaultTtlMs = defaultTtlMs;
+    this.#now = now;
+    this.#cache = new Map();
+  }
+
+  /**
+   * Internal helper to purge expired entries from the entire cache.
+   * While not strictly required for every operation to be O(1), 
+   * it ensures the 'size' and 'keys' requirements are met.
+   */
+  #purgeExpired() {
+    const currentTime = this.#now();
+    for (const [key, entry] of this.#cache.entries()) {
+      if (entry.expiry !== Infinity && currentTime >= entry.expiry) {
+        this.#cache.delete(key);
+      }
+    }
+  }
+
+  /**
+   * Internal helper to check and remove a specific key if expired.
+   */
+  #checkExpiry(key) {
+    const entry = this.#cache.get(key);
+    if (entry && entry.expiry !== Infinity && this.#now() >= entry.expiry) {
+      this.#cache.delete(key);
+      return true;
+    }
+    return false;
+  }
+
+  set(key, value, ttlMs) {
+    // If key exists, remove it first to update recency/order
+    if (this.#cache.has(key)) {
+      this.#cache.delete(key);
+    }
+
+    const effectiveTtl = ttlMs !== undefined ? ttlMs : this.#defaultTtlMs;
+    const expiry = effectiveTtl === Infinity ? Infinity : this.#now() + effectiveTtl;
+
+    // If the new entry is already expired (ttl <= 0), we don't add it
+    // unless the requirement implies we should store it (usually we don't).
+    // However, per requirement: "ttlMs of 0 or negative means the entry is already expired."
+    // We will only set it if it's not immediately expired, or if it's Infinity.
+    if (expiry !== Infinity && expiry <= this.#now()) {
+      // If it's already expired, we just ensure the old one is gone and return
+      return this;
+    }
+
+    this.#cache.set(key, { value, expiry });
+
+    // Eviction logic
+    if (this.#cache.size > this.#capacity) {
+      // 1. Try to purge expired entries first to free up space
+      this.#purgeExpired();
+
+      // 2. If still over capacity, evict the Least Recently Used (first item in Map)
+      if (this.#cache.size > this.#capacity) {
+        const firstKey = this.#cache.keys().next().value;
+        this.#cache.delete(firstKey);
+      }
+    }
+
+    return this;
+  }
+
+  get(key) {
+    if (this.#checkExpiry(key)) {
+      return undefined;
+    }
+
+    const entry = this.#cache.get(key);
+    if (!entry) return undefined;
+
+    // Update recency: delete and re-insert
+    this.#cache.delete(key);
+    this.#cache.set(key, entry);
+
+    return entry.value;
+  }
+
+  has(key) {
+    // has() does not affect recency
+    return !this.#checkExpiry(key) && this.#cache.has(key);
+  }
+
+  delete(key) {
+    // If it's expired, it's effectively already gone or being removed
+    this.#checkExpiry(key);
+    return this.#cache.delete(key);
+  }
+
+  get size() {
+    this.#purgeExpired();
+    return this.#cache.size;
+  }
+
+  keys() {
+    this.#purgeExpired();
+    // Map.keys() returns keys in insertion order. 
+    // Since we re-insert on 'get' and 'set', the order is MRU to LRU.
+    // However, Map.keys() is LRU to MRU in terms of "oldest to newest".
+    // The requirement asks for "most recently used to least recently used".
+    return Array.from(this.#cache.keys()).reverse();
+  }
+}

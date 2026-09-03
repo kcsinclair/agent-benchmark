@@ -1,0 +1,161 @@
+{
+  "wall_seconds": 152.7,
+  "track": "reasoning",
+  "settings": {
+    "temperature": 0.0,
+    "max_tokens": 2048,
+    "think": "off",
+    "repeat": 3,
+    "seed": 1,
+    "server": "http://leia.packsin.com:7442",
+    "categories": [
+      "state",
+      "constraint",
+      "compliance",
+      "abstention",
+      "trap",
+      "retrieval"
+    ],
+    "provider": ""
+  },
+  "results": [
+    {
+      "model": "gemma-4-26B-A4B-it-UD-Q8_K_XL",
+      "load_seconds": 0.1,
+      "passes": [
+        {
+          "pass": 1,
+          "dir": "/opt/agent-benchmark/results/leia/reasoning/gemma-4-26B-A4B-it-UD-Q8_K_XL/pass1",
+          "totals": {
+            "state": {
+              "right": 7,
+              "count": 20,
+              "seconds": 6.5,
+              "failed": 0
+            },
+            "constraint": {
+              "right": 15,
+              "count": 20,
+              "seconds": 6.3,
+              "failed": 0
+            },
+            "compliance": {
+              "right": 19,
+              "count": 20,
+              "seconds": 5.4,
+              "failed": 0
+            },
+            "abstention": {
+              "right": 20,
+              "count": 20,
+              "seconds": 7.0,
+              "failed": 0
+            },
+            "trap": {
+              "right": 14,
+              "count": 14,
+              "seconds": 4.3,
+              "failed": 0
+            },
+            "retrieval": {
+              "right": 8,
+              "count": 8,
+              "seconds": 88.7,
+              "failed": 0
+            }
+          },
+          "right": 83,
+          "count": 102
+        },
+        {
+          "pass": 2,
+          "dir": "/opt/agent-benchmark/results/leia/reasoning/gemma-4-26B-A4B-it-UD-Q8_K_XL/pass2",
+          "totals": {
+            "state": {
+              "right": 7,
+              "count": 20,
+              "seconds": 2.6,
+              "failed": 0
+            },
+            "constraint": {
+              "right": 14,
+              "count": 20,
+              "seconds": 2.9,
+              "failed": 0
+            },
+            "compliance": {
+              "right": 19,
+              "count": 20,
+              "seconds": 4.2,
+              "failed": 0
+            },
+            "abstention": {
+              "right": 20,
+              "count": 20,
+              "seconds": 3.2,
+              "failed": 0
+            },
+            "trap": {
+              "right": 14,
+              "count": 14,
+              "seconds": 1.5,
+              "failed": 0
+            },
+            "retrieval": {
+              "right": 8,
+              "count": 8,
+              "seconds": 2.9,
+              "failed": 0
+            }
+          },
+          "right": 82,
+          "count": 102
+        },
+        {
+          "pass": 3,
+          "dir": "/opt/agent-benchmark/results/leia/reasoning/gemma-4-26B-A4B-it-UD-Q8_K_XL/pass3",
+          "totals": {
+            "state": {
+              "right": 8,
+              "count": 20,
+              "seconds": 2.5,
+              "failed": 0
+            },
+            "constraint": {
+              "right": 15,
+              "count": 20,
+              "seconds": 2.8,
+              "failed": 0
+            },
+            "compliance": {
+              "right": 19,
+              "count": 20,
+              "seconds": 4.1,
+              "failed": 0
+            },
+            "abstention": {
+              "right": 20,
+              "count": 20,
+              "seconds": 3.1,
+              "failed": 0
+            },
+            "trap": {
+              "right": 14,
+              "count": 14,
+              "seconds": 1.5,
+              "failed": 0
+            },
+            "retrieval": {
+              "right": 8,
+              "count": 8,
+              "seconds": 2.8,
+              "failed": 0
+            }
+          },
+          "right": 84,
+          "count": 102
+        }
+      ]
+    }
+  ]
+}

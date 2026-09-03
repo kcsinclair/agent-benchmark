@@ -1,0 +1,183 @@
+We need to produce code for parse_duration.py. Must handle validation. Approach: use regex to parse components. But need to enforce order and uniqueness. Could parse sequentially scanning string.
+
+Simpler: use regex pattern for component: r'(\d+(?:\.\d+)?)(h|m|s|ms)'. But need to ensure no whitespace inside. Also ensure entire string matches optional leading minus and components concatenated. Use re.fullmatch.
+
+But need to enforce order: we can parse components in order of appearance and check that each unit is in descending order. We can maintain last unit index. Map unit to order: h=3, m=2, s=1, ms=0. Ensure current unit order < last order? Actually descending: h before m before s before ms. So order values decreasing. So we can check that current order <= last_order? Wait: h=3, m=2, s=1, ms=0. So descending means order decreases. So we need current_order <= last_order? Example: h then m: 3 then 2: 2 <= 3 true. m then s: 2 then 1: 1 <= 2 true. So check current_order <= last_order. Also ensure not repeated: if current_order == last_order -> error.
+
+Also need to ensure at least one component. Also ensure no whitespace inside: we strip outer whitespace. Then check that string contains only allowed characters: digits, dot, units, minus. But easier: use regex to match entire string: r'^\s*(-)?((?:\d+(?:\.\d+)?(?:h|m|s|ms))+)\s*$' but this allows repeated units. We'll parse components anyway.
+
+But we need to raise ValueError for invalid patterns like "5" (no unit). Our regex will fail because component requires unit. Good.
+
+Also need to raise ValueError for "1m1h" (wrong order). We'll detect order.
+
+Also need to raise ValueError for "1h1h" repeated unit.
+
+Also need to raise ValueError for "5." trailing dot: our number regex \d+(?:\.\d+)? ensures no trailing dot. Good.
+
+Also need to raise ValueError for ".5" leading dot: not matched.
+
+Also need to raise ValueError for "5" no unit: not matched.
+
+Also need to raise ValueError for "1h 30m" with space inside: our regex will fail because of space inside component. But we strip outer whitespace; internal spaces will cause mismatch. Good.
+
+Also need to raise ValueError for "1h30m " trailing whitespace: we strip outer whitespace; internal trailing whitespace not allowed. But after strip, trailing whitespace removed. But internal trailing whitespace? Eg "1h30m " after strip becomes "1h30m". So fine.
+
+Also need to raise ValueError for "1h30m\n" etc. strip removes newline.
+
+Also need to raise TypeError if not string.
+
+Implementation:
+
+def parse_duration(text: str) -> float:
+    if not isinstance(text, str):
+        raise TypeError("Input must be a string")
+    s = text.strip()
+    if not s:
+        raise ValueError("Empty duration string")
+    # regex to capture optional minus and components
+    pattern = re.compile(r'^(-)?((?:\d+(?:\.\d+)?(?:h|m|s|ms))+)$')
+    m = pattern.match(s)
+    if not m:
+        raise ValueError("Invalid format")
+    sign = -1 if m.group(1) else 1
+    components_str = m.group(2)
+    # Now parse components sequentially
+    # Use regex findall to get number and unit
+    comp_pattern = re.compile(r'(\d+(?:\.\d+)?)(h|m|s|ms)')
+    comps = comp_pattern.findall(components_str)
+    if not comps:
+        raise ValueError("No components found")
+    # Ensure that concatenated components string equals original components_str
+    # Because findall may skip overlapping? But pattern ensures full match. We can join.
+    joined = ''.join(num+unit for num, unit in comps)
+    if joined != components_str:
+        raise ValueError("Invalid component sequence")
+    # Now check order and uniqueness
+    order_map = {'h':3,'m':2,'s':1,'ms':0}
+    last_order = 4  # greater than any
+    total_seconds = 0.0
+    for num_str, unit in comps:
+        order = order_map[unit]
+        if order > last_order:
+            raise ValueError("Units out of order")
+        if order == last_order:
+            raise ValueError("Repeated unit")
+        last_order = order
+        value = float(num_str)
+        if unit == 'h':
+            total_seconds += value * 3600
+        elif unit == 'm':
+            total_seconds += value * 60
+        elif unit == 's':
+            total_seconds += value
+        elif unit == 'ms':
+            total_seconds += value / 1000
+    return sign * total_seconds
+
+Edge cases: "1h30m" -> comps: [('1','h'),('30','m')] good.
+
+"1.5h" -> comps: [('1.5','h')] good.
+
+"2h15m30s500ms" -> comps: [('2','h'),('15','m'),('30','s'),('500','ms')] good.
+
+"250ms" -> comps: [('250','ms')] good.
+
+"-45m" -> sign -1.
+
+"1m1h" -> comps: [('1','m'),('1','h')] order: m order 2, last_order 4 -> ok; next h order 3 > last_order 2 -> raise ValueError.
+
+"1h1h" -> comps: [('1','h'),('1','h')] order: first 3, last_order 4 -> ok; second 3 == last_order 3 -> raise ValueError.
+
+"5" -> pattern fails.
+
+"5." -> pattern fails because number regex requires digits then optional .digits. "5." not matched.
+
+".5" fails.
+
+"1h 30m" -> after strip s = "1h 30m" pattern fails due to space.
+
+"1h30m " after strip -> "1h30m" pattern matches.
+
+Also need to ensure no whitespace inside components: pattern ensures no whitespace.
+
+Also need to ensure no leading + sign: pattern only allows optional -. Good.
+
+Also need to ensure no exponent: pattern doesn't allow e.
+
+Also need to ensure no trailing dot: pattern doesn't allow.
+
+Also need to ensure no leading dot: pattern doesn't allow.
+
+Also need to ensure no bare '.' or '.5': pattern doesn't allow.
+
+Also need to ensure no negative numbers inside components: pattern only allows digits, optional decimal part. No minus sign inside. Good.
+
+Also need to ensure no repeated unit: we check.
+
+Also need to ensure at least one component: comps not empty.
+
+Also need to ensure that components_str fully matched by comps: we join and compare. This ensures no missing parts.
+
+Edge: "1h30mms" -> components_str "1h30mms" pattern: findall will match '1h', '30m', 'ms'? Wait 'ms' is unit but requires preceding number. 'ms' alone not matched. So comps: [('1','h'),('30','m')] joined '1h30m' != components_str -> raise ValueError. Good.
+
+Edge: "1h30m500" -> comps: [('1','h'),('30','m')] joined '1h30m' != components_str -> raise ValueError.
+
+Edge: "1h30m500ms" -> comps: [('1','h'),('30','m'),('500','ms')] joined '1h30m500ms' matches.
+
+Edge: "1h30m500msms" -> comps: [('1','h'),('30','m'),('500','ms')] joined '1h30m500ms' != components_str -> raise ValueError.
+
+Edge: "1h30m500msms" -> pattern fails? Actually pattern matches entire string: components_str part is '1h30m500msms', but findall will match '1h', '30m', '500ms', leaving 'ms' unmatched. So join mismatch -> raise ValueError.
+
+Edge: "1h30m500ms" -> good.
+
+Edge: "1h30m500ms" with trailing whitespace: after strip, fine.
+
+Edge: "1h30m500ms " -> after strip, fine.
+
+Edge: "1h30m500ms\n" -> after strip, fine.
+
+Edge: "1h30m500ms\t" -> after strip, fine.
+
+Edge: "1h30m500ms  " -> fine.
+
+Edge: " 1h30m500ms" -> fine.
+
+Edge: "1h30m500ms 1" -> after strip, pattern fails due to trailing '1'.
+
+Edge: "1h30m500ms1" -> pattern fails.
+
+Edge: "1h30m500ms1s" -> pattern fails.
+
+Edge: "1h30m500ms1s" -> pattern fails.
+
+Edge: "1h30m500ms1s" -> pattern fails.
+
+Edge: "1h30m500ms1s" -> pattern fails.
+
+Edge: "1h30m500ms1s" -> pattern fails.
+
+Ok.
+
+Now we need to produce parse_duration.py file with function and maybe __all__.
+
+Also need to ensure no prints.
+
+Also need to include docstring maybe.
+
+Let's craft final code.
+
+Also need to import re.
+
+Also need to raise ValueError with message? Not required but good.
+
+Also need to raise TypeError if not string.
+
+Edge: passing None -> TypeError.
+
+Edge: passing int -> TypeError.
+
+Edge: passing bytes -> TypeError.
+
+Ok.
+
+Let's produce final answer.

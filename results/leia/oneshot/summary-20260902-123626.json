@@ -1,0 +1,47 @@
+{
+  "wall_seconds": 1380.9,
+  "settings": {
+    "temperature": 0.0,
+    "max_tokens": 16384,
+    "think": "off",
+    "repeat": 3,
+    "reasoning_effort": "",
+    "server": "http://leia.packsin.com:7442",
+    "provider": ""
+  },
+  "results": [
+    {
+      "model": "gpt-oss-20b-UD-Q8_K_XL",
+      "load_seconds": 4.8,
+      "passes": [
+        {
+          "pass": 1,
+          "dir": "/opt/agent-benchmark/results/leia/oneshot/gpt-oss-20b-UD-Q8_K_XL/pass1",
+          "generate_seconds": 368.2,
+          "wall_seconds": 368.2,
+          "trouble": [],
+          "score": 63,
+          "max": 68
+        },
+        {
+          "pass": 2,
+          "dir": "/opt/agent-benchmark/results/leia/oneshot/gpt-oss-20b-UD-Q8_K_XL/pass2",
+          "generate_seconds": 482.3,
+          "wall_seconds": 482.3,
+          "trouble": [],
+          "score": 64,
+          "max": 68
+        },
+        {
+          "pass": 3,
+          "dir": "/opt/agent-benchmark/results/leia/oneshot/gpt-oss-20b-UD-Q8_K_XL/pass3",
+          "generate_seconds": 512.1,
+          "wall_seconds": 512.1,
+          "trouble": [],
+          "score": 65,
+          "max": 68
+        }
+      ]
+    }
+  ]
+}

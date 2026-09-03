@@ -1,0 +1,161 @@
+{
+  "wall_seconds": 1453.0,
+  "track": "reasoning",
+  "settings": {
+    "temperature": 0.0,
+    "max_tokens": 2048,
+    "think": "off",
+    "repeat": 3,
+    "seed": 1,
+    "server": "http://leia.packsin.com:7442",
+    "categories": [
+      "state",
+      "constraint",
+      "compliance",
+      "abstention",
+      "trap",
+      "retrieval"
+    ],
+    "provider": ""
+  },
+  "results": [
+    {
+      "model": "gpt-oss-20b-UD-Q8_K_XL",
+      "load_seconds": 0.1,
+      "passes": [
+        {
+          "pass": 1,
+          "dir": "/opt/agent-benchmark/results/leia/reasoning/gpt-oss-20b-UD-Q8_K_XL/pass1",
+          "totals": {
+            "state": {
+              "right": 20,
+              "count": 20,
+              "seconds": 87.5,
+              "failed": 0
+            },
+            "constraint": {
+              "right": 20,
+              "count": 20,
+              "seconds": 151.1,
+              "failed": 0
+            },
+            "compliance": {
+              "right": 20,
+              "count": 20,
+              "seconds": 68.1,
+              "failed": 0
+            },
+            "abstention": {
+              "right": 20,
+              "count": 20,
+              "seconds": 25.9,
+              "failed": 0
+            },
+            "trap": {
+              "right": 13,
+              "count": 14,
+              "seconds": 64.6,
+              "failed": 0
+            },
+            "retrieval": {
+              "right": 7,
+              "count": 8,
+              "seconds": 141.3,
+              "failed": 0
+            }
+          },
+          "right": 100,
+          "count": 102
+        },
+        {
+          "pass": 2,
+          "dir": "/opt/agent-benchmark/results/leia/reasoning/gpt-oss-20b-UD-Q8_K_XL/pass2",
+          "totals": {
+            "state": {
+              "right": 20,
+              "count": 20,
+              "seconds": 86.4,
+              "failed": 0
+            },
+            "constraint": {
+              "right": 20,
+              "count": 20,
+              "seconds": 155.5,
+              "failed": 0
+            },
+            "compliance": {
+              "right": 20,
+              "count": 20,
+              "seconds": 38.3,
+              "failed": 0
+            },
+            "abstention": {
+              "right": 20,
+              "count": 20,
+              "seconds": 27.2,
+              "failed": 0
+            },
+            "trap": {
+              "right": 14,
+              "count": 14,
+              "seconds": 37.0,
+              "failed": 0
+            },
+            "retrieval": {
+              "right": 8,
+              "count": 8,
+              "seconds": 93.3,
+              "failed": 0
+            }
+          },
+          "right": 102,
+          "count": 102
+        },
+        {
+          "pass": 3,
+          "dir": "/opt/agent-benchmark/results/leia/reasoning/gpt-oss-20b-UD-Q8_K_XL/pass3",
+          "totals": {
+            "state": {
+              "right": 20,
+              "count": 20,
+              "seconds": 88.9,
+              "failed": 0
+            },
+            "constraint": {
+              "right": 20,
+              "count": 20,
+              "seconds": 156.7,
+              "failed": 0
+            },
+            "compliance": {
+              "right": 20,
+              "count": 20,
+              "seconds": 34.8,
+              "failed": 0
+            },
+            "abstention": {
+              "right": 20,
+              "count": 20,
+              "seconds": 28.2,
+              "failed": 0
+            },
+            "trap": {
+              "right": 13,
+              "count": 14,
+              "seconds": 32.0,
+              "failed": 0
+            },
+            "retrieval": {
+              "right": 6,
+              "count": 8,
+              "seconds": 135.7,
+              "failed": 0
+            }
+          },
+          "right": 99,
+          "count": 102
+        }
+      ]
+    }
+  ]
+}

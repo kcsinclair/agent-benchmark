@@ -126,9 +126,11 @@ cp .env.example .env && chmod 600 .env   # then edit it
 ./bench.sh profiles                      # what is configured (never the keys)
 
 ./bench.sh oneshot3  <profile> <model>   # coding, 3 passes, graded
+./bench.sh agent     <profile> <model>   # tool-use track, always graded
 ./bench.sh reasoning <profile> <model>   # reasoning track
-./bench.sh all       <profile> <model>   # both, then one combined scorecard
-./bench.sh speed                         # llama-bench sweep, collated
+./bench.sh all       <profile> <model>   # all three, then one combined scorecard
+./bench.sh speed leia all                # llama-bench sweep, collated
+./bench.sh speed-table leia              # speed joined to scores, measuring nothing
 ```
 
 [RUNNING.md](RUNNING.md) covers setting a server up, configuring providers, and

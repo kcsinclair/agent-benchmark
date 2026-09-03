@@ -1,0 +1,95 @@
+**scheduler.py**
+
+```python
+#!/usr/bin/env python3
+"""
+Weighted interval scheduling – O(n log n) implementation.
+
+The function `best_schedule` receives a list of jobs
+(start, end, weight) and returns the maximum total weight
+together with one optimal set of job indices (sorted by start time).
+
+The implementation follows the classic DP algorithm:
+* sort jobs by end time,
+* for each job find the last non‑overlapping job with binary search,
+* compute DP[i] = max(DP[i‑1], weight_i + DP[p[i]+1]),
+* reconstruct the chosen jobs by walking backwards.
+"""
+
+from __future__ import annotations
+
+from bisect import bisect_right
+from typing import List, Tuple
+
+
+def best_schedule(jobs: List[Tuple[float, float, float]]) -> Tuple[float, List[int]]:
+    """
+    Return the maximum achievable total weight and one optimal subset of job indices.
+
+    Parameters
+    ----------
+    jobs : list[tuple[float, float, float]]
+        Each tuple is (start, end, weight).  All start < end and weight > 0.
+
+    Returns
+    -------
+    tuple[float, list[int]]
+        (total_weight, chosen_indices)
+        * total_weight : float – the maximum total weight.
+        * chosen_indices : list[int] – indices into the original `jobs` list,
+          sorted by job start time (ties broken by index ascending).
+    """
+    n = len(jobs)
+    if n == 0:
+        return 0.0, []
+
+    # Attach original indices and sort by end time
+    jobs_with_index = [
+        (start, end, weight, idx) for idx, (start, end, weight) in enumerate(jobs)
+    ]
+    jobs_with_index.sort(key=lambda x: x[1])  # sort by end
+
+    # Pre‑compute end times for binary search
+    end_times = [job[1] for job in jobs_with_index]
+
+    # p[i] – index of the last job that ends <= start of job i
+    p = [0] * n
+    for i, (start, _, _, _) in enumerate(jobs_with_index):
+        # bisect_right returns insertion point; subtract 1 to get last <= start
+        j = bisect_right(end_times, start) - 1
+        p[i] = j  # may be -1 if no compatible job
+
+    # DP array: DP[i] = best weight using first i jobs (sorted by end)
+    dp = [0.0] * (n + 1)  # dp[0] = 0
+    for i in range(n):
+        weight = jobs_with_index[i][2]
+        incl = weight + dp[p[i] + 1]  # p[i] + 1 because dp is 1‑based
+        excl = dp[i]
+        dp[i + 1] = incl if incl > excl else excl
+
+    # Reconstruct chosen jobs
+    chosen_sorted_indices = []
+    i = n - 1
+    while i >= 0:
+        weight = jobs_with_index[i][2]
+        incl = weight + dp[p[i] + 1]
+        if incl > dp[i]:
+            # job i is taken
+            chosen_sorted_indices.append(jobs_with_index[i][3])  # original index
+            i = p[i]
+        else:
+            # job i is skipped
+            i -= 1
+
+    # The list is currently in reverse order of end times.
+    # Sort by start time (and index to break ties) as required.
+    chosen_indices = sorted(
+        chosen_sorted_indices,
+        key=lambda idx: (jobs[idx][0], idx)
+    )
+
+    total_weight = dp[n]
+    return total_weight, chosen_indices
+```
+
+The module contains only the required function and imports from the standard library, so it can be imported without side effects. The algorithm runs in `O(n log n)` time and uses `O(n)` additional memory, satisfying the performance constraints for up to 200 000 jobs.

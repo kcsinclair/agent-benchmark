@@ -38,7 +38,15 @@ func Run(ctx context.Context, tasks []Task, workers int) ([]any, error) {
 	// wg ensures we wait for all started goroutines to finish before returning.
 	var wg sync.WaitGroup
 
-	// Start the worker pool.
+	// Helper to capture the first error and trigger cancellation.
+	reportError := func(err error) {
+		errOnce.Do(func() {
+			firstErr = err
+			cancel()
+		})
+	}
+
+	// Start worker pool.
 	for i := 0; i < workers; i++ {
 		wg.Add(1)
 		go func() {
@@ -55,10 +63,7 @@ func Run(ctx context.Context, tasks []Task, workers int) ([]any, error) {
 					// Execute the task.
 					res, err := tasks[idx](ctx)
 					if err != nil {
-						errOnce.Do(func() {
-							firstErr = err
-							cancel() // Signal other workers to stop and tasks to abort.
-						})
+						reportError(err)
 						return
 					}
 					results[idx] = res

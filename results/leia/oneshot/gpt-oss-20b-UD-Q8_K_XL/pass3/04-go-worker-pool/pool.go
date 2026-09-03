@@ -1,0 +1,84 @@
+package main
+
+import (
+	"context"
+	"errors"
+	"sync"
+)
+
+// Task is one unit of work.
+type Task func(ctx context.Context) (any, error)
+
+// Run executes tasks with at most `workers` running concurrently and returns
+// their results in the same order as the input slice.
+func Run(ctx context.Context, tasks []Task, workers int) ([]any, error) {
+	if workers < 1 {
+		return nil, errors.New("workers must be >= 1")
+	}
+	if len(tasks) == 0 {
+		return nil, nil
+	}
+
+	// Derive a cancellable context for the workers.
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	results := make([]any, len(tasks))
+	indicesCh := make(chan int, workers)
+	errorCh := make(chan error, 1)
+
+	var wg sync.WaitGroup
+
+	// Start worker goroutines.
+	for i := 0; i < workers; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for idx := range indicesCh {
+				res, err := tasks[idx](ctx)
+				if err != nil {
+					// Send the first error only.
+					select {
+					case errorCh <- err:
+					default:
+					}
+					cancel()
+					return
+				}
+				results[idx] = res
+			}
+		}()
+	}
+
+	// Send task indices to workers.
+	go func() {
+		defer close(indicesCh)
+		for i := 0; i < len(tasks); i++ {
+			select {
+			case <-ctx.Done():
+				return
+			case indicesCh <- i:
+			}
+		}
+	}()
+
+	// Wait for all workers to finish.
+	wg.Wait()
+
+	// If a task returned an error, return it.
+	var firstErr error
+	select {
+	case firstErr = <-errorCh:
+	default:
+	}
+	if firstErr != nil {
+		return nil, firstErr
+	}
+
+	// If the parent context was cancelled, return its error.
+	if ctx.Err() != nil {
+		return nil, ctx.Err()
+	}
+
+	return results, nil
+}

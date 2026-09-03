@@ -25,17 +25,29 @@
 #   models    <profile> [filter] list the models the endpoint offers
 #   oneshot   <profile> <model>… coding track, graded          (default 1 pass)
 #   oneshot3  <profile> <model>… coding track, graded          (3 passes)
+#   agent     <profile> <model>… tool-use track, always graded (default 1 pass)
+#   agent3    <profile> <model>… tool-use track, always graded (3 passes)
 #   reasoning <profile> <model>… reasoning track               (default 1 pass)
-#   all       <profile> <model>… coding + reasoning at 3 passes, then a
-#                                combined scorecard
-#   speed     [options]          llama-bench sweep on the local box, collated
+#   all       <profile> <model>… coding, reasoning, then agent at 3 passes, and
+#                                one combined scorecard. Agent goes last: it is
+#                                the dearest track (every turn resends the whole
+#                                conversation), so the others are on disk first.
+#   speed     <box> <model|all>  llama-bench sweep on that box, collated. Both
+#                                arguments are required: a sweep stops the
+#                                llama.cpp server on the box for its duration,
+#                                so which box and which models is never guessed.
+#   speed-table <box>            the same table over the numbers already
+#                                measured — speed joined to the scores, and
+#                                nothing run on the box
 #   table     [options]          one table of every score in results/
 #   scrub     [--check] [dir]    redact trap answers and grader detail before
 #                                publishing; --check only reports (exit 1 if
 #                                anything leaks). Run it after every reasoning
 #                                run — the track rewrites items.json each time.
 #   grade     <dir> [label]      run the graders over a submission directory
-#   doctor                       check this machine can run and grade
+#   doctor    [box]              check this machine can run and grade, and that
+#                                the speed-track box is reachable (default: the
+#                                one BENCH_SPEED_LABEL names)
 #   selftest                     run every self-test, then the reference
 #                                solutions, which must score 68/68
 #
@@ -218,6 +230,23 @@ track_oneshot() { # passes, models...
   run_cmd
 }
 
+# Same endpoint, same prompts, same graders — what changes is that the model has
+# to operate `write_file` to score at all. There is deliberately no -g here:
+# run_agent.py grades unconditionally and rejects the flag, so passing it aborts
+# the run before a single request.
+track_agent() { # passes, models...
+  local n="$1"; shift
+  case " ${EXTRA[*]-} " in
+    *" -g "*) die "run_agent.py always grades — -g is not a flag it takes" ;;
+  esac
+  CMD=("$PYTHON" "$REPO/benchmark/run_agent.py")
+  add_common agent
+  CMD+=(-r "$n")
+  CMD+=(${EXTRA[@]+"${EXTRA[@]}"})
+  CMD+=("$@")
+  run_cmd
+}
+
 track_reasoning() { # passes, models...
   local n="$1"; shift
   CMD=("$PYTHON" "$REPO/reasoning/run_reasoning.py")
@@ -250,6 +279,7 @@ def newest(track, prefix):
     return {r.get("model"): r for r in data.get("results", [])}
 
 code = newest("oneshot", "summary")
+agent = newest("agent", "agent-summary")
 reason = newest("reasoning", "reasoning-summary")
 
 def cell(rec, right, total):
@@ -264,41 +294,161 @@ def spent(rec):
     return sum(p.get("cost_usd", 0) for p in (rec or {}).get("passes") or [])
 
 total_cost = 0.0
+row = "  %-40s %10s %10s %10s %10s"
 print()
-print("  %-44s %10s %10s %10s" % ("model", "coding", "reasoning", "cost"))
-print("  " + "-" * 76)
+print(row % ("model", "coding", "agent", "reasoning", "cost"))
+print("  " + "-" * 82)
 for m in models:
-    c, r = code.get(m), reason.get(m)
-    cost = spent(c) + spent(r)
+    c, a, r = code.get(m), agent.get(m), reason.get(m)
+    cost = spent(c) + spent(a) + spent(r)
     total_cost += cost
-    print("  %-44s %10s %10s %10s"
-          % (m[:44], cell(c, "score", "max"), cell(r, "right", "count"),
-             ("$%.4f" % cost) if cost else "—"))
-print("  " + "-" * 76)
+    print(row % (m[:40], cell(c, "score", "max"), cell(a, "score", "max"),
+                 cell(r, "right", "count"), ("$%.4f" % cost) if cost else "—"))
+print("  " + "-" * 82)
 if total_cost:
     print("  $%.4f billed in total." % total_cost)
 print("  Medians. Per-pass scores, spread and timings are in the summary JSONs")
 print("  under %s/." % root)
-print("  A coding median of 68/68 is the ceiling: read the reasoning state and")
-print("  constraint categories to tell strong models apart.")
+print("  Coding and agent share the 68 checks and differ only in whether the")
+print("  model had to operate a tool to score. A coding median of 68/68 is the")
+print("  ceiling: read the agent column and the reasoning state and constraint")
+print("  categories to tell strong models apart.")
 PY
 }
 
 # -------------------------------------------------------------------- speed --
 
-SPEED_HOST="${BENCH_SPEED_HOST:-localhost}"
-SPEED_LABEL="${BENCH_SPEED_LABEL:-leia}"
+# The box is named on the command line, and it names results/<box>/speed — the
+# same directory the scores live in, which is what collate_bench.py joins on.
+# The ssh target is separate because they routinely differ: the sweep reaches
+# the box over ssh even when that box is this box, so there is one code path
+# whether the harness runs locally or remotely, and `-H localhost` would
+# otherwise strand the numbers in results/localhost/speed.
+#
+# The legacy pair BENCH_SPEED_{HOST,LABEL} still means what it always did: it
+# configures the box named by BENCH_SPEED_LABEL. Any further box is
+# BENCH_SPEED_<BOX>_{SSH,MODELDIR,BINDIR}, and with none of those set the box
+# name is used as the ssh target, which is the common case.
+SPEED_DEFAULT_BOX="${BENCH_SPEED_LABEL:-leia}"
+SPEED_BOX=""; SPEED_SSH=""; SPEED_MODELDIR=""; SPEED_BINDIR=""
 
-# The speed sweep reaches the box over ssh even when that box is this box, so
-# there is one code path whether the harness runs locally or remotely. The label
-# is pinned because run_llama_bench.sh names its output directory after the ssh
-# host: with --host localhost it would write results/localhost/speed, splitting
-# the speed numbers away from the scores collate_bench.py joins them to.
+speed_var() { printf 'BENCH_SPEED_%s_%s' \
+  "$(printf '%s' "$1" | tr '[:lower:]-' '[:upper:]_' | tr -cd 'A-Za-z0-9_')" "$2"; }
+
+resolve_speed_box() {
+  local box="$1" v
+  case "$box" in
+    ''|*/*) die "'$box' is not a machine name (it names results/<box>/speed)" ;;
+  esac
+  SPEED_BOX="$box"
+  v="$(speed_var "$box" SSH)";      SPEED_SSH="${!v:-}"
+  v="$(speed_var "$box" MODELDIR)"; SPEED_MODELDIR="${!v:-${BENCH_SPEED_MODELDIR:-}}"
+  v="$(speed_var "$box" BINDIR)";   SPEED_BINDIR="${!v:-${BENCH_SPEED_BINDIR:-}}"
+  if [ -n "$SPEED_SSH" ]; then :
+  elif [ "$box" = "$SPEED_DEFAULT_BOX" ] && [ -n "${BENCH_SPEED_HOST:-}" ]; then
+    SPEED_SSH="$BENCH_SPEED_HOST"
+  else
+    SPEED_SSH="$box"
+  fi
+}
+
+# The model table lives in run_llama_bench.sh and is asked for rather than
+# duplicated here — --list neither sshes anywhere nor stops anything.
+speed_table() { "$REPO/benchmark/run_llama_bench.sh" --list 2>/dev/null; }
+speed_labels() { speed_table | sed 's/  *->.*$//' | grep .; }
+
+# One token -> the labels it could mean, one per line: none (unknown), one
+# (resolved), or several (ambiguous). A label matches exactly, case-insensitively,
+# or by its .gguf basename, so both `gpt-oss-20b-Q8` and `gpt-oss-20b-Q8_0.gguf`
+# name the same model; failing that, a unique substring of either does.
+speed_match() {
+  speed_table | awk -v want="$1" '
+    function lc(s) { return tolower(s) }
+    {
+      split($0, p, /  *->  */); label = p[1]; arg = p[2]
+      n = split(arg, f, /[ \/]/); base = f[n]; sub(/\.gguf$/, "", base)
+      w = lc(want); sub(/\.gguf$/, "", w)
+      if (lc(label) == w || lc(base) == w) { print label; found = 1; exit }
+      if (index(lc(label), w) || index(lc(base), w)) hits[++h] = label
+    }
+    END { if (!found) for (i = 1; i <= h; i++) print hits[i] }'
+}
+
+# model tokens (comma- or space-separated) -> the --models value, empty for all
+speed_select() {
+  local tok t toks="" n=0 want="" m count
+  for tok in "$@"; do
+    for t in $(printf '%s' "$tok" | tr ',' ' '); do
+      toks="$toks $t"; n=$((n + 1))
+    done
+  done
+  [ "$n" -gt 0 ] || die "which models? (a label, several, or 'all')"
+  for t in $toks; do
+    case "$(printf '%s' "$t" | tr '[:upper:]' '[:lower:]')" in
+      all) [ "$n" -eq 1 ] || die "'all' is every model — do not list it beside a model name"
+           return 0 ;;
+    esac
+  done
+  for t in $toks; do
+    m="$(speed_match "$t")"; count="$(printf '%s' "$m" | grep -c .)"
+    if [ "$count" -eq 1 ]; then
+      want="$want,$m"
+    else
+      { if [ "$count" -eq 0 ]; then
+          echo "bench.sh: no model called '$t' on the speed track. Known models:"
+          speed_labels | sed 's/^/    /'
+          echo "  (or 'all' for every one of them)"
+        else
+          echo "bench.sh: '$t' could mean any of:"
+          printf '%s\n' "$m" | sed 's/^/    /'
+        fi
+      } >&2
+      exit 2
+    fi
+  done
+  printf '%s' "${want#,}"
+}
+
+# Which boxes have a sweep to look at — for `speed-table` with a bad or missing
+# argument. A box with a speed directory is one that has been measured; the
+# .env only says which ones could be.
+speed_boxes() {
+  local d
+  for d in "$REPO"/results/*/speed; do
+    [ -d "$d" ] || continue
+    d="${d%/speed}"; echo "${d##*/}"
+  done
+}
+
+speed_usage() {
+  { echo "bench.sh: usage: ./bench.sh speed <box> <model|all> [model ...]"
+    echo "  A sweep stops llama-server on the box for its duration, so neither the"
+    echo "  box nor the models are defaulted into."
+    echo
+    echo "    ./bench.sh speed $SPEED_DEFAULT_BOX all"
+    echo "    ./bench.sh speed $SPEED_DEFAULT_BOX gpt-oss-20b-Q8 Qwen3.8-27B"
+    echo "    ./bench.sh -n speed $SPEED_DEFAULT_BOX all      # print the commands, run nothing"
+    echo
+    echo "  <box> names results/<box>/speed, where collate_bench.py finds the scores"
+    echo "  to join against; the ssh target comes from .env (see BENCH_SPEED_*)."
+    echo "  models:"
+    speed_labels | sed 's/^/    /'
+  } >&2
+  exit 2
+}
+
 cmd_speed() {
-  local out="$REPO/results/$SPEED_LABEL/speed"
-  CMD=("$REPO/benchmark/run_llama_bench.sh" -H "$SPEED_HOST" -o "$out")
-  [ -z "${BENCH_SPEED_MODELDIR:-}" ] || CMD+=(--model-dir "$BENCH_SPEED_MODELDIR")
-  [ -z "${BENCH_SPEED_BINDIR:-}" ] || CMD+=(--bin-dir "$BENCH_SPEED_BINDIR")
+  [ $# -ge 2 ] || speed_usage
+  resolve_speed_box "$1"; shift
+  local only; only="$(speed_select "$@")" || exit 2
+
+  local out="$REPO/results/$SPEED_BOX/speed"
+  CMD=("$REPO/benchmark/run_llama_bench.sh" -H "$SPEED_SSH" -o "$out")
+  [ -z "$SPEED_MODELDIR" ] || CMD+=(--model-dir "$SPEED_MODELDIR")
+  [ -z "$SPEED_BINDIR" ] || CMD+=(--bin-dir "$SPEED_BINDIR")
+  # omitted for `all`, which is run_llama_bench.sh's own default. A --models in
+  # the passthrough after -- comes later on the line and so wins over this.
+  [ -z "$only" ] || CMD+=(--models "$only")
   CMD+=(${EXTRA[@]+"${EXTRA[@]}"})
   if [ "$DRY" = "1" ]; then
     echo "  $(quoted)"
@@ -311,6 +461,45 @@ cmd_speed() {
   # always passed explicitly: given no argument collate_bench.py takes the first
   # results/*/speed alphabetically, which need not be the one just written
   "$PYTHON" "$REPO/benchmark/collate_bench.py" "$out"
+}
+
+# The read-only half of `speed`: the same table, over numbers already measured.
+# Touches nothing on the box — no ssh, no stopped server — so it is safe to run
+# while the endpoint is serving, which the sweep itself never is.
+cmd_speed_table() {
+  local boxes
+  if [ $# -lt 1 ]; then
+    boxes="$(speed_boxes)"
+    { echo "bench.sh: usage: ./bench.sh speed-table <box> [-- --flags]"
+      echo "  Prints the speed table for a box already swept: one row per model,"
+      echo "  with the one-shot and agent scores joined onto it. Runs nothing on"
+      echo "  the box. The box is required because collate_bench.py's own default"
+      echo "  is the first results/*/speed alphabetically, which is a silent way"
+      echo "  to read the wrong machine's numbers."
+      echo
+      if [ -n "$boxes" ]; then
+        echo "  boxes with a sweep:"; printf '%s\n' "$boxes" | sed 's/^/    /'
+      else
+        echo "  no results/*/speed directory yet — ./bench.sh speed <box> all"
+      fi
+    } >&2
+    exit 2
+  fi
+  resolve_speed_box "$1"; shift
+  local dir="$REPO/results/$SPEED_BOX/speed"
+  if [ ! -d "$dir" ] && [ "$DRY" = "0" ]; then
+    boxes="$(speed_boxes)"
+    { echo "bench.sh: $SPEED_BOX has no speed sweep ($dir does not exist)."
+      if [ -n "$boxes" ]; then
+        echo "  boxes with one:"; printf '%s\n' "$boxes" | sed 's/^/    /'
+      fi
+      echo "  measure it with: ./bench.sh speed $SPEED_BOX all"
+    } >&2
+    exit 2
+  fi
+  CMD=("$PYTHON" "$REPO/benchmark/collate_bench.py" "$dir"
+       ${EXTRA[@]+"${EXTRA[@]}"} "$@")
+  run_cmd
 }
 
 # ------------------------------------------------------------------- doctor --
@@ -338,8 +527,9 @@ ck() { # label, ok|warn|fail, detail
   esac
 }
 
-cmd_doctor() {
+cmd_doctor() { # [box] — which speed-track machine to check, default BENCH_SPEED_LABEL
   local p names mode src
+  resolve_speed_box "${1:-$SPEED_DEFAULT_BOX}"
   echo "bench.sh doctor — $(uname -s) $(uname -r), bash ${BASH_VERSION%%(*}"
 
   echo
@@ -401,15 +591,15 @@ cmd_doctor() {
   done
 
   echo
-  echo "speed track (ssh $SPEED_HOST -> results/$SPEED_LABEL/speed)"
-  if ssh -o ConnectTimeout=10 -o BatchMode=yes "$SPEED_HOST" true 2>/dev/null; then
-    ck "ssh $SPEED_HOST" ok "key-based login works"
-    if ssh -o ConnectTimeout=10 -o BatchMode=yes "$SPEED_HOST" \
-         "bash -lc 'export PATH=${BENCH_SPEED_BINDIR:-/opt/local-ai/bin}:\$PATH; command -v llama-bench'" \
+  echo "speed track: $SPEED_BOX (ssh $SPEED_SSH -> results/$SPEED_BOX/speed)"
+  if ssh -o ConnectTimeout=10 -o BatchMode=yes "$SPEED_SSH" true 2>/dev/null; then
+    ck "ssh $SPEED_SSH" ok "key-based login works"
+    if ssh -o ConnectTimeout=10 -o BatchMode=yes "$SPEED_SSH" \
+         "bash -lc 'export PATH=${SPEED_BINDIR:-/opt/local-ai/bin}:\$PATH; command -v llama-bench'" \
          >/dev/null 2>&1; then
       ck llama-bench ok "on the remote PATH"
     else
-      ck llama-bench fail "not in ${BENCH_SPEED_BINDIR:-/opt/local-ai/bin} on $SPEED_HOST"
+      ck llama-bench fail "not in ${SPEED_BINDIR:-/opt/local-ai/bin} on $SPEED_SSH"
     fi
     if command -v loginctl >/dev/null 2>&1 &&
        [ "$(loginctl show-user "$USER" -p Linger --value 2>/dev/null)" = "yes" ]; then
@@ -418,7 +608,7 @@ cmd_doctor() {
       ck "systemd linger" warn "off or unknown — stopping llama-server.service over ssh may fail: loginctl enable-linger $USER"
     fi
   else
-    ck "ssh $SPEED_HOST" fail "no key-based login — ssh-copy-id $USER@$SPEED_HOST"
+    ck "ssh $SPEED_SSH" fail "no key-based login — ssh-copy-id $USER@$SPEED_SSH"
   fi
 
   echo
@@ -503,6 +693,12 @@ case "$CMDNAME" in
     if [ "$CMDNAME" = "oneshot3" ]; then track_oneshot "${PASSES:-3}" "$@"
     else track_oneshot "${PASSES:-1}" "$@"; fi ;;
 
+  agent|agent3)
+    [ $# -ge 2 ] || die "usage: ./bench.sh $CMDNAME <profile> <model> [model ...]"
+    resolve_profile "$1"; shift
+    if [ "$CMDNAME" = "agent3" ]; then track_agent "${PASSES:-3}" "$@"
+    else track_agent "${PASSES:-1}" "$@"; fi ;;
+
   reasoning)
     [ $# -ge 2 ] || die "usage: ./bench.sh reasoning <profile> <model> [model ...]"
     resolve_profile "$1"; shift
@@ -515,16 +711,23 @@ case "$CMDNAME" in
     echo "== coding, $n pass(es) =="
     if ! track_oneshot "$n" "$@"; then
       # The runners exit non-zero only when no model was asked anything, which
-      # is a configuration error — the same one would stop the reasoning track
-      # too, so running it just prints the error twice and writes nothing.
+      # is a configuration error — the same one would stop the other tracks too,
+      # so running them just prints the error twice and writes nothing.
       echo >&2
-      echo "bench.sh: the coding track ran no model, so the reasoning track" >&2
-      echo "  was skipped. Fix the configuration above and re-run." >&2
+      echo "bench.sh: the coding track ran no model, so the reasoning and agent" >&2
+      echo "  tracks were skipped. Fix the configuration above and re-run." >&2
       exit 1
     fi
     echo
     echo "== reasoning, $n pass(es) =="
     track_reasoning "$n" "$@" || { rc=1; echo "bench.sh: the reasoning track failed" >&2; }
+    echo
+    # Last of the three: it is the dearest track — every turn resends the whole
+    # conversation — and the one a model can fail for a reason that has nothing
+    # to do with its answers (no tool support, a syntax llama.cpp cannot parse),
+    # so the other two are already on disk by the time it runs.
+    echo "== agent, $n pass(es) =="
+    track_agent "$n" "$@" || { rc=1; echo "bench.sh: the agent track failed" >&2; }
     [ "$DRY" = "1" ] || combined_scorecard "$@"
     exit "$rc" ;;
 
@@ -539,14 +742,15 @@ case "$CMDNAME" in
     [ $# -gt 0 ] || CMD+=("$REPO/results")
     run_cmd ;;
 
-  speed)    cmd_speed ;;
+  speed)       cmd_speed "$@" ;;
+  speed-table) cmd_speed_table "$@" ;;
 
   grade)
     [ $# -ge 1 ] || die "usage: ./bench.sh grade <dir> [label]"
     CMD=("$REPO/benchmark/run_all.sh" ${EXTRA[@]+"${EXTRA[@]}"} "$@")
     run_cmd ;;
 
-  doctor)   cmd_doctor ;;
+  doctor)   cmd_doctor "$@" ;;
   selftest) cmd_selftest ;;
   help)     usage ;;
   *)        die "unknown subcommand '$CMDNAME' (try --help)" ;;

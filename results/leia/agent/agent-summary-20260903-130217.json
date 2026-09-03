@@ -1,0 +1,145 @@
+{
+  "wall_seconds": 517.4,
+  "track": "agent",
+  "settings": {
+    "temperature": 0.0,
+    "max_tokens": 8192,
+    "max_turns": 12,
+    "think": "off",
+    "repeat": 1,
+    "server": "http://leia.packsin.com:7442",
+    "provider": ""
+  },
+  "results": [
+    {
+      "model": "gpt-oss-20b-UD-Q8_K_XL",
+      "track": "agent",
+      "load_seconds": 0.2,
+      "passes": [
+        {
+          "pass": 1,
+          "dir": "/opt/agent-benchmark/results/leia/agent/gpt-oss-20b-UD-Q8_K_XL",
+          "problems": [
+            {
+              "problem": "01-python-parse-duration",
+              "turns": 2,
+              "tool_calls": 1,
+              "bad_calls": 0,
+              "files": [
+                "parse_duration.py"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 10234,
+              "stop": "stopped after 2 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.0,
+              "provider": null,
+              "truncated_turns": 1,
+              "empty_replies": 1,
+              "seconds": 172.6,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "02-js-lru-ttl-cache",
+              "turns": 2,
+              "tool_calls": 1,
+              "bad_calls": 0,
+              "files": [
+                "cache.mjs"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 7966,
+              "stop": "stopped after 2 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.0,
+              "provider": null,
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 133.0,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "03-sql-analytics",
+              "turns": 6,
+              "tool_calls": 5,
+              "bad_calls": 0,
+              "files": [
+                "q1.sql",
+                "q2.sql",
+                "q3.sql",
+                "q4.sql",
+                "q2.sql"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 2582,
+              "stop": "stopped after 6 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.0,
+              "provider": null,
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 44.6,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "04-go-worker-pool",
+              "turns": 2,
+              "tool_calls": 1,
+              "bad_calls": 0,
+              "files": [
+                "pool.go"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 7374,
+              "stop": "stopped after 2 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.0,
+              "provider": null,
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 123.5,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "05-python-scheduler",
+              "turns": 2,
+              "tool_calls": 1,
+              "bad_calls": 0,
+              "files": [
+                "scheduler.py"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 2384,
+              "stop": "stopped after 2 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.0,
+              "provider": null,
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 40.7,
+              "missing": [],
+              "extra": []
+            }
+          ],
+          "seconds": 514.4,
+          "score": 48,
+          "max": 68
+        }
+      ]
+    }
+  ]
+}

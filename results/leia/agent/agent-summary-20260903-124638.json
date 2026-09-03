@@ -1,0 +1,181 @@
+{
+  "wall_seconds": 1055.5,
+  "track": "agent",
+  "settings": {
+    "temperature": 0.0,
+    "max_tokens": 8192,
+    "max_turns": 12,
+    "think": "off",
+    "repeat": 1,
+    "server": "http://leia.packsin.com:7442",
+    "provider": ""
+  },
+  "results": [
+    {
+      "model": "gemma-4-26B-A4B-it-UD-Q8_K_XL",
+      "track": "agent",
+      "load_seconds": 13.8,
+      "passes": [
+        {
+          "pass": 1,
+          "dir": "/opt/agent-benchmark/results/leia/agent/gemma-4-26B-A4B-it-UD-Q8_K_XL",
+          "problems": [
+            {
+              "problem": "01-python-parse-duration",
+              "turns": 12,
+              "tool_calls": 12,
+              "bad_calls": 0,
+              "files": [
+                "parse_duration.py",
+                "parse_duration.py",
+                "parse_duration.py",
+                "parse_duration.py",
+                "parse_duration.py",
+                "parse_duration.py",
+                "parse_duration.py",
+                "parse_duration.py",
+                "parse_duration.py",
+                "parse_duration.py",
+                "parse_duration.py",
+                "parse_duration.py"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 10467,
+              "stop": "hit the 12 turn limit",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.0,
+              "provider": null,
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 292.8,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "02-js-lru-ttl-cache",
+              "turns": 12,
+              "tool_calls": 12,
+              "bad_calls": 0,
+              "files": [
+                "cache.mjs",
+                "test.mjs",
+                "cache.mjs",
+                "test.mjs",
+                "run.mjs",
+                "cache.mjs",
+                "test.mjs",
+                "cache.mjs",
+                "cache.mjs",
+                "cache.mjs",
+                "cache.mjs"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 8867,
+              "stop": "hit the 12 turn limit",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.0,
+              "provider": null,
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 245.2,
+              "missing": [],
+              "extra": [
+                "run.mjs",
+                "test.mjs"
+              ]
+            },
+            {
+              "problem": "03-sql-analytics",
+              "turns": 5,
+              "tool_calls": 4,
+              "bad_calls": 0,
+              "files": [
+                "q1.sql",
+                "q2.sql",
+                "q3.sql",
+                "q4.sql"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 586,
+              "stop": "stopped after 5 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.0,
+              "provider": null,
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 41.9,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "04-go-worker-pool",
+              "turns": 12,
+              "tool_calls": 12,
+              "bad_calls": 0,
+              "files": [
+                "pool.go",
+                "pool.go",
+                "pool.go",
+                "pool.go",
+                "pool.go",
+                "pool.go",
+                "pool.go",
+                "pool.go",
+                "pool.go",
+                "pool.go",
+                "pool.go",
+                "pool.go"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 9309,
+              "stop": "hit the 12 turn limit",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.0,
+              "provider": null,
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 345.4,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "05-python-scheduler",
+              "turns": 4,
+              "tool_calls": 3,
+              "bad_calls": 0,
+              "files": [
+                "scheduler.py",
+                "scheduler.py",
+                "scheduler.py"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 4247,
+              "stop": "stopped after 4 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.0,
+              "provider": null,
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 114.9,
+              "missing": [],
+              "extra": []
+            }
+          ],
+          "seconds": 1040.2,
+          "score": 57,
+          "max": 68
+        }
+      ]
+    }
+  ]
+}

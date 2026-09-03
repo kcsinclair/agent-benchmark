@@ -7,7 +7,7 @@
       "item": 1,
       "ok": false,
       "expected": "8",
-      "seconds": 0.6,
+      "seconds": 0.4,
       "tokens": 3,
       "finish": "stop",
       "reply": "10"
@@ -17,7 +17,7 @@
       "item": 2,
       "ok": false,
       "expected": "26",
-      "seconds": 0.4,
+      "seconds": 0.3,
       "tokens": 3,
       "finish": "stop",
       "reply": "25"
@@ -57,7 +57,7 @@
       "item": 6,
       "ok": false,
       "expected": "11",
-      "seconds": 1.4,
+      "seconds": 0.5,
       "tokens": 2,
       "finish": "stop",
       "reply": "0"
@@ -67,7 +67,7 @@
       "item": 7,
       "ok": true,
       "expected": "14",
-      "seconds": 3.4,
+      "seconds": 3.3,
       "tokens": 3,
       "finish": "stop",
       "reply": "14"
@@ -77,7 +77,7 @@
       "item": 8,
       "ok": true,
       "expected": "11",
-      "seconds": 0.6,
+      "seconds": 0.4,
       "tokens": 3,
       "finish": "stop",
       "reply": "11"
@@ -87,7 +87,7 @@
       "item": 9,
       "ok": true,
       "expected": "7",
-      "seconds": 1.2,
+      "seconds": 0.3,
       "tokens": 2,
       "finish": "stop",
       "reply": "7"
@@ -97,17 +97,17 @@
       "item": 10,
       "ok": false,
       "expected": "5",
-      "seconds": 0.6,
+      "seconds": 0.4,
       "tokens": 3,
       "finish": "stop",
-      "reply": "11"
+      "reply": "12"
     },
     {
       "category": "state",
       "item": 11,
       "ok": true,
       "expected": "4",
-      "seconds": 0.6,
+      "seconds": 0.9,
       "tokens": 2,
       "finish": "stop",
       "reply": "4"
@@ -117,7 +117,7 @@
       "item": 12,
       "ok": false,
       "expected": "13",
-      "seconds": 1.6,
+      "seconds": 0.3,
       "tokens": 3,
       "finish": "stop",
       "reply": "15"
@@ -127,7 +127,7 @@
       "item": 13,
       "ok": true,
       "expected": "1",
-      "seconds": 1.0,
+      "seconds": 0.4,
       "tokens": 2,
       "finish": "stop",
       "reply": "1"
@@ -137,7 +137,7 @@
       "item": 14,
       "ok": true,
       "expected": "0",
-      "seconds": 1.6,
+      "seconds": 0.3,
       "tokens": 2,
       "finish": "stop",
       "reply": "0"
@@ -147,7 +147,7 @@
       "item": 15,
       "ok": false,
       "expected": "8",
-      "seconds": 0.4,
+      "seconds": 0.3,
       "tokens": 3,
       "finish": "stop",
       "reply": "12"
@@ -157,10 +157,10 @@
       "item": 16,
       "ok": false,
       "expected": "15",
-      "seconds": 0.5,
+      "seconds": 0.4,
       "tokens": 3,
       "finish": "stop",
-      "reply": "18"
+      "reply": "21"
     },
     {
       "category": "state",
@@ -168,26 +168,26 @@
       "ok": false,
       "expected": "1",
       "seconds": 0.4,
-      "tokens": 3,
+      "tokens": 2,
       "finish": "stop",
-      "reply": "11"
+      "reply": "6"
     },
     {
       "category": "state",
       "item": 18,
-      "ok": true,
+      "ok": false,
       "expected": "15",
-      "seconds": 0.4,
+      "seconds": 0.5,
       "tokens": 3,
       "finish": "stop",
-      "reply": "15"
+      "reply": "20"
     },
     {
       "category": "state",
       "item": 19,
       "ok": false,
       "expected": "7",
-      "seconds": 1.0,
+      "seconds": 0.6,
       "tokens": 3,
       "finish": "stop",
       "reply": "15"
@@ -217,7 +217,7 @@
       "item": 2,
       "ok": false,
       "expected": "2",
-      "seconds": 0.8,
+      "seconds": 0.4,
       "tokens": 2,
       "finish": "stop",
       "reply": "3"
@@ -237,7 +237,7 @@
       "item": 4,
       "ok": false,
       "expected": "3",
-      "seconds": 0.5,
+      "seconds": 0.4,
       "tokens": 2,
       "finish": "stop",
       "reply": "2"
@@ -247,7 +247,7 @@
       "item": 5,
       "ok": true,
       "expected": "2",
-      "seconds": 0.3,
+      "seconds": 0.7,
       "tokens": 2,
       "finish": "stop",
       "reply": "2"
@@ -255,12 +255,12 @@
     {
       "category": "constraint",
       "item": 6,
-      "ok": true,
+      "ok": false,
       "expected": "2",
-      "seconds": 0.4,
+      "seconds": 1.8,
       "tokens": 2,
       "finish": "stop",
-      "reply": "2"
+      "reply": "1"
     },
     {
       "category": "constraint",
@@ -277,7 +277,7 @@
       "item": 8,
       "ok": false,
       "expected": "2",
-      "seconds": 0.4,
+      "seconds": 0.5,
       "tokens": 2,
       "finish": "stop",
       "reply": "1"
@@ -287,7 +287,7 @@
       "item": 9,
       "ok": true,
       "expected": "3",
-      "seconds": 0.3,
+      "seconds": 0.4,
       "tokens": 2,
       "finish": "stop",
       "reply": "3"
@@ -297,7 +297,7 @@
       "item": 10,
       "ok": true,
       "expected": "4",
-      "seconds": 0.3,
+      "seconds": 0.4,
       "tokens": 2,
       "finish": "stop",
       "reply": "4"
@@ -307,7 +307,7 @@
       "item": 11,
       "ok": false,
       "expected": "3",
-      "seconds": 0.5,
+      "seconds": 0.4,
       "tokens": 2,
       "finish": "stop",
       "reply": "1"
@@ -327,7 +327,7 @@
       "item": 13,
       "ok": true,
       "expected": "2",
-      "seconds": 0.5,
+      "seconds": 3.7,
       "tokens": 2,
       "finish": "stop",
       "reply": "2"
@@ -337,7 +337,7 @@
       "item": 14,
       "ok": true,
       "expected": "3",
-      "seconds": 0.4,
+      "seconds": 1.3,
       "tokens": 2,
       "finish": "stop",
       "reply": "3"
@@ -357,7 +357,7 @@
       "item": 16,
       "ok": true,
       "expected": "4",
-      "seconds": 1.7,
+      "seconds": 0.4,
       "tokens": 2,
       "finish": "stop",
       "reply": "4"
@@ -367,7 +367,7 @@
       "item": 17,
       "ok": true,
       "expected": "4",
-      "seconds": 0.5,
+      "seconds": 2.7,
       "tokens": 2,
       "finish": "stop",
       "reply": "4"
@@ -377,7 +377,7 @@
       "item": 18,
       "ok": true,
       "expected": "3",
-      "seconds": 2.8,
+      "seconds": 0.4,
       "tokens": 2,
       "finish": "stop",
       "reply": "3"
@@ -387,7 +387,7 @@
       "item": 19,
       "ok": false,
       "expected": "3",
-      "seconds": 0.4,
+      "seconds": 1.2,
       "tokens": 2,
       "finish": "stop",
       "reply": "1"
@@ -407,7 +407,7 @@
       "item": 1,
       "ok": true,
       "expected": "cedar,birch,alder",
-      "seconds": 0.5,
+      "seconds": 0.7,
       "tokens": 9,
       "finish": "stop",
       "reply": "cedar,birch,alder"
@@ -417,17 +417,17 @@
       "item": 2,
       "ok": true,
       "expected": "vast blue salty",
-      "seconds": 2.1,
+      "seconds": 0.4,
       "tokens": 4,
       "finish": "stop",
-      "reply": "Deep blue vast"
+      "reply": "vast blue deep"
     },
     {
       "category": "compliance",
       "item": 3,
       "ok": true,
       "expected": "Chile",
-      "seconds": 0.4,
+      "seconds": 0.3,
       "tokens": 2,
       "finish": "stop",
       "reply": "Peru"
@@ -440,14 +440,14 @@
       "seconds": 0.4,
       "tokens": 4,
       "finish": "stop",
-      "reply": "Deep blue vast"
+      "reply": "vast blue deep"
     },
     {
       "category": "compliance",
       "item": 5,
       "ok": true,
       "expected": "PARIS",
-      "seconds": 0.4,
+      "seconds": 1.1,
       "tokens": 3,
       "finish": "stop",
       "reply": "PARIS"
@@ -460,14 +460,14 @@
       "seconds": 0.5,
       "tokens": 4,
       "finish": "stop",
-      "reply": "Deep blue vast"
+      "reply": "vast blue deep"
     },
     {
       "category": "compliance",
       "item": 7,
       "ok": true,
       "expected": "85",
-      "seconds": 0.7,
+      "seconds": 0.4,
       "tokens": 3,
       "finish": "stop",
       "reply": "85"
@@ -487,7 +487,7 @@
       "item": 9,
       "ok": true,
       "expected": "cedar,birch,alder",
-      "seconds": 0.7,
+      "seconds": 0.5,
       "tokens": 9,
       "finish": "stop",
       "reply": "cedar,birch,alder"
@@ -497,10 +497,10 @@
       "item": 10,
       "ok": true,
       "expected": "vast blue salty cold deep",
-      "seconds": 0.5,
+      "seconds": 2.6,
       "tokens": 6,
       "finish": "stop",
-      "reply": "vast blue deep salty water"
+      "reply": "vast blue water deep salt"
     },
     {
       "category": "compliance",
@@ -517,7 +517,7 @@
       "item": 12,
       "ok": true,
       "expected": "vast blue salty cold deep",
-      "seconds": 0.6,
+      "seconds": 0.5,
       "tokens": 6,
       "finish": "stop",
       "reply": "vast blue water deep salt"
@@ -530,14 +530,14 @@
       "seconds": 0.5,
       "tokens": 7,
       "finish": "stop",
-      "reply": "the blue bird flew away now"
+      "reply": "the blue sky is very clear"
     },
     {
       "category": "compliance",
       "item": 14,
       "ok": true,
       "expected": "Chile",
-      "seconds": 1.0,
+      "seconds": 0.3,
       "tokens": 2,
       "finish": "stop",
       "reply": "Peru"
@@ -547,7 +547,7 @@
       "item": 15,
       "ok": true,
       "expected": "{\"animal\":\"raven\",\"x\":7,\"total\":23}",
-      "seconds": 0.8,
+      "seconds": 0.7,
       "tokens": 28,
       "finish": "stop",
       "reply": "{\n  \"animal\": \"raven\",\n  \"x\": 7,\n  \"total\": 23\n}"
@@ -557,7 +557,7 @@
       "item": 16,
       "ok": true,
       "expected": "cedar,birch,alder",
-      "seconds": 1.8,
+      "seconds": 0.5,
       "tokens": 9,
       "finish": "stop",
       "reply": "cedar,birch,alder"
@@ -587,17 +587,17 @@
       "item": 19,
       "ok": true,
       "expected": "vast blue salty cold",
-      "seconds": 0.5,
+      "seconds": 0.9,
       "tokens": 5,
       "finish": "stop",
-      "reply": "vast blue salty deep"
+      "reply": "vast blue salty water"
     },
     {
       "category": "compliance",
       "item": 20,
       "ok": true,
       "expected": "cedar,birch,alder",
-      "seconds": 0.7,
+      "seconds": 1.1,
       "tokens": 9,
       "finish": "stop",
       "reply": "cedar,birch,alder"
@@ -607,7 +607,7 @@
       "item": 1,
       "ok": true,
       "expected": "3",
-      "seconds": 0.4,
+      "seconds": 0.5,
       "tokens": 2,
       "finish": "stop",
       "reply": "3"
@@ -637,7 +637,7 @@
       "item": 4,
       "ok": true,
       "expected": "UNKNOWN",
-      "seconds": 0.4,
+      "seconds": 2.1,
       "tokens": 2,
       "finish": "stop",
       "reply": "UNKNOWN"
@@ -647,7 +647,7 @@
       "item": 5,
       "ok": true,
       "expected": "UNKNOWN",
-      "seconds": 0.4,
+      "seconds": 0.3,
       "tokens": 2,
       "finish": "stop",
       "reply": "UNKNOWN"
@@ -667,7 +667,7 @@
       "item": 7,
       "ok": true,
       "expected": "UNKNOWN",
-      "seconds": 0.6,
+      "seconds": 2.5,
       "tokens": 2,
       "finish": "stop",
       "reply": "UNKNOWN"
@@ -677,7 +677,7 @@
       "item": 8,
       "ok": true,
       "expected": "28",
-      "seconds": 0.4,
+      "seconds": 5.9,
       "tokens": 3,
       "finish": "stop",
       "reply": "28"
@@ -687,7 +687,7 @@
       "item": 9,
       "ok": true,
       "expected": "6",
-      "seconds": 0.4,
+      "seconds": 0.5,
       "tokens": 2,
       "finish": "stop",
       "reply": "6"
@@ -717,7 +717,7 @@
       "item": 12,
       "ok": true,
       "expected": "12",
-      "seconds": 0.7,
+      "seconds": 0.4,
       "tokens": 3,
       "finish": "stop",
       "reply": "12"
@@ -747,7 +747,7 @@
       "item": 15,
       "ok": true,
       "expected": "18",
-      "seconds": 0.5,
+      "seconds": 0.4,
       "tokens": 3,
       "finish": "stop",
       "reply": "18"
@@ -757,7 +757,7 @@
       "item": 16,
       "ok": true,
       "expected": "UNKNOWN",
-      "seconds": 0.4,
+      "seconds": 2.3,
       "tokens": 2,
       "finish": "stop",
       "reply": "UNKNOWN"
@@ -767,7 +767,7 @@
       "item": 17,
       "ok": true,
       "expected": "UNKNOWN",
-      "seconds": 0.4,
+      "seconds": 1.3,
       "tokens": 2,
       "finish": "stop",
       "reply": "UNKNOWN"
@@ -777,7 +777,7 @@
       "item": 18,
       "ok": true,
       "expected": "36",
-      "seconds": 0.4,
+      "seconds": 0.9,
       "tokens": 3,
       "finish": "stop",
       "reply": "36"
@@ -807,7 +807,7 @@
       "item": 1,
       "ok": true,
       "expected": "[redacted: hand-authored trap bank]",
-      "seconds": 0.5,
+      "seconds": 0.4,
       "tokens": 2,
       "finish": "stop",
       "reply": "[redacted: hand-authored trap bank]"
@@ -827,7 +827,7 @@
       "item": 3,
       "ok": true,
       "expected": "[redacted: hand-authored trap bank]",
-      "seconds": 0.4,
+      "seconds": 1.7,
       "tokens": 2,
       "finish": "stop",
       "reply": "[redacted: hand-authored trap bank]"
@@ -837,7 +837,7 @@
       "item": 4,
       "ok": true,
       "expected": "[redacted: hand-authored trap bank]",
-      "seconds": 0.4,
+      "seconds": 0.5,
       "tokens": 2,
       "finish": "stop",
       "reply": "[redacted: hand-authored trap bank]"
@@ -847,7 +847,7 @@
       "item": 5,
       "ok": true,
       "expected": "[redacted: hand-authored trap bank]",
-      "seconds": 0.4,
+      "seconds": 2.0,
       "tokens": 2,
       "finish": "stop",
       "reply": "[redacted: hand-authored trap bank]"
@@ -857,7 +857,7 @@
       "item": 6,
       "ok": true,
       "expected": "[redacted: hand-authored trap bank]",
-      "seconds": 0.7,
+      "seconds": 0.4,
       "tokens": 2,
       "finish": "stop",
       "reply": "[redacted: hand-authored trap bank]"
@@ -877,7 +877,7 @@
       "item": 8,
       "ok": true,
       "expected": "[redacted: hand-authored trap bank]",
-      "seconds": 0.4,
+      "seconds": 0.8,
       "tokens": 2,
       "finish": "stop",
       "reply": "[redacted: hand-authored trap bank]"
@@ -887,7 +887,7 @@
       "item": 9,
       "ok": true,
       "expected": "[redacted: hand-authored trap bank]",
-      "seconds": 0.9,
+      "seconds": 0.3,
       "tokens": 2,
       "finish": "stop",
       "reply": "[redacted: hand-authored trap bank]"
@@ -907,7 +907,7 @@
       "item": 11,
       "ok": true,
       "expected": "[redacted: hand-authored trap bank]",
-      "seconds": 0.5,
+      "seconds": 0.4,
       "tokens": 2,
       "finish": "stop",
       "reply": "[redacted: hand-authored trap bank]"
@@ -937,7 +937,7 @@
       "item": 14,
       "ok": true,
       "expected": "[redacted: hand-authored trap bank]",
-      "seconds": 0.5,
+      "seconds": 4.9,
       "tokens": 2,
       "finish": "stop",
       "reply": "[redacted: hand-authored trap bank]"
@@ -947,7 +947,7 @@
       "item": 1,
       "ok": true,
       "expected": "196",
-      "seconds": 0.7,
+      "seconds": 1.4,
       "tokens": 4,
       "finish": "stop",
       "reply": "196"
@@ -957,7 +957,7 @@
       "item": 2,
       "ok": true,
       "expected": "982",
-      "seconds": 1.8,
+      "seconds": 1.6,
       "tokens": 4,
       "finish": "stop",
       "reply": "982"
@@ -967,7 +967,7 @@
       "item": 3,
       "ok": true,
       "expected": "786",
-      "seconds": 0.9,
+      "seconds": 1.5,
       "tokens": 4,
       "finish": "stop",
       "reply": "786"
@@ -977,7 +977,7 @@
       "item": 4,
       "ok": true,
       "expected": "423",
-      "seconds": 1.1,
+      "seconds": 0.6,
       "tokens": 4,
       "finish": "stop",
       "reply": "423"
@@ -987,7 +987,7 @@
       "item": 5,
       "ok": true,
       "expected": "665",
-      "seconds": 1.6,
+      "seconds": 0.6,
       "tokens": 4,
       "finish": "stop",
       "reply": "665"
@@ -997,7 +997,7 @@
       "item": 6,
       "ok": true,
       "expected": "338",
-      "seconds": 1.7,
+      "seconds": 0.6,
       "tokens": 4,
       "finish": "stop",
       "reply": "338"
@@ -1007,7 +1007,7 @@
       "item": 7,
       "ok": true,
       "expected": "623",
-      "seconds": 2.4,
+      "seconds": 0.6,
       "tokens": 4,
       "finish": "stop",
       "reply": "623"
@@ -1017,7 +1017,7 @@
       "item": 8,
       "ok": true,
       "expected": "134",
-      "seconds": 1.2,
+      "seconds": 0.6,
       "tokens": 4,
       "finish": "stop",
       "reply": "134"

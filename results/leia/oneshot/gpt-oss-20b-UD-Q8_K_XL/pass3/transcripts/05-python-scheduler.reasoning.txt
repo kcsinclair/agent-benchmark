@@ -1,0 +1,33 @@
+We need to produce code for weighted interval scheduling with up to 200k jobs, O(n log n). Use DP with binary search. Need to return indices sorted by start time. Implementation details: jobs list of tuples (start, end, weight). We need to keep original indices. Approach: sort jobs by end time (or start?). Standard algorithm sorts by end time. For each job i in sorted order, compute p[i] = index of last job that ends <= start_i. Use binary search on sorted end times. Then DP[i] = max(DP[i-1], weight_i + DP[p[i]]). Use iterative DP. Need to reconstruct chosen indices: we can keep decision array or reconstruct by walking backwards. We'll store DP array of length n+1 (DP[0] = 0). For i from 1..n: job = sorted_jobs[i-1]. p = binary search result index (0-based). DP[i] = max(DP[i-1], weight + DP[p+1])? Wait careful: if p is index of last job that ends <= start_i, then in sorted order, that job is at position p (0-based). In DP array, DP[j] corresponds to first j jobs (sorted). So DP[p+1] corresponds to including job p. But we need DP[p+1] because DP array offset by 1. Let's define sorted_jobs list of length n. For each i from 0..n-1, compute p[i] as index of last job with end <= start_i, or -1 if none. Then DP[i+1] = max(DP[i], weight_i + DP[p[i]+1]) where DP[0] = 0. That works.
+
+Reconstruction: iterate i from n-1 down to 0. If DP[i+1] == DP[i], skip job i. Else include job i, set i = p[i]. Continue. At the end we have list of selected jobs indices in sorted order (by end). But we need indices sorted by start time. We can sort selected indices by start time (and index tie). But we can also reconstruct in reverse order and then sort. Since n up to 200k, sorting selected indices is fine.
+
+We need to return original indices. So we need to keep mapping from sorted index to original index. We'll store jobs_with_index = [(start, end, weight, orig_index)].
+
+Edge cases: empty list -> return (0.0, []).
+
+Precision: weights are floats. DP uses floats. Use Python float.
+
+Complexities: Sorting O(n log n). Binary search for each job: we can precompute end times list and use bisect_right to find last end <= start. For each job, p = bisect_right(end_times, start) - 1. That gives index of last job with end <= start. Works.
+
+Implementation details: Use bisect module.
+
+Reconstruction: We'll produce list of original indices. After reconstruct, sort by start time. But we need to break ties by index ascending. So we can sort with key lambda idx: (jobs[idx][0], idx). Because jobs list is original unsorted. That ensures start time ascending, tie by index.
+
+Return total_weight = DP[n]. Ensure float.
+
+Testing with example.
+
+Let's craft code.
+
+Potential pitfalls: Recursion limit not used. Use iterative loops.
+
+Memory: DP array of length n+1 floats. p array of length n ints. That's fine.
+
+Edge: large n 200k, memory fine.
+
+Let's produce final code.
+
+Also ensure module has no side effects. Provide function best_schedule.
+
+Let's produce final answer.

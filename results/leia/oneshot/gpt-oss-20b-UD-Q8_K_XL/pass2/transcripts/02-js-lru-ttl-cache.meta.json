@@ -1,0 +1,24 @@
+{
+  "model": "gpt-oss-20b-UD-Q8_K_XL",
+  "served_model": "gpt-oss-20b-UD-Q8_K_XL",
+  "provider": null,
+  "request_id": "chatcmpl-VlZzTx7SnJanCl6mp1pnji8ByKSgNrop",
+  "server": "http://leia.packsin.com:7442",
+  "finish_reason": "stop",
+  "native_finish_reason": null,
+  "mode": "think=off",
+  "decode": {
+    "max_tokens": 16384,
+    "temperature": 0.0,
+    "thinking": "think=off"
+  },
+  "usage": {
+    "completion_tokens": 5053,
+    "prompt_tokens": 682,
+    "total_tokens": 5735,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    }
+  },
+  "seconds": 83.8
+}

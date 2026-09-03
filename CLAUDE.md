@@ -44,15 +44,18 @@ stay comparable with every row in RESULTS.md. `-n` prints the command instead of
 running it, which is the fastest way to check what a profile expands to.
 
 ```bash
-./bench.sh doctor                        # toolchain, harness, profiles, ssh
-./bench.sh selftest                      # 90 self-test cases, then reference = 68/68
+./bench.sh doctor [box]                  # toolchain, harness, profiles, ssh
+./bench.sh selftest                      # 123 self-test cases, then reference = 68/68
 ./bench.sh profiles                      # what is configured; never prints a key
 ./bench.sh models    <profile> [filter]
 ./bench.sh oneshot   <profile> <model>…  # coding, 1 pass, graded
 ./bench.sh oneshot3  <profile> <model>…  # coding, 3 passes, graded
+./bench.sh agent     <profile> <model>…  # tool-use, 1 pass, always graded
+./bench.sh agent3    <profile> <model>…  # tool-use, 3 passes
 ./bench.sh reasoning <profile> <model>…
-./bench.sh all       <profile> <model>…  # both at 3 passes + combined scorecard
-./bench.sh speed                         # llama-bench sweep, then collate
+./bench.sh all       <profile> <model>…  # all three at 3 passes + scorecard
+./bench.sh speed <box> <model|all>       # llama-bench sweep, then collate
+./bench.sh speed-table <box>             # that table again, measuring nothing
 ./bench.sh table                         # one table of every score in results/
 ./bench.sh scrub -- --check              # redact traps before publishing
 ./bench.sh grade <dir> [label]           # -> run_all.sh
@@ -76,13 +79,24 @@ worth knowing when editing this:
   Auth still only attaches to `openrouter.ai` URLs; widening that means changing
   `is_openrouter`/`load_key`, not `bench.sh`.
 
-`bench.sh speed` reaches the box over ssh even when it is the local box, keeping
-one code path. It pins the output directory with `BENCH_SPEED_LABEL` because
-`run_llama_bench.sh` names it after the ssh host — with `--host localhost` the
-numbers would land in `results/localhost/speed`, where `collate_bench.py` can no
-longer join them to the scores. It also passes that directory to
+`bench.sh speed <box> <model|all>` reaches the box over ssh even when it is the
+local box, keeping one code path. **Both arguments are required** — a sweep
+stops `llama-server` on the box for hours, so it is never entered by accident.
+The box names `results/<box>/speed`, which is deliberately not the ssh host:
+`run_llama_bench.sh` names its output after the host, and with
+`BENCH_SPEED_HOST=localhost` the numbers would land in `results/localhost/speed`
+where `collate_bench.py` can no longer join them to the scores. The legacy
+`BENCH_SPEED_{HOST,LABEL,MODELDIR,BINDIR}` pair configures the box named by
+`_LABEL`; a second box is `BENCH_SPEED_<BOX>_{SSH,MODELDIR,BINDIR}`, defaulting
+to the box name as the ssh target. `speed` also passes the output directory to
 `collate_bench.py` explicitly, whose no-argument default is the first
 `results/*/speed` alphabetically.
+
+Model labels are read back out of `run_llama_bench.sh --list` rather than
+duplicated in `bench.sh`, so the `MODELS` table there stays the one place a
+model is declared. A label matches case-insensitively, by `.gguf` basename, or
+by unique substring; an unknown one prints the table and exits 2, an ambiguous
+one prints the candidates. `all` sends no `--models` filter at all.
 
 Full workflow, Linux setup and the failure modes are in RUNNING.md.
 
@@ -113,7 +127,7 @@ Self-tests — run the matching one after touching either script:
 ```bash
 ./benchmark/test_run_all.sh            # 17 cases: hangs, compile failures, bad flags
 ./benchmark/test_extract_submission.sh # 11 cases: transcript shapes, full pipeline
-./benchmark/test_bench.sh              # 41 cases: profile resolution, key never printed
+./benchmark/test_bench.sh              # 74 cases: profile resolution, track flags, key never printed
 ```
 
 `test_bench.sh` runs entirely under `bench.sh -n` against a throwaway `.env`, so
@@ -149,10 +163,19 @@ Agent track and speed sweep:
 ./benchmark/collate_results.py                  # every score, across all labels
 ```
 
+`bench.sh agent`/`agent3` is the profile-driven route to the same script, and
+`bench.sh all` now runs coding, reasoning and agent — agent last, because it is
+the dearest (every turn resends the whole conversation) and the likeliest to
+fail for a reason unrelated to the answers, so the other two are on disk first.
+The combined scorecard gained an agent column beside coding; both are out of 68
+and differ only in whether the model had to operate a tool to score.
+
 `run_agent.py` gives the model `write_file`/`read_file`/`list_files` and grades
 whatever lands in `results/<server>/agent/<model>/`. Note there is **no `-g`**:
 unlike `run_http.py`, grading here is unconditional, so passing `-g` is an
-error that aborts the run before a single request. It has no test-running tool
+error that aborts the run before a single request — `track_agent` therefore
+never adds it and rejects a `-- -g` passthrough up front, since in `all` that
+would otherwise blow up only after the coding track had finished. It has no test-running tool
 on purpose: exposing the graders
 would leak the hidden edge cases and burn the benchmark. It records turns, tool
 calls, malformed calls, stray files, and whether the model answered in prose

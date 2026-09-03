@@ -29,68 +29,63 @@ func Run(ctx context.Context, tasks []Task, workers int) ([]any, error) {
 	results := make([]any, numTasks)
 	
 	// taskChan distributes indices of tasks to be processed.
-	taskChan := make(chan int)
+	taskChan := make(chan int, numTasks)
+	for i := 0; i < numTasks; i++ {
+		taskChan <- i
+	}
+	close(taskChan)
+
+	// errOnce ensures we only capture the first error that occurs.
+	var errOnce sync.Once
+	var firstErr error
 	
-	// errChan captures the first error that occurs.
-	// Buffered to ensure workers don't block if Run has already moved on.
-	errChan := make(chan error, 1)
-	
-	// wg ensures we wait for all started goroutines to finish to prevent leaks.
+	// wg ensures we wait for all started goroutines to finish before returning.
 	var wg sync.WaitGroup
 
-	// Start worker pool.
+	// Start the worker pool.
 	for i := 0; i < workers; i++ {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
 			for {
+				// Check if an error has already occurred or context is cancelled
+				// before attempting to pick up a new task.
 				select {
 				case <-ctx.Done():
 					return
-				case idx, ok := <-taskChan:
-					if !ok {
-						return
-					}
-					
-					res, err := tasks[idx](ctx)
-					if err != nil {
-						// Attempt to send the first error encountered.
-						select {
-						case errChan <- err:
-							cancel() // Signal other workers to stop.
-						default:
-						}
-						return
-					}
-					results[idx] = res
+				default:
 				}
+
+				// Try to get a task index.
+				idx, ok := <-taskChan
+				if !ok {
+					return
+				}
+
+				// Execute the task.
+				res, err := tasks[idx](ctx)
+				if err != nil {
+					errOnce.Do(func() {
+						firstErr = err
+						cancel() // Signal all other workers to stop starting/running.
+					})
+					return
+				}
+
+				results[idx] = res
 			}
 		}()
 	}
 
-	// Feed tasks into the pool.
-	go func() {
-		defer close(taskChan)
-		for i := 0; i < numTasks; i++ {
-			select {
-			case <-ctx.Done():
-				return
-			case taskChan <- i:
-			}
-		}
-	}()
-
-	// Wait for all workers to exit.
 	wg.Wait()
 
-	// Check if an error occurred during execution or via context.
-	select {
-	case err := <-errChan:
-		return nil, err
-	default:
-		if ctx.Err() != nil {
-			return nil, ctx.Err()
-		}
+	// If the parent context was cancelled, that takes precedence or is the cause.
+	if ctx.Err() != nil && firstErr == nil {
+		return nil, ctx.Err()
+	}
+
+	if firstErr != nil {
+		return nil, firstErr
 	}
 
 	return results, nil

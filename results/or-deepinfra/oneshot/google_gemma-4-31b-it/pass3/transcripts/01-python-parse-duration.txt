@@ -12,55 +12,60 @@ def parse_duration(text: str) -> float:
     if not text:
         raise ValueError("Duration string cannot be empty")
 
-    # Handle the leading sign
-    is_negative = False
+    # Handle leading sign
+    multiplier = 1.0
     if text.startswith('-'):
-        is_negative = True
+        multiplier = -1.0
         text = text[1:]
-        if not text:
-            raise ValueError("Duration string contains only a minus sign")
+    elif text.startswith('+'):
+        # Rule 1: No leading '+'
+        raise ValueError("Leading '+' is not allowed")
 
-    # Regex to capture components: (number)(unit)
+    # Regex to find components: (number)(unit)
     # Number: digits, optional dot, digits. 
-    # Note: we must ensure no trailing dot and no bare dot.
-    # The pattern [0-9]*\.?[0-9]+ ensures at least one digit and no trailing dot.
-    # However, the prompt says "no bare . or .5", meaning it must start with a digit.
-    # Correct number pattern: [0-9]+(\.[0-9]+)?
-    pattern = re.compile(r'^([0-9]+(?:\.[0-9]+)?)(h|m|s|ms)$')
+    # Must not start with dot, must not end with dot.
+    # Unit: h, m, s, or ms.
+    pattern = re.compile(r'^(\d+(?:\.\d+)?)(ms|h|m|s)$')
     
+    # We will iterate through the string and extract components
     total_seconds = 0.0
-    units_seen = set()
-    last_unit_rank = -1 # Rank: h=0, m=1, s=2, ms=3
-    unit_map = {'h': 3600.0, 'm': 60.0, 's': 1.0, 'ms': 0.001}
-    unit_rank = {'h': 0, 'm': 1, 's': 2, 'ms': 3}
+    last_unit_rank = 5  # Rank: h=4, m=3, s=2, ms=1. Start higher than any.
+    
+    unit_map = {
+        'h': (3600.0, 4),
+        'm': (60.0, 3),
+        's': (1.0, 2),
+        'ms': (0.001, 1)
+    }
 
-    while text:
-        # We try to match the pattern at the start of the remaining string
-        match = re.match(r'^([0-9]+(?:\.[0-9]+)?)(h|m|s|ms)', text)
+    remaining = text
+    if not remaining:
+        raise ValueError("No duration components found")
+
+    while remaining:
+        # Try to find the longest possible match at the start of the string
+        # Since units can be 's' or 'ms', we check for the match.
+        # We use a regex that captures the number and the unit.
+        match = re.match(r'^(\d+(?:\.\d+)?)(ms|h|m|s)', remaining)
         if not match:
-            raise ValueError(f"Invalid duration format at: {text}")
+            raise ValueError(f"Invalid component or format at: {remaining}")
         
-        val_str, unit = match.groups()
+        num_str, unit_str = match.groups()
         
-        # Validate unit order and uniqueness
-        rank = unit_rank[unit]
-        if rank <= last_unit_rank:
-            raise ValueError(f"Units must be in strictly descending order and not repeated: {unit}")
-        if unit in units_seen:
-            raise ValueError(f"Unit repeated: {unit}")
+        # Validate number format (regex handles most, but ensure no trailing dot)
+        # The regex \d+(?:\.\d+)? ensures it starts with digit and doesn't end with dot.
+        val = float(num_str)
+        seconds_per_unit, rank = unit_map[unit_str]
         
-        # Calculate value
-        total_seconds += float(val_str) * unit_map[unit]
+        # Rule 2: Strictly descending order and no repeats
+        if rank >= last_unit_rank:
+            raise ValueError(f"Units must be in strictly descending order: {unit_str}")
         
-        # Update state
-        units_seen.add(unit)
+        total_seconds += val * seconds_per_unit
         last_unit_rank = rank
-        text = text[match.end():]
+        
+        # Advance the string
+        remaining = remaining[match.end():]
 
-    # If we reached here, we have at least one component (checked by while loop and initial empty check)
-    # but we must ensure the loop actually processed something.
-    if not units_seen:
-        raise ValueError("No valid duration components found")
-
-    return -total_seconds if is_negative else total_seconds
+    return total_seconds * multiplier
 ```

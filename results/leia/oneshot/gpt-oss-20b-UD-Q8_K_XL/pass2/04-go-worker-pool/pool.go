@@ -1,0 +1,89 @@
+package main
+
+import (
+	"context"
+	"errors"
+	"sync"
+)
+
+// Task is one unit of work.
+type Task func(ctx context.Context) (any, error)
+
+// Run executes tasks with at most `workers` running concurrently and returns
+// their results in the same order as the input slice.
+func Run(ctx context.Context, tasks []Task, workers int) ([]any, error) {
+	if workers < 1 {
+		return nil, errors.New("workers must be at least 1")
+	}
+	n := len(tasks)
+	if n == 0 {
+		return []any{}, nil
+	}
+
+	// Context for the workers; cancelled on first error or when the parent ctx is done.
+	ctx2, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	results := make([]any, n)
+	tasksCh := make(chan int, workers) // buffered to avoid blocking sendLoop
+	errCh := make(chan error, 1)       // buffer 1 to capture the first error
+
+	var wg sync.WaitGroup
+	wg.Add(workers)
+
+	worker := func() {
+		defer wg.Done()
+		for idx := range tasksCh {
+			res, err := tasks[idx](ctx2)
+			if err != nil {
+				// Send the first error and cancel the context.
+				select {
+				case errCh <- err:
+					cancel()
+				default:
+				}
+				continue
+			}
+			results[idx] = res
+		}
+	}
+
+	// Start workers.
+	for i := 0; i < workers; i++ {
+		go worker()
+	}
+
+	// Send task indices to workers.
+	go func() {
+		for i := 0; i < n; i++ {
+			select {
+			case <-ctx.Done():
+				close(tasksCh)
+				return
+			case <-errCh:
+				// An error was already reported; stop sending more tasks.
+				close(tasksCh)
+				return
+			case tasksCh <- i:
+			}
+		}
+		close(tasksCh)
+	}()
+
+	// Wait for all workers to finish.
+	wg.Wait()
+
+	// If the parent context was cancelled, return its error.
+	if ctx.Err() != nil {
+		return nil, ctx.Err()
+	}
+
+	// If a task reported an error, return it.
+	select {
+	case err := <-errCh:
+		return nil, err
+	default:
+	}
+
+	return results, nil
+}

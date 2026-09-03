@@ -1,0 +1,24 @@
+{
+  "model": "gemma-4-26B-A4B-it-UD-Q8_K_XL",
+  "served_model": "gemma-4-26B-A4B-it-UD-Q8_K_XL",
+  "provider": null,
+  "request_id": "chatcmpl-Molqtzy4jiyW7WdJ5TO8aUHlMstiXI8e",
+  "server": "http://leia.packsin.com:7442",
+  "finish_reason": "stop",
+  "native_finish_reason": null,
+  "mode": "think=off",
+  "decode": {
+    "max_tokens": 16384,
+    "temperature": 0.0,
+    "thinking": "think=off"
+  },
+  "usage": {
+    "completion_tokens": 1074,
+    "prompt_tokens": 677,
+    "total_tokens": 1751,
+    "prompt_tokens_details": {
+      "cached_tokens": 672
+    }
+  },
+  "seconds": 26.8
+}
