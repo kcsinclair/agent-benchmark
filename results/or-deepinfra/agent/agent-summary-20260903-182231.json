@@ -1,0 +1,145 @@
+{
+  "wall_seconds": 103.1,
+  "track": "agent",
+  "settings": {
+    "temperature": 0.0,
+    "max_tokens": 8192,
+    "max_turns": 12,
+    "think": "off",
+    "repeat": 1,
+    "server": "https://openrouter.ai/api",
+    "provider": "DeepInfra"
+  },
+  "results": [
+    {
+      "model": "google/gemma-4-31b-it",
+      "track": "agent",
+      "load_seconds": null,
+      "passes": [
+        {
+          "pass": 1,
+          "dir": "/opt/agent-benchmark/results/or-deepinfra/agent/google_gemma-4-31b-it",
+          "problems": [
+            {
+              "problem": "01-python-parse-duration",
+              "turns": 2,
+              "tool_calls": 1,
+              "bad_calls": 0,
+              "files": [
+                "parse_duration.py"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 659,
+              "stop": "stopped after 2 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.00056567,
+              "provider": "DeepInfra",
+              "truncated_turns": 0,
+              "empty_replies": 1,
+              "seconds": 14.5,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "02-js-lru-ttl-cache",
+              "turns": 2,
+              "tool_calls": 1,
+              "bad_calls": 0,
+              "files": [
+                "cache.mjs"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 769,
+              "stop": "stopped after 2 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.0006284,
+              "provider": "DeepInfra",
+              "truncated_turns": 0,
+              "empty_replies": 1,
+              "seconds": 18.0,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "03-sql-analytics",
+              "turns": 2,
+              "tool_calls": 4,
+              "bad_calls": 0,
+              "files": [
+                "q1.sql",
+                "q2.sql",
+                "q3.sql",
+                "q4.sql"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 469,
+              "stop": "stopped after 2 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.00049529,
+              "provider": "DeepInfra",
+              "truncated_turns": 0,
+              "empty_replies": 1,
+              "seconds": 13.0,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "04-go-worker-pool",
+              "turns": 2,
+              "tool_calls": 1,
+              "bad_calls": 0,
+              "files": [
+                "pool.go"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 722,
+              "stop": "stopped after 2 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.00059338,
+              "provider": "DeepInfra",
+              "truncated_turns": 0,
+              "empty_replies": 1,
+              "seconds": 26.8,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "05-python-scheduler",
+              "turns": 2,
+              "tool_calls": 1,
+              "bad_calls": 0,
+              "files": [
+                "scheduler.py"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 887,
+              "stop": "stopped after 2 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.0006931299999999999,
+              "provider": "DeepInfra",
+              "truncated_turns": 0,
+              "empty_replies": 1,
+              "seconds": 27.0,
+              "missing": [],
+              "extra": []
+            }
+          ],
+          "seconds": 99.3,
+          "cost_usd": 0.003,
+          "score": 65,
+          "max": 68
+        }
+      ]
+    }
+  ]
+}

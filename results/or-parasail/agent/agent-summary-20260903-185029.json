@@ -1,0 +1,144 @@
+{
+  "wall_seconds": 2.8,
+  "track": "agent",
+  "settings": {
+    "temperature": 0.0,
+    "max_tokens": 8192,
+    "max_turns": 12,
+    "think": "off",
+    "repeat": 1,
+    "server": "https://openrouter.ai/api",
+    "provider": "Parasail"
+  },
+  "results": [
+    {
+      "model": "google/gemma-4-26b-a4b-it",
+      "track": "agent",
+      "load_seconds": null,
+      "passes": [
+        {
+          "pass": 1,
+          "dir": "/opt/agent-benchmark/results/or-parasail/agent/google_gemma-4-26b-a4b-it",
+          "problems": [
+            {
+              "problem": "01-python-parse-duration",
+              "turns": 1,
+              "tool_calls": 0,
+              "bad_calls": 0,
+              "files": [],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 0,
+              "stop": "request failed: HTTP 404: No endpoints found for google/gemma-4-26b-a4b-it. \u2014 no endpoint can serve this request. max_tokens=8192 may exceed the pinned provider's max_completion_tokens; check /v1/models/<slug>/endpoints",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.0,
+              "provider": null,
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 0.5,
+              "missing": [
+                "parse_duration.py"
+              ],
+              "extra": []
+            },
+            {
+              "problem": "02-js-lru-ttl-cache",
+              "turns": 1,
+              "tool_calls": 0,
+              "bad_calls": 0,
+              "files": [],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 0,
+              "stop": "request failed: HTTP 404: No endpoints found for google/gemma-4-26b-a4b-it. \u2014 no endpoint can serve this request. max_tokens=8192 may exceed the pinned provider's max_completion_tokens; check /v1/models/<slug>/endpoints",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.0,
+              "provider": null,
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 0.2,
+              "missing": [
+                "cache.mjs"
+              ],
+              "extra": []
+            },
+            {
+              "problem": "03-sql-analytics",
+              "turns": 1,
+              "tool_calls": 0,
+              "bad_calls": 0,
+              "files": [],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 0,
+              "stop": "request failed: HTTP 404: No endpoints found for google/gemma-4-26b-a4b-it. \u2014 no endpoint can serve this request. max_tokens=8192 may exceed the pinned provider's max_completion_tokens; check /v1/models/<slug>/endpoints",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.0,
+              "provider": null,
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 0.2,
+              "missing": [
+                "q1.sql",
+                "q2.sql",
+                "q3.sql",
+                "q4.sql"
+              ],
+              "extra": []
+            },
+            {
+              "problem": "04-go-worker-pool",
+              "turns": 1,
+              "tool_calls": 0,
+              "bad_calls": 0,
+              "files": [],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 0,
+              "stop": "request failed: HTTP 404: No endpoints found for google/gemma-4-26b-a4b-it. \u2014 no endpoint can serve this request. max_tokens=8192 may exceed the pinned provider's max_completion_tokens; check /v1/models/<slug>/endpoints",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.0,
+              "provider": null,
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 0.2,
+              "missing": [
+                "pool.go"
+              ],
+              "extra": []
+            },
+            {
+              "problem": "05-python-scheduler",
+              "turns": 1,
+              "tool_calls": 0,
+              "bad_calls": 0,
+              "files": [],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 0,
+              "stop": "request failed: HTTP 404: No endpoints found for google/gemma-4-26b-a4b-it. \u2014 no endpoint can serve this request. max_tokens=8192 may exceed the pinned provider's max_completion_tokens; check /v1/models/<slug>/endpoints",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.0,
+              "provider": null,
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 0.2,
+              "missing": [
+                "scheduler.py"
+              ],
+              "extra": []
+            }
+          ],
+          "seconds": 1.3,
+          "score": 0,
+          "max": 68
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,162 @@
+{
+  "wall_seconds": 1675.1,
+  "track": "agent",
+  "settings": {
+    "temperature": 0.0,
+    "max_tokens": 8192,
+    "max_turns": 12,
+    "think": "off",
+    "repeat": 1,
+    "server": "https://openrouter.ai/api",
+    "provider": "DeepInfra"
+  },
+  "results": [
+    {
+      "model": "google/gemma-4-26b-a4b-it",
+      "track": "agent",
+      "load_seconds": null,
+      "passes": [
+        {
+          "pass": 1,
+          "dir": "/opt/agent-benchmark/results/or-deepinfra/agent/google_gemma-4-26b-a4b-it",
+          "problems": [
+            {
+              "problem": "01-python-parse-duration",
+              "turns": 3,
+              "tool_calls": 2,
+              "bad_calls": 0,
+              "files": [
+                "parse_duration.py",
+                "parse_duration.py"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 2039,
+              "stop": "request failed: HTTP 429: Provider returned error",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.00089983,
+              "provider": "DeepInfra",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 116.4,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "02-js-lru-ttl-cache",
+              "turns": 12,
+              "tool_calls": 12,
+              "bad_calls": 0,
+              "files": [
+                "cache.mjs",
+                "test.mjs",
+                "cache.mjs",
+                "test.mjs",
+                "cache.mjs",
+                "test.mjs",
+                "cache.mjs",
+                "cache.mjs",
+                "cache.mjs",
+                "cache.mjs",
+                "cache.mjs",
+                "cache.mjs"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 12260,
+              "stop": "hit the 12 turn limit",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.00986913,
+              "provider": "DeepInfra",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 889.0,
+              "missing": [],
+              "extra": [
+                "test.mjs"
+              ]
+            },
+            {
+              "problem": "03-sql-analytics",
+              "turns": 5,
+              "tool_calls": 4,
+              "bad_calls": 0,
+              "files": [
+                "q1.sql",
+                "q2.sql",
+                "q3.sql",
+                "q4.sql"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 586,
+              "stop": "stopped after 5 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.00062239,
+              "provider": "DeepInfra",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 53.5,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "04-go-worker-pool",
+              "turns": 3,
+              "tool_calls": 2,
+              "bad_calls": 0,
+              "files": [
+                "pool.go"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 2139,
+              "stop": "stopped after 3 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.00106473,
+              "provider": "DeepInfra",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 264.9,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "05-python-scheduler",
+              "turns": 5,
+              "tool_calls": 4,
+              "bad_calls": 0,
+              "files": [
+                "scheduler.py",
+                "scheduler.py",
+                "scheduler.py",
+                "scheduler.py"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 4725,
+              "stop": "request failed: HTTP 429: Provider returned error",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.00249165,
+              "provider": "DeepInfra",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 347.4,
+              "missing": [],
+              "extra": []
+            }
+          ],
+          "seconds": 1671.2,
+          "cost_usd": 0.0149,
+          "score": 68,
+          "max": 68
+        }
+      ]
+    }
+  ]
+}
