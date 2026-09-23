@@ -261,7 +261,7 @@ Three things differ from the llama.cpp path and all three are traps:
   benchmark scores Q4_K_M and Q8_0 as separate contestants, an unpinned
   open-weight run can silently be a worse quantisation than the local GGUF it is
   being compared against. List the endpoints and their quantisation with
-  `/v1/models/<slug>/endpoints` before choosing. The runner records the served
+  `/v1/models/<author>/<slug>/endpoints` before choosing. The runner records the served
   provider in every `.meta.json` and flags a pass that drew on more than one.
 - **Decode parameters are per model, not fleet-wide.** Frontier Claude models
   reject `temperature`, so the runner drops it for any model whose

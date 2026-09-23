@@ -1,0 +1,142 @@
+```go
+package main
+
+import (
+	"context"
+	"errors"
+	"sync"
+)
+
+// Task is one unit of work.
+type Task func(ctx context.Context) (any, error)
+
+// Run executes tasks with at most `workers` running concurrently and returns
+// their results in the same order as the input slice.
+func Run(ctx context.Context, tasks []Task, workers int) ([]any, error) {
+	if workers < 1 {
+		return nil, errors.New("workers must be at least 1")
+	}
+	if len(tasks) == 0 {
+		return []any{}, nil
+	}
+
+	// Create a cancellable context that is cancelled when the first error
+	// occurs or when the parent context is cancelled.
+	taskCtx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	results := make([]any, len(tasks))
+
+	// We need to track the first error that occurred.
+	var firstErr error
+	var firstErrOnce sync.Once
+
+	// We need to track which tasks have been started so we can wait for them.
+	// We'll use a semaphore pattern: a channel of size `workers` to limit concurrency.
+	sem := make(chan struct{}, workers)
+
+	// We need to know when all started tasks have completed.
+	var wg sync.WaitGroup
+
+	// We need to track the index of the first error to return it.
+	// Actually, we just need the error itself.
+
+	// We'll iterate through tasks and start them if we can acquire a semaphore slot.
+	// But we need to be careful: if an error occurs, we should stop starting new tasks.
+	// We can use a flag or check the context.
+
+	// Let's use a different approach:
+	// - For each task, try to acquire a semaphore slot.
+	// - If we can't acquire it (because all workers are busy), we wait.
+	// - But if an error has occurred, we should not start new tasks.
+	// - We can check if taskCtx is done before starting a new task.
+
+	// Actually, a cleaner approach:
+	// - Use a worker pool pattern where we have `workers` goroutines that pull from a channel of task indices.
+	// - But we need to handle the case where an error occurs and we need to stop.
+
+	// Let me think about this more carefully.
+	// 
+	// Approach:
+	// 1. Create a channel to send task indices to workers.
+	// 2. Start `workers` goroutines that read from this channel.
+	// 3. For each task index, send it to the channel.
+	// 4. If an error occurs, cancel the context and stop sending new tasks.
+	// 5. Wait for all workers to finish.
+	//
+	// But we need to ensure that tasks that haven't started don't start.
+	// We can do this by checking if the context is cancelled before starting a task.
+	//
+	// Let's use a simpler approach:
+	// - Iterate through tasks.
+	// - For each task, try to acquire a semaphore slot.
+	// - If we can acquire it, start the task in a goroutine.
+	// - If we can't acquire it, wait for a slot to become available.
+	// - But if an error has occurred, we should not start new tasks.
+	//
+	// Actually, the cleanest approach is:
+	// - Use a channel of size `workers` as a semaphore.
+	// - For each task, send to the semaphore (blocking if full).
+	// - Start the task in a goroutine.
+	// - In the goroutine, run the task, then release the semaphore.
+	// - If an error occurs, cancel the context.
+	// - Before starting a new task, check if the context is cancelled.
+	//
+	// But there's a subtlety: if we're blocked on sending to the semaphore, and an error occurs,
+	// we need to unblock. We can use select with the context's done channel.
+
+	// Let's implement this:
+
+	for i, task := range tasks {
+		// Check if the context is already cancelled.
+		select {
+		case <-taskCtx.Done():
+			// Context was cancelled, stop starting new tasks.
+			// We need to wait for already-started tasks to finish.
+			wg.Wait()
+			if firstErr != nil {
+				return nil, firstErr
+			}
+			return nil, taskCtx.Err()
+		default:
+		}
+
+		// Try to acquire a semaphore slot.
+		select {
+		case sem <- struct{}{}:
+			// Acquired a slot, start the task.
+		case <-taskCtx.Done():
+			// Context was cancelled while waiting for a slot.
+			wg.Wait()
+			if firstErr != nil {
+				return nil, firstErr
+			}
+			return nil, taskCtx.Err()
+		}
+
+		wg.Add(1)
+		go func(idx int, t Task) {
+			defer wg.Done()
+			defer func() { <-sem }() // Release the semaphore slot.
+
+			result, err := t(taskCtx)
+			if err != nil {
+				firstErrOnce.Do(func() {
+					firstErr = err
+					cancel() // Cancel the context to stop other tasks.
+				})
+			} else {
+				results[idx] = result
+			}
+		}(i, task)
+	}
+
+	// Wait for all started tasks to finish.
+	wg.Wait()
+
+	if firstErr != nil {
+		return nil, firstErr
+	}
+	return results, nil
+}
+```

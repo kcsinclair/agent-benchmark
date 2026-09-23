@@ -1,0 +1,161 @@
+{
+  "wall_seconds": 532.8,
+  "track": "reasoning",
+  "settings": {
+    "temperature": 0.0,
+    "max_tokens": 2048,
+    "think": "off",
+    "repeat": 3,
+    "seed": 1,
+    "server": "http://leia.packsin.com:7442",
+    "categories": [
+      "state",
+      "constraint",
+      "compliance",
+      "abstention",
+      "trap",
+      "retrieval"
+    ],
+    "provider": ""
+  },
+  "results": [
+    {
+      "model": "Nemotron-3-Nano-30B-A3B-Q4_K_M",
+      "load_seconds": 0.9,
+      "passes": [
+        {
+          "pass": 1,
+          "dir": "/opt/agent-benchmark/results/leia/reasoning/Nemotron-3-Nano-30B-A3B-Q4_K_M/pass1",
+          "totals": {
+            "state": {
+              "right": 3,
+              "count": 20,
+              "seconds": 21.6,
+              "failed": 0
+            },
+            "constraint": {
+              "right": 7,
+              "count": 20,
+              "seconds": 21.1,
+              "failed": 0
+            },
+            "compliance": {
+              "right": 8,
+              "count": 20,
+              "seconds": 17.3,
+              "failed": 0
+            },
+            "abstention": {
+              "right": 20,
+              "count": 20,
+              "seconds": 22.2,
+              "failed": 0
+            },
+            "trap": {
+              "right": 12,
+              "count": 14,
+              "seconds": 14.7,
+              "failed": 0
+            },
+            "retrieval": {
+              "right": 1,
+              "count": 8,
+              "seconds": 79.9,
+              "failed": 0
+            }
+          },
+          "right": 51,
+          "count": 102
+        },
+        {
+          "pass": 2,
+          "dir": "/opt/agent-benchmark/results/leia/reasoning/Nemotron-3-Nano-30B-A3B-Q4_K_M/pass2",
+          "totals": {
+            "state": {
+              "right": 3,
+              "count": 20,
+              "seconds": 21.7,
+              "failed": 0
+            },
+            "constraint": {
+              "right": 7,
+              "count": 20,
+              "seconds": 21.3,
+              "failed": 0
+            },
+            "compliance": {
+              "right": 8,
+              "count": 20,
+              "seconds": 17.4,
+              "failed": 0
+            },
+            "abstention": {
+              "right": 20,
+              "count": 20,
+              "seconds": 22.2,
+              "failed": 0
+            },
+            "trap": {
+              "right": 12,
+              "count": 14,
+              "seconds": 14.8,
+              "failed": 0
+            },
+            "retrieval": {
+              "right": 1,
+              "count": 8,
+              "seconds": 80.0,
+              "failed": 0
+            }
+          },
+          "right": 51,
+          "count": 102
+        },
+        {
+          "pass": 3,
+          "dir": "/opt/agent-benchmark/results/leia/reasoning/Nemotron-3-Nano-30B-A3B-Q4_K_M/pass3",
+          "totals": {
+            "state": {
+              "right": 3,
+              "count": 20,
+              "seconds": 21.7,
+              "failed": 0
+            },
+            "constraint": {
+              "right": 7,
+              "count": 20,
+              "seconds": 21.3,
+              "failed": 0
+            },
+            "compliance": {
+              "right": 8,
+              "count": 20,
+              "seconds": 17.5,
+              "failed": 0
+            },
+            "abstention": {
+              "right": 20,
+              "count": 20,
+              "seconds": 22.2,
+              "failed": 0
+            },
+            "trap": {
+              "right": 12,
+              "count": 14,
+              "seconds": 14.8,
+              "failed": 0
+            },
+            "retrieval": {
+              "right": 1,
+              "count": 8,
+              "seconds": 80.0,
+              "failed": 0
+            }
+          },
+          "right": 51,
+          "count": 102
+        }
+      ]
+    }
+  ]
+}

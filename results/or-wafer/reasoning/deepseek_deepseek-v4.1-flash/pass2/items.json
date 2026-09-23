@@ -1,0 +1,1026 @@
+{
+  "model": "deepseek/deepseek-v4.1-flash",
+  "seed": 1,
+  "results": [
+    {
+      "category": "state",
+      "item": 1,
+      "ok": false,
+      "expected": "8",
+      "seconds": 0.9,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "13"
+    },
+    {
+      "category": "state",
+      "item": 2,
+      "ok": false,
+      "expected": "26",
+      "seconds": 0.7,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "43"
+    },
+    {
+      "category": "state",
+      "item": 3,
+      "ok": false,
+      "expected": "4",
+      "seconds": 0.9,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "8"
+    },
+    {
+      "category": "state",
+      "item": 4,
+      "ok": true,
+      "expected": "3",
+      "seconds": 1.2,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "3"
+    },
+    {
+      "category": "state",
+      "item": 5,
+      "ok": false,
+      "expected": "36",
+      "seconds": 1.1,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "30"
+    },
+    {
+      "category": "state",
+      "item": 6,
+      "ok": false,
+      "expected": "11",
+      "seconds": 0.9,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "22"
+    },
+    {
+      "category": "state",
+      "item": 7,
+      "ok": false,
+      "expected": "14",
+      "seconds": 0.8,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "10"
+    },
+    {
+      "category": "state",
+      "item": 8,
+      "ok": true,
+      "expected": "11",
+      "seconds": 1.3,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "11"
+    },
+    {
+      "category": "state",
+      "item": 9,
+      "ok": false,
+      "expected": "7",
+      "seconds": 1.1,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "9"
+    },
+    {
+      "category": "state",
+      "item": 10,
+      "ok": true,
+      "expected": "5",
+      "seconds": 0.8,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "5"
+    },
+    {
+      "category": "state",
+      "item": 11,
+      "ok": false,
+      "expected": "4",
+      "seconds": 0.8,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "10"
+    },
+    {
+      "category": "state",
+      "item": 12,
+      "ok": false,
+      "expected": "13",
+      "seconds": 0.8,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "0"
+    },
+    {
+      "category": "state",
+      "item": 13,
+      "ok": false,
+      "expected": "1",
+      "seconds": 0.7,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "5"
+    },
+    {
+      "category": "state",
+      "item": 14,
+      "ok": false,
+      "expected": "0",
+      "seconds": 0.7,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "5"
+    },
+    {
+      "category": "state",
+      "item": 15,
+      "ok": false,
+      "expected": "8",
+      "seconds": 0.8,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "14"
+    },
+    {
+      "category": "state",
+      "item": 16,
+      "ok": false,
+      "expected": "15",
+      "seconds": 0.7,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "0"
+    },
+    {
+      "category": "state",
+      "item": 17,
+      "ok": false,
+      "expected": "1",
+      "seconds": 0.7,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "7"
+    },
+    {
+      "category": "state",
+      "item": 18,
+      "ok": false,
+      "expected": "15",
+      "seconds": 0.7,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "24"
+    },
+    {
+      "category": "state",
+      "item": 19,
+      "ok": false,
+      "expected": "7",
+      "seconds": 0.7,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "6"
+    },
+    {
+      "category": "state",
+      "item": 20,
+      "ok": false,
+      "expected": "5",
+      "seconds": 0.9,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "0"
+    },
+    {
+      "category": "constraint",
+      "item": 1,
+      "ok": false,
+      "expected": "2",
+      "seconds": 0.7,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "3"
+    },
+    {
+      "category": "constraint",
+      "item": 2,
+      "ok": true,
+      "expected": "2",
+      "seconds": 4.5,
+      "tokens": 352,
+      "finish": "stop",
+      "reply": "Let\u2019s reason this through step by step.\n\nWe have four people: Eve, Fay, Ben, Cara. Positions are 1\u20134.\n\n---\n\n**Clue 1:** Cara is somewhere before Fay \u2192 C < F in position numbers.\n\n**Clue 3:** Fay is somewhere before Ben \u2192 F < B.\n\nFrom clues 1 and 3: C < F < B.\n\n**Clue 2:** Ben and Fay are next to each other. Since F < B, positions must be consecutive with Fay immediately before Ben.\n\nSo possible (F, B) position pairs: (1,2), (2,3), (3,4).\n\nBut from C < F, if F = 1, then C would have to be before 1, impossible.  \nIf F = 2, then C = 1 works, B = 3.  \nIf F = 3, then C can be 1 or 2, B = 4 works.\n\nSo possible:\n\n- Option A: C=1, F=2, B=3. Remaining position 4 is Eve.\n- Option B: F=3, B=4. Positions 1 and 2 left for C and E, with C < E (from clue 5: Cara before Eve). That would put C=1, E=2.\n\n**Clue 4:** Eve is not in position 2.\n\nCheck Option A: Eve = 4 (okay).  \nCheck Option B: Eve = 2 (not allowed).\n\nSo only Option A works: C=1, F=2, B=3, E=4.\n\n---\n\nThus Fay is in position **2**.\n\n---\n\n**2**"
+    },
+    {
+      "category": "constraint",
+      "item": 3,
+      "ok": false,
+      "expected": "1",
+      "seconds": 0.7,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "2"
+    },
+    {
+      "category": "constraint",
+      "item": 4,
+      "ok": false,
+      "expected": "3",
+      "seconds": 0.7,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "2"
+    },
+    {
+      "category": "constraint",
+      "item": 5,
+      "ok": false,
+      "expected": "2",
+      "seconds": 1.1,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "1"
+    },
+    {
+      "category": "constraint",
+      "item": 6,
+      "ok": false,
+      "expected": "2",
+      "seconds": 0.6,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "3"
+    },
+    {
+      "category": "constraint",
+      "item": 7,
+      "ok": false,
+      "expected": "2",
+      "seconds": 0.8,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "3"
+    },
+    {
+      "category": "constraint",
+      "item": 8,
+      "ok": false,
+      "expected": "2",
+      "seconds": 0.8,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "3"
+    },
+    {
+      "category": "constraint",
+      "item": 9,
+      "ok": true,
+      "expected": "3",
+      "seconds": 0.7,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "3"
+    },
+    {
+      "category": "constraint",
+      "item": 10,
+      "ok": true,
+      "expected": "4",
+      "seconds": 0.7,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "4"
+    },
+    {
+      "category": "constraint",
+      "item": 11,
+      "ok": true,
+      "expected": "3",
+      "seconds": 0.9,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "3"
+    },
+    {
+      "category": "constraint",
+      "item": 12,
+      "ok": false,
+      "expected": "1",
+      "seconds": 0.7,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "3"
+    },
+    {
+      "category": "constraint",
+      "item": 13,
+      "ok": false,
+      "expected": "2",
+      "seconds": 0.7,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "3"
+    },
+    {
+      "category": "constraint",
+      "item": 14,
+      "ok": true,
+      "expected": "3",
+      "seconds": 0.6,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "3"
+    },
+    {
+      "category": "constraint",
+      "item": 15,
+      "ok": false,
+      "expected": "2",
+      "seconds": 1.3,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "1"
+    },
+    {
+      "category": "constraint",
+      "item": 16,
+      "ok": false,
+      "expected": "4",
+      "seconds": 0.6,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "3"
+    },
+    {
+      "category": "constraint",
+      "item": 17,
+      "ok": false,
+      "expected": "4",
+      "seconds": 0.6,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "3"
+    },
+    {
+      "category": "constraint",
+      "item": 18,
+      "ok": true,
+      "expected": "3",
+      "seconds": 0.8,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "3"
+    },
+    {
+      "category": "constraint",
+      "item": 19,
+      "ok": false,
+      "expected": "3",
+      "seconds": 0.6,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "2"
+    },
+    {
+      "category": "constraint",
+      "item": 20,
+      "ok": true,
+      "expected": "2",
+      "seconds": 0.7,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "2"
+    },
+    {
+      "category": "compliance",
+      "item": 1,
+      "ok": true,
+      "expected": "cedar,birch,alder",
+      "seconds": 3.1,
+      "tokens": 9,
+      "finish": "stop",
+      "reply": "cedar,birch,alder"
+    },
+    {
+      "category": "compliance",
+      "item": 2,
+      "ok": true,
+      "expected": "vast blue salty",
+      "seconds": 0.8,
+      "tokens": 4,
+      "finish": "stop",
+      "reply": "vast deep blue"
+    },
+    {
+      "category": "compliance",
+      "item": 3,
+      "ok": true,
+      "expected": "Chile",
+      "seconds": 0.7,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "Egypt"
+    },
+    {
+      "category": "compliance",
+      "item": 4,
+      "ok": true,
+      "expected": "vast blue salty",
+      "seconds": 0.6,
+      "tokens": 4,
+      "finish": "stop",
+      "reply": "deep blue vast"
+    },
+    {
+      "category": "compliance",
+      "item": 5,
+      "ok": true,
+      "expected": "PARIS",
+      "seconds": 0.6,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "PARIS"
+    },
+    {
+      "category": "compliance",
+      "item": 6,
+      "ok": true,
+      "expected": "vast blue salty",
+      "seconds": 0.7,
+      "tokens": 4,
+      "finish": "stop",
+      "reply": "vast deep blue"
+    },
+    {
+      "category": "compliance",
+      "item": 7,
+      "ok": true,
+      "expected": "85",
+      "seconds": 0.7,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "85"
+    },
+    {
+      "category": "compliance",
+      "item": 8,
+      "ok": false,
+      "expected": "the seven quiet river runs far",
+      "seconds": 0.8,
+      "tokens": 7,
+      "finish": "stop",
+      "reply": "it was seven days before dawn"
+    },
+    {
+      "category": "compliance",
+      "item": 9,
+      "ok": true,
+      "expected": "cedar,birch,alder",
+      "seconds": 0.8,
+      "tokens": 9,
+      "finish": "stop",
+      "reply": "cedar,birch,alder"
+    },
+    {
+      "category": "compliance",
+      "item": 10,
+      "ok": true,
+      "expected": "vast blue salty cold deep",
+      "seconds": 1.1,
+      "tokens": 6,
+      "finish": "stop",
+      "reply": "vast deep blue endless calm"
+    },
+    {
+      "category": "compliance",
+      "item": 11,
+      "ok": true,
+      "expected": "red green blue",
+      "seconds": 0.9,
+      "tokens": 4,
+      "finish": "stop",
+      "reply": "red green blue"
+    },
+    {
+      "category": "compliance",
+      "item": 12,
+      "ok": true,
+      "expected": "vast blue salty cold deep",
+      "seconds": 0.8,
+      "tokens": 6,
+      "finish": "stop",
+      "reply": "vast deep blue endless calm"
+    },
+    {
+      "category": "compliance",
+      "item": 13,
+      "ok": true,
+      "expected": "the blue quiet river runs far",
+      "seconds": 0.8,
+      "tokens": 7,
+      "finish": "stop",
+      "reply": "the blue bird sings very softly"
+    },
+    {
+      "category": "compliance",
+      "item": 14,
+      "ok": true,
+      "expected": "Chile",
+      "seconds": 1.4,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "Peru"
+    },
+    {
+      "category": "compliance",
+      "item": 15,
+      "ok": true,
+      "expected": "{\"animal\":\"raven\",\"x\":7,\"total\":23}",
+      "seconds": 0.8,
+      "tokens": 14,
+      "finish": "stop",
+      "reply": "{\"animal\":\"raven\",\"x\":7,\"total\":23}"
+    },
+    {
+      "category": "compliance",
+      "item": 16,
+      "ok": true,
+      "expected": "cedar,birch,alder",
+      "seconds": 0.8,
+      "tokens": 9,
+      "finish": "stop",
+      "reply": "cedar,birch,alder"
+    },
+    {
+      "category": "compliance",
+      "item": 17,
+      "ok": false,
+      "expected": "vast blue salty cold deep",
+      "seconds": 1.1,
+      "tokens": 5,
+      "finish": "stop",
+      "reply": "vast endless deep blue"
+    },
+    {
+      "category": "compliance",
+      "item": 18,
+      "ok": true,
+      "expected": "red green blue",
+      "seconds": 0.8,
+      "tokens": 4,
+      "finish": "stop",
+      "reply": "red green blue"
+    },
+    {
+      "category": "compliance",
+      "item": 19,
+      "ok": true,
+      "expected": "vast blue salty cold",
+      "seconds": 0.8,
+      "tokens": 6,
+      "finish": "stop",
+      "reply": "Vast deep endless blue"
+    },
+    {
+      "category": "compliance",
+      "item": 20,
+      "ok": true,
+      "expected": "cedar,birch,alder",
+      "seconds": 1.7,
+      "tokens": 9,
+      "finish": "stop",
+      "reply": "cedar,birch,alder"
+    },
+    {
+      "category": "abstention",
+      "item": 1,
+      "ok": true,
+      "expected": "3",
+      "seconds": 0.9,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "3"
+    },
+    {
+      "category": "abstention",
+      "item": 2,
+      "ok": true,
+      "expected": "UNKNOWN",
+      "seconds": 0.7,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "UNKNOWN"
+    },
+    {
+      "category": "abstention",
+      "item": 3,
+      "ok": true,
+      "expected": "5",
+      "seconds": 1.3,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "5"
+    },
+    {
+      "category": "abstention",
+      "item": 4,
+      "ok": true,
+      "expected": "UNKNOWN",
+      "seconds": 0.7,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "UNKNOWN"
+    },
+    {
+      "category": "abstention",
+      "item": 5,
+      "ok": true,
+      "expected": "UNKNOWN",
+      "seconds": 0.8,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "UNKNOWN"
+    },
+    {
+      "category": "abstention",
+      "item": 6,
+      "ok": true,
+      "expected": "27",
+      "seconds": 0.7,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "27"
+    },
+    {
+      "category": "abstention",
+      "item": 7,
+      "ok": true,
+      "expected": "UNKNOWN",
+      "seconds": 0.9,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "UNKNOWN"
+    },
+    {
+      "category": "abstention",
+      "item": 8,
+      "ok": true,
+      "expected": "28",
+      "seconds": 1.0,
+      "tokens": 10,
+      "finish": "stop",
+      "reply": "7 * 4 = 28\n28"
+    },
+    {
+      "category": "abstention",
+      "item": 9,
+      "ok": true,
+      "expected": "6",
+      "seconds": 0.8,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "6"
+    },
+    {
+      "category": "abstention",
+      "item": 10,
+      "ok": true,
+      "expected": "UNKNOWN",
+      "seconds": 0.8,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "UNKNOWN"
+    },
+    {
+      "category": "abstention",
+      "item": 11,
+      "ok": true,
+      "expected": "24",
+      "seconds": 1.0,
+      "tokens": 8,
+      "finish": "stop",
+      "reply": "6 \u00d7 4 = 24"
+    },
+    {
+      "category": "abstention",
+      "item": 12,
+      "ok": true,
+      "expected": "12",
+      "seconds": 0.8,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "12"
+    },
+    {
+      "category": "abstention",
+      "item": 13,
+      "ok": true,
+      "expected": "9",
+      "seconds": 0.8,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "9"
+    },
+    {
+      "category": "abstention",
+      "item": 14,
+      "ok": true,
+      "expected": "UNKNOWN",
+      "seconds": 0.9,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "UNKNOWN"
+    },
+    {
+      "category": "abstention",
+      "item": 15,
+      "ok": true,
+      "expected": "18",
+      "seconds": 0.8,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "18"
+    },
+    {
+      "category": "abstention",
+      "item": 16,
+      "ok": true,
+      "expected": "UNKNOWN",
+      "seconds": 1.0,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "UNKNOWN"
+    },
+    {
+      "category": "abstention",
+      "item": 17,
+      "ok": true,
+      "expected": "UNKNOWN",
+      "seconds": 0.9,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "UNKNOWN"
+    },
+    {
+      "category": "abstention",
+      "item": 18,
+      "ok": true,
+      "expected": "36",
+      "seconds": 1.1,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "36"
+    },
+    {
+      "category": "abstention",
+      "item": 19,
+      "ok": true,
+      "expected": "6",
+      "seconds": 0.8,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "6"
+    },
+    {
+      "category": "abstention",
+      "item": 20,
+      "ok": true,
+      "expected": "8",
+      "seconds": 0.9,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "8"
+    },
+    {
+      "category": "trap",
+      "item": 1,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 0.8,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 2,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 1.2,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 3,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 0.7,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 4,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 2.2,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 5,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 0.6,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 6,
+      "ok": false,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 0.7,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 7,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 0.7,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 8,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 1.0,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 9,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 0.7,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 10,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 0.7,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 11,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 0.7,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 12,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 0.8,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 13,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 1.0,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 14,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 0.8,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "retrieval",
+      "item": 1,
+      "ok": true,
+      "expected": "196",
+      "seconds": 0.8,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "196"
+    },
+    {
+      "category": "retrieval",
+      "item": 2,
+      "ok": true,
+      "expected": "982",
+      "seconds": 1.0,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "982"
+    },
+    {
+      "category": "retrieval",
+      "item": 3,
+      "ok": true,
+      "expected": "786",
+      "seconds": 1.8,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "786"
+    },
+    {
+      "category": "retrieval",
+      "item": 4,
+      "ok": true,
+      "expected": "423",
+      "seconds": 0.9,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "423"
+    },
+    {
+      "category": "retrieval",
+      "item": 5,
+      "ok": true,
+      "expected": "665",
+      "seconds": 0.8,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "665"
+    },
+    {
+      "category": "retrieval",
+      "item": 6,
+      "ok": true,
+      "expected": "338",
+      "seconds": 1.6,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "338"
+    },
+    {
+      "category": "retrieval",
+      "item": 7,
+      "ok": true,
+      "expected": "623",
+      "seconds": 8.0,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "623"
+    },
+    {
+      "category": "retrieval",
+      "item": 8,
+      "ok": true,
+      "expected": "134",
+      "seconds": 1.8,
+      "tokens": 2,
+      "finish": "stop",
+      "reply": "134"
+    }
+  ]
+}

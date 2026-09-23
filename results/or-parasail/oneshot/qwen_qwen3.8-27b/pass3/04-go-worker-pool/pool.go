@@ -1,0 +1,151 @@
+package main
+
+import (
+	"context"
+	"errors"
+	"sync"
+)
+
+// Task is one unit of work.
+type Task func(ctx context.Context) (any, error)
+
+// Run executes tasks with at most `workers` running concurrently and returns
+// their results in the same order as the input slice.
+func Run(ctx context.Context, tasks []Task, workers int) ([]any, error) {
+	if workers < 1 {
+		return nil, errors.New("workers must be at least 1")
+	}
+	if len(tasks) == 0 {
+		return []any{}, nil
+	}
+
+	// Create a cancellable context that is cancelled when the first error
+	// occurs or when the parent context is cancelled.
+	taskCtx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	results := make([]any, len(tasks))
+
+	// We need to track the first error that occurred.
+	var firstErr error
+	var firstErrOnce sync.Once
+
+	// We need to track which tasks have been started so we can wait for them.
+	// We'll use a semaphore pattern: a channel of size `workers` to limit concurrency.
+	sem := make(chan struct{}, workers)
+
+	// We need to know when all started tasks have completed.
+	var wg sync.WaitGroup
+
+	// We need to track the index of the first error to return it.
+	// Actually, we just need the error itself.
+
+	// We'll iterate through tasks and start them if we can acquire a semaphore slot.
+	// But we need to be careful: if an error occurs, we should stop starting new tasks.
+	// We can use a flag or check if the context is done.
+
+	// Let's use a different approach:
+	// 1. Create a channel to signal that an error has occurred.
+	// 2. For each task, try to acquire a semaphore slot. If we can't, wait.
+	// 3. Before starting a task, check if an error has already occurred or if ctx is done.
+	// 4. If not, start the task in a goroutine.
+
+	// Actually, a cleaner approach:
+	// - Use a worker pool pattern where we have `workers` goroutines pulling from a task queue.
+	// - But we need to preserve order and handle errors properly.
+
+	// Let me think again. The requirement is:
+	// - At most `workers` tasks running concurrently.
+	// - Results in order.
+	// - Fail fast: if any task errors, stop starting new tasks, cancel running ones, wait for them.
+
+	// Approach:
+	// 1. Create a cancellable context.
+	// 2. Use a semaphore (channel of size `workers`) to limit concurrency.
+	// 3. For each task index i:
+	//    a. Check if taskCtx is done (either parent cancelled or first error occurred).
+	//    b. If done, break out of the loop (don't start more tasks).
+	//    c. Acquire a semaphore slot (this blocks if `workers` tasks are already running).
+	//    d. Check again if taskCtx is done (in case it was cancelled while we were waiting for a slot).
+	//    e. If done, release the slot and break.
+	//    f. Start the task in a goroutine:
+	//       - Run the task with taskCtx.
+	//       - If the task returns an error, record it as the first error (using sync.Once) and cancel taskCtx.
+	//       - Store the result in results[i].
+	//       - Release the semaphore slot.
+	//       - Decrement the wait group.
+	// 4. Wait for all started tasks to complete.
+	// 5. If there was a first error, return (nil, firstErr).
+	// 6. If the parent ctx was cancelled, return (nil, ctx.Err()).
+	// 7. Otherwise, return (results, nil).
+
+	// Wait, there's a subtlety: if the parent ctx is cancelled, we should return ctx.Err().
+	// If a task errors, we should return that error.
+	// We need to distinguish between these two cases.
+
+	// Let me refine:
+	// - Track whether the first error was due to a task error or due to parent ctx cancellation.
+	// - Actually, if parent ctx is cancelled, taskCtx is also cancelled. Tasks that are running
+	//   will see the cancellation. But the error we return should be ctx.Err() from the parent.
+
+	// Let's use a variable to track the first task error.
+	// And check if the parent ctx is done at the end.
+
+	// Revised approach:
+	var mu sync.Mutex
+	var firstTaskErr error
+	var hasTaskErr bool
+
+	// We'll use a channel to signal that we should stop starting new tasks.
+	// Actually, we can just check taskCtx.Err() before starting each task.
+
+	// Let's implement it:
+
+	for i, task := range tasks {
+		// Check if we should stop starting new tasks.
+		if taskCtx.Err() != nil {
+			break
+		}
+
+		// Acquire a semaphore slot.
+		sem <- struct{}{}
+
+		// Check again after acquiring the slot.
+		if taskCtx.Err() != nil {
+			<-sem
+			break
+		}
+
+		wg.Add(1)
+		go func(idx int, t Task) {
+			defer wg.Done()
+			defer func() { <-sem }()
+
+			result, err := t(taskCtx)
+			if err != nil {
+				mu.Lock()
+				if !hasTaskErr {
+					hasTaskErr = true
+					firstTaskErr = err
+				}
+				mu.Unlock()
+				cancel() // Cancel the task context to stop other tasks.
+			} else {
+				results[idx] = result
+			}
+		}(i, task)
+	}
+
+	// Wait for all started tasks to complete.
+	wg.Wait()
+
+	// Determine the error to return.
+	if hasTaskErr {
+		return nil, firstTaskErr
+	}
+	if ctx.Err() != nil {
+		return nil, ctx.Err()
+	}
+
+	return results, nil
+}

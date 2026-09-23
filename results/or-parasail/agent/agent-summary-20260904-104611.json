@@ -1,0 +1,399 @@
+{
+  "wall_seconds": 291.1,
+  "track": "agent",
+  "settings": {
+    "temperature": 0.0,
+    "max_tokens": 8192,
+    "max_turns": 12,
+    "think": "off",
+    "repeat": 3,
+    "server": "https://openrouter.ai/api",
+    "provider": "Parasail"
+  },
+  "results": [
+    {
+      "model": "qwen/qwen3.8-27b",
+      "track": "agent",
+      "load_seconds": null,
+      "passes": [
+        {
+          "pass": 1,
+          "dir": "/opt/agent-benchmark/results/or-parasail/agent/qwen_qwen3.8-27b/pass1",
+          "problems": [
+            {
+              "problem": "01-python-parse-duration",
+              "turns": 3,
+              "tool_calls": 2,
+              "bad_calls": 0,
+              "files": [
+                "parse_duration.py"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 953,
+              "stop": "stopped after 3 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.00279912,
+              "provider": "Parasail",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 13.0,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "02-js-lru-ttl-cache",
+              "turns": 3,
+              "tool_calls": 2,
+              "bad_calls": 0,
+              "files": [
+                "cache.mjs"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 1085,
+              "stop": "stopped after 3 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.0036274000000000002,
+              "provider": "Parasail",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 19.6,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "03-sql-analytics",
+              "turns": 3,
+              "tool_calls": 5,
+              "bad_calls": 0,
+              "files": [
+                "q1.sql",
+                "q2.sql",
+                "q3.sql",
+                "q4.sql"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 636,
+              "stop": "stopped after 3 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.00236744,
+              "provider": "Parasail",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 9.9,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "04-go-worker-pool",
+              "turns": 4,
+              "tool_calls": 3,
+              "bad_calls": 0,
+              "files": [
+                "pool.go",
+                "pool.go"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 1762,
+              "stop": "request failed: HTTP 402: This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.004626519999999999,
+              "provider": "Parasail",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 23.6,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "05-python-scheduler",
+              "turns": 3,
+              "tool_calls": 2,
+              "bad_calls": 0,
+              "files": [
+                "scheduler.py",
+                "test_sched.py"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 1470,
+              "stop": "request failed: HTTP 402: This request would exceed your available credits given your current in-flight requests. Retry after in-flight requests settle, or add credits.",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.0037321200000000002,
+              "provider": "Parasail",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 18.2,
+              "missing": [],
+              "extra": [
+                "test_sched.py"
+              ]
+            }
+          ],
+          "seconds": 84.3,
+          "cost_usd": 0.0172,
+          "score": 68,
+          "max": 68
+        },
+        {
+          "pass": 2,
+          "dir": "/opt/agent-benchmark/results/or-parasail/agent/qwen_qwen3.8-27b/pass2",
+          "problems": [
+            {
+              "problem": "01-python-parse-duration",
+              "turns": 3,
+              "tool_calls": 2,
+              "bad_calls": 0,
+              "files": [
+                "parse_duration.py"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 913,
+              "stop": "stopped after 3 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.00266408,
+              "provider": "Parasail",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 12.0,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "02-js-lru-ttl-cache",
+              "turns": 3,
+              "tool_calls": 2,
+              "bad_calls": 0,
+              "files": [
+                "cache.mjs"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 1118,
+              "stop": "stopped after 3 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.00351632,
+              "provider": "Parasail",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 18.1,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "03-sql-analytics",
+              "turns": 3,
+              "tool_calls": 5,
+              "bad_calls": 0,
+              "files": [
+                "q1.sql",
+                "q2.sql",
+                "q3.sql",
+                "q4.sql"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 669,
+              "stop": "stopped after 3 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.00207968,
+              "provider": "Parasail",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 13.4,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "04-go-worker-pool",
+              "turns": 4,
+              "tool_calls": 3,
+              "bad_calls": 0,
+              "files": [
+                "pool.go",
+                "pool.go"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 1976,
+              "stop": "stopped after 4 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.0053048,
+              "provider": "Parasail",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 34.8,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "05-python-scheduler",
+              "turns": 3,
+              "tool_calls": 2,
+              "bad_calls": 0,
+              "files": [
+                "scheduler.py"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 1091,
+              "stop": "stopped after 3 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.0035076000000000005,
+              "provider": "Parasail",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 16.1,
+              "missing": [],
+              "extra": []
+            }
+          ],
+          "seconds": 94.4,
+          "cost_usd": 0.0171,
+          "score": 65,
+          "max": 68
+        },
+        {
+          "pass": 3,
+          "dir": "/opt/agent-benchmark/results/or-parasail/agent/qwen_qwen3.8-27b/pass3",
+          "problems": [
+            {
+              "problem": "01-python-parse-duration",
+              "turns": 3,
+              "tool_calls": 2,
+              "bad_calls": 0,
+              "files": [
+                "parse_duration.py"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 934,
+              "stop": "stopped after 3 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.00252996,
+              "provider": "Parasail",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 12.7,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "02-js-lru-ttl-cache",
+              "turns": 3,
+              "tool_calls": 2,
+              "bad_calls": 0,
+              "files": [
+                "cache.mjs"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 1038,
+              "stop": "stopped after 3 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.00334368,
+              "provider": "Parasail",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 19.7,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "03-sql-analytics",
+              "turns": 3,
+              "tool_calls": 5,
+              "bad_calls": 0,
+              "files": [
+                "q1.sql",
+                "q2.sql",
+                "q3.sql",
+                "q4.sql"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 669,
+              "stop": "stopped after 3 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.00207968,
+              "provider": "Parasail",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 11.3,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "04-go-worker-pool",
+              "turns": 3,
+              "tool_calls": 2,
+              "bad_calls": 0,
+              "files": [
+                "pool.go"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 1268,
+              "stop": "stopped after 3 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.00353132,
+              "provider": "Parasail",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 23.1,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "05-python-scheduler",
+              "turns": 6,
+              "tool_calls": 5,
+              "bad_calls": 0,
+              "files": [
+                "scheduler.py",
+                "test_scheduler.py"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 2004,
+              "stop": "stopped after 6 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.0065600400000000005,
+              "provider": "Parasail",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 31.3,
+              "missing": [],
+              "extra": [
+                "test_scheduler.py"
+              ]
+            }
+          ],
+          "seconds": 98.1,
+          "cost_usd": 0.018,
+          "score": 64,
+          "max": 68
+        }
+      ]
+    }
+  ]
+}

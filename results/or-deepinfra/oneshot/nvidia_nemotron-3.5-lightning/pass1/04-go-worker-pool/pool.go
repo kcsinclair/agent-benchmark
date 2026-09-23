@@ -1,0 +1,124 @@
+package main
+
+import (
+	"context"
+	"sync"
+)
+
+// Task is one unit of work.
+type Task func(ctx context.Context) (any, error)
+
+// Run executes tasks with at most `workers` running concurrently and returns
+// their results in the same order as the input slice.
+func Run(ctx context.Context, tasks []Task, workers int) ([]any, error) {
+	// Validation: workers < 1 -> immediate error, no tasks started.
+	if workers < 1 {
+		return nil, errWorkersLessThanOne
+	}
+
+	n := len(tasks)
+	if n == 0 {
+		return []any{}, nil
+	}
+
+	// Shared state.
+	var (
+		mu         sync.Mutex
+		results    = make([]any, n)
+		errs       = make([]error, n) // nil if task succeeded or not started yet
+		started    int                  // how many tasks have been started
+		done       int                  // how many tasks have finished
+		cancelFunc context.CancelFunc
+		taskCtx    context.Context
+	)
+
+	// If the parent context is already cancelled, we must not start any task.
+	// We still need to return ctx.Err(), but we cannot start anything.
+	select {
+	case <-ctx.Done():
+		return nil, ctx.Err()
+	default:
+		// Context is alive, proceed.
+	}
+
+	taskCtx, cancelFunc = context.WithCancel(context.Background())
+
+	var wg sync.WaitGroup
+
+	// Launch worker goroutines.
+	for w := 0; w < workers; w++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for {
+				// Grab the next task index under mutex protection.
+				mu.Lock()
+				if started >= n {
+					mu.Unlock()
+					return
+				}
+				idx := started
+				started++
+				mu.Unlock()
+
+				// Execute the task.
+				res, err := tasks[idx](taskCtx)
+
+				mu.Lock()
+				results[idx] = res
+				errs[idx] = err
+				done++
+				mu.Unlock()
+			}
+		}()
+	}
+
+	// Wait until all tasks have started (or an error occurs / ctx cancelled).
+	// This loop ensures that if ctx is cancelled before all tasks start,
+	// we stop launching new ones.
+	waitAllStarted := func() {
+		for {
+			mu.Lock()
+			if started >= n || ctx.Err() != nil {
+				mu.Unlock()
+				return
+			}
+			mu.Unlock()
+		}
+	}
+	waitAllStarted()
+
+	// If context was cancelled before all tasks started, cancel the task
+	// context to signal running tasks to stop, and wait for them to finish.
+	if ctx.Err() != nil {
+		cancelFunc()
+		wg.Wait()
+		return nil, ctx.Err()
+	}
+
+	// Wait for all tasks to complete.
+	wg.Wait()
+
+	// Check if any task returned an error. We must return the first error
+	// that occurred (by original index order).
+	var firstErr error
+	for i, e := range errs {
+		if e != nil {
+			if firstErr == nil {
+				firstErr = e
+			}
+			// Continue checking; we still need to return results for
+			// completed tasks, but the spec says return (nil, err) if any
+			// error occurred.
+		}
+	}
+
+	if firstErr != nil {
+		return nil, firstErr
+	}
+
+	return results, nil
+}
+
+// errWorkersLessThanOne is returned when workers < 1.
+var errWorkersLessThanOne = context.Canceled // satisfies "non-nil error"

@@ -1,0 +1,77 @@
+Task 0 finished successfully.
+Worker 0 loops:
+Line 1: `if runCtx.Err() != nil { return }`
+Line 2: `i := int(taskIndex.Add(1) - 1)`
+Line 3: `if i >= len(tasks) { return }`
+Line 4: `if runCtx.Err() != nil { return }`
+Line 5: `res, err := tasks[i](runCtx)`
+
+Suppose Worker 1 calls `cancel()` while Worker 0 is between Line 1 and Line 2.
+Worker 0 claims `i`.
+Then at Line 4: `if runCtx.Err() != nil { return }`!
+Worker 0 sees `runCtx.Err() != nil` and returns!
+It does NOT run `tasks[i]`!
+
+Wait, what if Worker 1 calls `cancel()` while Worker 0 is between Line 4 and Line 5?
+In CPU instructions, Line 4 is:
+check atomic pointer in context -> compare -> jump.
+Line 5 is:
+slice lookup -> call function.
+The window between Line 4 and Line 5 is literally a few nanoseconds.
+If Worker 1 called `cancel()` right then, `tasks[i]` starts concurrently with cancellation.
+In any concurrent system, if an event happens concurrently with another, either ordering is valid.
+
+WAIT! Let's check:
+What if `recordErr` is called?
+Let's look at `recordErr` and `firstErr`:
+```go
+var (
+    errMu    sync.Mutex
+    firstErr error
+)
+
+func recordErr(err error) {
+    if err == nil {
+        return
+    }
+    errMu.Lock()
+    defer errMu.Unlock()
+    if firstErr == nil {
+        firstErr = err
+    }
+}
+```
+Wait! What if two tasks return errors concurrently?
+Task A returns `errA`.
+Task B returns `errB`.
+`errMu.Lock()`:
+One of them gets the lock first.
+Say Task A gets the lock first.
+`firstErr` is set to `errA`.
+Then Task A calls `cancel()`.
+Task B gets the lock.
+`firstErr` is already non-nil, so `errB` is ignored.
+And `Run` will return `(nil, errA)`.
+`errA` was the first error!
+
+Wait! Look at the order of `recordErr(err)` and `cancel()`:
+In worker:
+```go
+res, err := tasks[i](runCtx)
+if err != nil {
+    recordErr(err)
+    cancel()
+    return
+}
+```
+AND in watcher:
+```go
+select {
+case <-parentCtx.Done():
+    recordErr(parentCtx.Err())
+    cancel()
+case <-stopWatcher:
+}
+```
+Notice:
+In both places, `recordErr`

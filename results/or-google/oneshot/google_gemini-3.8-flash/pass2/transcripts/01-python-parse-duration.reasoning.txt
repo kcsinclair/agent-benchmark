@@ -1,0 +1,76 @@
+**Developing Parsing Logic**
+
+I'm currently focused on refining the core parsing logic for the `parse_duration` function. My current train of thought involves building out robust handling for various duration formats and ensuring proper error management, particularly for non-string inputs, as per the specification.
+
+**Validating Component Ordering**
+
+My current focus is on implementing the strict descending order requirement for duration units. I'm refining the logic to ensure that each unit appears at most once and that subsequent units are always smaller than preceding ones, specifically within the `h`, `m`, `s`, and `ms` sequence.
+
+**Refining Number Matching**
+
+I'm currently considering the exact pattern needed to capture valid non-negative decimal numbers for duration components. My thoughts are focused on ensuring it strictly adheres to the requirements: no leading plus, no exponents, no bare dots or trailing dots, and always at least one digit before a fractional part.
+
+**Validating String Components**
+
+I'm now concentrating on how to rigorously validate the input string's structure. My thinking is to use `pattern.fullmatch` to ensure the entire string conforms to an expected format, and then `re.finditer` for parsing components, specifically handling edge cases like empty strings or those with internal whitespace.
+
+**Handling Negative Zero**
+
+I'm wrestling with the nuance of negative zero. Specifically, when a duration evaluates to exactly 0.0 after negation, I'm considering whether to explicitly return 0.0 or allow Python's default behavior, which can result in -0.0, and if any downstream checks would differentiate between the two.
+
+**Clarifying Negative Zero**
+
+I'm re-evaluating the necessity of handling negative zero. Given that `0.0 == -0.0`, explicit conversion to `0.0` seems primarily for aesthetic consistency, though I'm considering potential edge cases involving functions like `copysign`.
+
+**Validating Input Types**
+
+My current focus is on robustly enforcing the `TypeError` for non-string inputs, ensuring the `isinstance` check precedes any string manipulation.
+
+**Stripping Whitespace**
+
+I'm confirming that `text.strip()` correctly handles leading/trailing whitespace, and that subsequent validation with `pattern.fullmatch` will implicitly disallow internal whitespace, aligning with the specification.
+
+**Handling Leading Hyphen**
+
+I'm now considering the requirement for a single leading hyphen and how to integrate it with the pattern matching to accurately capture negative durations while tolerating whitespace around it.
+
+**Validating Component Order**
+
+My current focus is on ensuring that duration components are strictly ordered in descending value. I'm refining the logic to confirm each unit appears at most once and that subsequent units are always smaller than preceding ones, specifically within the `h`, `m`, `s`, and `ms` sequence.
+
+**Refining Regex Anchoring**
+
+I'm re-evaluating the regex for full string matching. My current thinking is that `re.fullmatch` inherently anchors the pattern, making explicit `^` and `$` redundant. I'm testing this hypothesis to simplify the regular expression and ensure it correctly validates the entire input string against expected duration components.
+
+**Refining Unit Matching**
+
+I'm currently focused on ensuring the regex correctly prioritizes multi-character units like `ms` over single-character ones such as `m` or `s`. My current thoughts confirm that the order within the alternation group (`ms|h|m|s`) handles this, preventing incorrect parsing of sequences like `ms` as `m` followed by `s`.
+
+**Validating Number Formats**
+
+I'm currently focused on the precise definition of valid numbers. My thoughts confirm that standard decimal representations, including leading zeros but excluding exponents or trailing decimal points, are the target. I'm also considering Unicode digit handling.
+
+**Refining Number Parsing**
+
+I'm refining the regex for number parsing to strictly use ASCII digits `[0-9]` for broader compatibility and safety, excluding Unicode digits. This ensures that only standard numeric characters are accepted for duration components, aligning with expected input formats.
+
+**Validating Unit Order**
+
+I'm confirming the strict descending order requirement for duration units. My current thinking verifies that iterating through units and comparing their predefined order indices prevents violations, ensuring each unit appears at most once and in the correct sequence.
+
+**Testing Component Parsing**
+
+My current focus is on verifying that the `COMPONENT_RE` correctly extracts all duration parts when used with `re.finditer` after `FULL_RE.fullmatch` confirms the overall string validity. I'm ensuring the iteration logic for unit order and value summation functions as intended.
+
+**Verifying Regex Anchoring**
+
+I'm confirming that `re.fullmatch` inherently anchors the pattern, making explicit `^` and `$` redundant. This realization simplifies the regular expression and ensures accurate validation of the entire input string against expected duration components by testing various edge cases.
+
+**Normalizing Negative Zero**
+
+I'm re-examining the handling of negative zero. While numerically equivalent to positive zero, I'm considering if explicitly normalizing `-0.0` to `0.0` provides better consistency or avoids potential downstream issues with functions like `copysign`, even if the equality check passes.
+
+**Handling Negative Zero**
+
+I'm currently grappling with the precise implications of negative zero. While `-0.0` and `0.0` are numerically equal, their string representations differ. I'm considering whether to explicitly normalize `-0.0` to `0.0` for consistent output, especially given the rule for negating entire durations.
+

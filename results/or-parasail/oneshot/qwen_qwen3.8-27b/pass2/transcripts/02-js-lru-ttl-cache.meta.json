@@ -1,0 +1,39 @@
+{
+  "model": "qwen/qwen3.8-27b",
+  "served_model": "qwen/qwen3.8-27b",
+  "provider": "Parasail",
+  "request_id": "gen-1788482064-xqC4kzGKC0SW1UW6LT6n",
+  "server": "https://openrouter.ai/api",
+  "finish_reason": "stop",
+  "native_finish_reason": "stop",
+  "mode": "think=off",
+  "decode": {
+    "max_tokens": 16384,
+    "temperature": 0.0,
+    "thinking": "think=off"
+  },
+  "usage": {
+    "prompt_tokens": 648,
+    "completion_tokens": 803,
+    "total_tokens": 1451,
+    "cost": 0.00194804,
+    "is_byok": false,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+    },
+    "cost_details": {
+      "upstream_inference_cost": 0.00194804,
+      "upstream_inference_prompt_cost": 0.00018144,
+      "upstream_inference_completions_cost": 0.0017666
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "image_tokens": 0,
+      "audio_tokens": 0
+    }
+  },
+  "seconds": 9.8
+}

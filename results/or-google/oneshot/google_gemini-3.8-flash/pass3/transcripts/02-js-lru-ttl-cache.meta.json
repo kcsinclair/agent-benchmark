@@ -1,0 +1,39 @@
+{
+  "model": "google/gemini-3.8-flash",
+  "served_model": "google/gemini-3.8-flash",
+  "provider": "Google",
+  "request_id": "gen-1788580241-19PYg4gpHxdMdMsTfOK2",
+  "server": "https://openrouter.ai/api",
+  "finish_reason": "length",
+  "native_finish_reason": "MAX_TOKENS",
+  "mode": "think=on (this endpoint mandates reasoning)",
+  "decode": {
+    "max_tokens": 16384,
+    "temperature": 0.0,
+    "thinking": "think=on (this endpoint mandates reasoning)"
+  },
+  "usage": {
+    "prompt_tokens": 646,
+    "completion_tokens": 16380,
+    "total_tokens": 17026,
+    "cost": 0.0619095,
+    "is_byok": false,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+    },
+    "cost_details": {
+      "upstream_inference_cost": 0.0619095,
+      "upstream_inference_prompt_cost": 0.0004845,
+      "upstream_inference_completions_cost": 0.061425
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 15725,
+      "image_tokens": 0,
+      "audio_tokens": 0
+    }
+  },
+  "seconds": 102.2
+}

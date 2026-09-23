@@ -1,0 +1,50 @@
+{
+  "wall_seconds": 231.2,
+  "settings": {
+    "temperature": 0.0,
+    "max_tokens": 16384,
+    "think": "off",
+    "repeat": 3,
+    "reasoning_effort": "",
+    "server": "https://openrouter.ai/api",
+    "provider": "Parasail"
+  },
+  "results": [
+    {
+      "model": "qwen/qwen3.8-27b",
+      "load_seconds": null,
+      "passes": [
+        {
+          "pass": 1,
+          "dir": "/opt/agent-benchmark/results/or-parasail/oneshot/qwen_qwen3.8-27b/pass1",
+          "generate_seconds": 69.5,
+          "wall_seconds": 69.5,
+          "trouble": [],
+          "cost_usd": 0.012,
+          "score": 68,
+          "max": 68
+        },
+        {
+          "pass": 2,
+          "dir": "/opt/agent-benchmark/results/or-parasail/oneshot/qwen_qwen3.8-27b/pass2",
+          "generate_seconds": 69.7,
+          "wall_seconds": 69.7,
+          "trouble": [],
+          "cost_usd": 0.0121,
+          "score": 57,
+          "max": 68
+        },
+        {
+          "pass": 3,
+          "dir": "/opt/agent-benchmark/results/or-parasail/oneshot/qwen_qwen3.8-27b/pass3",
+          "generate_seconds": 86.0,
+          "wall_seconds": 86.0,
+          "trouble": [],
+          "cost_usd": 0.0144,
+          "score": 57,
+          "max": 68
+        }
+      ]
+    }
+  ]
+}

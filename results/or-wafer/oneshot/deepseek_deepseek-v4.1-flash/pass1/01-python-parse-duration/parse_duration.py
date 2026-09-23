@@ -1,0 +1,63 @@
+"""Parse human-readable duration strings into seconds."""
+
+import re
+
+_UNITS = ('h', 'm', 's', 'ms')
+# Order matters for matching: ms must be tried before m and s.
+_UNIT_VALUES = {'h': 3600.0, 'm': 60.0, 's': 1.0, 'ms': 0.001}
+
+# A single component: non-negative decimal number followed by a unit.
+# Number: one or more digits, optionally followed by '.' and one or more digits.
+_DECIMAL = r'\d+(?:\.\d+)?'
+# Unit alternatives ordered longest-first so 'ms' wins over 'm'/'s'.
+_UNIT_ALT = r'h|ms|m|s'
+
+_COMPONENT_RE = re.compile(r'(' + _DECIMAL + r')(' + _UNIT_ALT + r')')
+
+
+def parse_duration(text: str) -> float:
+    """Parse a duration string and return total seconds as a float.
+
+    Raises TypeError if text is not a str, ValueError if the string does
+    not match the documented format.
+    """
+    if not isinstance(text, str):
+        raise TypeError("parse_duration expects a str, got %s" % type(text).__name__)
+
+    s = text.strip()
+    if not s:
+        raise ValueError("empty duration string")
+
+    sign = 1.0
+    if s.startswith('-'):
+        sign = -1.0
+        s = s[1:]
+
+    if not s:
+        raise ValueError("missing components after sign")
+
+    # Walk through the string, consuming components in order.
+    pos = 0
+    total = 0.0
+    last_rank = -1  # stricter (smaller) rank as we move to smaller units
+
+    while pos < len(s):
+        m = _COMPONENT_RE.match(s, pos)
+        if not m:
+            raise ValueError("invalid duration string: %r" % text)
+
+        number_str, unit = m.group(1), m.group(2)
+
+        rank = _UNITS.index(unit)  # 0 for h, 1 for m, 2 for s, 3 for ms
+        if rank <= last_rank:
+            raise ValueError(
+                "units out of order or repeated in %r" % text
+            )
+        last_rank = rank
+
+        value = float(number_str)
+        total += value * _UNIT_VALUES[unit]
+
+        pos = m.end()
+
+    return sign * total

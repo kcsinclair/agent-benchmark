@@ -1,0 +1,107 @@
+```python
+import re
+from typing import Dict
+
+# Mapping of unit to its multiplier in seconds
+_UNIT_MULTIPLIERS: Dict[str, float] = {
+    'h': 3600.0,
+    'm': 60.0,
+    's': 1.0,
+    'ms': 0.001,
+}
+
+# Regular expression to match a valid number (non-negative decimal)
+_NUMBER_RE = re.compile(r'\d+(?:\.\d+)?')
+
+# Regular expression to match a component: number followed by unit
+_COMPONENT_RE = re.compile(r'(\d+(?:\.\d+)?)(h|m|s|ms)')
+
+def parse_duration(text: str) -> float:
+    """
+    Parse a human‑readable duration string and return the total number of seconds.
+
+    Parameters
+    ----------
+    text: str
+        The duration string to parse. Must conform to the rules described in the
+        module docstring.
+
+    Returns
+    -------
+    float
+        Total duration expressed in seconds.
+
+    Raises
+    ------
+    TypeError
+        If ``text`` is not a string.
+    ValueError
+        If the string does not conform to the required format.
+    """
+    # 1. Type check
+    if not isinstance(text, str):
+        raise TypeError("Input must be a string")
+
+    # 2. Strip surrounding whitespace
+    text = text.strip()
+
+    # 3. Empty string is invalid
+    if not text:
+        raise ValueError("Duration string cannot be empty")
+
+    # 4. Validate that there is no whitespace inside the string
+    if any(c.isspace() for c in text):
+        raise ValueError("Whitespace is not allowed inside the duration string")
+
+    # 5. Check for a leading minus sign
+    sign = 1
+    if text[0] == '-':
+        sign = -1
+        text = text[1:]  # remove the minus sign for further parsing
+        if not text:  # a lone '-' is invalid
+            raise ValueError("Minus sign must be followed by a component")
+
+    # 6. Split the remaining text into components using the unit regex
+    #    We need to find all occurrences of <number><unit>
+    #    and ensure they cover the whole string without overlap.
+    pos = 0
+    seen_units = set()
+    total_seconds = 0.0
+
+    # Sort units by length descending to prefer longer units first (e.g., 'ms')
+    unit_patterns = sorted(_UNIT_MULTIPLIERS.keys(), key=len, reverse=True)
+    unit_regex = '|'.join(re.escape(u) for u in unit_patterns)
+
+    # Build a regex that matches a number followed by any allowed unit
+    component_regex = re.compile(rf'(\d+(?:\.\d+)?)(?:({"|".join(unit_patterns)}))')
+
+    # Iterate over matches
+    while pos < len(text):
+        match = component_regex.match(text, pos)
+        if not match:
+            raise ValueError("Invalid component format")
+        number_str, unit = match.groups()
+        # Ensure each unit appears at most once
+        if unit in seen_units:
+            raise ValueError(f"Unit '{unit}' appears more than once")
+        seen_units.add(unit)
+
+        # Validate the number format (already ensured by the regex)
+        try:
+            value = float(number_str)
+        except ValueError:
+            raise ValueError(f"Invalid numeric value '{number_str}'")
+
+        # Accumulate seconds
+        total_seconds += value * _UNIT_MULTIPLIERS[unit]
+
+        # Move past the matched component
+        pos = match.end()
+
+    # 7. Ensure at least one component was parsed
+    if not seen_units:
+        raise ValueError("No valid components found")
+
+    # 8. Return the signed result
+    return sign * total_seconds
+```

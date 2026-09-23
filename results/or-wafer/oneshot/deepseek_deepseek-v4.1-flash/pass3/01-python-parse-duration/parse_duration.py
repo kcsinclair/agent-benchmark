@@ -1,0 +1,86 @@
+"""Parse human-readable duration strings into seconds."""
+
+import re
+
+__all__ = ["parse_duration"]
+
+# Unit → multiplier (in seconds). Order reflects decreasing size.
+_UNITS = (
+    ("h", 3600.0),
+    ("m", 60.0),
+    ("ms", 0.001),
+    ("s", 1.0),
+)
+
+# A component: number followed by a unit.  We try `ms` before `s` so that
+# `250ms` is not parsed as `250m` + leftover `s`.
+_NUMBER = r"\d+(?:\.\d+)?"
+_UNIT_RE = re.compile(
+    r"(?P<num>" + _NUMBER + r")(?P<unit>ms|h|m|s)"
+)
+
+# Overall shape: optional '-', then one or more components, then end.
+_FULL_RE = re.compile(
+    r"^(?P<sign>-)?"
+    r"(?P<body>(?:" + _NUMBER + r"(?:ms|h|m|s))+)"
+    r"$"
+)
+
+# Unit ordering rank (descending size).  Lower rank = bigger unit.
+_ORDER = {"h": 0, "m": 1, "s": 2, "ms": 3}
+_MULT = {"h": 3600.0, "m": 60.0, "s": 1.0, "ms": 0.001}
+
+
+def parse_duration(text: str) -> float:
+    """Parse a duration string like ``1h30m`` and return total seconds.
+
+    See the module docstring / problem statement for the accepted grammar.
+    Raises ``TypeError`` for non-strings and ``ValueError`` for malformed
+    input.
+    """
+    if not isinstance(text, str):
+        raise TypeError(
+            "parse_duration() argument must be str, not "
+            + type(text).__name__
+        )
+
+    s = text.strip()
+    if not s:
+        raise ValueError("empty duration string")
+
+    m = _FULL_RE.match(s)
+    if not m:
+        raise ValueError(f"invalid duration: {text!r}")
+
+    negative = m.group("sign") is not None
+    body = m.group("body")
+
+    total = 0.0
+    pos = 0
+    last_rank = -1  # force first unit to be strictly greater size than -1
+
+    while pos < len(body):
+        cm = _UNIT_RE.match(body, pos)
+        # _FULL_RE guarantees the body is a concatenation of well-formed
+        # components, so this should always succeed.
+        if cm is None:
+            raise ValueError(f"invalid duration: {text!r}")
+
+        number_str = cm.group("num")
+        unit = cm.group("unit")
+
+        rank = _ORDER[unit]
+        if rank <= last_rank:
+            # Wrong order or repeated unit.
+            raise ValueError(
+                f"units out of order or repeated in {text!r}"
+            )
+        last_rank = rank
+
+        total += float(number_str) * _MULT[unit]
+        pos = cm.end()
+
+    if pos != len(body):
+        raise ValueError(f"invalid duration: {text!r}")
+
+    return -total if negative else total

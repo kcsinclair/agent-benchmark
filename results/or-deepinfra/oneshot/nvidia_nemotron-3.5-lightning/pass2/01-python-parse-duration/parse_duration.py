@@ -1,0 +1,146 @@
+# parse_duration.py
+
+import re
+from typing import Tuple
+
+
+def parse_duration(text: str) -> float:
+    """
+    Parse a human-readable duration string and return the total number of seconds.
+
+    Raises:
+        TypeError: if *text* is not a string.
+        ValueError: if the string does not conform to the format rules.
+    """
+    if not isinstance(text, str):
+        raise TypeError("duration text must be a string")
+
+    # Strip leading/trailing whitespace; trailing whitespace is allowed
+    text = text.strip()
+
+    if not text:
+        raise ValueError("duration string is empty")
+
+    # No internal whitespace allowed
+    if re.search(r"\s", text):
+        raise ValueError("whitespace found inside duration string")
+
+    # Optional leading minus sign
+    negative = False
+    if text[0] == "-":
+        negative = True
+        text = text[1:].strip()
+        if not text:
+            raise ValueError("minus sign with no following component")
+
+    # Parse components: a number (digits with optional fractional part)
+    # followed by a unit (h, m, s, ms). Components are concatenated without
+    # separators. Units must appear in strictly descending order and at most
+    # once each.
+    #
+    # Grammar (rough):
+    #   duration -> (number unit)+
+    #   number   -> digits ('.' digits)?
+    #   unit     -> 'h' | 'm' | 's' | 'ms'
+
+    # We'll walk through the string manually to enforce ordering and uniqueness.
+    i = 0
+    n = len(text)
+
+    # Track which units have been seen and their order.
+    # Order: h > m > s > ms  (larger -> smaller)
+    seen_units = set()
+    # Map unit -> (multiplier, position in order)
+    unit_info = {
+        "h": (3600, 0),
+        "m": (60, 1),
+        "s": (1, 2),
+        "ms": (0.001, 3),
+    }
+
+    total_seconds = 0.0
+    prev_order = -1  # order of the previously seen unit (for descending check)
+
+    while i < n:
+        # ---- parse a number ----
+        # Must have at least one digit
+        if not text[i].isdigit():
+            raise ValueError(
+                f"expected a number at position {i}, got '{text[i]}'"
+            )
+
+        # Integer part
+        start = i
+        while i < n and text[i].isdigit():
+            i += 1
+
+        # Optional fractional part
+        if i < n and text[i] == ".":
+            i += 1
+            # Fractional part must have at least one digit and no trailing dot
+            if i >= n or not text[i].isdigit():
+                raise ValueError(
+                    f"invalid fractional part after dot at position {i}"
+                )
+            while i < n and text[i].isdigit():
+                i += 1
+        else:
+            # No dot – that's fine, we already have the integer part.
+            pass
+
+        # After the number we must have a unit
+        if i >= n:
+            raise ValueError("number without trailing unit")
+
+        # ---- parse a unit ----
+        # Check for the two-character unit "ms" first
+        if text[i : i + 2] == "ms":
+            unit = "ms"
+            i += 2
+        elif text[i] in "hms":
+            unit = text[i]
+            i += 1
+        else:
+            raise ValueError(
+                f"expected unit (h, m, s, ms) at position {i}, got '{text[i]}'"
+            )
+
+        # ---- validate unit rules ----
+        if unit not in unit_info:
+            # Should not happen due to the check above, but keep it safe
+            raise ValueError(f"unsupported unit '{unit}'")
+
+        if unit in seen_units:
+            raise ValueError(f"repeated unit '{unit}'")
+
+        # Enforce strictly descending order
+        cur_order = unit_info[unit][1]
+        if cur_order >= prev_order:
+            raise ValueError(
+                f"units must appear in strictly descending order: '{unit}' after previous"
+            )
+        prev_order = cur_order
+        seen_units.add(unit)
+
+        # ---- convert number to seconds ----
+        # Grab the number string we have parsed so far.
+        # The number string starts at `start` and ends at `i` (exclusive).
+        # However, we only have the original `text` and indices.
+        # Re‑extract the numeric portion.
+        num_str = text[start:i]
+        try:
+            value = float(num_str)
+        except ValueError:
+            raise ValueError(f"invalid number '{num_str}'")
+
+        multiplier = unit_info[unit][0]
+        total_seconds += value * multiplier
+        # Note: we do NOT add a separator here; the loop continues.
+
+    if not seen_units:
+        raise ValueError("no components found")
+
+    if negative:
+        total_seconds = -total_seconds
+
+    return total_seconds

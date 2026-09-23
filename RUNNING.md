@@ -162,7 +162,7 @@ quietly be a worse quantisation than the local GGUF you are comparing it to.
 repo served from Amazon Bedrock. List what a slug actually offers first:
 
 ```bash
-curl -s https://openrouter.ai/api/v1/models/<slug>/endpoints | python3 -m json.tool
+curl -s https://openrouter.ai/api/v1/models/<author>/<slug>/endpoints | python3 -m json.tool
 ```
 
 Then give that upstream its own profile. The runner records the served provider

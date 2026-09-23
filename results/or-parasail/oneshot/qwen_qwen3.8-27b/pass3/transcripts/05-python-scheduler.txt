@@ -1,0 +1,131 @@
+```python
+def best_schedule(jobs: list[tuple[float, float, float]]) -> tuple[float, list[int]]:
+    n = len(jobs)
+    if n == 0:
+        return (0.0, [])
+    
+    # Create list of (start, end, weight, original_index)
+    indexed_jobs = [(jobs[i][0], jobs[i][1], jobs[i][2], i) for i in range(n)]
+    
+    # Sort by end time, then by start time, then by index for stability
+    indexed_jobs.sort(key=lambda x: (x[1], x[0], x[3]))
+    
+    # Extract sorted arrays
+    starts = [x[0] for x in indexed_jobs]
+    ends = [x[1] for x in indexed_jobs]
+    weights = [x[2] for x in indexed_jobs]
+    orig_indices = [x[3] for x in indexed_jobs]
+    
+    # For each job i (in sorted order), find the latest job j < i such that ends[j] <= starts[i]
+    # We need to find the rightmost index j in [0, i-1] where ends[j] <= starts[i]
+    # Since ends is sorted (because we sorted by end time), we can use binary search.
+    
+    import bisect
+    
+    # dp[i] = max weight achievable considering jobs 0..i (in sorted order)
+    # dp[i] = max(dp[i-1], weights[i] + dp[p(i)]) where p(i) is the largest index < i with ends[p(i)] <= starts[i]
+    # If no such job exists, p(i) = -1, and dp[-1] = 0
+    
+    # We'll use 1-indexed for convenience: dp[0] = 0, dp[i] for i in 1..n
+    # Job i in 1-indexed corresponds to indexed_jobs[i-1]
+    
+    # For binary search: we want to find the largest index j (0-indexed in the sorted array) such that ends[j] <= starts[i]
+    # where i is 0-indexed. Then in 1-indexed terms, that job is at position j+1, and dp[j+1] is the value.
+    
+    # Let's define: for job at 0-indexed position i, we want p = largest j in [0, i-1] with ends[j] <= starts[i]
+    # If no such j, p = -1, and the compatible dp value is 0.
+    # Otherwise, the compatible dp value is dp[p+1] (since dp is 1-indexed, dp[k] corresponds to first k jobs).
+    
+    # Actually, let me re-think. Let dp[i] = max weight using a subset of the first i jobs (in sorted order, 1-indexed).
+    # dp[0] = 0
+    # For job i (1-indexed, so it's indexed_jobs[i-1]):
+    #   Find the largest j < i such that ends[j-1] <= starts[i-1] (i.e., the job at 1-indexed position j ends before or at the start of job i)
+    #   Then dp[i] = max(dp[i-1], weights[i-1] + dp[j])
+    
+    # To find j: we need the largest index j (1-indexed, j < i) such that ends[j-1] <= starts[i-1]
+    # In 0-indexed terms: largest index k in [0, i-2] such that ends[k] <= starts[i-1]
+    # Then j = k + 1, and dp[j] = dp[k+1]
+    # If no such k, then j = 0, and dp[0] = 0
+    
+    # We can use bisect_right on the ends array to find the rightmost position where ends[k] <= starts[i-1]
+    # bisect_right(ends, starts[i-1]) gives the insertion point, i.e., the number of elements <= starts[i-1]
+    # But we need to restrict to indices < i-1 (0-indexed), i.e., k < i-1
+    
+    # Let's use bisect_right on ends[0:i-1] to find the count of elements <= starts[i-1]
+    # That count is the number of jobs among the first i-1 jobs (0-indexed: 0 to i-2) that end <= starts[i-1]
+    # The largest such index is count - 1 (0-indexed), so j = count (1-indexed)
+    
+    # Actually, bisect_right(ends, val) returns the index where val would be inserted to keep order, such that all elements to the left are <= val.
+    # So bisect_right(ends, starts[i-1]) gives the number of elements in ends that are <= starts[i-1].
+    # But we only want to consider ends[0:i-1] (the first i-1 elements, 0-indexed).
+    
+    # Let's just use bisect_right on the full ends array, but we need to make sure we don't go beyond i-1.
+    # Since ends is sorted, bisect_right(ends, starts[i-1]) gives the count of all elements <= starts[i-1].
+    # But some of those might be at index >= i-1. However, since we're processing in order, and ends is sorted, 
+    # any element at index >= i-1 has end >= ends[i-1] > starts[i-1] (since start < end for job i-1).
+    # Wait, that's not necessarily true. ends[i-1] > starts[i-1], but ends[k] for k >= i-1 could be <= starts[i-1]?
+    # No, because ends is sorted, so ends[k] >= ends[i-1] for k >= i-1, and ends[i-1] > starts[i-1].
+    # So ends[k] > starts[i-1] for all k >= i-1.
+    # Therefore, bisect_right(ends, starts[i-1]) will give a value <= i-1.
+    
+    # So: count = bisect_right(ends, starts[i-1])
+    # This count is the number of jobs (0-indexed) with end <= starts[i-1], and all such jobs are at indices 0 to count-1.
+    # The largest such index is count-1 (0-indexed), so in 1-indexed, that's job count.
+    # So j = count, and dp[j] = dp[count].
+    
+    dp = [0.0] * (n + 1)
+    # parent[i] = whether job i (1-indexed) was chosen in the optimal solution for dp[i]
+    # We'll track this for backtracking
+    chosen = [False] * (n + 1)  # chosen[i] = True if job i (1-indexed) is part of the optimal subset for dp[i]
+    
+    for i in range(1, n + 1):
+        # Job i is indexed_jobs[i-1]
+        s = starts[i - 1]
+        w = weights[i - 1]
+        
+        # Find count = number of jobs with end <= s
+        count = bisect.bisect_right(ends, s)
+        # count is at most i-1 as argued above
+        
+        # Option 1: don't take job i
+        option1 = dp[i - 1]
+        # Option 2: take job i
+        option2 = w + dp[count]
+        
+        if option2 >= option1:
+            dp[i] = option2
+            chosen[i] = True
+        else:
+            dp[i] = option1
+            chosen[i] = False
+    
+    total_weight = dp[n]
+    
+    # Backtrack to find which jobs were chosen
+    # We need to reconstruct the set of chosen jobs.
+    # If chosen[i] is True, then job i was taken, and we jump to dp[count] where count = bisect_right(ends, starts[i-1])
+    # If chosen[i] is False, we go to i-1.
+    
+    result_indices = []
+    i = n
+    while i > 0:
+        if chosen[i]:
+            result_indices.append(orig_indices[i - 1])
+            s = starts[i - 1]
+            count = bisect.bisect_right(ends, s)
+            i = count
+        else:
+            i -= 1
+    
+    # Sort by start time, then by original index
+    # We need to get the start times for the chosen jobs
+    # result_indices contains original indices. Let's sort them by (start, original_index)
+    
+    # Create a list of (start, original_index) for the chosen jobs
+    chosen_with_start = [(jobs[idx][0], idx) for idx in result_indices]
+    chosen_with_start.sort(key=lambda x: (x[0], x[1]))
+    
+    final_indices = [idx for _, idx in chosen_with_start]
+    
+    return (total_weight, final_indices)
+```

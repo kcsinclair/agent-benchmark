@@ -1,0 +1,50 @@
+ watcher goroutine picked `case <-watcherDone:` in `select`?
+If `parentCtx.Err() != nil`:
+At the end of `Run`:
+```go
+if firstErr != nil {
+    return nil, firstErr
+}
+if parentCtx.Err() != nil {
+    return nil, parentCtx.Err()
+}
+return results, nil
+```
+If `parentCtx.Err() != nil`, return `nil, parentCtx.Err()`!
+That covers all bases!
+
+Wait! Let's check:
+What if `parentCtx.Err() != nil` at the end, but `firstErr != nil`?
+`if firstErr != nil { return nil, firstErr }` comes FIRST!
+So if a task failed first, `firstErr` is returned!
+If `parentCtx` was cancelled, and set `firstErr`, `firstErr` is `parentCtx.Err()`.
+If watcher didn't set `firstErr` (e.g. race with watcherDone), `parentCtx.Err() != nil` catches it and returns `parentCtx.Err()`.
+Everything is consistent!
+
+Wait, what if `len(tasks) == 0`?
+Does `parentCtx.Err()` need to be checked?
+Req 3: "If len(tasks) == 0, return an empty (or nil) slice and nil error."
+Req 3 says: "if workers < 1, return a non-nil error immediately without running any task. If len(tasks) == 0, return an empty (or nil) slice and nil error."
+If `len(tasks) == 0`:
+Should we return `[]any{}, nil` even if `parentCtx` is cancelled?
+Wait! If parentCtx is already cancelled, does `workers < 1` or `len(tasks) == 0` take precedence?
+Wait, if `len(tasks) == 0`, there is no work to run.
+Returning `[]any{}, nil` immediately is 0 work, 0 time.
+Wait, what if `workers < 1` and `len(tasks) == 0`?
+Req 3: "if workers < 1, return a non-nil error immediately without running any task."
+So:
+```go
+if workers < 1 {
+    return nil, errors.New("pool: workers must be at least 1")
+}
+if len(tasks) == 0 {
+    return []any{}, nil
+}
+if ctx.Err() != nil {
+    return nil, ctx.Err()
+}
+```
+Wait! What if `ctx.Err() != nil` before `len(tasks) == 0`?
+If `len(tasks) == 0`, why would caller call `Run(ctx, nil, 5)`?
+If `len(tasks) == 0`, returning `[]any{}, nil` is instant.
+Wait, what if `ctx` is already cancelled when `len(tasks) ==

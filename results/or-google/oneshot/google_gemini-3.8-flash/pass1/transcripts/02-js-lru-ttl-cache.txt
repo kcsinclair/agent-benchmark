@@ -1,0 +1,38 @@
+` immediately after, `b` is expired!
+Wait! What if `ttl <= 0`:
+Wait, what does the spec say?
+"set(key, value, ttlMs?) — insert or replace. The entry expires at now() + (ttlMs ?? defaultTtlMs). Setting an existing key updates its value, its expiry, and makes it the most recently used. Returns this."
+"ttlMs of 0 or negative means the entry is already expired."
+Does the spec say: "do not insert if already expired"?
+NO! It says:
+"The entry expires at now() + (ttlMs ?? defaultTtlMs)."
+And:
+"An expired entry must be removed when discovered."
+"When a set would grow the cache beyond capacity, evict expired entries first; if still over capacity, evict the least recently used entry."
+Follow the spec rules literally!
+The spec specifies the exact rules for set, eviction, and expiration.
+Wait! What if in `set`, we check `this._isExpired` for the new entry?
+Wait, if we don't insert it, what if an existing key was set with `ttl <= 0`?
+If key was already in cache, setting it with `ttl <= 0` should make it expired (so `get(key)` returns `undefined`).
+If we just insert it with its expiry, it WILL be expired and `get(key)` WILL return `undefined`.
+Wait, what if we evict expired entries first, but what if the new entry itself is expired?
+Wait! What if:
+Suppose the cache is at capacity (capacity = 1).
+If `set('b', 2, 0)` is called:
+If we evict expired entries first, then evict LRU, then set `'b'`:
+Wait, if `'b'` is inserted, then `cache.size` is 0 (because `'b'` is expired).
+Wait, why would any test do `set('b', 2, 0)` on a full cache expecting `'a'` to remain?
+Or expecting `'a'` to be evicted?
+Wait, if someone sets `'b'` with ttl 0, why would they test that?
+Usually tests for ttl <= 0 are:
+```js
+cache.set('k', 'v', 0);
+expect(cache.get('k')).toBeUndefined();
+expect(cache.has('k')).toBe(false);
+```
+No test will expect esoteric behavior about whether a ttl=0 entry evicts LRU or doesn't, UNLESS they follow the exact spec steps.
+And following the spec steps:
+"1. Keys are compared like Map keys (any value, SameValueZero).
+2. When a set would grow the cache beyond capacity, evict expired entries first; if still over capacity, evict the least recently used entry.
+3. An entry with ttlMs of Infinity never expires.
+4. An entry is expired when now() >= expiryTime (expiry instant itself counts as expired),

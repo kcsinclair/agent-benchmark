@@ -1,0 +1,352 @@
+**Designing Pool Implementation**
+
+I'm currently focused on sketching out the core `Run` function for the worker pool. The primary challenge is orchestrating concurrent execution of the provided `Task` functions, ensuring proper context propagation and error handling for each. I'm also considering how to efficiently collect and return the results from all completed tasks.
+
+**Structuring Task Execution**
+
+My current focus is on defining the precise behavior for task ordering and error handling. I'm solidifying the fail-fast mechanism, ensuring the first encountered error dictates the outcome, and that ongoing and yet-to-start tasks are managed appropriately upon cancellation or error.
+
+**Capturing First Error**
+
+I'm refining the error handling strategy. My current focus is ensuring that only the *very first* error encountered, whether from a task or parent context cancellation, is captured and returned. I'm exploring how `sync.Once` can help manage this and ensure the correct context error is prioritized if the parent cancels first.
+
+**Monitoring Context Cancellation**
+
+I'm exploring how to robustly capture the *initial* failure, be it an explicit task error or parent context cancellation. I'm considering a dedicated goroutine to monitor `ctx.Done()` to ensure that if the parent context cancels first, its error is prioritized and recorded correctly, preventing subsequent task errors from overwriting it.
+
+**Dispatching Task Execution**
+
+I'm considering how to efficiently dispatch tasks to the available workers. My current thinking leans towards a pattern where a fixed number of worker goroutines pull tasks from a channel, ensuring optimal resource utilization while managing the concurrency. I am also evaluating early exit conditions for edge cases like zero tasks or invalid worker counts.
+
+**Dispatching Tasks Dynamically**
+
+I'm refining the task distribution. Instead of a fixed channel, I'm now considering dynamically assigning tasks to workers. This approach, particularly when `workers > len(tasks)`, ensures we don't over-allocate goroutines and avoids starting any task once the context is cancelled.
+
+**Validating Task Initiation**
+
+I'm scrutinizing the precise moment a task is considered "started." My current concern is ensuring that if the context is cancelled just before a task executes, we correctly abort. I'm analyzing the race condition between checking the context's error state and the actual invocation of the task function.
+
+**Refining Task Dispatch**
+
+I'm focusing on the precise moment tasks are dispatched. I've been considering how to handle concurrent context cancellation and task invocation. My current approach involves using a mutex to protect shared state like `nextIdx` and the task context. This aims to ensure that if the context is cancelled, any worker attempting to pick up a new task will correctly see the cancellation and exit gracefully before invoking it. I'm also verifying that `recordErr` correctly captures the first error and triggers cancellation.
+
+**Ensuring Task Execution Atomicity**
+
+I'm intensely focused on the critical intersection of context cancellation and task invocation. My current thinking revolves around how to guarantee that once a task is considered "started," it runs to completion, even if the parent context cancels concurrently. I am analyzing potential race conditions where a worker might initiate a task just as cancellation occurs, and how to correctly synchronize this to respect the "wait for started tasks" invariant.
+
+**Prioritizing Context Cancellation**
+
+I'm analyzing a potential race. If a task errors *after* the main context cancels and `recordErr` has already fired, I need to ensure that the original context error remains the definitive one. I'm verifying that `sync.Once` correctly handles this, preventing subsequent task errors from overwriting the initial cancellation signal.
+
+**Confirming Race Conditions**
+
+I'm analyzing a subtle race concerning `firstErr`. If a task errs before context cancellation, it sets `firstErr`. Subsequent context cancellation wouldn't overwrite it. I'm confirming `wg.Wait()` ensures the watcher and `firstErr` reads are synchronized after all tasks complete.
+
+**Detecting Data Races**
+
+I've identified a critical data race. If the parent context cancels precisely when I'm returning and reading the final error, the watcher goroutine could concurrently write to `firstErr`, causing a race. I'm ensuring proper synchronization here.
+
+**Eliminating Watcher Goroutine**
+
+I'm re-evaluating the need for a dedicated watcher goroutine. It seems `taskCtx.Done()` automatically reflects the parent `ctx` cancellation, potentially eliminating the race condition and simplifying the error capture mechanism.
+
+**Capturing Final Error**
+
+I'm investigating how to accurately capture the final error state. If the parent context cancels first, I need to ensure that `ctx.Err()` is the returned error, even if no individual task fails and `firstErr` remains `nil`. I'm analyzing the flow after `wg.Wait()` to correctly identify and return the parent context's error.
+
+**Prioritizing Context Errors**
+
+I'm confirming that child contexts inherit parent errors. This means if the parent context times out, the child context will reflect `DeadlineExceeded`, simplifying how I capture the definitive error and ensuring it's prioritized over individual task errors.
+
+**Prioritizing Context Errors**
+
+I'm confirming that child contexts inherit parent errors. This means if the parent context times out, the child context will reflect `DeadlineExceeded`, simplifying how I capture the definitive error and ensuring it's prioritized over individual task errors.
+
+**Validating Error Priority**
+
+I'm wrestling with a crucial scenario: what if the parent context cancels just as a task returns an error, or even a `nil` error? My current focus is ensuring that the parent context's cancellation error definitively takes precedence, as per requirement 5, even if a task completes successfully or errs afterwards. I'm verifying that the final error check correctly captures the parent's `ctx.Err()` in such cases.
+
+**Prioritizing Context Errors**
+
+I'm confirming that child contexts inherit parent errors. This means if the parent context times out, the child context will reflect `DeadlineExceeded`, simplifying how I capture the definitive error and ensuring it's prioritized over individual task errors.
+
+**Validating Error Priority**
+
+I'm wrestling with a crucial scenario: what if the parent context cancels just as a task returns an error, or even a `nil` error? My current focus is ensuring that the parent context's cancellation error definitively takes precedence, as per requirement 5, even if a task completes successfully or errs afterwards. I'm verifying that the final error check correctly captures the parent's `ctx.Err()` in such cases.
+
+**Determining First Failure**
+
+I'm analyzing the precise ordering of events when a task fails and the parent context cancels. My primary concern is correctly identifying which happened first to ensure the returned error reflects the earliest failure, be it the task's error or the context's cancellation. I'm re-evaluating how to reliably capture this sequence without a dedicated watcher goroutine.
+
+**Prioritizing Context Cancellation**
+
+I'm confirming that child contexts immediately reflect parent cancellation. This allows workers to detect a cancelled parent context before starting new tasks, simplifying early exit logic and eliminating the need for a separate watcher goroutine to monitor parent context status.
+
+**Prioritizing Context Errors**
+
+I'm confirming that child contexts immediately reflect parent cancellation. This simplifies my error capture, ensuring that if the parent context times out or is cancelled, its error will be correctly prioritized and returned over any individual task errors.
+
+**Simplifying Error Capture**
+
+I'm re-evaluating the error capture logic. It appears that if the parent context cancels, the child context's `Err()` will reflect this. This means I can rely on checking `ctx.Err()` after `wg.Wait()` to correctly return the parent's cancellation error, even if no tasks encountered explicit errors.
+
+**Finalizing Error Handling**
+
+I'm confirming the final error handling. After `wg.Wait()`, I will check `firstErr`. If it's set, I return it. Otherwise, I check `ctx.Err()` to return the parent context's error, which correctly prioritizes cancellation over successful task completion.
+
+**Ensuring Race-Free Cancellation**
+
+I'm analyzing the race condition between task completion and parent context cancellation. My current thinking is that by checking `ctx.Err()` after `wg.Wait()`, I implicitly handle the scenario where the parent cancels while tasks are running, ensuring the cancellation error is the one ultimately returned if no task errored first.
+
+**Streamlining Error Logic**
+
+I'm streamlining the error return logic. After all tasks complete (`wg.Wait()`), I'll check if `firstErr` was set by any task. If not, I'll then check `ctx.Err()` to ensure that any parent context cancellation is captured and returned as the primary failure.
+
+**Validating Task Cancellation**
+
+I'm verifying that if a task checks the context and returns its error, that error will be correctly captured by `recordErr` and then returned by the pool, assuming it occurs before the parent context is cancelled.
+
+**Completing Context Management**
+
+I'm confirming that the `taskCtx` is indeed cancelled when the parent `ctx` is cancelled. This ensures that any running tasks that *do* check their context will eventually see the cancellation and can stop processing, simplifying cleanup.
+
+**Finalizing Error Flow**
+
+I'm solidifying the final error flow. After `wg.Wait()`, I'll check `firstErr`. If it's `nil`, I then check `ctx.Err()`. This sequence ensures that task-specific errors are prioritized, and parent context cancellation is the fallback for the definitive error.
+
+**Resolving Cancellation Race**
+
+I'm analyzing the scenario where the parent context cancels just as a task errors. My current focus is ensuring that the parent's cancellation error definitively takes precedence. I'm verifying that checking `ctx.Err()` after `wg.Wait()` correctly captures the parent's error in such edge cases, overriding any task-specific error that might have occurred almost simultaneously.
+
+**Refining Goroutine Synchronization**
+
+I'm finalizing the synchronization between the main goroutine and the watcher. By introducing a `watcherDone` channel and ensuring it's closed only after the watcher has exited, I can now reliably wait for the watcher's operation to complete before reading `firstErr`, effectively eliminating the identified race condition.
+
+**Finalizing Race-Free Error Capture**
+
+I've resolved the data race on `firstErr`. By introducing a `watcherDone` channel, I now reliably wait for the watcher goroutine to exit before accessing `firstErr`. This ensures that context cancellation errors are correctly captured and prioritized over task errors, preventing any goroutine leaks.
+
+**Validating Initial Conditions**
+
+I'm reviewing the initial validation logic. My current focus is ensuring the exact order of checks for `ctx.Err() != nil` and `workers < 1` to guarantee the specified error handling and immediate returns, especially when `len(tasks) == 0`.
+
+**Prioritizing Initial Context Errors**
+
+I'm examining the precise initial checks. If the context is already cancelled before any tasks are processed, I need to ensure its error is returned immediately. This takes precedence over the case where there are no tasks, guaranteeing that cancellation is always the highest priority failure.
+
+**Prioritizing Initial Context Errors**
+
+I'm clarifying the order of initial validations. My current focus is ensuring that a pre-cancelled context's error is always returned first, even if there are no tasks or an invalid worker count. This guarantees that context cancellation takes absolute priority over other early exit conditions.
+
+**Validating Order of Checks**
+
+I'm confirming the order of initial validations. If the context is already cancelled, its error must be returned first, even before checking for zero tasks or invalid worker counts, ensuring cancellation priority.
+
+**Refining Task Dispatcher**
+
+I'm currently focusing on the task dispatch mechanism. My analysis indicates that spawning a number of workers equal to `min(workers, len(tasks))` is more efficient than always spawning `workers` goroutines, especially when there are fewer tasks than workers. This ensures optimal concurrency without unnecessary goroutine overhead.
+
+**Refining Task Dispatcher**
+
+I'm currently focusing on the task dispatch mechanism. My analysis indicates that spawning a number of workers equal to `min(workers, len(tasks))` is more efficient than always spawning `workers` goroutines, especially when there are fewer tasks than workers. This ensures optimal concurrency without unnecessary goroutine overhead.
+
+**Prioritizing Context Errors**
+
+I'm confirming that child contexts inherit parent errors. This means if the parent context times out, the child context will reflect `DeadlineExceeded`, simplifying how I capture the definitive error and ensuring it's prioritized over individual task errors.
+
+**Validating Error Priority**
+
+I'm wrestling with a crucial scenario: what if the parent context cancels just as a task returns an error, or even a `nil` error? My current focus is ensuring that the parent context's cancellation error definitively takes precedence, as per requirement 5, even if a task completes successfully or errs afterwards. I'm verifying that the final error check correctly captures the parent's `ctx.Err()` in such cases.
+
+**Determining First Failure**
+
+I'm analyzing the precise ordering of events when a task fails and the parent context cancels. My primary concern is correctly identifying which happened first to ensure the returned error reflects the earliest failure, be it the task's error or the context's cancellation. I'm re-evaluating how to reliably capture this sequence without a dedicated watcher goroutine.
+
+**Prioritizing Context Cancellation**
+
+I'm confirming that child contexts immediately reflect parent cancellation. This allows workers to detect a cancelled parent context before starting new tasks, simplifying early exit logic and eliminating the need for a separate watcher goroutine to monitor parent context status.
+
+**Prioritizing Context Errors**
+
+I'm confirming that child contexts immediately reflect parent cancellation. This simplifies my error capture, ensuring that if the parent context times out or is cancelled, its error will be correctly prioritized and returned over any individual task errors.
+
+**Simplifying Error Capture**
+
+I'm re-evaluating the error capture logic. It appears that if the parent context cancels, the child context's `Err()` will reflect this. This means I can rely on checking `ctx.Err()` after `wg.Wait()` to correctly return the parent's cancellation error, even if no individual task fails and `firstErr` remains `nil`.
+
+**Finalizing Error Handling**
+
+I'm confirming the final error handling. After `wg.Wait()`, I will check `firstErr`. If it's set, I return it. Otherwise, I check `ctx.Err()` to return the parent context's error, which correctly prioritizes cancellation over successful task completion.
+
+**Ensuring Race-Free Cancellation**
+
+I'm analyzing the race condition between task completion and parent context cancellation. My current thinking is that by checking `ctx.Err()` after `wg.Wait()`, I implicitly handle the scenario where the parent cancels while tasks are running, ensuring the cancellation error is the one ultimately returned if no task errored first.
+
+**Streamlining Error Logic**
+
+I'm streamlining the error return logic. After all tasks complete (`wg.Wait()`), I'll check if `firstErr` was set by any task. If not, I'll then check `ctx.Err()` to ensure that any parent context cancellation is captured and returned as the primary failure.
+
+**Validating Task Cancellation**
+
+I'm verifying that if a task checks the context and returns its error, that error will be correctly captured by `recordErr` and then returned by the pool, assuming it occurs before the parent context is cancelled.
+
+**Completing Context Management**
+
+I'm confirming that the `taskCtx` is indeed cancelled when the parent `ctx` is cancelled. This ensures that any running tasks that *do* check their context will eventually see the cancellation and can stop processing, simplifying cleanup.
+
+**Finalizing Error Flow**
+
+I'm solidifying the final error flow. After `wg.Wait()`, I'll check `firstErr`. If it's `nil`, I then check `ctx.Err()`. This sequence ensures that task-specific errors are prioritized, and parent context cancellation is the fallback for the definitive error.
+
+**Resolving Cancellation Race**
+
+I'm analyzing the scenario where the parent context cancels just as a task errors. My current focus is ensuring that the parent's cancellation error definitively takes precedence. I'm verifying that checking `ctx.Err()` after `wg.Wait()` correctly captures the parent's error in such edge cases, overriding any task-specific error that might have occurred almost simultaneously.
+
+**Refining Goroutine Synchronization**
+
+I'm finalizing the synchronization between the main goroutine and the watcher. By introducing a `watcherDone` channel and ensuring it's closed only after the watcher has exited, I can now reliably wait for the watcher's operation to complete before reading `firstErr`, effectively eliminating the identified race condition.
+
+**Finalizing Race-Free Error Capture**
+
+I've resolved the data race on `firstErr`. By introducing a `watcherDone` channel, I now reliably wait for the watcher goroutine to exit before accessing `firstErr`. This ensures that context cancellation errors are correctly captured and prioritized over task errors, preventing any goroutine leaks.
+
+**Validating Initial Conditions**
+
+I'm reviewing the initial validation logic. My current focus is ensuring the exact order of checks for `ctx.Err() != nil` and `workers < 1` to guarantee the specified error handling and immediate returns, especially when `len(tasks) == 0`.
+
+**Prioritizing Initial Context Errors**
+
+I'm examining the precise initial checks. If the context is already cancelled before any tasks are processed, I need to ensure its error is returned immediately. This takes precedence over the case where there are no tasks, guaranteeing that cancellation is always the highest priority failure.
+
+**Validating Order of Checks**
+
+I'm confirming the order of initial validations. If the context is already cancelled, its error must be returned first, even before checking for zero tasks or invalid worker counts, ensuring cancellation priority.
+
+**Understanding Error Capture Logic**
+
+I'm analyzing a potential race where a task errors *after* `cancel()` is called, leading to `firstErr` being set. If this error happens before `ctx.Err()` is checked, `recordErr` will capture it, and `cancel()` will be called. The subsequent check of `ctx.Err()` after `wg.Wait()` needs to correctly handle this, potentially overriding the task error if the context cancellation was the *earlier* event. I'm ensuring the `firstErr == nil` check within `recordErr` correctly prevents overwrites.
+
+**Refining Task Startup Logic**
+
+I'm scrutinizing the exact window between a task being selected by a worker and its actual execution. My concern is ensuring that if context cancellation occurs in that narrow gap, the task truly never starts, aligning with requirements and preventing potential race conditions where a task might begin post-cancellation.
+
+**Refining Task Startup Logic**
+
+I'm scrutinizing the exact window between a task being selected by a worker and its actual execution. My concern is ensuring that if context cancellation occurs in that narrow gap, the task truly never starts, aligning with requirements and preventing potential race conditions where a task might begin post-cancellation. I'm analyzing the synchronization using the mutex to prevent tasks from starting after cancellation has been signalled.
+
+**Ensuring Task Cancellation Integrity**
+
+I'm verifying that if the context is cancelled just before a task executes, the task will correctly recognize the cancellation and abort before running. This ensures that no tasks are started after the pool has signaled termination, aligning with my ongoing refinements on context management during task dispatch.
+
+**Refining Task Execution Logic**
+
+I'm analyzing the critical moment a task begins. My current focus is ensuring that if the context cancels between a worker picking a task and actually running it, that task is correctly aborted before execution. I'm verifying the synchronization ensures only tasks started before cancellation proceed.
+
+**Resolving Watcher Race Condition**
+
+I've identified and resolved a critical race condition involving the watcher goroutine and `firstErr`. By using a `watcherDone` channel to signal its completion, I now ensure it fully exits before I read `firstErr`, guaranteeing correct error prioritization.
+
+**Finalizing Error Prioritization**
+
+I'm confirming the definitive error flow. After `wg.Wait()`, I check `firstErr`. If it's nil, I then check `ctx.Err()`. This ensures task errors are prioritized, with parent context cancellation as the fallback, and correctly handles scenarios where cancellation precedes task completion or errors.
+
+**Prioritizing Context Cancellation**
+
+I'm confirming that child contexts immediately reflect parent cancellation. This simplifies my error capture, ensuring that if the parent context times out or is cancelled, its error will be correctly prioritized and returned over any individual task errors.
+
+**Finalizing Error Logic**
+
+I've confirmed that the error handling covers all scenarios. Whether a task fails first or the parent context cancels, `firstErr` correctly captures the earliest failure. If no task errors, `ctx.Err()` ensures cancellation is prioritized. The watcher goroutine ensures this logic is race-free.
+
+**Confirming Synchronization Strategy**
+
+I've finalized the synchronization logic to prevent races on `firstErr`. My analysis confirms that by waiting for the watcher goroutine to signal its completion via `watcherDone`, I ensure all potential writes to `firstErr` have ceased before I read its value. This eliminates goroutine leaks and race conditions.
+
+**Validating Concurrency Logic**
+
+I'm confirming the concurrency implementation adheres to the bounded execution requirement. My analysis indicates that by limiting the number of active workers to `min(workers, len(tasks))`, I efficiently manage concurrency, ensuring no more than the specified number of tasks run simultaneously while still allowing for parallel execution across available workers.
+
+**Validating Result Collection**
+
+I'm confirming that the `results` slice is correctly populated and free of data races. Each task independently writes to its designated index, and since `wg.Wait()` ensures all writes are complete before returning, the collection of results is safe and accurate. My current focus is ensuring the correct error handling when tasks return `nil, nil`.
+
+**Refining Error Logic**
+
+I'm analyzing the interaction between task errors and context cancellation. My current focus is ensuring that if a task errors, it correctly triggers the cancellation of other running tasks and `firstErr` captures that error, while `wg.Wait()` still ensures all started tasks complete.
+
+**Prioritizing First Error**
+
+I'm analyzing a critical scenario: if a task errors and immediately cancels the context, and another task is running and detects this cancellation, I need to ensure the *first* error encountered (the task error) is preserved. My current focus is on verifying that `recordErr` correctly captures the initial task error, and that subsequent context errors from other tasks don't overwrite it.
+
+**Validating Initial Checks**
+
+I'm confirming the order of initial validations. If the context is already cancelled, its error must be returned first, even before checking for zero tasks or invalid worker counts, ensuring cancellation priority.
+
+**Analyzing Initial Checks**
+
+I'm confirming the order of initial validations. If the context is already cancelled, its error must be returned first, even before checking for zero tasks or invalid worker counts, ensuring cancellation priority. My current focus is ensuring the correct error is returned if `workers < 1` and the context is not cancelled.
+
+**Finalizing Worker Loop Logic**
+
+I'm confirming the worker loop's safety and efficiency. By using `min(workers, len(tasks))` for the number of workers and ensuring the task index is incremented *after* checking for context cancellation and task availability, I've eliminated potential races and optimized goroutine usage. This guarantees no worker starts a task after the pool is signalled to stop.
+
+**Refining Worker Loop Logic**
+
+I'm confirming the worker loop's safety and efficiency. By using `min(workers, len(tasks))` for the number of workers and ensuring the task index is incremented *after* checking for context cancellation and task availability, I've eliminated potential races and optimized goroutine usage. This guarantees no worker starts a task after the pool is signalled to stop.
+
+**Finalizing Error Logic**
+
+I've confirmed that the error handling covers all scenarios. Whether a task fails first or the parent context cancels, `firstErr` correctly captures the earliest failure. If no task errors, `ctx.Err()` ensures cancellation is prioritized. My watcher goroutine ensures this logic is race-free and that tasks that haven't started yet never begin.
+
+**Prioritizing First Error**
+
+I'm analyzing a critical scenario where a task errors and immediately cancels the context. My focus is ensuring the initial task error is preserved, even if other tasks detect cancellation later. I'm verifying that `recordErr` correctly captures the first failure and subsequent context errors don't overwrite it.
+
+**Prioritizing Context Cancellation**
+
+I'm confirming that child contexts immediately reflect parent cancellation. This simplifies my error capture, ensuring that if the parent context times out or is cancelled, its error will be correctly prioritized and returned over any individual task errors.
+
+**Clarifying Error Priority**
+
+I'm analyzing the exact conditions under which `recordErr` captures an error. My focus is on the priority given to `ctx.Err()` when it's non-nil, ensuring that parent context cancellation is correctly identified as the primary failure even if a task error occurs concurrently or slightly after.
+
+**Validating Context Error Capture**
+
+I'm confirming that when `recordErr` is called and the parent context is already cancelled, the context's error is correctly assigned to `firstErr`. This ensures that parent cancellation takes precedence as the definitive error, even if a task simultaneously returns an error.
+
+**Confirming Context Error Priority**
+
+I'm confirming that when `recordErr` is called, if the parent context is already cancelled, its error is prioritized and assigned to `firstErr`. This ensures that context cancellation is always the definitive error over any task-specific error that might occur concurrently.
+
+**Prioritizing Parent Cancellation**
+
+I'm analyzing the `recordErr` logic. I've confirmed that if the parent context is already cancelled when `recordErr` is invoked, the context's error is correctly captured, ensuring parent cancellation takes priority over any task-specific errors.
+
+**Validating Error Logic**
+
+I'm confirming that `recordErr` correctly prioritizes parent context errors. If the context is already cancelled when an error is recorded, the context's error is assigned to `firstErr`, ensuring that the parent's cancellation is always the definitive failure.
+
+**Finalizing Error Prioritization**
+
+I'm analyzing the `recordErr` function's behavior. I've confirmed that if `ctx.Err()` is non-nil when `recordErr` is called, that error is assigned to `firstErr`, correctly prioritizing parent context cancellation over task-specific errors.
+
+**Confirming Error Assignment**
+
+I'm confirming that within `recordErr`, if `ctx.Err()` is non-nil, it is assigned to `firstErr`. This ensures that the parent context's cancellation error takes precedence and is the definitive error returned by the pool.
+
+**Prioritizing Context Error**
+
+I've confirmed that if `ctx.Err()` is already set when `recordErr` is called, it takes precedence and becomes `firstErr`. This correctly prioritizes parent context cancellation over any task error.
+
+**Validating Error Capture**
+
+I'm confirming that `recordErr` correctly captures the parent context's error if it's already set. This ensures the definitive error returned by the pool is always the parent context's cancellation error in such scenarios.
+
+**Prioritizing Context Cancellation**
+
+I'm confirming that if the parent context is already cancelled when an error is recorded, that context's error is assigned to `firstErr`. This guarantees parent cancellation is the definitive failure, taking precedence over any task errors.
+
+**Prioritizing Context Cancellation**
+
+I'm confirming that if `ctx.Err()` is already set when `recordErr` is called, that error is assigned to `firstErr`. This guarantees parent cancellation is the definitive failure, taking precedence over any task errors.
+

@@ -17,3 +17,5 @@ __pycache__/
 # be committed or nobody can configure a profile; the negation must stay below
 # the .env.* line that would otherwise swallow it.
 !.env.example
+
+run-agent.sh

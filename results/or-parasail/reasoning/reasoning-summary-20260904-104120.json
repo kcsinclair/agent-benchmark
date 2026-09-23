@@ -1,0 +1,182 @@
+{
+  "wall_seconds": 271.0,
+  "track": "reasoning",
+  "settings": {
+    "temperature": 0.0,
+    "max_tokens": 2048,
+    "think": "off",
+    "repeat": 3,
+    "seed": 1,
+    "server": "https://openrouter.ai/api",
+    "categories": [
+      "state",
+      "constraint",
+      "compliance",
+      "abstention",
+      "trap",
+      "retrieval"
+    ],
+    "provider": "Parasail"
+  },
+  "results": [
+    {
+      "model": "qwen/qwen3.8-27b",
+      "load_seconds": null,
+      "passes": [
+        {
+          "pass": 1,
+          "dir": "/opt/agent-benchmark/results/or-parasail/reasoning/qwen_qwen3.8-27b/pass1",
+          "totals": {
+            "state": {
+              "right": 5,
+              "count": 20,
+              "seconds": 13.7,
+              "failed": 0,
+              "cost_usd": 0.0007
+            },
+            "constraint": {
+              "right": 8,
+              "count": 20,
+              "seconds": 19.2,
+              "failed": 0,
+              "cost_usd": 0.0006
+            },
+            "compliance": {
+              "right": 13,
+              "count": 20,
+              "seconds": 14.1,
+              "failed": 3,
+              "cost_usd": 0.0004
+            },
+            "abstention": {
+              "right": 20,
+              "count": 20,
+              "seconds": 22.6,
+              "failed": 0,
+              "cost_usd": 0.0008
+            },
+            "trap": {
+              "right": 13,
+              "count": 14,
+              "seconds": 11.3,
+              "failed": 0,
+              "cost_usd": 0.0004
+            },
+            "retrieval": {
+              "right": 8,
+              "count": 8,
+              "seconds": 15.9,
+              "failed": 0,
+              "cost_usd": 0.0227
+            }
+          },
+          "right": 67,
+          "count": 102,
+          "cost_usd": 0.0256
+        },
+        {
+          "pass": 2,
+          "dir": "/opt/agent-benchmark/results/or-parasail/reasoning/qwen_qwen3.8-27b/pass2",
+          "totals": {
+            "state": {
+              "right": 5,
+              "count": 20,
+              "seconds": 24.4,
+              "failed": 0,
+              "cost_usd": 0.0007
+            },
+            "constraint": {
+              "right": 8,
+              "count": 20,
+              "seconds": 13.7,
+              "failed": 0,
+              "cost_usd": 0.0006
+            },
+            "compliance": {
+              "right": 14,
+              "count": 20,
+              "seconds": 15.7,
+              "failed": 0,
+              "cost_usd": 0.0005
+            },
+            "abstention": {
+              "right": 20,
+              "count": 20,
+              "seconds": 21.1,
+              "failed": 0,
+              "cost_usd": 0.0008
+            },
+            "trap": {
+              "right": 13,
+              "count": 14,
+              "seconds": 9.5,
+              "failed": 0,
+              "cost_usd": 0.0004
+            },
+            "retrieval": {
+              "right": 8,
+              "count": 8,
+              "seconds": 8.6,
+              "failed": 0,
+              "cost_usd": 0.0141
+            }
+          },
+          "right": 68,
+          "count": 102,
+          "cost_usd": 0.0171
+        },
+        {
+          "pass": 3,
+          "dir": "/opt/agent-benchmark/results/or-parasail/reasoning/qwen_qwen3.8-27b/pass3",
+          "totals": {
+            "state": {
+              "right": 5,
+              "count": 20,
+              "seconds": 13.5,
+              "failed": 0,
+              "cost_usd": 0.0007
+            },
+            "constraint": {
+              "right": 8,
+              "count": 20,
+              "seconds": 17.0,
+              "failed": 0,
+              "cost_usd": 0.0006
+            },
+            "compliance": {
+              "right": 14,
+              "count": 20,
+              "seconds": 16.4,
+              "failed": 0,
+              "cost_usd": 0.0005
+            },
+            "abstention": {
+              "right": 20,
+              "count": 20,
+              "seconds": 16.5,
+              "failed": 0,
+              "cost_usd": 0.0008
+            },
+            "trap": {
+              "right": 13,
+              "count": 14,
+              "seconds": 10.0,
+              "failed": 0,
+              "cost_usd": 0.0004
+            },
+            "retrieval": {
+              "right": 8,
+              "count": 8,
+              "seconds": 6.7,
+              "failed": 0,
+              "cost_usd": 0.0054
+            }
+          },
+          "right": 68,
+          "count": 102,
+          "cost_usd": 0.0084
+        }
+      ]
+    }
+  ]
+}

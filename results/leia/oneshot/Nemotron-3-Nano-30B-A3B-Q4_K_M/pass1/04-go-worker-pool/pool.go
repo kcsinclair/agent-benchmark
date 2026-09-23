@@ -1,0 +1,139 @@
+package main
+
+import (
+	"context"
+	"errors"
+	"sync"
+)
+
+// Run executes tasks with at most `workers` running concurrently and returns
+// their results in the same order as the input slice.
+func Run(ctx context.Context, tasks []Task, workers int) ([]any, error) {
+	if workers < 1 {
+		return nil, errors.New("workers must be >= 1")
+	}
+	if len(tasks) == 0 {
+		return []any{}, nil
+	}
+
+	// Result channel to collect outputs in order.
+	resultsCh := make(chan any, len(tasks))
+	// Error channel to propagate the first error.
+	errCh := make(chan error, 1)
+
+	// semaphore to limit concurrency.
+	sem := make(chan struct{}, workers)
+
+	// wg waits for all started tasks.
+	var wg sync.WaitGroup
+
+	// mu protects shared variables.
+	var (
+		muErr      sync.Mutex // protects firstErr
+		firstErr   error
+		muDone     sync.Mutex // protects doneCount
+		doneCount  int
+		doneClosed sync.Once
+	)
+
+	// closeDone ensures resultsCh is closed exactly once.
+	closeDoneFunc := func() {
+		doneClosed.Do(func() { close(resultsCh) })
+	}
+
+	// launchTask starts a single task respecting ordering and error handling.
+	launchTask := func(idx int, task Task) {
+		// Acquire semaphore slot.
+		select {
+		case sem <- struct{}{}:
+		case <-ctx.Done():
+			// Propagate context cancellation as first error.
+			select {
+			case errCh <- ctx.Err():
+			default:
+			}
+			return
+		}
+		wg.Add(1)
+
+		// Run the task with its own derived context.
+		taskCtx, cancel := context.WithCancel(ctx)
+		go func() {
+			defer wg.Done()
+			defer cancel()
+			// Release semaphore when done.
+			select {
+			case <-taskCtx.Done():
+			case sem <- struct{}{}:
+			}
+
+			res, err := task(taskCtx)
+			if err != nil {
+				muErr.Lock()
+				if firstErr == nil {
+					firstErr = err
+				}
+				muErr.Unlock()
+
+				// Propagate error early if not already done.
+				select {
+				case errCh <- err:
+				default:
+				}
+				return
+			}
+			// Send result preserving order.
+			select {
+			case resultsCh <- res:
+			case <-ctx.Done():
+				// If context done, treat as error.
+				select {
+				case errCh <- ctx.Err():
+				default:
+				}
+				return
+			}
+			// Signal completion.
+			muDone.Lock()
+			doneCount++
+			if doneCount == len(tasks) {
+				closeDoneFunc()
+			}
+			muDone.Unlock()
+		}()
+	}
+
+	// Launch all tasks respecting ordering.
+	for i, task := range tasks {
+		launchTask(i, task)
+	}
+
+	// Wait for all tasks to finish.
+	wg.Wait()
+
+	// Close results channel to unblock any waiting receivers.
+	close(resultsCh)
+
+	// Collect results in order.
+	var results []any
+	for i := 0; i < len(tasks); i++ {
+		select {
+		case res := <-resultsCh:
+			results = append(results, res)
+		case err := <-errCh:
+			return nil, err
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		}
+	}
+
+	// If there was an error, return it.
+	var finalErr error
+	muErr.Lock()
+	if firstErr != nil {
+		finalErr = firstErr
+	}
+	muErr.Unlock()
+
+	return results, finalErr
+}

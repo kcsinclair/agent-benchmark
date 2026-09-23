@@ -1,0 +1,24 @@
+{
+  "model": "Nemotron-3-Nano-30B-A3B-Q4_K_M",
+  "served_model": "Nemotron-3-Nano-30B-A3B-Q4_K_M",
+  "provider": null,
+  "request_id": "chatcmpl-MTH2m73RpWdgBL0Df2zfSFNW21ZxVRhX",
+  "server": "http://leia.packsin.com:7442",
+  "finish_reason": "stop",
+  "native_finish_reason": null,
+  "mode": "think=off",
+  "decode": {
+    "max_tokens": 16384,
+    "temperature": 0.0,
+    "thinking": "think=off"
+  },
+  "usage": {
+    "completion_tokens": 839,
+    "prompt_tokens": 595,
+    "total_tokens": 1434,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    }
+  },
+  "seconds": 15.0
+}

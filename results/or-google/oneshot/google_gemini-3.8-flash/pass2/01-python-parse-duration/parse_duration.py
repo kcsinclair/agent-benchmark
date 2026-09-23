@@ -1,0 +1,53 @@
+import re
+
+_FULL_RE = re.compile(r"(?:([0-9]+(?:\.[0-9]+)?)(ms|h|m|s))+")
+_COMPONENT_RE = re.compile(r"([0-9]+(?:\.[0-9]+)?)(ms|h|m|s)")
+
+_UNIT_ORDER = {
+    "h": 0,
+    "m": 1,
+    "s": 2,
+    "ms": 3,
+}
+
+_UNIT_MULTIPLIER = {
+    "h": 3600.0,
+    "m": 60.0,
+    "s": 1.0,
+    "ms": 0.001,
+}
+
+
+def parse_duration(text: str) -> float:
+    """Parse a human-readable duration string and return total seconds as a float."""
+    if not isinstance(text, str):
+        raise TypeError(f"text must be a str, got {type(text).__name__}")
+
+    s = text.strip()
+    if not s:
+        raise ValueError("Duration string cannot be empty")
+
+    is_negative = False
+    if s.startswith("-"):
+        is_negative = True
+        s = s[1:]
+        if not s:
+            raise ValueError("Duration string cannot be just '-'")
+
+    if not _FULL_RE.fullmatch(s):
+        raise ValueError(f"Invalid duration format: {text!r}")
+
+    total = 0.0
+    prev_order = -1
+
+    for match in _COMPONENT_RE.finditer(s):
+        val_str, unit = match.groups()
+        order = _UNIT_ORDER[unit]
+        if order <= prev_order:
+            raise ValueError(
+                f"Invalid unit order or duplicate unit: {unit!r} after previous component"
+            )
+        prev_order = order
+        total += float(val_str) * _UNIT_MULTIPLIER[unit]
+
+    return -total if is_negative else total

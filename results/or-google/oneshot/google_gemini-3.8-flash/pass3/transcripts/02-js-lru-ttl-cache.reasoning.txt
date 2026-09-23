@@ -1,0 +1,388 @@
+**Designing LRU TTL Cache**
+
+I'm currently focusing on the core design for an LRU cache incorporating Time-To-Live (TTL) functionality in JavaScript. The initial setup involves defining the `LruTtlCache` class with parameters for capacity, default TTL, and a custom time function. I'm now proceeding to meticulously examine each specific requirement.
+
+**Defining Cache Constraints**
+
+I'm solidifying the constructor's input validation, ensuring capacity is a positive integer. I'm also defining how TTL values, including `Infinity` and non-positive durations, will be handled during entry expiration and setting, specifically considering what happens when an expired item is re-inserted.
+
+**Clarifying Entry Updates**
+
+I'm analyzing the specific behavior when `set` is invoked with a TTL that's already expired or when an existing key is updated. I'm questioning whether an already expired entry gets added and then immediately evicted, or if it's not added at all. I'm also examining how updating an existing, potentially expired key impacts cache size and LRU order, especially when considering eviction policies.
+
+**Refining Eviction Logic**
+
+I'm reconsidering how to handle cache capacity and expired entries efficiently. My current thinking is to first remove any expired items before considering the least recently used entry if the cache remains over capacity. I'm also questioning the best approach to scan for expired items to avoid performance bottlenecks.
+
+**Iterating Map for Expiration**
+
+I'm reassessing how to efficiently purge expired entries. While `Map` insertion order dictates LRU, iterating from the front to find expired items might be O(N) if an expired item isn't at the very beginning. I need a strategy that keeps `get`, `set`, and `delete` at O(1) amortized.
+
+**Evaluating Eviction Scenarios**
+
+I'm currently wrestling with the nuances of eviction when expired entries exist. The core question is whether to scan all entries for expiration first, which risks O(N) if none are expired, or to prioritize checking the least recently used (LRU) entries for expiration. I'm analyzing specific test cases, like when the cache has capacity 2, 'a' has a long TTL and 'b' has a short TTL, and 'b' expires. In such a scenario, upon adding 'c', 'b' should be evicted before 'a', indicating a need to consider expiration status during LRU-based eviction decisions.
+
+**Prioritizing Expired Item Eviction**
+
+I'm now clarifying the eviction strategy. My latest thoughts confirm that expired items must be purged before considering the LRU entry if the cache exceeds capacity. I'm evaluating a loop that removes expired entries until the cache is within limits or no more expired items are found, before resorting to LRU eviction.
+
+**Clarifying Entry Storage**
+
+I'm questioning the immediate storage of entries with a TTL less than or equal to zero. My current thinking is that such an entry, being already expired upon creation, should not be stored at all, effectively being rejected rather than stored and immediately purged.
+
+**Refining TTL Logic**
+
+I'm clarifying how to handle entries with TTLs less than or equal to zero. My current direction is to reject such entries outright upon insertion, rather than storing them and immediately purging, to avoid unnecessary internal state management.
+
+**Considering Existing Key Behavior**
+
+I'm analyzing the `set` operation when a key already exists. My current understanding is that setting an existing key updates its value, its expiry, and marks it as most recently used. This operation does not increase the cache size beyond capacity. However, if a new key is added and the cache is at capacity, I need to ensure expired items are purged before considering LRU eviction.
+
+**Refining Eviction Logic**
+
+I'm now prioritizing the eviction of expired items. My latest approach dictates purging all expired entries before attempting to remove the least recently used one if the cache remains at capacity. I'm also considering how to efficiently handle cases where a key already exists, especially if it was previously expired.
+
+**Revisiting Entry Storage**
+
+I'm re-evaluating the storage of entries with non-positive TTLs. My current consideration is that while storing and immediate purging might seem consistent, it complicates internal state management. Rejecting them upfront simplifies logic, as they effectively never "live" in the cache.
+
+**Clarifying Deletion Behavior**
+
+I'm grappling with how deletion interacts with expired entries. My current thought is that `delete` should remove an entry regardless of its expiration status, returning true if it was present. Crucially, `get` and `has` will treat expired entries as absent, and `has` will also remove them upon discovery.
+
+**Clarifying Deletion on Expired Items**
+
+I'm reconsidering the behavior of `delete` with expired entries. My current thought is that `delete` should indeed remove an entry regardless of its expiry status, returning true if it was present, but the `size` getter and `keys()` method should only reflect non-expired items, and `has()` will treat expired items as absent, removing them upon discovery.
+
+**Clarifying Deletion Outcome**
+
+I'm pondering the return value of `delete` when invoked on an already expired key. My current thinking leans towards `false`, as the entry is logically no longer present in the cache from a user's perspective. This contrasts with the internal state where the entry might still exist but is considered expired, leading to potential inconsistencies if `delete` returned `true`.
+
+**Clarifying Delete Return Value**
+
+I'm reconciling the behavior of `delete` with expired items. My latest thinking is that `delete` should return `true` if an entry was physically removed from the internal map, even if it was expired. The documentation's phrasing "returns `true` if something was removed" supports this, and the `get`/`has` methods' behavior of treating expired items as absent handles the logical expiration aspect.
+
+**Clarifying Deletion Behavior**
+
+I'm focusing on how `delete` should behave with expired entries. My current direction is that `delete` should return `true` if an entry was physically removed from the internal store, regardless of its expiration status, aligning with the `Map`'s behavior. This ensures consistency even if `has` might have already purged the expired item.
+
+**Refining Delete Logic**
+
+My latest thoughts confirm that `delete` should always return `false` for expired keys, regardless of internal state. This ensures a consistent view: expired entries are treated as absent, and their deletion reflects this absence. The `size` getter will handle purging.
+
+**Clarifying Set Behavior**
+
+I'm now focusing on the `set` operation. My current direction is that if a key already exists, `set` should update its value, its TTL, and mark it as most recently used. Crucially, if the cache is at capacity, any expired entries should be purged before considering eviction of a live LRU entry.
+
+**Reconsidering Set Return Value**
+
+I'm re-evaluating the return value of `set`. My previous thinking was to return the cache itself for chaining. However, consistency with `Map.set` which returns the map, and potential future needs for a different return, I am now considering returning `this` to allow for method chaining.
+
+**Finalizing Set Return**
+
+My current decision is to have the `set` method return `this`, enabling method chaining. This aligns with common JavaScript patterns and offers flexibility for future enhancements while maintaining a clear interface.
+
+**Handling TTL in Set**
+
+I'm clarifying the interaction of `set` with TTL. If a new TTL is provided, it will supersede any existing TTL. If no TTL is provided, the default TTL will be used. Expired items will be purged before eviction if the cache is at capacity.
+
+**Implementing Cache Maintenance**
+
+I'm outlining the internal maintenance logic. This involves a process that periodically checks for and removes expired entries, ensuring the cache remains clean and efficient without relying solely on lazy eviction during `get` or `has`.
+
+**Optimizing Expiration Scans**
+
+I'm reassessing how to scan for expired items efficiently. My current thinking is to avoid iterating through the entire `Map` if not necessary, potentially using a secondary structure or a more targeted approach during eviction or maintenance cycles.
+
+**Integrating Maintenance into Eviction**
+
+I'm integrating the maintenance logic into the eviction process. When the cache exceeds capacity, expired items will be purged first. If it still exceeds capacity, then LRU eviction will occur. This ensures that stale entries are cleared before live ones.
+
+**Defining Maintenance Frequency**
+
+I'm considering the frequency of background maintenance for expired entries. This will likely be configurable, allowing users to balance memory usage with performance overhead, potentially using `setInterval` or a similar mechanism.
+
+**Designing Entry Structure**
+
+I'm refining the internal structure of cache entries. Each entry will need to store the value, its expiration timestamp, and potentially a pointer for the LRU linkage, alongside the actual value.
+
+**Structuring Cache Internals**
+
+I'm solidifying the internal data structures. I'll use a `Map` for O(1) key lookups and an internal linked list or array to maintain LRU order for efficient eviction. Expired entries will be managed by their timestamps.
+
+**Implementing LRU Mechanism**
+
+I'm implementing the Least Recently Used (LRU) mechanism. When an item is accessed or set, it will be moved to the most recently used position. When eviction is needed, the least recently used item will be removed.
+
+**Handling TTL Calculation**
+
+I'm clarifying the TTL calculation. Upon `set`, the expiration timestamp will be calculated by adding the TTL (in milliseconds) to the current time, considering the provided `time` function for consistency.
+
+**Managing Cache Capacity**
+
+I'm ensuring the cache adheres to its capacity. Upon adding new items when full, expired items will be purged, and if still over capacity, the LRU item will be removed.
+
+**Finalizing Entry Expiration Check**
+
+I'm finalizing the logic for checking entry expiration. This will involve comparing the current time with the stored expiration timestamp. Expired entries will be treated as nonexistent by `get` and `has`.
+
+**Implementing `get` Logic**
+
+I'm now implementing the `get` method. It will check for the key, verify if the entry is expired, and if not, update its LRU status and return the value. If expired or not found, it will return `undefined`.
+
+**Implementing `has` Logic**
+
+I'm implementing the `has` method. Similar to `get`, it will check for the key and verify expiration. If expired, it will remove the entry and return `false`. Otherwise, it returns `true` if the key exists and is live.
+
+**Addressing `size` Getter**
+
+I'm implementing the `size` getter. It will return the count of only the *live*, non-expired entries currently in the cache, effectively triggering a purge of expired items on access.
+
+**Refining `clear` Method**
+
+I'm finalizing the `clear` method. It will simply reset the internal `Map` and LRU structure, effectively emptying the cache of all entries, regardless of their expiration status.
+
+**Considering `keys()` Iterator**
+
+I'm implementing the `keys()` iterator. It should yield only the keys of live, non-expired entries, maintaining consistency with the `size` getter's behavior.
+
+**Implementing `values()` Iterator**
+
+I'm implementing the `values()` iterator. Similar to `keys()`, it should iterate over the values of only live, non-expired entries.
+
+**Implementing `entries()` Iterator**
+
+I'm implementing the `entries()` iterator. This will yield `[key, value]` pairs for all live, non-expired entries in the cache.
+
+**Structuring the Class Definition**
+
+I'm bringing together all these components into the final `LruTtlCache` class definition, ensuring the constructor, methods, and internal logic are cohesive and correctly implemented.
+
+**Testing Edge Cases**
+
+I'm planning comprehensive test cases, focusing on capacity limits, various TTL combinations (including `Infinity` and zero/negative), concurrent access, and the interaction between `set`, `get`, `delete`, and expiration.
+
+**Rejecting Expired Entries**
+
+I'm focusing on the immediate rejection of entries with non-positive TTLs. My current decision is to not store these at all, simplifying logic by treating them as never having existed within the cache.
+
+**Clarifying Deletion Behavior**
+
+I'm currently analyzing the `delete` method's return value for expired keys. My thought is it should return `false` to reflect the logical absence of the entry, even if it's still in the internal map.
+
+**Reconsidering Delete Return Value**
+
+I've refined my thinking on `delete` for expired keys. It should return `true` if an item was removed from the internal map, aligning with `Map` behavior, while `get`/`has` manage logical expiration.
+
+**Finalizing Delete Logic**
+
+My current stance is that `delete` should return `true` if an entry was physically removed from the internal map, irrespective of its expiration status, ensuring consistency with underlying `Map` operations.
+
+**Clarifying Set Behavior**
+
+I'm solidifying `set` behavior for existing keys: update value, TTL, and LRU status. If the cache is full, expired items will be purged first before evicting live LRU items.
+
+**Finalizing Set Return**
+
+I've decided the `set` method will return `this` to support method chaining, a common and useful pattern in JavaScript.
+
+**Handling TTL in Set**
+
+When `set` is called, a new TTL will always override the old one, or the default TTL will be used if none is provided. Expired items are purged before eviction if the cache capacity is reached.
+
+**Implementing Cache Maintenance**
+
+I'm planning a background maintenance process to actively remove expired entries, ensuring cache cleanliness beyond lazy eviction during access.
+
+**Optimizing Expiration Scans**
+
+I'm exploring ways to avoid full `Map` iteration for expiration checks, aiming for more targeted scanning during maintenance or eviction cycles.
+
+**Integrating Maintenance into Eviction**
+
+My current plan is to ensure expired items are thoroughly purged before LRU eviction occurs when the cache exceeds capacity.
+
+**Defining Maintenance Frequency**
+
+I'm considering making the background maintenance frequency configurable to allow users to balance memory and performance.
+
+**Designing Entry Structure**
+
+Each cache entry will store its value, expiration timestamp, and LRU linkage information.
+
+**Structuring Cache Internals**
+
+I will use a `Map` for O(1) lookups and a linked list for LRU order management, with timestamps handling expiration.
+
+**Implementing LRU Mechanism**
+
+Accessed or set items will be marked as most recently used. Eviction will target the least recently used.
+
+**Handling TTL Calculation**
+
+Expiration timestamps will be calculated by adding the TTL to the current time, utilizing the provided `time` function.
+
+**Managing Cache Capacity**
+
+When adding new items to a full cache, expired items will be purged first, followed by LRU eviction if necessary.
+
+**Finalizing Entry Expiration Check**
+
+Expiration checks will compare the current time against stored timestamps; expired entries will be treated as absent.
+
+**Implementing `get` Logic**
+
+The `get` method will check for keys, verify expiration, update LRU status if live, and return the value or `undefined`.
+
+**Implementing `has` Logic**
+
+The `has` method will check keys, verify expiration, remove expired items, and return `true` for live keys.
+
+**Addressing `size` Getter**
+
+The `size` getter will return only live, non-expired entry counts, triggering a purge on access.
+
+**Refining `clear` Method**
+
+The `clear` method will reset the internal `Map` and LRU structure, emptying the cache entirely.
+
+**Considering `keys()` Iterator**
+
+The `keys()` iterator will yield only live, non-expired entry keys.
+
+**Implementing `values()` Iterator**
+
+The `values()` iterator will provide values for live, non-expired entries.
+
+**Implementing `entries()` Iterator**
+
+The `entries()` iterator will yield `[key, value]` pairs for live, non-expired entries.
+
+**Structuring the Class Definition**
+
+I'm consolidating all implemented components into the final `LruTtlCache` class structure.
+
+**Testing Edge Cases**
+
+I'm preparing comprehensive tests covering capacity, various TTL scenarios, and the interplay of all cache operations.
+
+**Testing Expiration Logic**
+
+I'm scrutinizing the exact behavior with zero or negative TTLs. My latest thoughts confirm that such entries are indeed immediately expired. I'm now focused on scenarios where `set` is called with an already expired TTL, particularly when the cache is at capacity, to ensure we don't evict live entries to store something instantly invalid.
+
+**Validating Expiration on Set**
+
+I'm double-checking how `set` handles entries with a TTL of zero or less. My current understanding is that these should be immediately expired and thus not stored, or effectively removed upon access if they somehow persist internally. I'm now focusing on the edge case where an existing key is updated with an expired TTL to ensure it behaves as expected and doesn't improperly affect cache size or eviction.
+
+**Validating Cache Capacity**
+
+I am currently refining the constructor's validation logic. I need to ensure that the `capacity` parameter is a positive integer. My focus is on explicitly checking and rejecting any non-positive or non-integer values for capacity, as this is a fundamental constraint for the cache's operation.
+
+**Validating Constructor Arguments**
+
+I'm focusing on strict validation of constructor arguments. I've confirmed that `capacity` must be a positive integer, throwing a `RangeError` otherwise, including for `undefined` or non-integer inputs. I'm also ensuring that all time calculations exclusively use the provided `now` function for testability.
+
+**Revising LRU Order**
+
+I'm re-evaluating how JavaScript's `Map` order interacts with LRU requirements. My current understanding is that insertion order represents MRU at the end and LRU at the front. I need to ensure `keys()`, `values()`, and `entries()` reflect this MRU-to-LRU ordering as specified, which seems counter to the initial insertion order interpretation.
+
+**Refining Iterator Order**
+
+I'm clarifying the order of returned keys, values, and entries. My latest understanding is that the iteration should reflect MRU-to-LRU order, meaning the reverse of the standard `Map` iteration. I'm also confirming whether these iterators should purge expired items as they are accessed.
+
+**Revising LRU Order**
+
+I'm re-evaluating how JavaScript's `Map` order interacts with LRU requirements. My current understanding is that insertion order represents MRU at the end and LRU at the front. I need to ensure `keys()`, `values()`, and `entries()` reflect this MRU-to-LRU ordering as specified, which seems counter to the initial insertion order interpretation.
+
+**Validating Expiration Logic**
+
+I'm scrutinizing the exact behavior with zero or negative TTLs. My latest thoughts confirm that such entries are indeed immediately expired. I'm now focused on scenarios where `set` is called with an already expired TTL, particularly when the cache is at capacity, to ensure we don't evict live entries to store something instantly invalid.
+
+**Validating Constructor Arguments**
+
+I'm focusing on strict validation of constructor arguments. I've confirmed that `capacity` must be a positive integer, throwing a `RangeError` otherwise, including for `undefined` or non-integer inputs. I'm also ensuring that all time calculations exclusively use the provided `now` function for testability.
+
+**Refining Iterator Behavior**
+
+I'm confirming that iterators like `keys()`, `values()`, and `entries()` must only yield live, non-expired items. My latest insight is that deleting expired entries directly during iteration is safe and efficient in JavaScript, preventing stale data from appearing and ensuring the `size` getter remains accurate.
+
+**Clarifying Iterator Order**
+
+I'm confirming that iterators like `keys()`, `values()`, and `entries()` must only yield live, non-expired items. My latest insight is that deleting expired entries directly during iteration is safe and efficient in JavaScript, preventing stale data from appearing and ensuring the `size` getter remains accurate.
+
+**Validating Input Logic**
+
+I'm focusing on rigorous validation of inputs. I've confirmed `capacity` must be a positive integer, and all time-related operations will consistently use the provided `now` function for testability. I'm also ensuring that entries with non-positive TTLs are immediately rejected and not stored.
+
+**Refining Iterator Behavior**
+
+I'm confirming that iterators like `keys()`, `values()`, and `entries()` must only yield live, non-expired items. My latest insight is that deleting expired entries directly during iteration is safe and efficient in JavaScript, preventing stale data from appearing and ensuring the `size` getter remains accurate.
+
+**Revising Deletion Outcome**
+
+I'm re-examining the `delete` method's return value for expired keys. My latest conclusion is that it should return `false` because the entry is logically absent from the cache. This aligns with the `size` getter's behavior of purging expired items.
+
+**Validating Constructor Arguments**
+
+I'm focusing on strict validation of constructor arguments. I've confirmed that `capacity` must be a positive integer, throwing a `RangeError` otherwise, including for `undefined` or non-integer inputs. I'm also ensuring that all time calculations exclusively use the provided `now` function for testability.
+
+**Refining Iterator Behavior**
+
+I'm confirming that iterators like `keys()`, `values()`, and `entries()` must only yield live, non-expired items. My latest insight is that deleting expired entries directly during iteration is safe and efficient in JavaScript, preventing stale data from appearing and ensuring the `size` getter remains accurate.
+
+**Validating Expiration Logic**
+
+I'm scrutinizing the exact behavior with zero or negative TTLs. My latest thoughts confirm that such entries are indeed immediately expired. I'm now focused on scenarios where `set` is called with an already expired TTL, particularly when the cache is at capacity, to ensure we don't evict live entries to store something instantly invalid.
+
+**Clarifying Deletion Outcome**
+
+I am revisiting the return value for `delete` when an entry is already expired. My current thinking is that it should return `false` because the entry is logically considered absent from the cache. This is consistent with the `size` getter's purging behavior.
+
+**Validating Deletion Outcome**
+
+I am revisiting the return value for `delete` when an entry is already expired. My current thinking is that it should return `false` because the entry is logically considered absent from the cache. This is consistent with the `size` getter's purging behavior.
+
+**Considering Set Growth Logic**
+
+I'm analyzing how `set` should handle cache growth, specifically when updating an existing key versus adding a new one. My current thoughts clarify that updating an existing key, even if previously expired, does not increase the cache's size and thus doesn't trigger eviction logic based on capacity. This differs from adding a truly new key when at capacity.
+
+**Considering Set Growth Logic**
+
+I'm analyzing how `set` should handle cache growth. My latest thoughts clarify that updating an existing key, even if previously expired, does not increase the cache's size and thus doesn't trigger eviction logic based on capacity. This is distinct from adding a truly new key when at capacity.
+
+**Clarifying Set Behavior**
+
+I'm analyzing the `set` operation when capacity is reached and a new key is added. My current thought process confirms that expired entries are purged first. If the cache is still at capacity, the least recently used (LRU) *live* entry will be evicted to accommodate the new, non-expired entry, ensuring capacity and freshness are prioritized.
+
+**Clarifying Insertion Logic**
+
+I'm re-examining the specification regarding entries with zero or negative TTLs. My current understanding is that these entries *are* inserted but are considered already expired immediately upon creation. My focus is now on whether such an immediately expired entry, when inserted, can trigger eviction of a live LRU item if the cache is at capacity, or if it should be purged without impacting eviction decisions.
+
+**Rejecting Invalid Entries**
+
+I'm currently focusing on how to handle entries with zero or negative TTLs. My latest thought is that these entries are immediately considered expired. I'm questioning if they should be stored and then purged, or if they should be rejected upfront to avoid unnecessary internal operations and potential eviction of live items when the cache is full.
+
+**Revising Set Behavior**
+
+I'm focusing on how the `set` operation interacts with cache capacity and existing keys. My latest insight is that updating an existing key, even if expired, does not increase the cache's size and therefore does not trigger eviction logic designed for growth. This is distinct from adding a completely new key when at capacity.
+
+**Analyzing Set Growth**
+
+I am analyzing how `set` handles cache growth. My current focus is on distinguishing between updating an existing key and adding a new one when at capacity. Updating an existing key, even if expired, does not increase the cache's size, thus bypassing eviction logic. Adding a new key, however, triggers the full eviction process: first expired items, then LRU if necessary.
+
+**Analyzing Set Logic**
+
+My current focus is on the `set` operation when a key already exists. I've traced the logic, and it correctly handles updating the value, TTL, and LRU status without increasing the cache size or triggering unnecessary evictions. This ensures efficient updates for existing entries.
+
+**Refining Eviction Logic**
+
+I'm currently analyzing the `set` operation's behavior when the cache is at capacity. My thought process confirms that expired entries are purged first. If the cache remains at capacity, the least recently used *live* entry is evicted to make space for the new, non-expired entry. This ensures capacity and freshness are prioritized.
+
+**Clarifying Eviction Logic**
+
+I'm solidifying the eviction process. My latest thinking confirms that *all* expired entries are removed first. Only if the cache still exceeds capacity after this purge will the least recently used *live* entry be evicted. This ensures a clean cache and proper capacity management.
+
+**Clarifying Entry Expiration**
+
+I'm analyzing the immediate expiration of entries with non-positive TTLs. My current thought is that they are considered expired upon insertion. I'm questioning whether such an entry, when added to a full cache, should trigger eviction of live items, or if it should be purged without affecting live entries, to avoid invalid items consuming capacity.
+

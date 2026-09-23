@@ -1,0 +1,453 @@
+{
+  "wall_seconds": 687.6,
+  "track": "agent",
+  "settings": {
+    "temperature": 0.0,
+    "max_tokens": 8192,
+    "max_turns": 12,
+    "think": "off",
+    "repeat": 3,
+    "server": "https://openrouter.ai/api",
+    "provider": "DeepInfra"
+  },
+  "results": [
+    {
+      "model": "nvidia/nemotron-3.5-lightning",
+      "track": "agent",
+      "load_seconds": null,
+      "passes": [
+        {
+          "pass": 1,
+          "dir": "/opt/agent-benchmark/results/or-deepinfra/agent/nvidia_nemotron-3.5-lightning/pass1",
+          "problems": [
+            {
+              "problem": "01-python-parse-duration",
+              "turns": 12,
+              "tool_calls": 12,
+              "bad_calls": 0,
+              "files": [
+                "parse_duration.py",
+                "parse_duration.py",
+                "test_parse.py",
+                "test_parse.py",
+                "run_tests.py",
+                "run_tests.py",
+                "run_test.py",
+                "run_test.py"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 7729,
+              "stop": "hit the 12 turn limit",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.006150760000000001,
+              "provider": "DeepInfra",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 30.1,
+              "missing": [],
+              "extra": [
+                "run_test.py",
+                "run_tests.py",
+                "test_parse.py"
+              ]
+            },
+            {
+              "problem": "02-js-lru-ttl-cache",
+              "turns": 4,
+              "tool_calls": 3,
+              "bad_calls": 0,
+              "files": [
+                "cache.mjs"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 1429,
+              "stop": "stopped after 4 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.0009730800000000001,
+              "provider": "DeepInfra",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 5.9,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "03-sql-analytics",
+              "turns": 5,
+              "tool_calls": 4,
+              "bad_calls": 0,
+              "files": [
+                "q1.sql",
+                "q2.sql",
+                "q3.sql",
+                "q4.sql"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 588,
+              "stop": "stopped after 5 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.0006844,
+              "provider": "DeepInfra",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 5.9,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "04-go-worker-pool",
+              "turns": 7,
+              "tool_calls": 6,
+              "bad_calls": 0,
+              "files": [
+                "pool.go",
+                "pool.go"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 1607,
+              "stop": "stopped after 7 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.00163364,
+              "provider": "DeepInfra",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 11.1,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "05-python-scheduler",
+              "turns": 12,
+              "tool_calls": 12,
+              "bad_calls": 0,
+              "files": [
+                "scheduler.py",
+                "test_scheduler.py",
+                "run_test.py",
+                "run_test.py",
+                "run_test.py",
+                "run_test.py",
+                "run_test.py",
+                "run_test.py",
+                "run_test.py",
+                "run_test.py"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 5227,
+              "stop": "hit the 12 turn limit",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.004679560000000001,
+              "provider": "DeepInfra",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 19.0,
+              "missing": [],
+              "extra": [
+                "run_test.py",
+                "test_scheduler.py"
+              ]
+            }
+          ],
+          "seconds": 72.0,
+          "cost_usd": 0.0141,
+          "score": 53,
+          "max": 68
+        },
+        {
+          "pass": 2,
+          "dir": "/opt/agent-benchmark/results/or-deepinfra/agent/nvidia_nemotron-3.5-lightning/pass2",
+          "problems": [
+            {
+              "problem": "01-python-parse-duration",
+              "turns": 12,
+              "tool_calls": 12,
+              "bad_calls": 0,
+              "files": [
+                "parse_duration.py",
+                "test_parse.py",
+                "run_test.py",
+                "run_test.py",
+                "run_test.py",
+                "run_test.py",
+                "run_test.py",
+                "run_test.py",
+                "run_test.py",
+                "run_test.py"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 2558,
+              "stop": "hit the 12 turn limit",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.0037955199999999997,
+              "provider": "DeepInfra",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 24.2,
+              "missing": [],
+              "extra": [
+                "run_test.py",
+                "test_parse.py"
+              ]
+            },
+            {
+              "problem": "02-js-lru-ttl-cache",
+              "turns": 4,
+              "tool_calls": 3,
+              "bad_calls": 0,
+              "files": [
+                "cache.mjs"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 1372,
+              "stop": "stopped after 4 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.0010463199999999999,
+              "provider": "DeepInfra",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 6.3,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "03-sql-analytics",
+              "turns": 5,
+              "tool_calls": 4,
+              "bad_calls": 0,
+              "files": [
+                "q1.sql",
+                "q2.sql",
+                "q3.sql",
+                "q4.sql"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 628,
+              "stop": "stopped after 5 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.0006928,
+              "provider": "DeepInfra",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 7.2,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "04-go-worker-pool",
+              "turns": 12,
+              "tool_calls": 12,
+              "bad_calls": 4,
+              "files": [
+                "pool.go",
+                "pool.go",
+                "pool.go",
+                "pool_test.go",
+                "pool.go",
+                "pool_test.go"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [
+                "bash",
+                "bash",
+                "bash",
+                "bash"
+              ],
+              "tokens": 5849,
+              "stop": "hit the 12 turn limit",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.0052922,
+              "provider": "DeepInfra",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 29.4,
+              "missing": [],
+              "extra": [
+                "pool_test.go"
+              ]
+            },
+            {
+              "problem": "05-python-scheduler",
+              "turns": 12,
+              "tool_calls": 12,
+              "bad_calls": 2,
+              "files": [
+                "scheduler.py",
+                "test_scheduler.py",
+                "test_scheduler.py",
+                "test_scheduler.py",
+                "test_scheduler.py",
+                "test_scheduler.py",
+                "run_test.py",
+                "run_test.py",
+                "run_test.py"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [
+                "execute",
+                "execute"
+              ],
+              "tokens": 4627,
+              "stop": "hit the 12 turn limit",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.004607960000000001,
+              "provider": "DeepInfra",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 17.6,
+              "missing": [],
+              "extra": [
+                "run_test.py",
+                "test_scheduler.py"
+              ]
+            }
+          ],
+          "seconds": 84.7,
+          "cost_usd": 0.0154,
+          "score": 41,
+          "max": 68
+        },
+        {
+          "pass": 3,
+          "dir": "/opt/agent-benchmark/results/or-deepinfra/agent/nvidia_nemotron-3.5-lightning/pass3",
+          "problems": [
+            {
+              "problem": "01-python-parse-duration",
+              "turns": 3,
+              "tool_calls": 2,
+              "bad_calls": 0,
+              "files": [
+                "parse_duration.py"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 1219,
+              "stop": "stopped after 3 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.0006917199999999999,
+              "provider": "DeepInfra",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 6.4,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "02-js-lru-ttl-cache",
+              "turns": 4,
+              "tool_calls": 3,
+              "bad_calls": 0,
+              "files": [
+                "cache.mjs"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 1440,
+              "stop": "stopped after 4 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.00097488,
+              "provider": "DeepInfra",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 7.4,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "03-sql-analytics",
+              "turns": 5,
+              "tool_calls": 4,
+              "bad_calls": 0,
+              "files": [
+                "q1.sql",
+                "q2.sql",
+                "q3.sql",
+                "q4.sql"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 583,
+              "stop": "stopped after 5 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.0006834,
+              "provider": "DeepInfra",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 5.5,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "04-go-worker-pool",
+              "turns": 4,
+              "tool_calls": 3,
+              "bad_calls": 0,
+              "files": [
+                "pool.go"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 1193,
+              "stop": "stopped after 4 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.00085756,
+              "provider": "DeepInfra",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 5.7,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "05-python-scheduler",
+              "turns": 4,
+              "tool_calls": 3,
+              "bad_calls": 0,
+              "files": [
+                "scheduler.py"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 973,
+              "stop": "stopped after 4 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.00087244,
+              "provider": "DeepInfra",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 5.1,
+              "missing": [],
+              "extra": []
+            }
+          ],
+          "seconds": 30.1,
+          "cost_usd": 0.0041,
+          "score": 49,
+          "max": 68
+        }
+      ]
+    }
+  ]
+}

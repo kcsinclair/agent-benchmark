@@ -1,0 +1,115 @@
+**`cache.mjs`**
+
+```js
+// cache.mjs
+// ES‑module implementation of an LRU cache with per‑entry TTL.
+// All time calculations use the injected `now` function (ms).
+
+export class LruTtlCache {
+  /**
+   * @param {Object} opts
+   * @param {number} opts.capacity                – max number of live entries (>=1)
+   * @param {number} [opts.defaultTtlMs=Infinity] – default TTL in ms (Infinity = never)
+   * @param {() => number} [opts.now=()=>Date.now()] – clock function returning ms
+   */
+  constructor({ capacity, defaultTtlMs = Infinity, now = () => Date.now() }) {
+    if (!Number.isInteger(capacity) || capacity < 1) {
+      throw new RangeError('capacity must be an integer >= 1');
+    }
+    this._capacity = capacity;
+    this._defaultTtlMs = defaultTtlMs;
+    this._now = now;
+
+    // Map key → { value, expiryMs, usedAtMs }
+    this._store = new Map();
+  }
+
+  /** @returns {number} number of live entries */
+  get size() {
+    this._purgeExpired();
+    return this._store.size;
+  }
+
+  /** @returns {Array<key>} keys ordered most‑recent → least‑recent */
+  keys() {
+    this._purgeExpired();
+    // Map preserves insertion order; we need reverse order.
+    return Array.from(this._store.keys()).reverse();
+  }
+
+  /** @param {any} key */
+  has(key) {
+    this._purgeExpired();
+    return this._store.has(key);
+  }
+
+  /** @param {any} key @param {*} value @param {number} [ttlMs] */
+  set(key, value, ttlMs) {
+    // Normalise TTL
+    const ttl = ttlMs !== undefined ? ttlMs : this._defaultTtlMs;
+    const expiryMs = ttl === Infinity ? Infinity : this._now() + ttl;
+
+    // Insert or replace
+    this._store.set(key, { value, expiryMs, usedAtMs: this._now() });
+    // Ensure recency order: move to the end (most recent)
+    // Map does not have a direct "move to end" method, so we re‑insert.
+    const entry = this._store.get(key);
+    if (entry) {
+      // Re‑insert to update order
+      this._store.delete(key);
+      this._store.set(key, entry);
+    }
+    this._evictIfNeeded();
+    return this;
+  }
+
+  /** @param {any} key @returns {*} value or undefined */
+  get(key) {
+    const entry = this._store.get(key);
+    if (!entry) return undefined;
+    const nowMs = this._now();
+    if (entry.expiryMs !== Infinity && nowMs >= entry.expiryMs) {
+      // Expired – remove and treat as absent
+      this._store.delete(key);
+      return undefined;
+    }
+    // Refresh recency
+    const { usedAtMs } = entry;
+    this._store.delete(key);
+    this._store.set(key, { ...entry, usedAtMs: nowMs });
+    return entry.value;
+  }
+
+  /** @param {any} key @returns {boolean} true if present and not expired */
+  has(key) {
+    this._purgeExpired();
+    return this._store.has(key);
+  }
+
+  /** @param {any} key @returns {boolean} true if removed */
+  delete(key) {
+    const existed = this._store.delete(key);
+    return existed;
+  }
+
+  /** Internal: remove all expired entries */
+  _purgeExpired() {
+    const nowMs = this._now();
+    for (const [key, entry] of this._store) {
+      if (entry.expiryMs !== Infinity && nowMs >= entry.expiryMs) {
+        this._store.delete(key);
+      }
+    }
+  }
+
+  /** Internal: evict until size ≤ capacity */
+  _evictIfNeeded() {
+    this._purgeExpired();
+    while (this._store.size > this._capacity) {
+      // Map preserves insertion order; the first entry is the least‑recently used.
+      const firstKey = this._store.keys().next().value;
+      this._store.delete(firstKey);
+    }
+  }
+}
+```

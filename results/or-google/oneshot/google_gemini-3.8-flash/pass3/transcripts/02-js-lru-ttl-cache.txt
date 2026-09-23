@@ -1,0 +1,56 @@
+Does it affect recency? No, `this.#map` order is untouched.
+If expired, does it remove the entry? Yes, `this.#map.delete(key)`.
+Returns `false` if absent or expired, `true` if present and not expired.
+
+Now check `delete(key)`:
+"- `delete(key)` — removes the entry; returns `true` if something was removed."
+```js
+delete(key) {
+  const entry = this.#map.get(key);
+  if (!entry) {
+    return false;
+  }
+  if (this.#isExpired(entry)) {
+    this.#map.delete(key);
+    return false;
+  }
+  this.#map.delete(key);
+  return true;
+}
+```
+Wait! Let's think again:
+If `entry` was expired, could someone test:
+```js
+cache.set('a', 1, 10);
+clock.tick(20);
+const res = cache.delete('a');
+```
+Could someone expect `res` to be `false` or `true`?
+Wait! Let's re-read:
+"- `delete(key)` — removes the entry; returns `true` if something was removed."
+Wait! Why does it say:
+"removes the entry; returns `true` if something was removed"
+Wait, if `a` is expired, is `a` an entry?
+Wait! If someone says:
+"returns true if something was removed"
+In `Map.prototype.delete(key)`:
+"returns true if an element in the Map object existed and has been removed, or false if the element does not exist."
+Wait! If an entry is expired, is it an entry in the cache?
+Suppose a cache user sets TTL 10ms. 1 hour later, they call `cache.delete('a')`.
+Did they delete 'a' from the cache, or was 'a' already gone (expired)?
+If `cache.has('a') === false`, how could `cache.delete('a') === true`?
+Wait! Imagine:
+`cache.has('a')` is false.
+`cache.get('a')` is undefined.
+`cache.size` is 0.
+`cache.keys()` is [].
+If `cache.delete('a')` returned `true`, that would be completely contradictory to `has('a') === false` and `size === 0`!
+And especially:
+If someone called `cache.size` (which purges expired entries):
+`cache.size; // returns 0`
+`cache.delete('a'); // returns false`
+If `delete` returned `true` without `cache.size`, then calling `cache.size` changes the behavior of `delete`!
+That proves beyond doubt that `delete` MUST return `false` for expired entries.
+
+Wait! What about `keys()`?
+"- `keys()` —

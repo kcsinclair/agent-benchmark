@@ -1,0 +1,105 @@
+def best_schedule(jobs: list[tuple[float, float, float]]) -> tuple[float, list[int]]:
+    n = len(jobs)
+    if n == 0:
+        return (0.0, [])
+    
+    # Create list of (start, end, weight, original_index)
+    indexed_jobs = [(jobs[i][0], jobs[i][1], jobs[i][2], i) for i in range(n)]
+    
+    # Sort by end time, then by start time, then by index for deterministic ordering
+    indexed_jobs.sort(key=lambda x: (x[1], x[0], x[3]))
+    
+    # Extract sorted arrays
+    starts = [x[0] for x in indexed_jobs]
+    ends = [x[1] for x in indexed_jobs]
+    weights = [x[2] for x in indexed_jobs]
+    orig_indices = [x[3] for x in indexed_jobs]
+    
+    # For each job i (in sorted order), find the latest job j < i such that ends[j] <= starts[i]
+    # We need to find the rightmost index j in [0, i-1] where ends[j] <= starts[i]
+    # Since ends is sorted (because we sorted by end time), we can use binary search.
+    
+    import bisect
+    
+    # dp[i] = max weight achievable considering jobs 0..i (in sorted order)
+    # dp[i] = max(dp[i-1], weights[i] + dp[p(i)]) where p(i) is the largest index < i with ends[p(i)] <= starts[i]
+    # If no such job exists, p(i) = -1, and dp[-1] = 0
+    
+    # We'll use 1-indexed for convenience: dp[0] = 0, dp[i] for i in 1..n
+    # Job i in 1-indexed corresponds to indexed_jobs[i-1]
+    
+    # For binary search: we want to find the largest index j (0-indexed in the sorted array) such that ends[j] <= starts[i]
+    # where i is 0-indexed. Then p(i) in 1-indexed dp terms is j+1 (if j >= 0), or 0 if no such j.
+    
+    # Let's define: for job at position i (0-indexed in sorted array), find the count of jobs with end <= starts[i]
+    # That count is the number of jobs that are compatible and come before or at some position.
+    # Actually, we want the largest index j < i such that ends[j] <= starts[i].
+    # Since ends is sorted, we can use bisect_right on the ends array to find the rightmost position where end <= starts[i].
+    # bisect_right(ends, starts[i]) gives the insertion point, i.e., the number of elements <= starts[i].
+    # So the largest index j with ends[j] <= starts[i] is bisect_right(ends, starts[i]) - 1.
+    # But we also need j < i. Since we're processing in order, and ends is sorted, if bisect_right(ends, starts[i]) - 1 >= i, that would be a problem, but since ends[i] > starts[i] (because start < end for each job), and ends is sorted, ends[i] > starts[i], so bisect_right(ends, starts[i]) <= i. Thus j = bisect_right(ends, starts[i]) - 1 < i.
+    
+    # dp[i] for i in 1..n (1-indexed), where job i (1-indexed) is at position i-1 (0-indexed)
+    # dp[i] = max(dp[i-1], weights[i-1] + dp[p]) where p = bisect_right(ends, starts[i-1]) (this is the count, which is the 1-indexed dp index)
+    
+    # Let me re-clarify:
+    # For job at 0-indexed position i, the compatible previous jobs are those at positions 0..j where j = bisect_right(ends, starts[i]) - 1.
+    # The best weight up to position j is dp[j+1] in 1-indexed terms (since dp[k] represents best up to 0-indexed position k-1).
+    # So if j = bisect_right(ends, starts[i]) - 1, then the dp value to add is dp[j+1] = dp[bisect_right(ends, starts[i])].
+    
+    # Let's use 0-indexed dp where dp[i] = max weight considering jobs 0..i (0-indexed).
+    # dp[i] = max(dp[i-1], weights[i] + (dp[p] if p >= 0 else 0)) where p = bisect_right(ends, starts[i]) - 1
+    
+    # To make it cleaner, let's use a 1-indexed approach:
+    # dp[0] = 0
+    # For i from 1 to n:
+    #   job is at 0-indexed position i-1
+    #   p = bisect_right(ends, starts[i-1])  # this is the number of jobs with end <= starts[i-1], which is the 1-indexed dp index
+    #   dp[i] = max(dp[i-1], weights[i-1] + dp[p])
+    
+    dp = [0.0] * (n + 1)
+    # Also store choice for backtracking: choice[i] = True if we took job i-1, False otherwise
+    choice = [False] * (n + 1)
+    
+    for i in range(1, n + 1):
+        # Job at 0-indexed position i-1
+        s = starts[i - 1]
+        # Find p: number of jobs with end <= s
+        p = bisect.bisect_right(ends, s)
+        # p is in range [0, i-1] since ends[i-1] > s (start < end)
+        take = weights[i - 1] + dp[p]
+        skip = dp[i - 1]
+        if take >= skip:
+            dp[i] = take
+            choice[i] = True
+        else:
+            dp[i] = skip
+            choice[i] = False
+    
+    total_weight = dp[n]
+    
+    # Backtrack to find chosen jobs
+    chosen = []
+    i = n
+    while i > 0:
+        if choice[i]:
+            chosen.append(i - 1)  # 0-indexed position in sorted array
+            # Move to p
+            s = starts[i - 1]
+            p = bisect.bisect_right(ends, s)
+            i = p
+        else:
+            i -= 1
+    
+    # chosen contains 0-indexed positions in the sorted array
+    # Convert to original indices
+    chosen_orig = [orig_indices[pos] for pos in chosen]
+    
+    # Sort by start time, then by original index
+    # We need to sort chosen_orig by (start time of that job, original index)
+    # Get the start times for these original indices
+    chosen_with_info = [(jobs[idx][0], idx) for idx in chosen_orig]
+    chosen_with_info.sort(key=lambda x: (x[0], x[1]))
+    chosen_indices = [idx for _, idx in chosen_with_info]
+    
+    return (total_weight, chosen_indices)

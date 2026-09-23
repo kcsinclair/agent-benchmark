@@ -1,0 +1,28 @@
+**Exploring Schema and Constraints**
+
+I'm currently analyzing the provided schema, specifically focusing on the `customers` table and its attributes. My aim is to understand how to formulate the four required SQLite SELECT statements.
+
+**Refining Revenue Calculation**
+
+I'm focusing on `q1.sql`, specifically the revenue calculation. I've realized that a completed order without order items wouldn't contribute to revenue when joining `order_items`. I'm verifying if the requirement implies we should still count such customers if they have completed orders, even if their line revenue is zero.
+
+**Verifying Join Logic**
+
+I'm double-checking the impact of joins on revenue calculations, particularly concerning completed orders that might lack associated order items. My current focus is ensuring that customers with completed orders, even if their revenue is zero due to missing items, are correctly accounted for. I am also considering the implications of grouping by customer ID versus customer ID and name.
+
+**Analyzing Product Performance**
+
+I'm now examining `q2.sql`. My current focus is ensuring products with identical names are correctly aggregated by their unique IDs. I'm also verifying that only products with completed sales are included in the results, ordered by units sold and then product name, limiting to the top three.
+
+**Investigating Date Formats**
+
+I'm currently reviewing the date storage for the `orders` table. The schema indicates `ordered_at` is stored as TEXT, and I need to confirm how this impacts the date formatting and filtering for the 2025 monthly revenue query, specifically using `strftime`.
+
+**Confirming Date Handling**
+
+I'm confirming that SQLite's `strftime('%Y', o.ordered_at)` is robust enough to handle various ISO date formats and correctly filter for the year 2025, aligning with the query requirements. This ensures accurate monthly revenue aggregation for the specified year.
+
+**Clarifying Customer Name Handling**
+
+I'm re-evaluating how to handle duplicate customer names. Grouping by both customer ID and name ensures distinct customers are treated separately, even if their names are identical, which aligns with the requirement of one row per customer.
+

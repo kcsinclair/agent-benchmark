@@ -1,0 +1,391 @@
+{
+  "wall_seconds": 2206.7,
+  "track": "agent",
+  "settings": {
+    "temperature": 0.0,
+    "max_tokens": 8192,
+    "max_turns": 12,
+    "think": "off",
+    "repeat": 3,
+    "server": "http://leia.packsin.com:7442",
+    "provider": ""
+  },
+  "results": [
+    {
+      "model": "Nemotron-3-Nano-30B-A3B-Q4_K_M",
+      "track": "agent",
+      "load_seconds": 0.9,
+      "passes": [
+        {
+          "pass": 1,
+          "dir": "/opt/agent-benchmark/results/leia/agent/Nemotron-3-Nano-30B-A3B-Q4_K_M/pass1",
+          "problems": [
+            {
+              "problem": "01-python-parse-duration",
+              "turns": 2,
+              "tool_calls": 1,
+              "bad_calls": 1,
+              "files": [],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 8192,
+              "stop": "request failed: HTTP 500: Failed to parse tool call arguments as JSON: [json.exception.parse_error.101] parse error at line 1, column 24856: syntax error while parsing value - invalid string: missing closing quote; last read: '\"import re\\n\\n# Regular expression to match a valid duration string\\n# ^\\\\s*[-]?(\\\\d+(?:\\\\.\\\\d+)?)(h|m|s|ms)\\\\s*$\\n# But we need to capture multiple components in descending order without separators\\n# We'll use a more complex pattern to match the whole string\\n\\n# Pattern explanation:\\n# ^\\\\s*[-]?(\\\\d+(?:\\\\.\\\\d+)?)(h|m|s|ms)(\\\\d+(?:\\\\.\\\\d+)?(h|m|s|ms))...$\\n# But we need to ensure descending order and no repeats\\n\\n# Instead of a single regex, we'll parse manually for clarity and correctness\\n\\ndef parse_duration(text: str) -> float:\\n    # 1. Type check\\n    if not isinstance(text, str):\\n        raise TypeError(\\\"Input must be a string\\\")\\n    \\n    # 2. Strip leading/trailing whitespace\\n    text = text.strip()\\n    \\n    # 3. Empty string check\\n    if not text:\\n        raise ValueError(\\\"Duration string cannot be empty\\\")\\n    \\n    # 4. Check for leading minus sign\\n    sign = 1\\n    if text.startswith('-'):\\n        sign = -1\\n        text = text[1:].strip()\\n        if not text:  # Only a minus sign\\n            raise ValueError(\\\"Duration string cannot be just '-'\\\")\\n    \\n    # 5. Define unit multipliers in seconds\\n    unit_multipliers = {\\n        'h': 3600.0,    # hours\\n        'm': 60.0,      # minutes\\n        's': 1.0,       # seconds\\n        'ms': 0.001     # milliseconds\\n    }\\n    \\n    # 6. Parse components\\n    # We'll scan the string from left to right, extracting numbers and units\\n    # and checking order and uniqueness\\n    \\n    # Pattern to match a number followed by a unit\\n    # Number: digits with optional fractional part, but not starting with '.' or ending with '.'\\n    # Unit: one of 'h', 'm', 's', 'ms'\\n    \\n    # We'll use a while loop to parse each component\\n    components = {}  # unit -> value\\n    last_unit_index = 4  # h=3, m=2, s=1, ms=0 (we'll use reverse order for comparison)\\n    \\n    i = 0\\n    while i < len(text):\\n        # Match a number (integer or float)\\n        # Number must have at least one digit before and after '.' if there is a '.'\\n        # So pattern: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+\\n        # But we need to match the longest possible number\\n        # Let's match: (\\\\d+(\\\\.\\\\d*)?|\\\\.\\\\d+) but the problem says no bare . or .5 or 5.\\n        # So we match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+\\n        # Actually, simpler: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's redundant\\n        # Let's just match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's same as \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+\\n        # Actually, we can match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's not helping\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's still redundant\\n        # Let's match: \\\\d+(\\\\.\\\\d+)?|\\\\d+\\\\.\\\\d+ -> but that's'",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.0,
+              "provider": null,
+              "truncated_turns": 1,
+              "empty_replies": 0,
+              "seconds": 131.7,
+              "missing": [
+                "parse_duration.py"
+              ],
+              "extra": []
+            },
+            {
+              "problem": "02-js-lru-ttl-cache",
+              "turns": 2,
+              "tool_calls": 1,
+              "bad_calls": 0,
+              "files": [
+                "cache.mjs"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 12131,
+              "stop": "stopped after 2 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.0,
+              "provider": null,
+              "truncated_turns": 1,
+              "empty_replies": 1,
+              "seconds": 195.4,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "03-sql-analytics",
+              "turns": 5,
+              "tool_calls": 4,
+              "bad_calls": 0,
+              "files": [
+                "q1.sql",
+                "q2.sql",
+                "q3.sql",
+                "q4.sql"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 8464,
+              "stop": "stopped after 5 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.0,
+              "provider": null,
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 140.3,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "04-go-worker-pool",
+              "turns": 1,
+              "tool_calls": 0,
+              "bad_calls": 0,
+              "files": [],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 8192,
+              "stop": "stopped after 1 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.0,
+              "provider": null,
+              "truncated_turns": 1,
+              "empty_replies": 1,
+              "seconds": 132.0,
+              "missing": [
+                "pool.go"
+              ],
+              "extra": []
+            },
+            {
+              "problem": "05-python-scheduler",
+              "turns": 3,
+              "tool_calls": 2,
+              "bad_calls": 0,
+              "files": [
+                "scheduler.py",
+                "scheduler.py"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 5554,
+              "stop": "stopped after 3 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.0,
+              "provider": null,
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 93.1,
+              "missing": [],
+              "extra": []
+            }
+          ],
+          "seconds": 692.5,
+          "score": 37,
+          "max": 68
+        },
+        {
+          "pass": 2,
+          "dir": "/opt/agent-benchmark/results/leia/agent/Nemotron-3-Nano-30B-A3B-Q4_K_M/pass2",
+          "problems": [
+            {
+              "problem": "01-python-parse-duration",
+              "turns": 2,
+              "tool_calls": 1,
+              "bad_calls": 0,
+              "files": [
+                "parse_duration.py"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 11984,
+              "stop": "stopped after 2 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.0,
+              "provider": null,
+              "truncated_turns": 1,
+              "empty_replies": 1,
+              "seconds": 192.9,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "02-js-lru-ttl-cache",
+              "turns": 3,
+              "tool_calls": 2,
+              "bad_calls": 0,
+              "files": [
+                "cache.mjs",
+                "cache.mjs"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 9184,
+              "stop": "stopped after 3 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.0,
+              "provider": null,
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 150.6,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "03-sql-analytics",
+              "turns": 5,
+              "tool_calls": 4,
+              "bad_calls": 0,
+              "files": [
+                "q1.sql",
+                "q2.sql",
+                "q3.sql",
+                "q4.sql"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 8236,
+              "stop": "stopped after 5 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.0,
+              "provider": null,
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 134.2,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "04-go-worker-pool",
+              "turns": 1,
+              "tool_calls": 0,
+              "bad_calls": 0,
+              "files": [],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 8192,
+              "stop": "stopped after 1 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.0,
+              "provider": null,
+              "truncated_turns": 1,
+              "empty_replies": 1,
+              "seconds": 130.8,
+              "missing": [
+                "pool.go"
+              ],
+              "extra": []
+            },
+            {
+              "problem": "05-python-scheduler",
+              "turns": 4,
+              "tool_calls": 3,
+              "bad_calls": 1,
+              "files": [
+                "scheduler.py"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 12258,
+              "stop": "request failed: HTTP 500: Failed to parse tool call arguments as JSON: [json.exception.parse_error.101] parse error at line 1, column 2013: syntax error while parsing value - invalid string: missing closing quote; last read: '\"import bisect\\n\\ndef best_schedule(jobs):\\n    \\\"\\\"\\\"Weighted interval scheduling.\\n    \\n    Args:\\n        jobs: List of (start, end, weight) tuples.\\n        \\n    Returns:\\n        Tuple (total_weight, chosen_indices) where total_weight is the maximum\\n        achievable weight (float) and chosen_indices are the original indices\\n        of the selected jobs, sorted by start time (ties broken by index).\\n    \\\"\\\"\\\"\\n    if not jobs:\\n        return (0.0, [])\\n    \\n    # Keep original indices\\n    indexed = list(enumerate(jobs))  # (orig_idx, (start, end, weight))\\n    # Sort by end time\\n    indexed.sort(key=lambda x: x[1][1])\\n    \\n    # Extract sorted fields\\n    orig_idx = [i for i, _ in indexed]\\n    starts = [s for _, (s, _, _) in indexed]\\n    ends = [e for _, (_, e, _) in indexed]\\n    weights = [w for _, (_, _, w) in indexed]\\n    \\n    n = len(jobs)\\n    dp = [0.0] * n          # best weight for prefix ending at i\\n    take = [False] * n      # whether job i is taken in optimal solution\\n    pred = [-1] * n         # predecessor index in sorted order when taken\\n    \\n    # Base case\\n    dp[0] = weights[0]\\n    take[0] = True\\n    pred[0] = -1\\n    \\n    # Fill DP table\\n    for i in range(1, n):\\n        # Find rightmost job that finishes <= start_i\\n        pos = bisect.bisect_right(ends, starts[i], 0, i)\\n        p = pos - 1\\n        \\n        include = weights[i] + (dp[p] if p != -1 else 0.0)\\n        if include > dp[i-1]:\\n            dp[i] = include\\n            take[i] = True\\n            pred[i] = p\\n        else:\\n            dp[i] = dp[i-1]\\n            take[i] = False\\n            pred[i] = -1\\n    \\n    # Reconstruct chosen indices\\n    chosen = []\\n    i = n - 1\\n    while i >= 0:\\n        if take[i]:\\n            chosen.append(orig_idx[i])\\n            i = pred[i]\\n        else:\\n            i -= 1\\n    \\n    # Sort by start time, then by original index to break ties\\n    chosen.sort(key=lambda idx: (jobs[idx][0],'",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.0,
+              "provider": null,
+              "truncated_turns": 1,
+              "empty_replies": 0,
+              "seconds": 199.0,
+              "missing": [],
+              "extra": []
+            }
+          ],
+          "seconds": 807.5,
+          "score": 54,
+          "max": 68
+        },
+        {
+          "pass": 3,
+          "dir": "/opt/agent-benchmark/results/leia/agent/Nemotron-3-Nano-30B-A3B-Q4_K_M/pass3",
+          "problems": [
+            {
+              "problem": "01-python-parse-duration",
+              "turns": 3,
+              "tool_calls": 2,
+              "bad_calls": 0,
+              "files": [
+                "parse_duration.py"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 12527,
+              "stop": "stopped after 3 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.0,
+              "provider": null,
+              "truncated_turns": 1,
+              "empty_replies": 1,
+              "seconds": 202.8,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "02-js-lru-ttl-cache",
+              "turns": 3,
+              "tool_calls": 2,
+              "bad_calls": 0,
+              "files": [
+                "cache.mjs",
+                "cache.mjs"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 9680,
+              "stop": "stopped after 3 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.0,
+              "provider": null,
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 159.0,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "03-sql-analytics",
+              "turns": 2,
+              "tool_calls": 4,
+              "bad_calls": 0,
+              "files": [
+                "q1.sql",
+                "q2.sql",
+                "q3.sql",
+                "q4.sql"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 3306,
+              "stop": "stopped after 2 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.0,
+              "provider": null,
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 56.8,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "04-go-worker-pool",
+              "turns": 1,
+              "tool_calls": 0,
+              "bad_calls": 0,
+              "files": [],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 8192,
+              "stop": "stopped after 1 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.0,
+              "provider": null,
+              "truncated_turns": 1,
+              "empty_replies": 1,
+              "seconds": 132.0,
+              "missing": [
+                "pool.go"
+              ],
+              "extra": []
+            },
+            {
+              "problem": "05-python-scheduler",
+              "turns": 3,
+              "tool_calls": 2,
+              "bad_calls": 0,
+              "files": [
+                "scheduler.py"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 9231,
+              "stop": "stopped after 3 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.0,
+              "provider": null,
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 151.7,
+              "missing": [],
+              "extra": []
+            }
+          ],
+          "seconds": 702.3,
+          "score": 56,
+          "max": 68
+        }
+      ]
+    }
+  ]
+}

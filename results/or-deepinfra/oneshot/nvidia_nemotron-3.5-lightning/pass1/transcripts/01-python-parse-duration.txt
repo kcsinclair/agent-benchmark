@@ -1,0 +1,113 @@
+```python
+# parse_duration.py
+
+import re
+from typing import Tuple
+
+
+def parse_duration(text: str) -> float:
+    """
+    Parse a human-readable duration string and return the total number of seconds.
+
+    Raises:
+        TypeError: if *text* is not a string.
+        ValueError: if the string does not conform to the format rules.
+    """
+    if not isinstance(text, str):
+        raise TypeError("duration must be a string")
+
+    # Strip leading/trailing whitespace; any other whitespace is invalid.
+    stripped = text.strip()
+    if stripped != text:
+        raise ValueError("leading or trailing whitespace not at the ends is not allowed")
+
+    if not stripped:
+        raise ValueError("empty string")
+
+    # Check for a single leading minus sign.
+    negative = False
+    if stripped[0] == "-":
+        negative = True
+        stripped = stripped[1:]
+        if not stripped:
+            raise ValueError("minus sign with no duration")
+
+    # After removing the minus, there must be at least one component.
+    if not stripped:
+        raise ValueError("no duration components")
+
+    # Pattern for a single component: a non-negative decimal followed by a unit.
+    #   - Digits: one or more, optional fractional part (.digits).
+    #   - No leading '+' or exponents; no bare '.' or '.5'.
+    #   - Units: h, m, s, ms
+    component_pat = r"(?P<number>\d+(?:\.\d+)?)(?P<unit>h|m|s|ms)"
+
+    # Full pattern: optional minus, then one or more components in strictly
+    # descending order (h > m > s > ms), each unit at most once.
+    # We enforce order by requiring the units to appear in that exact sequence,
+    # but allowing any subset.
+    #   (?!.*(unit).*(unit))  -> negative lookahead to prevent repeated units.
+    #   We build the regex dynamically to allow any subset in the correct order.
+    units_order = ["h", "m", "s", "ms"]
+
+    # Build a regex that matches components in descending order, each at most once.
+    # Example: (\\d+\\.?\\d*h)?(?:\\d+\\.?\\d*m)?(?:\\d+\\.?\\d*s)?(?:\\d+\\.?\\d*ms)?
+    # This ensures h before m before s before ms, and each unit appears at most once.
+    part_patterns = []
+    for u in units_order:
+        part_patterns.append(r"(?:\d+(?:\.\d+)?)" + u)
+    # Join with '|' to allow any subset, but the order is fixed by the alternation order.
+    # However, alternation '|' tries left-to-right, so we need a single path.
+    # Simpler: use a single regex that explicitly lists optional components in order.
+    component_regex = (
+        r"(?:\d+(?:\.\d+)?h)?"
+        r"(?:\d+(?:\.\d+)?m)?"
+        r"(?:\d+(?:\.\d+)?s)?"
+        r"(?:\d+(?:\.\d+)?ms)?"
+    )
+
+    # The whole string must match this pattern exactly.
+    full_regex = re.compile(r"^" + component_regex + r"$")
+    m = full_regex.match(stripped)
+    if not m:
+        raise ValueError("invalid duration format")
+
+    # Extract the matched groups.
+    # Groups: 1 = hours, 3 = minutes, 5 = seconds, 7 = milliseconds
+    # (the inner number groups are 2, 4, 6, 8)
+    groups = m.groups()
+
+    # Helper to convert a decimal string to float, returning 0 if the group is None.
+    def to_float(s: str | None) -> float:
+        if s is None:
+            return 0.0
+        return float(s)
+
+    hours = to_float(groups[0])  # group 1
+    minutes = to_float(groups[2])  # group 3
+    seconds = to_float(groups[4])  # group 5
+    milliseconds = to_float(groups[6])  # group 7
+
+    # Validate that at least one component is present.
+    if hours == 0.0 and minutes == 0.0 and seconds == 0.0 and milliseconds == 0.0:
+        # This can happen if the string was something like "0h0m0s0ms", which technically
+        # has components but represents zero duration. The spec says "At least one component
+        # is required", and "0h" would match the regex. However, the examples imply that
+        # a duration of zero with components might be valid, but an empty string is not.
+        # To be safe, we check if the original stripped string actually contained digits.
+        # Since the regex already matched, we accept it.
+        pass
+
+    # Convert to total seconds.
+    total = (
+        hours * 3600
+        + minutes * 60
+        + seconds
+        + milliseconds / 1000.0
+    )
+
+    if negative:
+        total = -total
+
+    return total
+```

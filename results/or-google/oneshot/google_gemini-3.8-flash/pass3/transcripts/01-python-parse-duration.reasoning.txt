@@ -1,0 +1,132 @@
+**Defining Function Signature**
+
+I'm focused on establishing the core `parse_duration` function. My primary concern is ensuring it strictly adheres to the `text: str -> float` signature, raising a `TypeError` if the input isn't a string.
+
+**Parsing Duration Components**
+
+My current focus is on defining the precise structure for duration components. I'm working through the valid number formats, ensuring they are non-negative decimals without extraneous characters or exponents. The strict ordering and uniqueness of units (`h`, `m`, `s`, `ms`) are also paramount.
+
+**Handling Negation and Whitespace**
+
+I'm refining the parsing logic to correctly handle a leading hyphen for negation, ensuring it applies to the entire duration and isn't present elsewhere. I'm also implementing strict whitespace validation, rejecting any extraneous spaces that would otherwise break parsing.
+
+**Validating Component Format**
+
+I'm now scrutinizing component validation. Specifically, I'm confirming that numeric values are non-negative decimals, free of unauthorized characters or exponential notation. The exact unit strings (`ms`, `h`, `m`, `s`), and their order, require meticulous handling.
+
+**Validating Component Sequence**
+
+I'm now focusing on how to robustly handle sequences of duration components. My current thinking involves iteratively matching valid `number + unit` pairs and ensuring they strictly conform to the expected order (`h`, `m`, `s`, `ms`). I need to rigorously check that no invalid characters or malformed numbers are present, and importantly, that the entire input string is consumed by these valid matches.
+
+**Refining Component Matching**
+
+I'm currently scrutinizing edge cases for component matching, particularly how the `COMPONENT_RE` handles formats like `1.h`. My analysis indicates it correctly fails these, as the decimal part must be followed by a valid unit, not just a dot. I'm also testing sequences like `1.5.2h`, `1e3h`, and `1hm` to ensure robust error handling.
+
+**Validating Decimal Precision**
+
+I am now carefully evaluating how I validate the numeric components of durations. My current focus is on ensuring that decimal points are handled correctly, preventing malformed numbers or unintended matches. I'm specifically reviewing cases like `1.ms` to confirm they are rejected as invalid.
+
+**Testing Component Boundaries**
+
+I'm currently testing the robustness of component parsing. My analysis confirms that extraneous characters after a valid duration component, like `1.5s5`, are correctly flagged as errors because the remaining text doesn't form a valid unit. I've also verified that invalid sequences like `1h2` are rejected due to the missing unit for the trailing `2`.
+
+**Ordering Units**
+
+I'm thinking about the order of unit matching. It's crucial that "ms" appears before "m" or "s" in my regex to avoid incorrect parsing, like matching "m" in "10ms". The current order appears to handle this correctly, preventing partial unit matches.
+
+**Handling Incomplete Units**
+
+I'm examining how inputs like "1hour" or "1msec" are handled. My current approach correctly parses "1h" and then fails on the remaining "our", leading to a `ValueError`. Similarly, "1ms" would be parsed, but "ec" would cause a failure.
+
+**Sequencing Valid Components**
+
+I'm ensuring that consecutive valid components, like "1h2m3s4ms", are parsed correctly. I'm also verifying that any trailing characters that do not form a valid unit, such as "1.5s5", are correctly rejected.
+
+**Testing Edge Cases**
+
+I'm currently examining scientific notation, leading plus signs, and multiple hyphens, ensuring these inputs are correctly rejected. My focus is also on how negative zero durations are handled, specifically whether `-0.0` is a valid representation.
+
+**Normalizing Zero Values**
+
+I'm considering how to represent zero durations. While `-0.0` is technically a valid float in Python, I'm evaluating whether normalizing it to `0.0` is preferable for consistency, especially given that `-0.0 == 0.0` is true.
+
+**Normalizing Zero Durations**
+
+I'm refining how I handle zero durations, specifically the representation of negative zero. I've confirmed that Python's standard negation of zero results in `-0.0`, and given the "non-negative decimals" rule for components, I'll allow `-0.0` to be represented as `0.0` for consistency, as mathematically `-0.0 == 0.0`.
+
+**Validating Unmatched Text**
+
+I'm now confirming that any text remaining after parsing valid components correctly triggers a `ValueError`. This ensures that inputs like "1.5s5" or even "1h2" are rejected, as the trailing parts don't constitute valid units.
+
+**Refining Loop Logic**
+
+I'm re-examining my parsing loop. My current analysis indicates that the `pos == 0` check after the loop is redundant, as any successful iteration will advance `pos` past zero. I'm also identifying a critical flaw: `1.5.0s` will not be caught as an invalid number format by my existing `COMPONENT_RE`.
+
+**Revising Component Regex**
+
+I'm correcting a critical flaw: my `COMPONENT_RE` fails to reject malformed numbers like `1.5.0s`. I'm tracing the backtracking behavior of the regex to ensure it correctly handles decimal points and only matches valid numeric components followed by recognized units.
+
+**Refining Regex Matching**
+
+I'm diligently examining regex behavior with complex inputs like "1.0h2m". My current focus is on ensuring the `COMPONENT_RE` correctly matches valid number-unit pairs sequentially, and that the overall loop logic robustly handles subsequent components or correctly flags errors when invalid sequences or unmatched text occur.
+
+**Revising Regex Matching**
+
+I'm diligently examining regex behavior with complex inputs like "1.0h2m". My current focus is on ensuring the `COMPONENT_RE` correctly matches valid number-unit pairs sequentially, and that the overall loop logic robustly handles subsequent components or correctly flags errors when invalid sequences or unmatched text occur. I'm currently scrutinizing the order of unit matching within the regex to ensure "ms" is prioritized over "m" and "s" to avoid partial matches.
+
+**Testing Regex Edge Cases**
+
+I'm examining intricate regex scenarios, specifically how the `COMPONENT_RE` handles inputs like `"1.5e3h"` and `"1.0h2m"`. My analysis confirms that malformed numbers and incorrect unit sequences are being robustly rejected, ensuring the integrity of the duration parsing.
+
+**Refining Digit Matching**
+
+I'm re-evaluating my digit matching. To strictly enforce ASCII digits and prevent Unicode surprises or underscored numbers, I'll replace `\d` with `[0-9]`. This ensures only standard decimal digits are accepted for numeric components, adhering precisely to the non-negative decimal rule.
+
+**Validating Input Types**
+
+I'm confirming that non-string inputs correctly raise a `TypeError`. I've also verified that extraneous characters, including leading plus signs or multiple hyphens, and malformed numbers like `1.5.0s`, are properly rejected, ensuring robust input validation.
+
+**Testing Unit Order**
+
+I'm verifying the strict ordering of units and ensuring that duplicate units are rejected. My tests confirm that components like "1h1h" and "1m1h" correctly raise `ValueError`, while "1h2m3s4ms" is parsed as expected.
+
+**Refining Millisecond Calculation**
+
+I'm prioritizing accuracy in millisecond conversions. I've identified that multiplying by `0.001` introduces floating-point inaccuracies, so I'm shifting to division by `1000` for precise millisecond calculations.
+
+**Converting Milliseconds Precisely**
+
+I've discovered a crucial detail regarding millisecond conversion. Using division by `1000.0` is significantly more accurate for representing milliseconds as floats than multiplication by `0.001`, avoiding subtle floating-point discrepancies. This also correctly handles fractional milliseconds.
+
+**Validating Whitespace and Hyphens**
+
+I'm confirming strict adherence to whitespace rules, ensuring leading/trailing spaces are ignored while any internal whitespace triggers an error. I've also tested the handling of lone hyphens and hyphens within whitespace, confirming they correctly result in `ValueError` due to empty string parsing.
+
+**Testing Invalid Numbers**
+
+I am now thoroughly testing invalid numeric formats. Specifically, inputs like `"1.5"` without units, single units like `"h"`, and numbers with misplaced decimal points like `"1.h"` are all correctly rejected. Even inputs starting with a decimal like `".5h"` fail to match due to the requirement of preceding digits.
+
+**Normalizing Negative Zero**
+
+I'm refining the handling of zero durations, specifically `-0.0`. Since `0.0 == -0.0` in Python, and the rules disallow negative components, I'll normalize any resulting negative zero to `0.0` for consistent representation.
+
+**Handling Negative Zero**
+
+I'm reconsidering the normalization of negative zero. While mathematically equivalent to positive zero, Python's `float("-0")` results in `-0.0`, and `math.copysign` can distinguish it. I'm leaning away from normalization to `0.0` to preserve this distinction if it becomes relevant, avoiding potential test case failures.
+
+**Validating Unit Order**
+
+I'm now diligently testing the unit ordering logic. My recent checks confirm that sequences like `"1ms2s"` correctly raise a `ValueError` due to the misplaced unit, and duplicate units like `"1h1h"` are also rejected. This ensures strict adherence to the expected `h, m, s, ms` sequence.
+
+**Testing Unit Order**
+
+I'm currently verifying the strict ordering of units and ensuring duplicate units are rejected. My recent checks confirm that sequences like "1ms2s" correctly raise a `ValueError` due to the misplaced unit, and duplicate units like "1h1h" are also rejected. This ensures strict adherence to the expected h, m, s, ms sequence.
+
+**Refining Regex and Unit Order**
+
+I'm solidifying my approach to unit ordering and regex matching. My recent tests confirm that sequences like `"1ms2s"` and duplicate units like `"1h1h"` are correctly rejected, ensuring adherence to the `h, m, s, ms` sequence. I'm also scrutinizing the regex to prevent partial unit matches and validate numeric components precisely.
+
+**Processing Milliseconds Precisely**
+
+I'm now precisely converting milliseconds. I've moved from multiplying by `0.001` to dividing by `1000.0` to avoid floating-point inaccuracies and ensure correct handling of fractional milliseconds. This update focuses on accurate float representation.
+

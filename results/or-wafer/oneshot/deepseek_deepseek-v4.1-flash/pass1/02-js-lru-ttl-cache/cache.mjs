@@ -1,0 +1,149 @@
+// cache.mjs
+//
+// LRU cache with per-entry TTL.
+//
+// - `Map` preserves insertion order, so we use that as our recency order:
+//   the first key is the least recently used, the last key is the most
+//   recently used. To "touch" a key we delete and re-insert it, which is
+//   O(1) amortized.
+// - Expiry is compared using the injected clock (`now`), never `Date.now()`
+//   directly, so tests can drive time deterministically.
+// - An entry is expired when `now() >= expiry`, with `Infinity` meaning
+//   "never expires". A ttl of `0` or negative produces an already-expired
+//   entry (`now() + ttl <= now()`).
+
+export class LruTtlCache {
+  #capacity;
+  #defaultTtlMs;
+  #now;
+  // Map<key, { value, expiry }> in LRU order: first = least recent.
+  #entries;
+
+  constructor({ capacity, defaultTtlMs = Infinity, now = () => Date.now() } = {}) {
+    if (!Number.isInteger(capacity) || capacity < 1) {
+      throw new RangeError('capacity must be an integer >= 1');
+    }
+    if (typeof now !== 'function') {
+      throw new TypeError('now must be a function');
+    }
+    this.#capacity = capacity;
+    this.#defaultTtlMs = defaultTtlMs;
+    this.#now = now;
+    this.#entries = new Map();
+  }
+
+  // Returns true if the entry with `entry.expiry` is considered expired
+  // at time `t`.
+  #isExpired(expiry, t) {
+    return expiry !== Infinity && t >= expiry;
+  }
+
+  // Drop the entry for `key` if it is currently expired. Returns true if
+  // the entry is gone (either it was expired and dropped, or it never
+  // existed / was already removed).
+  #purgeIfExpired(key) {
+    const entry = this.#entries.get(key);
+    if (entry === undefined) return true;
+    if (this.#isExpired(entry.expiry, this.#now())) {
+      this.#entries.delete(key);
+      return true;
+    }
+    return false;
+  }
+
+  set(key, value, ttlMs) {
+    // If key exists, drop it first so re-insertion puts it at the MRU end.
+    // (An existing expired entry is simply replaced anyway.)
+    this.#entries.delete(key);
+
+    const ttl = ttlMs === undefined ? this.#defaultTtlMs : ttlMs;
+    const expiry = ttl === Infinity ? Infinity : this.#now() + ttl;
+
+    this.#entries.set(key, { value, expiry });
+
+    // Enforce capacity. First, opportunistically purge expired entries
+    // (they should not occupy space). Then, if still over capacity, evict
+    // the LRU entry — which is the first inserted key in the Map.
+    if (this.#entries.size > this.#capacity) {
+      this.#evict();
+    }
+    return this;
+  }
+
+  // Evict expired entries first; if we're still over capacity, drop LRU.
+  #evict() {
+    const t = this.#now();
+
+    // Purge expired entries (in LRU order; order of purge doesn't matter,
+    // but iterating the Map is O(n) worst-case — still fine because this
+    // only runs when we would otherwise exceed capacity).
+    for (const [k, entry] of this.#entries) {
+      if (this.#isExpired(entry.expiry, t)) {
+        this.#entries.delete(k);
+      }
+    }
+
+    // Still over capacity? Evict least-recently-used entries.
+    while (this.#entries.size > this.#capacity) {
+      const lruKey = this.#entries.keys().next().value;
+      this.#entries.delete(lruKey);
+    }
+  }
+
+  get(key) {
+    const entry = this.#entries.get(key);
+    if (entry === undefined) return undefined;
+
+    if (this.#isExpired(entry.expiry, this.#now())) {
+      this.#entries.delete(key);
+      return undefined;
+    }
+
+    // Touch: move to MRU end.
+    this.#entries.delete(key);
+    this.#entries.set(key, entry);
+    return entry.value;
+  }
+
+  has(key) {
+    const entry = this.#entries.get(key);
+    if (entry === undefined) return false;
+
+    if (this.#isExpired(entry.expiry, this.#now())) {
+      this.#entries.delete(key);
+      return false;
+    }
+    // Note: no recency change.
+    return true;
+  }
+
+  delete(key) {
+    return this.#entries.delete(key);
+  }
+
+  get size() {
+    // Purge all expired entries, then report live count.
+    const t = this.#now();
+    for (const [k, entry] of this.#entries) {
+      if (this.#isExpired(entry.expiry, t)) {
+        this.#entries.delete(k);
+      }
+    }
+    return this.#entries.size;
+  }
+
+  keys() {
+    const t = this.#now();
+    const result = [];
+    for (const [k, entry] of this.#entries) {
+      if (this.#isExpired(entry.expiry, t)) {
+        this.#entries.delete(k);
+      } else {
+        result.push(k);
+      }
+    }
+    // Map iteration is LRU -> MRU; we want MRU -> LRU.
+    result.reverse();
+    return result;
+  }
+}

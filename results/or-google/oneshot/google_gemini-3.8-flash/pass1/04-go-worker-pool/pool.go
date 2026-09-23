@@ -1,0 +1,112 @@
+```go
+package main
+
+import (
+	"context"
+	"errors"
+	"sync"
+)
+
+// Task is one unit of work.
+type Task func(ctx context.Context) (any, error)
+
+// Run executes tasks with at most `workers` running concurrently and returns
+// their results in the same order as the input slice.
+func Run(ctx context.Context, tasks []Task, workers int) ([]any, error) {
+	if workers < 1 {
+		return nil, errors.New("pool: workers must be at least 1")
+	}
+	if len(tasks) == 0 {
+		return []any{}, nil
+	}
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
+
+	taskCtx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	var (
+		errMu    sync.Mutex
+		firstErr error
+	)
+
+	recordErr := func(err error) {
+		if err == nil {
+			return
+		}
+		errMu.Lock()
+		defer errMu.Unlock()
+		if firstErr == nil {
+			if ctxErr := ctx.Err(); ctxErr != nil {
+				firstErr = ctxErr
+			} else {
+				firstErr = err
+			}
+			cancel()
+		}
+	}
+
+	done := make(chan struct{})
+	watcherDone := make(chan struct{})
+	go func() {
+		defer close(watcherDone)
+		select {
+		case <-ctx.Done():
+			recordErr(ctx.Err())
+		case <-done:
+		}
+	}()
+
+	results := make([]any, len(tasks))
+	numWorkers := workers
+	if numWorkers > len(tasks) {
+		numWorkers = len(tasks)
+	}
+
+	var (
+		mu      sync.Mutex
+		nextIdx int
+		wg      sync.WaitGroup
+	)
+
+	wg.Add(numWorkers)
+	for w := 0; w < numWorkers; w++ {
+		go func() {
+			defer wg.Done()
+			for {
+				mu.Lock()
+				if taskCtx.Err() != nil || nextIdx >= len(tasks) {
+					mu.Unlock()
+					return
+				}
+				i := nextIdx
+				nextIdx++
+				mu.Unlock()
+
+				if taskCtx.Err() != nil {
+					return
+				}
+
+				res, err := tasks[i](taskCtx)
+				if err != nil {
+					recordErr(err)
+					return
+				}
+				results[i] = res
+			}
+		}()
+	}
+
+	wg.Wait()
+	close(done)
+	<-watcherDone
+
+	errMu.Lock()
+	err := firstErr
+	errMu.Unlock()
+
+	if err != nil {
+		return nil, err
+	}
+	if

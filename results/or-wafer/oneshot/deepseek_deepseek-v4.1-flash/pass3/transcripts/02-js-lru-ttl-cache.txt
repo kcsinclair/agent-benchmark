@@ -1,0 +1,134 @@
+```js
+// cache.mjs
+
+export class LruTtlCache {
+  #capacity;
+  #defaultTtlMs;
+  #now;
+  #map;
+
+  constructor({ capacity, defaultTtlMs = Infinity, now = () => Date.now() } = {}) {
+    if (!Number.isInteger(capacity) || capacity < 1) {
+      throw new RangeError('capacity must be an integer >= 1');
+    }
+    this.#capacity = capacity;
+    this.#defaultTtlMs = defaultTtlMs;
+    this.#now = now;
+    // Map preserves insertion order; we keep MRU at the end.
+    this.#map = new Map();
+  }
+
+  #isExpired(expiry) {
+    if (expiry === Infinity) return false;
+    return this.#now() >= expiry;
+  }
+
+  #purge(key) {
+    this.#map.delete(key);
+  }
+
+  set(key, value, ttlMs) {
+    const ttl = ttlMs === undefined ? this.#defaultTtlMs : ttlMs;
+    const expiry = ttl === Infinity ? Infinity : this.#now() + ttl;
+
+    // Remove existing so re-insertion puts it at the end (MRU).
+    this.#map.delete(key);
+
+    // If already expired, don't store it at all (matches get()/has() semantics).
+    if (this.#isExpired(expiry)) {
+      return this;
+    }
+
+    this.#map.set(key, { value, expiry });
+
+    if (this.#map.size > this.#capacity) {
+      this.#evict();
+    }
+    return this;
+  }
+
+  #evict() {
+    // First pass: drop expired entries (scanning from LRU side is fine).
+    // We must be careful because iterating and mutating is allowed for Map
+    // as long as we delete the current entry.
+    for (const [k, entry] of this.#map) {
+      if (this.#isExpired(entry.expiry)) {
+        this.#map.delete(k);
+        if (this.#map.size <= this.#capacity) return;
+      }
+    }
+    // Still over capacity: evict LRU (first inserted).
+    while (this.#map.size > this.#capacity) {
+      const oldest = this.#map.keys().next().value;
+      this.#map.delete(oldest);
+    }
+  }
+
+  get(key) {
+    const entry = this.#map.get(key);
+    if (entry === undefined) return undefined;
+    if (this.#isExpired(entry.expiry)) {
+      this.#map.delete(key);
+      return undefined;
+    }
+    // Move to MRU (end).
+    this.#map.delete(key);
+    this.#map.set(key, entry);
+    return entry.value;
+  }
+
+  has(key) {
+    const entry = this.#map.get(key);
+    if (entry === undefined) return false;
+    if (this.#isExpired(entry.expiry)) {
+      this.#map.delete(key);
+      return false;
+    }
+    return true;
+  }
+
+  delete(key) {
+    return this.#map.delete(key);
+  }
+
+  get size() {
+    // Purge expired entries so `size` reflects only live entries.
+    for (const [k, entry] of this.#map) {
+      if (this.#isExpired(entry.expiry)) {
+        this.#map.delete(k);
+      }
+    }
+    return this.#map.size;
+  }
+
+  keys() {
+    const result = [];
+    for (const [k, entry] of this.#map) {
+      if (!this.#isExpired(entry.expiry)) {
+        result.push(k);
+      }
+    }
+    // Reverse to order MRU -> LRU.
+    result.reverse();
+    return result;
+  }
+}
+```
+
+Key design notes:
+
+- **Recency via `Map` insertion order.** MRU lives at the end. `get` does `delete`+`set` to bump; `set` on an existing key already does the same. Eviction drops from the front.
+- **Injected clock.** Every expiry computation and comparison uses `this.#now()` — never `Date.now()` directly.
+- **Expiry rule.** Entry expired when `now() >= expiry` (unless `Infinity`). `ttlMs` ≤ 0 makes `expiry <= now()`, so it's immediately expired. Note that `set(key, v, 0)` won't even store the entry — it's consistent with `get`/`has` never returning it, and it prevents dead entries from occupying capacity.
+- **Capacity handling.** On `set` overflow we scan for expired entries first and only then evict LRU, matching the spec's "evict expired entries first" rule.
+- **`size` purges.** It walks the map and removes stale entries so it's accurate and self-cleaning. `keys()` filters expired entries and reverses to give MRU-first order.
+- **SameValueZero keys.** Using `Map` directly gives us `Map` key semantics (including `NaN`).
+- **O(1) amortized** for `get`/`set`/`has`/`delete`. The purge in `size` is O(n) but only runs when measured; `#evict` scanning on capacity overflow is O(n) in pathological all-expired cases but O(1) amortized for normal LRU workloads, and the common path where nothing is expired still terminates quickly once the LRU eviction loop starts.
+
+Edge cases covered:
+
+- `Infinity` TTL never expires.
+- `ttlMs = 0` / negative → entry treated as already expired and not stored.
+- `set` on an existing key bumps recency and replaces expiry.
+- `has` doesn't change recency.
+- Eviction prefers expired entries over live LRU ones.

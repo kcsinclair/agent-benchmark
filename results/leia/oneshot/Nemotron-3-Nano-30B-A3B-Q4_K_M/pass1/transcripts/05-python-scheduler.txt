@@ -1,0 +1,62 @@
+To solve the weighted interval scheduling problem efficiently for large inputs (up to 200,000 jobs), we need an O(n log n) solution that avoids recursion and handles all edge cases correctly. The approach involves sorting jobs by end time, using binary search to find non-overlapping predecessors, and dynamically computing the optimal schedule using iterative dynamic programming.
+
+### Approach
+1. **Sort Jobs by End Time**: This allows us to process each job in order of their completion times, ensuring that when we consider a job, all potential non-overlapping predecessors have already been processed.
+2. **Binary Search for Predecessors**: For each job, use binary search to find the latest job that ends before or at the start of the current job. This helps in efficiently determining the optimal subset of jobs that can be scheduled before the current job.
+3. **Dynamic Programming with Iteration**: Instead of recursion, use an iterative approach to compute the maximum weight achievable up to each job. Maintain a running maximum of weights to avoid recomputation.
+4. **Backtracking to Find Chosen Indices**: After computing the optimal weights, backtrack from the last job to determine which jobs were included in the optimal schedule. The indices are then sorted by start time (and by original index for ties) to meet the output requirements.
+
+### Solution Code
+```python
+import bisect
+
+def best_schedule(jobs):
+    n = len(jobs)
+    if n == 0:
+        return (0.0, [])
+    
+    sorted_jobs = sorted(enumerate(jobs), key=lambda x: x[1][1])
+    starts = [job[1][0] for _, job in sorted_jobs]
+    ends = [job[1][1] for _, job in sorted_jobs]
+    weights = [job[1][2] for _, job in sorted_jobs]
+    orig_indices = [idx for idx, _ in sorted_jobs]
+    
+    dp = [0.0] * n
+    dp[0] = weights[0]
+    max_dp = [0.0] * n
+    max_dp[0] = dp[0]
+    
+    for i in range(1, n):
+        s = starts[i]
+        pos = bisect.bisect_right(ends, s) - 1
+        if pos >= 0:
+            prev_max = max_dp[pos]
+        else:
+            prev_max = 0.0
+        dp[i] = weights[i] + prev_max
+        max_dp[i] = max(max_dp[i-1], dp[i])
+    
+    max_weight = max_dp[-1]
+    
+    i = n - 1
+    chosen_sorted = []
+    while i >= 0:
+        if dp[i] == max_dp[i] and (i == 0 or dp[i] > dp[i-1]):
+            chosen_sorted.append(orig_indices[i])
+            s = starts[i]
+            pos = bisect.bisect_right(ends, s) - 1
+            i = pos
+        else:
+            i -= 1
+    
+    chosen_sorted.sort(key=lambda idx: (starts[idx], idx))
+    return (max_weight, chosen_sorted)
+```
+
+### Explanation
+1. **Sorting Jobs**: The jobs are sorted by their end times to facilitate processing in chronological order. This ensures that when we process a job, all potential non-overlapping predecessors have already been considered.
+2. **Binary Search for Predecessors**: For each job, we use binary search to find the latest job that ends before or at the start of the current job. This helps in efficiently identifying the optimal subset of jobs that can be scheduled before the current job without overlap.
+3. **Dynamic Programming**: We maintain a dynamic programming array `dp` where `dp[i]` represents the maximum weight achievable by including the `i-th` job in the schedule. The `max_dp` array keeps track of the maximum weight achievable up to each job, allowing O(1) access to the best previous solution.
+4. **Backtracking**: After computing the optimal weights, we backtrack from the last job to determine which jobs were included in the optimal schedule. The indices of these jobs are collected and sorted by their start times (and original indices for ties) to produce the required output.
+
+This approach efficiently handles the constraints by leveraging sorting, binary search, and iterative dynamic programming, ensuring optimal performance even for large inputs. The solution avoids recursion, adheres to O(n log n) time complexity, and correctly identifies the optimal schedule with valid indices.

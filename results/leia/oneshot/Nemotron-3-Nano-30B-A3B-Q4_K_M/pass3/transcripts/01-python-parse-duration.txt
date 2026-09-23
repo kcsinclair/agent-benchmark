@@ -1,0 +1,104 @@
+```python
+import re
+from typing import Dict
+
+# Mapping of unit to its conversion factor in seconds
+_UNIT_TO_SECONDS: Dict[str, float] = {
+    'h': 3600.0,
+    'm': 60.0,
+    's': 1.0,
+    'ms': 0.001,
+}
+
+# Regular expression to match a valid number (non-negative decimal)
+_NUMBER_RE = re.compile(r'\d+(?:\.\d+)?')
+
+# Regular expression to match a component: number followed by unit
+_COMPONENT_RE = re.compile(r'(\d+(?:\.\d+)?)(h|m|s|ms)')
+
+def parse_duration(text: str) -> float:
+    """
+    Parse a human‑readable duration string and return the total number of seconds.
+
+    Parameters
+    ----------
+    text: str
+        The duration string to parse. Must conform to the rules described in the
+        module docstring.
+
+    Returns
+    -------
+    float
+        Total duration expressed in seconds.
+
+    Raises
+    ------
+    TypeError
+        If ``text`` is not a string.
+    ValueError
+        If the string does not conform to the allowed format.
+    """
+    # 1. Type check
+    if not isinstance(text, str):
+        raise TypeError("Input must be a string")
+
+    # 2. Strip surrounding whitespace
+    text = text.strip()
+
+    # 3. Empty string is invalid
+    if not text:
+        raise ValueError("Duration string cannot be empty")
+
+    # 4. Validate that there is no whitespace inside the string
+    if any(c.isspace() for c in text):
+        raise ValueError("Whitespace is not allowed inside the duration string")
+
+    # 5. Check overall structure: optional leading '-' followed by components
+    if text[0] == '-':
+        # After stripping the leading '-', the rest must be non‑empty
+        if len(text) == 1:
+            raise ValueError("Duration string cannot be just '-'")
+        remaining = text[1:]
+    else:
+        remaining = text
+
+    # 6. Parse components
+    components = []
+    pos = 0
+    seen_units = set()
+
+    while pos < len(remaining):
+        match = _COMPONENT_RE.match(remaining, pos)
+        if not match:
+            raise ValueError(f"Invalid component at position {pos}: '{remaining[pos:]}'")
+        number_str, unit = match.groups()
+        number = float(number_str)
+
+        # 7. Unit ordering and duplication checks
+        if unit in seen_units:
+            raise ValueError(f"Unit '{unit}' appears more than once")
+        seen_units.add(unit)
+
+        # Units must be in descending order of size
+        # Define the order as a list of unit strings
+        unit_order = ['h', 'm', 's', 'ms']
+        # Find the index of the current unit
+        current_index = unit_order.index(unit)
+        # Ensure that all previously seen units have a higher (i.e., earlier) index
+        for prev_unit in seen_units:
+            if prev_unit != unit:
+                prev_index = unit_order.index(prev_unit)
+                if prev_index < current_index:
+                    raise ValueError(f"Units must be in descending order; '{prev_unit}' cannot follow '{unit}'")
+
+        # 8. Convert to seconds and accumulate
+        components.append(number * _UNIT_TO_SECONDS[unit])
+
+        # Move past the matched component
+        pos = match.end()
+
+    # 9. If there was a leading '-', negate the total
+    total_seconds = -sum(components) if text.startswith('-') else sum(components)
+
+    return total_seconds
+```

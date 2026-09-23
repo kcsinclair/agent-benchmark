@@ -1,0 +1,532 @@
+**Validating Cache Constructor**
+
+I'm currently focused on validating the constructor arguments for the LRU TTL cache. Specifically, I'm ensuring that the `capacity` parameter is a valid integer greater than or equal to 1.
+
+**Refining Entry Expiration Logic**
+
+I'm grappling with how to handle entries set with a TTL of 0 or less. The current semantics state expired entries are evicted first to make room. I'm considering whether to store and immediately mark them for eviction, or simply not store them at all. This detail impacts the overall eviction strategy and cache behavior.
+
+**Considering Edge Cases**
+
+I'm re-evaluating how `set` behaves with expired entries, particularly when the TTL is zero or negative. I need to clarify if updating an existing key, especially an expired one, counts as growing the cache and how JavaScript's Map insertion order impacts LRU tracking when re-inserting.
+
+**Clarifying Eviction Protocols**
+
+I'm dissecting the eviction protocol for `set` operations that exceed capacity. I'm focusing on how to prioritize evicting expired entries before considering LRU, especially when setting a new item with a zero or negative TTL. This is crucial for preventing valid entries from being prematurely removed.
+
+**Revising Eviction Logic**
+
+I'm reassessing how expired entries affect cache growth. It seems updating an existing key, even if expired, shouldn't count as growing the cache if the key is already present. This distinction is crucial for ensuring O(1) amortized operations.
+
+**Analyzing Map Iteration**
+
+I'm currently questioning the amortized time complexity of Map iteration. I'm investigating whether iterating through the entire Map to identify expired entries during a `set` operation, when the cache is full, is permissible under the performance constraints. This impacts how I approach eviction strategies.
+
+**Optimizing Eviction Order**
+
+I'm refining the eviction process. My current thought is to prioritize purging all expired entries before considering LRU, especially when a `set` operation pushes the cache beyond capacity. This addresses the "evict expired entries first" requirement effectively.
+
+**Implementing LRU Logic**
+
+I'm realizing that the requirement for O(1) amortized operations implies I don't need complex data structures like heaps. The Map's inherent insertion order is sufficient for tracking recency, as hinted in the problem description.
+
+**Purging Expired Entries**
+
+I'm revisiting the eviction strategy. My current focus is on ensuring that when the cache reaches capacity, I thoroughly purge all expired entries before resorting to LRU eviction. This involves iterating to find and remove them, and then re-checking capacity.
+
+**Clarifying Entry Status**
+
+I'm evaluating how to handle entries with a TTL of 0 or less. My current thinking is that such entries are immediately expired upon creation. I'm determining if they should be stored and marked for eviction, or simply not stored at all, as this impacts the eviction process when the cache is full.
+
+**Clarifying Expiry Impact**
+
+I'm struggling with the interaction of expired entries and cache operations. My current focus is on ensuring that an entry with a TTL of 0 or less doesn't displace valid LRU entries when the cache is full, and that `has` and `get` correctly reflect its expired state.
+
+**Handling Expired Sets**
+
+I'm considering the scenario of setting an entry with a TTL of 0 or less. My current approach is that such an entry, if new, shouldn't be stored and thus wouldn't affect cache size or evictions. If the key already exists and is being updated with an expired TTL, I'll simply remove it.
+
+**Discovering Expired Entries**
+
+I'm realizing that expired entries, even with TTLs of zero or less, persist internally until specifically discovered or purged by operations like `get`, `has`, `size`, or a `set` that exceeds capacity. This means they occupy space until then, impacting eviction priorities.
+
+**Refining Insertion Logic**
+
+I'm re-examining how `set` operations handle existing keys, particularly those that are expired. My current focus is on determining if updating an entry, even if expired, counts as growing the cache and how this impacts eviction prioritization when capacity is exceeded, especially when the TTL is zero or negative.
+
+**Purging Expired Entries**
+
+I'm focused on the eviction strategy when capacity is reached. My current approach is to first purge all expired entries by iterating through the map. Only if the cache remains at or over capacity after this purge will I then remove the least recently used item. This ensures expired items don't unnecessarily displace valid ones.
+
+**Considering Expired Key Updates**
+
+I'm now examining how `set` should handle updating an already expired key. My current thought is that even if a key is expired, updating it should still mark it as most recently used and adjust its expiry. This aligns with the expectation that `set` always updates and reorders.
+
+**Validating Cache Capacity**
+
+I'm confirming that the capacity validation logic correctly handles non-integer and less-than-one values, ensuring `RangeError` is thrown as expected. I'm also considering how updating an expired key affects cache size, concluding it does not increase it.
+
+**Validating Constructor Inputs**
+
+I'm confirming that constructor arguments, like `capacity` and `defaultTtlMs`, are robustly validated against expected types and ranges, ensuring `RangeError` is thrown appropriately for invalid inputs. I'm also verifying that internal time operations consistently use the provided `_now` function, avoiding direct `Date.now()` calls for testability.
+
+**Refining Expiry Checks**
+
+I'm analyzing the `isExpired` logic, ensuring it correctly handles `Infinity` TTLs and accurately compares the current time with the entry's expiry instant, considering the expiry instant itself as expired.
+
+**Clarifying TTL Semantics**
+
+I'm solidifying my understanding of `ttlMs` values. Specifically, `Infinity` signifies a never-expiring entry, while 0 or negative values indicate immediate expiration upon creation. This distinction is crucial for subsequent eviction and retrieval logic.
+
+**Refining Expiry Logic**
+
+I'm clarifying the `_isExpired` function. The current logic correctly handles `Infinity` TTLs and checks if the current time is greater than or equal to the expiry instant. I'm also ensuring that negative or zero `ttlMs` correctly result in an expiry instant less than or equal to the current time, leading to immediate expiration.
+
+**Revising Eviction Order**
+
+I'm reassessing how expired entries influence cache size and LRU tracking. My current focus is on the precise definition of cache growth when updating an expired key, concluding it doesn't increase the size and should be handled carefully to maintain O(1) amortized operations.
+
+**Analyzing Map Order**
+
+I'm re-evaluating JavaScript's `Map` iteration order. I'm realizing it iterates from oldest insertion to newest, which means I need to reverse this to correctly identify the least recently used entry for eviction when the cache is full.
+
+**Clarifying MRU/LRU**
+
+I'm refining how I determine the most and least recently used entries. Given JavaScript Maps iterate from oldest to newest, I must invert this order to accurately identify the LRU element for eviction, while the `keys()` method should present them in MRU to LRU order.
+
+**Reordering Map Keys**
+
+I'm realizing that JavaScript Maps iterate from oldest to newest. To achieve a Most Recently Used (MRU) to Least Recently Used (LRU) order for `keys()`, I'll need to reverse the iteration order or store keys in a way that naturally supports this.
+
+**Purging Expired Entries**
+
+I'm now focusing on the `keys()` method. I've realized that it's perfectly safe to delete expired entries directly from the Map during iteration. This means I can effectively purge expired items encountered while generating the list of live keys, ensuring the `size` getter also reflects these removals.
+
+**Refining Key Order**
+
+I've confirmed that iterating through the Map and then reversing the collected keys correctly provides the MRU to LRU order required for the `keys()` method. My `size` getter also appears to correctly purge expired entries upon access.
+
+**Validating Key Types**
+
+I'm confirming that Map keys themselves can be any type, including `undefined`, `null`, `NaN`, or `0`. The `SameValueZero` comparison logic that Map uses inherently handles these cases correctly, so my presence checks remain robust regardless of the key's specific type.
+
+**Validating `get` Behavior**
+
+I'm scrutinizing the `get` method. It correctly handles absent and expired keys, removing expired entries upon discovery. Crucially, re-adding the entry after deletion ensures it's marked as most recently used, maintaining the expected O(1) amortized complexity.
+
+**Clarifying `delete` Return**
+
+I'm questioning the return value of `delete` when an expired key is targeted. The current implementation returns `true` if `this._map.delete(key)` is successful, regardless of the entry's expiry status. I need to determine if this aligns with the expectation that `delete` signals successful removal of an *active* entry.
+
+**Clarifying Delete Return**
+
+I'm questioning the return value of the `delete` operation when targeting an expired key. My current thinking is that `delete` should return `false` if the entry was already expired, as it wasn't an "active" or valid entry being removed. This differs from the current implementation where `true` is returned if the key exists in the map.
+
+**Clarifying Delete Return**
+
+I'm questioning the return value of the `delete` operation when targeting an expired key. My current thinking is that `delete` should return `false` if the entry was already expired, as it wasn't an "active" or valid entry being removed. This differs from the current implementation where `true` is returned if the key exists in the map.
+
+**Clarifying Delete Behavior**
+
+I'm reviewing the `delete` method's return value for expired keys. My current uncertainty is whether deleting an already expired entry should return `true` (as the key was removed from the map) or `false` (as no *active* entry was removed). I'm analyzing both scenarios to align with expected behavior.
+
+**Clarifying Delete Logic**
+
+I'm questioning the return value of `delete` when an expired key is targeted. My current reasoning suggests it should return `false` since no *active* entry was removed, even if the key itself is purged from the internal map. This aligns with a `has` check returning `false` for expired keys.
+
+**Refining Delete Return Value**
+
+I'm reconsidering the return value of `delete`. My current focus is on ensuring it accurately reflects whether an *active*, non-expired entry was removed, rather than just if a key was present in the internal map. This nuance is critical for the API's expected behavior.
+
+**Clarifying Delete Return Value**
+
+I'm reconsidering the return value of `delete`. My current focus is on ensuring it accurately reflects whether an *active*, non-expired entry was removed, rather than just if a key was present in the internal map. This nuance is critical for the API's expected behavior, and I believe returning `false` for expired entries is the most consistent approach.
+
+**Revising Set Logic**
+
+I'm delving into the intricacies of the `set` operation. My current focus is on correctly handling existing keys, especially those that have expired. I'm ensuring that updating such a key doesn't incorrectly inflate the cache size and that the TTL is accurately calculated, considering `Infinity` and immediate expirations.
+
+**Refining Eviction Logic**
+
+I'm focusing on the `set` operation's interaction with capacity limits. My current analysis shows that after purging expired entries, I must re-evaluate capacity before attempting to evict the LRU element, ensuring that newly added items only trigger LRU eviction if the cache remains over capacity.
+
+**Revising Eviction Logic**
+
+I'm reassessing how expired entries influence cache size and LRU tracking. My current focus is on the precise definition of cache growth when updating an expired key, concluding it doesn't increase the size and should be handled carefully to maintain O(1) amortized operations.
+
+**Optimizing Eviction Performance**
+
+I'm realizing that iterating the entire Map on every `set` operation when the cache is full and no entries are expired leads to O(N) performance, not O(1) amortized. I need to find a way to avoid this full iteration and maintain the required performance.
+
+**Revising Eviction Strategy**
+
+I'm rethinking how to achieve O(1) amortized eviction when capacity is exceeded and expired entries exist. I've realized that a full iteration to find expired entries breaks the O(1) constraint. My current focus is on how to leverage the Map's insertion order without sacrificing performance.
+
+**Revising Eviction Strategy**
+
+I'm reassessing how expired entries influence cache size and LRU tracking. My current focus is on the precise definition of cache growth when updating an expired key, concluding it doesn't increase the size and should be handled carefully to maintain O(1) amortized operations.
+
+**Optimizing Eviction Performance**
+
+I'm realizing that iterating the entire Map on every `set` operation when the cache is full and no entries are expired leads to O(N) performance, not O(1) amortized. I need to find a way to avoid this full iteration and maintain the required performance.
+
+**Revising Eviction Strategy**
+
+I'm rethinking how to achieve O(1) amortized eviction when capacity is exceeded and expired entries exist. I've realized that a full iteration to find expired entries breaks the O(1) constraint. My current focus is on how to leverage the Map's insertion order without sacrificing performance.
+
+**Simplifying Eviction Logic**
+
+I've concluded that the Map's built-in insertion order is sufficient for LRU tracking. I no longer need additional structures. The instruction to "evict expired entries first" is paramount, but I must implement this without sacrificing O(1) amortized performance, meaning a full scan is likely not the intended approach.
+
+**Clarifying Eviction Prioritization**
+
+I'm refining the eviction process. My current understanding is that I must prioritize purging expired entries before considering LRU when `set` exceeds capacity. The Map's inherent order is sufficient for tracking recency and I should leverage that.
+
+**Validating Eviction Order**
+
+I'm focusing on the core eviction requirement: "evict expired entries first; if still over capacity, evict the least recently used entry." I'm now convinced that JavaScript's `Map` insertion order is the key to both LRU tracking and an efficient eviction strategy without needing complex auxiliary data structures.
+
+**Validating LRU Logic**
+
+I'm reconfirming that JavaScript's `Map` inherently maintains insertion order, which is directly usable for LRU tracking. I don't need additional data structures like arrays, as stated in the requirements, and I must prioritize purging expired entries before resorting to LRU eviction when capacity is breached.
+
+**Finalizing Eviction Strategy**
+
+I've determined that the Map's insertion order is sufficient for managing LRU. My strategy will now focus on efficiently purging expired entries and then evicting the LRU item only if the cache remains over capacity, ensuring O(1) amortized operations.
+
+**Revising Eviction Logic**
+
+I'm realizing the current eviction logic might be inefficient. Iterating the entire Map to purge expired entries, then checking capacity again, and potentially evicting LRU, seems suboptimal. I need to refine this to ensure O(1) amortized operations, especially when no entries are expired.
+
+**Refining Update Logic**
+
+I'm confirming that `set` operations on existing keys, even if expired, should update the entry's value and expiry, and mark it as most recently used, always returning `this`. This ensures consistency regardless of the prior state of the key.
+
+**Validating Get Behavior**
+
+I'm scrutinizing the `get` method's handling of expired entries. Upon discovery, expired entries are correctly removed, and the method returns `undefined`. If an entry is valid, it's correctly returned and marked as most recently used, maintaining O(1) amortized performance.
+
+**Clarifying Delete Return**
+
+I'm questioning the return value of the `delete` operation when targeting an expired key. My current thinking is that `delete` should return `false` if the entry was already expired, as it wasn't an "active" or valid entry being removed. This differs from the current implementation where `true` is returned if the key exists in the map.
+
+**Clarifying Delete Return**
+
+I'm questioning the return value of the `delete` operation when targeting an expired key. My current thinking is that `delete` should return `false` if the entry was already expired, as it wasn't an "active" or valid entry being removed. This differs from the current implementation where `true` is returned if the key exists in the map.
+
+**Clarifying Delete Behavior**
+
+I'm reviewing the `delete` method's return value for expired keys. My current uncertainty is whether deleting an already expired entry should return `true` (as the key was removed from the map) or `false` (as no *active* entry was removed). I'm analyzing both scenarios to align with expected behavior.
+
+**Clarifying Delete Logic**
+
+I'm questioning the return value of `delete` when an expired key is targeted. My current reasoning suggests it should return `false` since no *active* entry was removed, even if the key itself is purged from the internal map. This aligns with a `has` check returning `false` for expired keys.
+
+**Refining Delete Return Value**
+
+I'm reconsidering the return value of `delete`. My current focus is on ensuring it accurately reflects whether an *active*, non-expired entry was removed, rather than just if a key was present in the internal map. This nuance is critical for the API's expected behavior.
+
+**Clarifying Delete Return Value**
+
+I'm reconsidering the return value of `delete`. My current focus is on ensuring it accurately reflects whether an *active*, non-expired entry was removed, rather than just if a key was present in the internal map. This nuance is critical for the API's expected behavior, and I believe returning `false` for expired entries is the most consistent approach.
+
+**Validating Delete Return**
+
+I'm re-evaluating the `delete` method's return value. My current focus is on ensuring it correctly indicates whether an *active* entry was removed, rather than simply if the key was present in the Map. I believe returning `false` for already expired keys provides clearer API semantics.
+
+**Revising Delete Logic**
+
+I'm scrutinizing the `delete` method's return value. My current thinking is that it should return `true` only if an *active*, non-expired entry was removed, and `false` otherwise, even if the key was present but expired. This ensures the return value accurately reflects the removal of a valid cache item.
+
+**Refining Delete Semantics**
+
+I'm focusing on the `delete` method's return value. My current decision is that it should accurately reflect the removal of a *valid* cache entry. Therefore, if the targeted key is already expired, `delete` should return `false`, as no active item was actually purged.
+
+**Clarifying Delete Outcome**
+
+I'm questioning the return value of `delete` for expired keys. My current approach is that it should return `false` to signify that no active entry was removed, aligning with the `has` method's behavior for expired items.
+
+**Refining Delete Return**
+
+I'm re-examining the `delete` method's return value, specifically for expired keys. My current decision is that it should return `false` when a key is already expired, as no *active* entry was removed, which is more semantically aligned with the method's purpose.
+
+**Refining Get Logic**
+
+I'm analyzing the `get` method's behavior. If a key is found but expired, it's removed, and `undefined` is returned. Crucially, if the key existed but was expired, its removal means recency isn't updated, which aligns with it not being a valid entry to track.
+
+**Clarifying Map Behavior**
+
+I'm revisiting how JavaScript `Map` handles expired entries discovered during `get`. The current implementation correctly removes them and returns `undefined`. However, the fact that recency isn't updated for these removed entries is a key detail I'm focusing on.
+
+**Validating `get` Behavior**
+
+I'm scrutinizing the `get` method. It correctly handles absent and expired keys, removing expired entries upon discovery. Crucially, re-adding the entry after deletion ensures it's marked as most recently used, maintaining the expected O(1) amortized complexity.
+
+**Finalizing `get` Logic**
+
+I've confirmed that `get` correctly handles expired entries by removing them and returning `undefined`. Importantly, valid entries are returned and marked as most recently used, ensuring the LRU state is updated appropriately and O(1) amortized performance is maintained.
+
+**Validating `has` Behavior**
+
+I'm confirming that the `has` method correctly identifies expired entries, removes them from the Map, and returns `false`. This ensures that `has` accurately reflects only currently active and valid cache entries without affecting recency.
+
+**Confirming `has` Logic**
+
+I've validated that `has` properly detects expired entries, purges them from the internal Map, and returns `false`. This aligns with the expectation that `has` should only report on the presence of valid, non-expired cache items.
+
+**Refining `has` Functionality**
+
+I'm ensuring the `has` method correctly handles expired entries by removing them and returning `false`. This is crucial for maintaining accurate cache state reporting without impacting the recency of other valid entries.
+
+**Validating `size` Behavior**
+
+I'm confirming that the `size` getter correctly purges expired entries before returning the count. This ensures that `size` always reflects the number of active, non-expired items currently in the cache.
+
+**Confirming `size` Logic**
+
+I've validated that the `size` getter effectively purges expired entries prior to reporting the count, guaranteeing that `size` always represents the number of currently active cache items.
+
+**Refining `size` Calculation**
+
+I'm ensuring the `size` getter accurately reflects the active cache items by purging any expired entries before calculating and returning the count. This guarantees the reported size is always up-to-date and correct.
+
+**Validating `keys` Behavior**
+
+I'm focusing on the `keys()` method. I've confirmed it iterates through the Map, removes expired entries it encounters, and then reverses the remaining keys to provide the MRU to LRU order. The `size` getter is also updated during this process.
+
+**Confirming `keys` Order**
+
+I've validated that `keys()` effectively purges expired entries during iteration and then reverses the remaining keys to correctly present them in MRU to LRU order, ensuring `size` is also updated concurrently.
+
+**Refining `keys` Method**
+
+I'm ensuring the `keys()` method accurately purges expired entries encountered during iteration and then reverses the sequence to deliver the required MRU to LRU ordering, while also updating the cache's `size`.
+
+**Finalizing Constructor Validation**
+
+I've completed the validation of constructor arguments. `capacity` is confirmed to be an integer >= 1, and `defaultTtlMs` is validated for type and range, with `RangeError` thrown for invalid inputs. I'm also verifying that the internal `_now` function is consistently used for time operations.
+
+**Validating Constructor Inputs**
+
+I'm confirming that constructor arguments, like `capacity` and `defaultTtlMs`, are robustly validated against expected types and ranges, ensuring `RangeError` is thrown appropriately for invalid inputs. I'm also verifying that internal time operations consistently use the provided `_now` function, avoiding direct `Date.now()` calls for testability.
+
+**Confirming Constructor Logic**
+
+I've finalized the constructor's input validation, ensuring `capacity` is a valid integer and `defaultTtlMs` is appropriately handled. I'm also satisfied that all internal time-related operations reliably utilize the provided `_now` function for predictable testing.
+
+**Refining Constructor Validation**
+
+I'm completing the validation for constructor parameters. `capacity` is confirmed as an integer >= 1, and `defaultTtlMs` is checked for type and valid range, ensuring appropriate `RangeError` exceptions. I've also verified consistent use of `_now` for all internal time calculations.
+
+**Validating TTL Logic**
+
+I'm focusing on the `_isExpired` function, ensuring it correctly handles `Infinity` TTLs and accurately compares the current time against the entry's expiry instant, considering the expiry instant itself as expired.
+
+**Confirming Expiry Checks**
+
+I've validated that `_isExpired` accurately handles `Infinity` TTLs and correctly determines expiry by comparing the current time to the entry's expiry instant. This ensures expired entries are consistently identified.
+
+**Refining Expiry Function**
+
+I'm ensuring the `_isExpired` function robustly handles `Infinity` TTLs and performs precise time comparisons to correctly identify expired entries, including those whose expiry instant is exactly the current time.
+
+**Validating `Infinity` TTL**
+
+I'm confirming that entries with `Infinity` as their TTL are never considered expired by the `_isExpired` function, regardless of the current time. This maintains the intended behavior for perpetually valid cache items.
+
+**Confirming Non-Expiring Entries**
+
+I've validated that entries with an `Infinity` TTL are correctly handled and will never be flagged as expired by the `_isExpired` function, preserving their persistent nature within the cache.
+
+**Refining `Infinity` Handling**
+
+I'm ensuring that the `_isExpired` function explicitly treats `Infinity` TTLs as non-expiring, guaranteeing that these entries remain valid indefinitely.
+
+**Validating Zero/Negative TTL**
+
+I'm verifying that entries with a TTL of 0 or less are immediately considered expired upon creation. The `_isExpired` function correctly identifies these entries as expired based on the current time.
+
+**Confirming Immediate Expiry**
+
+I've validated that TTLs of 0 or less result in entries being immediately marked as expired. The `_isExpired` function accurately identifies these entries as expired based on the current time.
+
+**Refining Immediate Expiry**
+
+I'm ensuring that the `_isExpired` function correctly identifies entries with TTLs of 0 or less as expired from the moment they are created.
+
+**Validating Entry Expiration**
+
+I'm solidifying the logic for entries with TTLs of 0 or less. My current thinking is they should be stored and immediately marked for eviction, or simply not stored at all. This choice impacts how the eviction strategy handles immediate expirations, especially when capacity is reached.
+
+**Clarifying Expiration Semantics**
+
+I'm focusing on the exact behavior for entries with TTLs of 0 or less. I'm considering whether to store them and immediately mark them for eviction, or to prevent their storage altogether. This decision directly influences how the cache handles immediate expirations and its capacity management.
+
+**Refining Expiry Strategy**
+
+I'm reassessing how to handle entries with TTLs of 0 or less. The critical decision is whether to store them and flag for eviction, or to reject them outright upon creation, as this impacts the eviction process when the cache is full.
+
+**Validating Cache Size**
+
+I'm confirming that updates to existing keys, even expired ones, do not increase the cache's `size`. This is crucial for maintaining O(1) amortized operations and ensuring that expired key updates don't circumvent capacity limits.
+
+**Confirming Size Integrity**
+
+I've validated that updating an existing key, even if it was previously expired, does not increment the cache's `size`. This is vital for preserving the O(1) amortized performance guarantees.
+
+**Refining Size Calculation**
+
+I'm ensuring that updates to expired keys are handled such that they do not contribute to the cache's `size`, thereby upholding the O(1) amortized operation complexity.
+
+**Validating Key Updates**
+
+I'm examining how `set` operations handle existing keys, particularly expired ones. My focus is on ensuring that updating such a key marks it as most recently used and adjusts its expiry, without incorrectly inflating the cache's `size`.
+
+**Confirming Key Update Behavior**
+
+I've validated that `set` operations correctly update the value and expiry of existing keys, even if expired, and mark them as most recently used. This ensures consistent behavior and maintains cache integrity.
+
+**Refining Key Update Logic**
+
+I'm ensuring that `set` operations on existing keys, including those that were expired, correctly update the entry's recency and expiry without impacting the cache's `size`, thus preserving O(1) amortized performance.
+
+**Validating Eviction Priority**
+
+I'm reinforcing the requirement to evict expired entries before considering LRU when `set` operations exceed capacity. The Map's insertion order is sufficient for LRU tracking, and this priority must be strictly adhered to.
+
+**Confirming Eviction Order**
+
+I've confirmed that the eviction strategy correctly prioritizes purging all expired entries before resorting to LRU eviction when the cache capacity is exceeded by a `set` operation.
+
+**Refining Eviction Prioritization**
+
+I'm ensuring the eviction process strictly prioritizes removing all expired entries before considering the least recently used item, particularly when a `set` operation pushes the cache beyond its capacity limit.
+
+**Validating Map Iteration**
+
+I'm questioning the amortized time complexity of Map iteration. I'm investigating whether iterating through the entire Map to identify expired entries during a `set` operation, when the cache is full, is permissible under the performance constraints. This impacts how I approach eviction strategies.
+
+**Analyzing Iteration Performance**
+
+I've identified a potential performance bottleneck: iterating the entire Map on every `set` operation when capacity is exceeded could lead to O(N) complexity. I'm exploring alternative approaches to maintain O(1) amortized operations.
+
+**Refining Iteration Strategy**
+
+I'm reassessing the eviction strategy to avoid full Map iteration when capacity is exceeded. The goal is to achieve O(1) amortized operations by efficiently purging expired entries without scanning the entire dataset.
+
+**Validating LRU Tracking**
+
+I'm confirming that JavaScript's `Map` insertion order is sufficient for tracking recency. I don't need complex auxiliary data structures, and the Map's natural order can be leveraged for LRU identification.
+
+**Confirming Recency Tracking**
+
+I've validated that the inherent insertion order of JavaScript `Map` objects can be directly used for tracking least recently used items, eliminating the need for additional data structures.
+
+**Refining LRU Implementation**
+
+I'm confirming that the Map's built-in insertion order is adequate for managing the Least Recently Used (LRU) tracking, and no extra data structures are required for this purpose.
+
+**Validating Eviction Efficiency**
+
+I'm focusing on achieving O(1) amortized operations for eviction. My current realization is that a full scan to purge expired entries when capacity is exceeded is inefficient. I need to optimize this process.
+
+**Optimizing Eviction Process**
+
+I've realized that a full iteration to purge expired entries can violate O(1) amortized performance. My focus is now on finding a more efficient way to handle purges and evictions.
+
+**Refining Eviction Performance**
+
+I'm working to ensure that eviction operations, especially when the cache is at capacity, consistently meet the O(1) amortized time complexity requirement, avoiding inefficient full Map scans.
+
+**Validating MRU/LRU Order**
+
+I'm reconfirming that JavaScript Maps iterate from oldest to newest. To provide the `keys()` method in MRU to LRU order, I need to reverse the iteration result.
+
+**Confirming Key Order Strategy**
+
+I've validated that reversing the Map's natural iteration order (oldest to newest) will correctly yield the MRU to LRU sequence required for the `keys()` method.
+
+**Refining Key Ordering**
+
+I'm implementing the `keys()` method by iterating the Map, collecting entries, and then reversing them to achieve the desired Most Recently Used (MRU) to Least Recently Used (LRU) order.
+
+**Validating Set Logic**
+
+I'm reviewing the `set` operation's behavior with existing, particularly expired, keys. My current focus is on ensuring value and expiry updates, recency tracking, and correct `size` management, all while maintaining O(1) amortized performance.
+
+**Confirming Set Behavior**
+
+I've confirmed that `set` correctly updates existing entries, including expired ones, by refreshing their value, expiry, and recency, without inflating the cache `size`, thus preserving O(1) amortized complexity.
+
+**Refining Set Operation**
+
+I'm ensuring that the `set` operation meticulously handles updates to existing keys, including expired ones, by correctly updating recency, expiry, and value, all while strictly maintaining the cache's size and O(1) amortized performance.
+
+**Validating Constructor Capacity**
+
+I'm validating that the `capacity` argument in the constructor is an integer and greater than or equal to 1. Any deviation results in a `RangeError`.
+
+**Confirming Capacity Validation**
+
+I've confirmed that the constructor correctly validates `capacity` to be an integer and at least 1, throwing a `RangeError` otherwise.
+
+**Refining Constructor Capacity Check**
+
+I'm ensuring the constructor's `capacity` validation is robust, strictly enforcing integer values and a minimum of 1 to prevent invalid cache configurations.
+
+**Validating Constructor Default TTL**
+
+I'm validating that the `defaultTtlMs` argument in the constructor is a non-negative number, with `Infinity` being a valid value. Invalid inputs will result in a `RangeError`.
+
+**Confirming Default TTL Validation**
+
+I've confirmed that the constructor validates `defaultTtlMs` to be a non-negative number (or `Infinity`), throwing a `RangeError` for invalid inputs.
+
+**Refining Constructor Default TTL Check**
+
+I'm ensuring the constructor's `defaultTtlMs` validation is robust, allowing only non-negative numbers and `Infinity`, throwing `RangeError` for any other values.
+
+**Validating Constructor Now Function**
+
+I'm verifying that the constructor correctly accepts and uses a provided `_now` function for all internal time operations, ensuring testability and predictable behavior.
+
+**Confirming Now Function Usage**
+
+I've confirmed that the constructor correctly utilizes the provided `_now` function for all time-related operations, guaranteeing deterministic behavior and testability.
+
+**Refining Constructor Now Function Integration**
+
+I'm ensuring the constructor reliably integrates the provided `_now` function, making all internal time calculations dependent on this injected function for consistent testing.
+
+**Validating Map Key Types**
+
+I'm confirming that Map keys can be of any type, including `undefined`, `null`, `NaN`, or `0`. The `SameValueZero` comparison used by Map inherently handles these cases correctly, ensuring my presence checks are robust.
+
+**Confirming Key Type Robustness**
+
+I've validated that the underlying Map's `SameValueZero` comparison handles all key types correctly, including `undefined`, `null`, `NaN`, and `0`, ensuring robust presence checks.
+
+**Refining Key Type Handling**
+
+I'm confirming that the cache logic correctly leverages the Map's inherent ability to handle any data type as a key, ensuring robust operation across diverse key types.
+
+**Refining Delete Return Value**
+
+I'm reconsidering the return value of `delete`. My current focus is on ensuring it accurately reflects whether an *active*, non-expired entry was removed, rather than just if a key was present in the internal map. This nuance is critical for the API's expected behavior, and I believe returning `false` for expired entries is the most consistent approach.
+
+**Refining Set Operation Logic**
+
+I'm focusing on how `set` handles updates to existing, especially expired, keys. My current analysis shows that deleting and re-inserting the key correctly updates its recency, ensures it becomes the most recently used, and importantly, does not incorrectly increase the cache size, thus maintaining O(1) amortized performance when capacity is a concern.
+
+**Clarifying Cache Growth**
+
+I'm analyzing how updating an expired key impacts cache growth and eviction policies. My current reasoning is that re-setting an already expired key does not count as growing the cache. Therefore, it should not trigger eviction of other entries, regardless of their expiry status.
+
+**Clarifying Cache Growth**
+
+I'm analyzing how updating an expired key impacts cache growth and eviction policies. My current reasoning is that re-setting an already expired key does not count as growing the cache. Therefore, it should not trigger eviction of other entries, regardless of their expiry status, aligning with the "evict only when growing beyond capacity" rule.
+
+**Revising Eviction Logic**
+
+I'm reassessing how expired entries influence cache size and LRU tracking. My current focus is on the precise definition of cache growth when updating an expired key, concluding it doesn't increase the size and should be handled carefully to maintain O(1) amortized operations.
+

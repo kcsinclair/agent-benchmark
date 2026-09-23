@@ -1,0 +1,60 @@
+{
+  "wall_seconds": 942.8,
+  "settings": {
+    "temperature": 0.0,
+    "max_tokens": 16384,
+    "think": "off",
+    "repeat": 3,
+    "reasoning_effort": "",
+    "server": "https://openrouter.ai/api",
+    "provider": "Google"
+  },
+  "results": [
+    {
+      "model": "google/gemini-3.8-flash",
+      "load_seconds": null,
+      "passes": [
+        {
+          "pass": 1,
+          "dir": "/opt/agent-benchmark/results/or-google/oneshot/google_gemini-3.8-flash/pass1",
+          "generate_seconds": 288.8,
+          "wall_seconds": 288.8,
+          "trouble": [
+            "02-js-lru-ttl-cache: truncated",
+            "04-go-worker-pool: truncated"
+          ],
+          "cost_usd": 0.1814,
+          "score": 40,
+          "max": 68
+        },
+        {
+          "pass": 2,
+          "dir": "/opt/agent-benchmark/results/or-google/oneshot/google_gemini-3.8-flash/pass2",
+          "generate_seconds": 321.6,
+          "wall_seconds": 321.6,
+          "trouble": [
+            "02-js-lru-ttl-cache: truncated",
+            "02-js-lru-ttl-cache: empty answer",
+            "04-go-worker-pool: truncated"
+          ],
+          "cost_usd": 0.2046,
+          "score": 40,
+          "max": 68
+        },
+        {
+          "pass": 3,
+          "dir": "/opt/agent-benchmark/results/or-google/oneshot/google_gemini-3.8-flash/pass3",
+          "generate_seconds": 327.0,
+          "wall_seconds": 327.0,
+          "trouble": [
+            "02-js-lru-ttl-cache: truncated",
+            "04-go-worker-pool: truncated"
+          ],
+          "cost_usd": 0.1955,
+          "score": 40,
+          "max": 68
+        }
+      ]
+    }
+  ]
+}
