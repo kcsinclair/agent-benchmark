@@ -5,7 +5,7 @@
     ./benchmark/collate_results.py -o table.md      # write it out
     ./benchmark/collate_results.py --plain          # aligned text, not markdown
     ./benchmark/collate_results.py --label or-*     # only matching results dirs
-    ./benchmark/collate_results.py --sort model     # default: coding score
+    ./benchmark/collate_results.py --sort coding    # default: model name
 
 Distinct from collate_bench.py, which is speed-first: that one starts from a
 `results/<server>/speed/` directory of llama-bench JSON and joins scores onto
@@ -156,7 +156,7 @@ def main(argv=None):
     ap.add_argument("--label", action="append", default=[], metavar="GLOB",
                     help="only these results dirs, e.g. --label 'or-*'")
     ap.add_argument("--sort", choices=("coding", "model", "cost"),
-                    default="coding")
+                    default="model")
     args = ap.parse_args(argv)
 
     if not os.path.isdir(args.root):

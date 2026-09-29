@@ -171,55 +171,6 @@
       ]
     },
     {
-      "model": "Llama-3-14B-Instruct-v1.Q4_K_M",
-      "load_seconds": 16.2,
-      "passes": [
-        {
-          "pass": 1,
-          "dir": "/Users/keith/Library/Mobile Documents/com~apple~CloudDocs/Projects/agent-benchmark/results/leia/oneshot/Llama-3-14B-Instruct-v1.Q4_K_M/pass1",
-          "generate_seconds": 825.2,
-          "wall_seconds": 825.2,
-          "trouble": [
-            "03-sql-analytics: repetition loop",
-            "03-sql-analytics: q2.sql, q3.sql, q4.sql not extracted",
-            "04-go-worker-pool: repetition loop",
-            "04-go-worker-pool: pool.go not extracted"
-          ],
-          "score": 0,
-          "max": 68
-        },
-        {
-          "pass": 2,
-          "dir": "/Users/keith/Library/Mobile Documents/com~apple~CloudDocs/Projects/agent-benchmark/results/leia/oneshot/Llama-3-14B-Instruct-v1.Q4_K_M/pass2",
-          "generate_seconds": 1082.4,
-          "wall_seconds": 1082.4,
-          "trouble": [
-            "02-js-lru-ttl-cache: repetition loop",
-            "03-sql-analytics: repetition loop",
-            "03-sql-analytics: q3.sql, q4.sql not extracted",
-            "04-go-worker-pool: repetition loop",
-            "04-go-worker-pool: pool.go not extracted"
-          ],
-          "score": 0,
-          "max": 68
-        },
-        {
-          "pass": 3,
-          "dir": "/Users/keith/Library/Mobile Documents/com~apple~CloudDocs/Projects/agent-benchmark/results/leia/oneshot/Llama-3-14B-Instruct-v1.Q4_K_M/pass3",
-          "generate_seconds": 797.6,
-          "wall_seconds": 797.6,
-          "trouble": [
-            "03-sql-analytics: repetition loop",
-            "03-sql-analytics: q2.sql, q3.sql, q4.sql not extracted",
-            "04-go-worker-pool: repetition loop",
-            "04-go-worker-pool: pool.go not extracted"
-          ],
-          "score": 0,
-          "max": 68
-        }
-      ]
-    },
-    {
       "model": "Meta-Llama-3.1-8B-Instruct-Q4_K_M",
       "load_seconds": 8.0,
       "passes": [

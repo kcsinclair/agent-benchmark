@@ -148,7 +148,7 @@ def main(argv):
     lines.append("| " + " | ".join(head) + " |")
     lines.append("|" + "---|" * len(head))
 
-    order = sorted(models, key=lambda k: -(models[k]["tg"].get(0) or 0))
+    order = sorted(models)
     for label in order:
         m = models[label]
         gb = "%.0fGB" % (m["size"] / 1e9) if m.get("size") else "-"
