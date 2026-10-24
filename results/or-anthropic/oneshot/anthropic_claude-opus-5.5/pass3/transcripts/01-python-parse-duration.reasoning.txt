@@ -1,0 +1,4 @@
+I need to be careful about parsing ambiguity, like "1ms" meaning milliseconds versus minutes-plus-seconds, so I'll check "ms" before "m" in the alternation to avoid misparsing. I also want to make sure whitespace stripping and digit matching use plain ASCII characters rather than broader unicode ones.
+
+I'm planning to reject non-string inputs with a TypeError check, use fullmatch instead of relying on "$" to avoid trailing newline quirks, and reject a lone "-" as invalid while allowing something like "-0s". For parsing, I'll tokenize using a regex that captures a number and its unit, iterating through matches and summing values based on unit rank—using Fraction for exact arithmetic before converting to float, catching potential OverflowError for very large inputs and converting it to a ValueError instead.
+

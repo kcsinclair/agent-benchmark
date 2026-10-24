@@ -1,0 +1,6 @@
+I'm planning the first query to find customers with at least one completed order, using a left join on order items and products so customers with no items still show zero revenue, grouped by customer to compute rounded total revenue.
+
+For the second query I'm thinking through how to compute total units sold per product, deciding to filter out products with zero completed sales quantity via a HAVING clause since a sum of zero doesn't represent a real sale.
+
+For the third query I'll use NOT EXISTS to identify products never associated with a completed order, and for the fourth I'll filter orders to the year 2025 using strftime on the ordered_at column, keeping the same HAVING condition to exclude zero-quantity results.
+

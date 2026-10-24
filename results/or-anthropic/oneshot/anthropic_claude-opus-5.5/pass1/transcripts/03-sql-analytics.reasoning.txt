@@ -1,0 +1,4 @@
+I'm thinking through edge cases for the first query: customers with completed orders but no items should still show up with zero revenue, so I need a left join with COALESCE to default the summed revenue to 0, grouped by customer id since names could repeat. For the second query, I'm grouping by product id instead.
+
+For sales aggregation, I decide to use HAVING SUM(quantity) > 0 to filter out products whose only completed line items have zero quantity, treating those as not real sales. For the date filtering query, I settle on extracting the year with strftime and requiring revenue greater than 0, reasoning that prices are always positive so this is safe and rounding won't cause issues at the boundary.
+

@@ -1,0 +1,94 @@
+// cache.mjs
+export class LruTtlCache {
+  #capacity;
+  #defaultTtlMs;
+  #now;
+  // Map preserves insertion order; we re-insert on access to mark recency.
+  // Oldest (least recently used) entries are first, most recent last.
+  #map = new Map();
+
+  constructor({ capacity, defaultTtlMs = Infinity, now = () => Date.now() } = {}) {
+    if (!Number.isInteger(capacity) || capacity < 1) {
+      throw new RangeError(`capacity must be an integer >= 1, got ${capacity}`);
+    }
+    this.#capacity = capacity;
+    this.#defaultTtlMs = defaultTtlMs;
+    this.#now = now;
+  }
+
+  #expiryFor(ttlMs) {
+    if (ttlMs === Infinity) return Infinity;
+    return this.#now() + ttlMs;
+  }
+
+  #isExpired(entry, t = this.#now()) {
+    return entry.expiresAt !== Infinity && t >= entry.expiresAt;
+  }
+
+  // Remove all expired entries. O(n), used only when capacity is pressured
+  // and by the size getter / keys().
+  #purgeExpired() {
+    const t = this.#now();
+    for (const [key, entry] of this.#map) {
+      if (this.#isExpired(entry, t)) this.#map.delete(key);
+    }
+  }
+
+  set(key, value, ttlMs = this.#defaultTtlMs) {
+    const entry = { value, expiresAt: this.#expiryFor(ttlMs) };
+
+    // Replacing: delete first so re-insertion makes it most recent.
+    if (this.#map.has(key)) {
+      this.#map.delete(key);
+    } else if (this.#map.size >= this.#capacity) {
+      // Need room for a new key: evict expired entries first.
+      this.#purgeExpired();
+      // Still over capacity: evict least recently used (first in Map order).
+      while (this.#map.size >= this.#capacity) {
+        const lru = this.#map.keys().next().value;
+        this.#map.delete(lru);
+      }
+    }
+
+    this.#map.set(key, entry);
+    return this;
+  }
+
+  get(key) {
+    const entry = this.#map.get(key);
+    if (entry === undefined) return undefined;
+    if (this.#isExpired(entry)) {
+      this.#map.delete(key);
+      return undefined;
+    }
+    // Touch: move to most-recent position.
+    this.#map.delete(key);
+    this.#map.set(key, entry);
+    return entry.value;
+  }
+
+  has(key) {
+    const entry = this.#map.get(key);
+    if (entry === undefined) return false;
+    if (this.#isExpired(entry)) {
+      this.#map.delete(key);
+      return false;
+    }
+    return true;
+  }
+
+  delete(key) {
+    return this.#map.delete(key);
+  }
+
+  get size() {
+    this.#purgeExpired();
+    return this.#map.size;
+  }
+
+  keys() {
+    this.#purgeExpired();
+    // Map order is LRU -> MRU; reverse for MRU -> LRU.
+    return [...this.#map.keys()].reverse();
+  }
+}

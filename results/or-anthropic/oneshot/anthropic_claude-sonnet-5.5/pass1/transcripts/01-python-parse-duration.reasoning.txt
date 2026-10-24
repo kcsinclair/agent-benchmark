@@ -1,0 +1,4 @@
+I'm thinking through regex edge cases for parsing time units, making sure "ms" is checked before "m" so something like "5ms" doesn't get misparsed as minutes followed by a stray "s".
+
+For precision, I'll use Decimal arithmetic on each matched component before summing, then convert to float at the end, so values like "2h15m30s500ms" come out exact rather than accumulating floating-point error. I also need to guard against edge cases like a lone "-" with no digits, negative zero results, and extremely large numbers that could overflow to infinity when converted from Decimal to float.
+

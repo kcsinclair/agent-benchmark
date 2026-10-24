@@ -1,0 +1,4 @@
+I need to be careful with parsing ambiguous unit strings like "ms" versus minutes-then-seconds, prioritizing "ms" as milliseconds during tokenization. I also want to make sure whitespace stripping and digit matching use plain ASCII digits rather than unicode ones to avoid edge cases.
+
+A regex with optional groups for hours, minutes, seconds, and milliseconds, checking order and requiring at least one component to match, handles ambiguous cases like "1ms" correctly through backtracking, while using fullmatch avoids trailing newline issues. I'll compute the total using Decimal arithmetic for exact precision (like 2h15m30s500ms summing cleanly to 8130.5) and convert to float at the end for a correctly rounded result, also handling edge cases like negative zero.
+

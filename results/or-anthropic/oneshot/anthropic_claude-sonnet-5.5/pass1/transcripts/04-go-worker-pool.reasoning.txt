@@ -1,0 +1,8 @@
+I'm planning to derive a cancelable context and use a mutex to record only the first real error, making sure cascading cancellation errors from other tasks don't overwrite it once one task fails.
+
+At the end, I want to prefer returning the task's real error over a generic context-canceled error, but if the parent itself was canceled, I should surface that appropriately instead of masking it with a derived cancellation error.
+
+I'll track a completed-count instead: if every task finished without error, return the results with nil error; otherwise fall back to the parent's cancellation error. For the worker loop, each goroutine checks context cancellation before claiming the next index and again right before invoking the task, accepting that there's an unavoidable small race window since the derived context inherits cancellation from the parent.
+
+I'll validate the workers argument first regardless of task count, then handle the empty-tasks case, then check for an already-cancelled context before spawning any goroutines. I'll spawn min(workers, n) goroutines, have them write results into distinct indices, use wg.Wait for proper synchronization, and skip any nil tasks.
+

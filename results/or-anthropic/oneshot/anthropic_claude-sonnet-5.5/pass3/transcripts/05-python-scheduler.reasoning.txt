@@ -1,0 +1,4 @@
+This is classic weighted interval scheduling: I'll sort jobs by end time, then for each job use binary search to find the latest non-conflicting job, building a dp array where dp[i+1] = max(dp[i], dp[p]+weight), then reconstruct the chosen jobs iteratively.
+
+To avoid floating-point equality issues during reconstruction, I'll track an explicit take/skip flag per position rather than comparing dp values directly, then sort the final chosen jobs by start time and return the total weight.
+

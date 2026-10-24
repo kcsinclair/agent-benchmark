@@ -1,0 +1,55 @@
+"""Weighted interval scheduling in O(n log n) time.
+
+Jobs are sorted by end time. For each job, binary search finds how many
+earlier-ending jobs are compatible with it. An iterative DP then computes the
+best total, and the chosen subset is reconstructed from recorded decisions.
+Touching intervals (end == start) are compatible.
+"""
+
+from bisect import bisect_right
+
+
+def best_schedule(jobs):
+    n = len(jobs)
+    if n == 0:
+        return (0.0, [])
+
+    # Sort job indices by end time (ties by start, then index, for determinism).
+    order = sorted(range(n), key=lambda i: (jobs[i][1], jobs[i][0], i))
+    ends = [jobs[i][1] for i in order]
+
+    # p[k] (1-based k) = number of jobs in sorted order whose end <= start of job k.
+    # Those jobs all precede job k in sorted order, since end <= start < end_k.
+    p = [0] * (n + 1)
+    for k in range(1, n + 1):
+        s = jobs[order[k - 1]][0]
+        p[k] = bisect_right(ends, s)
+
+    # dp[k] = best total using the first k jobs in sorted order.
+    dp = [0.0] * (n + 1)
+    take = [False] * (n + 1)
+    for k in range(1, n + 1):
+        w = float(jobs[order[k - 1]][2])
+        with_k = w + dp[p[k]]
+        without_k = dp[k - 1]
+        if with_k >= without_k:
+            dp[k] = with_k
+            take[k] = True
+        else:
+            dp[k] = without_k
+
+    # Reconstruct the chosen subset iteratively.
+    chosen = []
+    k = n
+    while k > 0:
+        if take[k]:
+            chosen.append(order[k - 1])
+            k = p[k]
+        else:
+            k -= 1
+
+    chosen.sort(key=lambda i: (jobs[i][0], i))
+    total = 0.0
+    for i in chosen:
+        total += float(jobs[i][2])
+    return (total, chosen)

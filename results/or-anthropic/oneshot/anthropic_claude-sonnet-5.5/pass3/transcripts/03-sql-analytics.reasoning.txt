@@ -1,0 +1,4 @@
+I need four queries, being careful to group customers by ID rather than name to avoid collisions, and using LEFT JOINs so completed orders with no items still count toward "at least one completed order" with revenue defaulting to zero via COALESCE.
+
+For revenue ranking I'm ordering by the rounded revenue descending then name ascending for ties. For top products I'm grouping by product ID and name with a limit of 3, again breaking ties by name. For customers without any completed orders I'm using NOT EXISTS, and for the monthly summary I'm extracting year-month with strftime, filtering to 2025, and using HAVING to exclude months with zero total revenue.
+

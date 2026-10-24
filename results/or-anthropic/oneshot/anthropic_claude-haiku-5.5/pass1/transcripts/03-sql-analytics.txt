@@ -1,0 +1,63 @@
+Here are the four queries.
+
+**q1.sql** — Revenue per customer (completed orders only)
+
+```sql
+SELECT
+  c.name AS customer_name,
+  ROUND(SUM(oi.quantity * p.unit_price), 2) AS revenue
+FROM customers c
+JOIN orders o       ON o.customer_id = c.id AND o.status = 'completed'
+JOIN order_items oi ON oi.order_id = o.id
+JOIN products p     ON p.id = oi.product_id
+GROUP BY c.id, c.name
+ORDER BY revenue DESC, customer_name ASC;
+```
+
+**q2.sql** — Top 3 products by units sold (completed orders only)
+
+```sql
+SELECT
+  p.name AS product_name,
+  SUM(oi.quantity) AS units_sold
+FROM products p
+JOIN order_items oi ON oi.product_id = p.id
+JOIN orders o       ON o.id = oi.order_id AND o.status = 'completed'
+GROUP BY p.id, p.name
+ORDER BY units_sold DESC, product_name ASC
+LIMIT 3;
+```
+
+**q3.sql** — Customers with no orders of any status
+
+```sql
+SELECT
+  c.name AS customer_name,
+  c.country AS country
+FROM customers c
+WHERE NOT EXISTS (
+  SELECT 1 FROM orders o WHERE o.customer_id = c.id
+)
+ORDER BY customer_name ASC;
+```
+
+**q4.sql** — Monthly revenue for 2025 (completed orders, non-zero months only)
+
+```sql
+SELECT
+  strftime('%Y-%m', o.ordered_at) AS month,
+  ROUND(SUM(oi.quantity * p.unit_price), 2) AS revenue
+FROM orders o
+JOIN order_items oi ON oi.order_id = o.id
+JOIN products p     ON p.id = oi.product_id
+WHERE o.status = 'completed'
+  AND strftime('%Y', o.ordered_at) = '2025'
+GROUP BY month
+HAVING SUM(oi.quantity * p.unit_price) <> 0
+ORDER BY month ASC;
+```
+
+Notes on the design:
+- q1 and q2 filter `status = 'completed'` in the join condition, so non-completed orders never contribute, and customers/products without completed sales drop out naturally via the inner joins.
+- q3 uses `NOT EXISTS` rather than a `LEFT JOIN ... IS NULL`, which avoids any ambiguity and is robust to customers with orders in any status.
+- q4 uses `strftime('%Y', ...)` to restrict to 2025 and a `HAVING` clause to exclude zero-revenue months.

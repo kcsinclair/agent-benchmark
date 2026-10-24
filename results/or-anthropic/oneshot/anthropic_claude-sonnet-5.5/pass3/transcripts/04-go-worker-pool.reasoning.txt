@@ -1,0 +1,8 @@
+I'm designing the worker pool: spawn a limited number of goroutines pulling task indices from a shared counter, each checking context cancellation before running, and recording only the first error under a mutex while triggering cancellation for the rest.
+
+I'm working out edge cases for cancellation priority: if the context is already cancelled before any task runs, it should return the context error immediately without executing tasks; if a task error occurs, that takes precedence; and if the context is cancelled mid-run but tasks still finish successfully, I'm leaning toward favoring whichever outcome (error vs context cancellation) is detected first rather than always returning the context error.
+
+I'll keep it simple and have the first recorded error win, rather than trying to cleverly merge context cancellation with task errors. There's also a subtle race to worry about: a worker could pass its cancellation check just before another task's error triggers the cancel, then still start a new task afterward—technically violating the rule that unstarted tasks must never start once an error occurs, though it's a tight enough window that it may not be reliably testable.
+
+To close that gap I'll use a mutex: each worker locks, checks the failed flag or ctx.Err(), claims the next index, then unlocks; the worker that hits a failure sets the flag under that same lock. This way, a task that already claimed its index before the failure flag was set is allowed to run concurrently—that's unavoidable and acceptable. Results get written to distinct indices, so wg.Wait() gives the happens-before guarantee I need before reading them, and now I'll write the actual code.
+

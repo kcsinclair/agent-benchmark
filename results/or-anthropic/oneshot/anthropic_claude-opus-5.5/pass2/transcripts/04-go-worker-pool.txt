@@ -1,0 +1,132 @@
+```go
+package main
+
+import (
+	"context"
+	"errors"
+	"fmt"
+	"sync"
+)
+
+// Task is one unit of work.
+type Task func(ctx context.Context) (any, error)
+
+// Run executes tasks with at most `workers` running concurrently and returns
+// their results in the same order as the input slice.
+func Run(ctx context.Context, tasks []Task, workers int) ([]any, error) {
+	if workers < 1 {
+		return nil, fmt.Errorf("pool: workers must be >= 1, got %d", workers)
+	}
+	if ctx == nil {
+		return nil, errors.New("pool: nil context")
+	}
+	if len(tasks) == 0 {
+		return []any{}, nil
+	}
+	// Respect an already-cancelled parent context without starting anything.
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
+
+	parent := ctx
+	taskCtx, cancel := context.WithCancel(parent)
+	defer cancel()
+
+	var (
+		mu       sync.Mutex
+		firstErr error
+		wg       sync.WaitGroup
+	)
+
+	// setErr records the first error and cancels the task context.
+	// If the parent has been cancelled by the time the error is observed,
+	// the parent's error is reported (the task error is most likely a
+	// consequence of the cancellation).
+	setErr := func(err error) {
+		mu.Lock()
+		if firstErr == nil {
+			if perr := parent.Err(); perr != nil {
+				firstErr = perr
+			} else {
+				firstErr = err
+			}
+		}
+		mu.Unlock()
+		cancel()
+	}
+
+	results := make([]any, len(tasks))
+	sem := make(chan struct{}, workers)
+
+dispatch:
+	for i, t := range tasks {
+		// Acquire a worker slot, or stop if cancelled / failed.
+		select {
+		case <-taskCtx.Done():
+			break dispatch
+		case sem <- struct{}{}:
+		}
+		// select may choose the send even if ctx is already done.
+		if taskCtx.Err() != nil {
+			<-sem
+			break dispatch
+		}
+
+		wg.Add(1)
+		go func(i int, t Task) {
+			defer wg.Done()
+			defer func() { <-sem }()
+
+			// Last-moment check: never start a task after a failure/cancel.
+			if taskCtx.Err() != nil {
+				return
+			}
+			if t == nil {
+				setErr(fmt.Errorf("pool: task %d is nil", i))
+				return
+			}
+			v, err := t(taskCtx)
+			if err != nil {
+				setErr(err)
+				return
+			}
+			results[i] = v // distinct index per goroutine: race-free
+		}(i, t)
+	}
+
+	// Wait for every started task before returning (no leaks).
+	wg.Wait()
+
+	mu.Lock()
+	err := firstErr
+	mu.Unlock()
+	if err != nil {
+		return nil, err
+	}
+	if perr := parent.Err(); perr != nil {
+		return nil, perr
+	}
+	return results, nil
+}
+```
+
+The file compiles as `package main` without a `main` function. It declares only `Task` and `Run` at package level.
+
+**How it meets each requirement:**
+
+- **Ordering:** each goroutine writes only to its own index `results[i]`. The slice is read only after `wg.Wait()`, so there is no race.
+- **Bounded concurrency:** a buffered channel `sem` with capacity `workers` acts as a semaphore. A goroutine is spawned only after a slot is acquired, and the slot is released when the task finishes.
+  - So at most `workers` tasks run at once.
+  - Tasks do run in parallel up to that bound.
+- **Validation:** `workers < 1` returns an error immediately. Empty `tasks` returns an empty slice and `nil`.
+- **Fail fast:** `setErr` records the first error under a mutex and then calls `cancel()`.
+  - **No new starts:** tasks that have not started are never launched. Three checks enforce this:
+    - The dispatcher's `select` watches `taskCtx.Done()` while waiting for a slot.
+    - The dispatcher checks again after acquiring a slot, because `select` can pick the send even when the context is already done.
+    - Each goroutine checks once more right before calling its task.
+  - **Running tasks:** these see `taskCtx` cancelled.
+  - **No leaks:** `Run` always calls `wg.Wait()` before returning.
+- **Context cancellation:** `taskCtx` is derived from the parent, so parent cancellation stops dispatch and cancels running tasks.
+  - `Run` then returns `parent.Err()`.
+  - That covers two cases: when no task has errored, and when a task errors because of the cancellation. `setErr` reports the parent's error once the parent is done.
+- **No busy-waiting and race-free:** all coordination uses channels, a `sync.Mutex` and a `sync.WaitGroup`.

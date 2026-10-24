@@ -1,0 +1,69 @@
+```python
+"""Weighted interval scheduling in O(n log n) time.
+
+Usage:
+    from scheduler import best_schedule
+"""
+
+from bisect import bisect_right
+
+
+def best_schedule(jobs):
+    """Return (total_weight, chosen_indices) for a maximum-weight set of
+    non-overlapping jobs. Jobs that touch (one ends at t, the next starts
+    at t) are compatible. The indices are sorted by start time, then by
+    index."""
+    n = len(jobs)
+    if n == 0:
+        return (0.0, [])
+
+    # Sort job indices by end time (ties broken by index).
+    order = sorted(range(n), key=lambda i: (jobs[i][1], i))
+    ends = [jobs[i][1] for i in order]
+
+    # p[k] = number of sorted jobs (among the first k) whose end <= start of
+    # sorted job k. Those are exactly the jobs compatible with job k.
+    # dp[k] = best total weight using only the first k sorted jobs.
+    dp = [0.0] * (n + 1)
+    p = [0] * n
+    take = [False] * n
+
+    for k in range(n):
+        s, _, w = jobs[order[k]]
+        # Every job with end <= s comes before k in end order, since
+        # end_k > s. The hi=k bound is only a safeguard.
+        pk = bisect_right(ends, s, 0, k)
+        p[k] = pk
+        with_job = w + dp[pk]
+        without = dp[k]
+        if with_job > without:
+            dp[k + 1] = with_job
+            take[k] = True
+        else:
+            dp[k + 1] = without
+
+    # Iterative reconstruction, so no recursion limit issues.
+    chosen = []
+    k = n - 1
+    while k >= 0:
+        if take[k]:
+            chosen.append(order[k])
+            k = p[k] - 1
+        else:
+            k -= 1
+
+    chosen.sort(key=lambda i: (jobs[i][0], i))
+    return (float(dp[n]), chosen)
+```
+
+**How it works**
+
+1. **Sort by end time.** Job indices are sorted by end time, with ties broken by index.
+2. **Find the previous compatible job.** For each sorted job `k`, a binary search (`bisect_right`) over the sorted end times finds how many earlier jobs end at or before `k`'s start. Using `<=` means touching jobs count as compatible.
+3. **Run the DP.** `dp[k+1] = max(dp[k], w_k + dp[p[k]])`. A `take` flag records which branch won, so reconstruction repeats exactly the decisions of the forward pass.
+4. **Reconstruct iteratively.** A loop walks back from the last job. If job `k` was taken, it records the job and jumps to `p[k] - 1`. Otherwise it steps to `k - 1`. There is no recursion, so n = 200,000 is safe.
+5. **Sort the output.** The chosen indices are sorted by `(start, index)`.
+
+The sort and the n binary searches are each O(n log n), and the DP and reconstruction are O(n). Total time is O(n log n) and memory is O(n).
+
+On the example this returns `(13.0, [2, 6])`.

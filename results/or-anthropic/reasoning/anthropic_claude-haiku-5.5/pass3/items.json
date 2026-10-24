@@ -1,0 +1,1026 @@
+{
+  "model": "anthropic/claude-haiku-5.5",
+  "seed": 1,
+  "results": [
+    {
+      "category": "state",
+      "item": 1,
+      "ok": true,
+      "expected": "8",
+      "seconds": 2.3,
+      "tokens": 116,
+      "finish": "stop",
+      "reply": "Start: C=5, A=7, B=5.\n1. Remove 1 from B: B=4.\n2. Double A: A=14.\n3. Remove 3 from A: A=11.\n4. Move 1 from C to B: C=4, B=5.\n5. Swap C and B: C=5, B=4.\n6. Add 4 to B: B=8.\n\n8"
+    },
+    {
+      "category": "state",
+      "item": 2,
+      "ok": true,
+      "expected": "26",
+      "seconds": 1.0,
+      "tokens": 72,
+      "finish": "stop",
+      "reply": "Start: C=6, D=5, B=7.\n1. C=10.\n2. D=0, B=12.\n3. C=13.\n4. C=26.\n5. B=17.\n6. Swap C and B: B=26.\n\n26"
+    },
+    {
+      "category": "state",
+      "item": 3,
+      "ok": true,
+      "expected": "4",
+      "seconds": 1.2,
+      "tokens": 128,
+      "finish": "stop",
+      "reply": "Start: D=8, A=4, B=3.\n\n1. Move 1 from B to D: B=2, D=9.\n2. Swap B and D: B=9, D=2.\n3. Move 3 from A to B: A=1, B=12.\n4. Remove 8 from B: B=4.\n5. Add 5 to D: D=7.\n6. Swap D and B: D=4, B=7.\n\n4"
+    },
+    {
+      "category": "state",
+      "item": 4,
+      "ok": true,
+      "expected": "3",
+      "seconds": 1.1,
+      "tokens": 114,
+      "finish": "stop",
+      "reply": "Start: B=5, A=7, C=9.\n1. Double A: A=14.\n2. Remove 3 from B: B=2.\n3. Remove 7 from A: A=7.\n4. Swap C and B: C=2, B=9.\n5. Remove 4 from A: A=3.\n6. Swap A and B: A=9, B=3.\n\n3"
+    },
+    {
+      "category": "state",
+      "item": 5,
+      "ok": true,
+      "expected": "36",
+      "seconds": 1.3,
+      "tokens": 105,
+      "finish": "stop",
+      "reply": "Start: A=4, B=5, C=8.\n1. A=4+6=10.\n2. Move 4 from A to B: A=6, B=9.\n3. Move 6 from A to B: A=0, B=15.\n4. A=0+3=3.\n5. Double B: B=30.\n6. B=30+6=36.\n\n36"
+    },
+    {
+      "category": "state",
+      "item": 6,
+      "ok": true,
+      "expected": "11",
+      "seconds": 1.3,
+      "tokens": 122,
+      "finish": "stop",
+      "reply": "Start: A=6, C=5, D=6.\n\n1. Double A: A=12.\n2. Double A: A=24.\n3. Move 5 from C to A: C=0, A=29.\n4. Swap A and C: A=0, C=29.\n5. Move 5 from D to C: D=1, C=34.\n6. Move 23 from C to A: C=11, A=23.\n\n11"
+    },
+    {
+      "category": "state",
+      "item": 7,
+      "ok": true,
+      "expected": "14",
+      "seconds": 0.7,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "14"
+    },
+    {
+      "category": "state",
+      "item": 8,
+      "ok": true,
+      "expected": "11",
+      "seconds": 1.2,
+      "tokens": 125,
+      "finish": "stop",
+      "reply": "Start: C=5, B=5, A=4.\n1. Move 5 from B to C: B=0, C=10.\n2. Add 1 to C: C=11.\n3. Add 2 to A: A=6.\n4. Add 1 to B: B=1.\n5. Remove 1 from B: B=0.\n6. Move 4 from A to B: A=2, B=4.\n\nC = 11"
+    },
+    {
+      "category": "state",
+      "item": 9,
+      "ok": true,
+      "expected": "7",
+      "seconds": 1.2,
+      "tokens": 106,
+      "finish": "stop",
+      "reply": "Start: B=6, A=9, D=5.\n\n1. B = 6+1 = 7\n2. Swap A and B: A=7, B=9\n3. B = 9\u00d72 = 18\n4. B = 18\u221218 = 0\n5. B = 0+5 = 5\n6. B = 5+3 = 8\n\nA = 7\n\n7"
+    },
+    {
+      "category": "state",
+      "item": 10,
+      "ok": true,
+      "expected": "5",
+      "seconds": 1.4,
+      "tokens": 158,
+      "finish": "stop",
+      "reply": "Start: D=2, C=2, B=6.\n\n1. Swap D and B: D=6, C=2, B=2.\n2. Remove 5 from D: D=1, C=2, B=2.\n3. Add 1 to C: D=1, C=3, B=2.\n4. Swap D and C: D=3, C=1, B=2.\n5. Move 3 from D to C: D=0, C=4, B=2.\n6. Add 3 to B: D=0, C=4, B=5.\n\n5"
+    },
+    {
+      "category": "state",
+      "item": 11,
+      "ok": true,
+      "expected": "4",
+      "seconds": 1.3,
+      "tokens": 113,
+      "finish": "stop",
+      "reply": "Start: C=3, B=3, D=3.\n1. B = 3-3 = 0\n2. B = 0*2 = 0\n3. Swap C and D: C=3, D=3 (no change in value)\n4. B = 0*2 = 0\n5. B = 0+4 = 4\n6. D = 3*2 = 6\n\nB = 4\n\n4"
+    },
+    {
+      "category": "state",
+      "item": 12,
+      "ok": true,
+      "expected": "13",
+      "seconds": 1.5,
+      "tokens": 126,
+      "finish": "stop",
+      "reply": "Start: B=8, C=8, D=7.\n1. Move 8 from B to D: B=0, D=15.\n2. Double D: D=30.\n3. Move 21 from D to B: D=9, B=21.\n4. Add 2 to B: B=23.\n5. Swap B and C: B=8, C=23.\n6. Move 5 from D to B: D=4, B=13.\n\n13"
+    },
+    {
+      "category": "state",
+      "item": 13,
+      "ok": true,
+      "expected": "1",
+      "seconds": 1.1,
+      "tokens": 112,
+      "finish": "stop",
+      "reply": "Start: C=6, A=8, D=5.\n1. D=5-3=2.\n2. A=8+2=10.\n3. D=2-1=1.\n4. Move 3 from C to D: C=3, D=4.\n5. Swap D and A: D=10, A=4.\n6. Move 2 from C to A: C=1, A=6.\n\n1"
+    },
+    {
+      "category": "state",
+      "item": 14,
+      "ok": true,
+      "expected": "0",
+      "seconds": 1.1,
+      "tokens": 127,
+      "finish": "stop",
+      "reply": "Start: A=8, B=9, D=2.\n1. D=2-1=1. A=8,B=9,D=1.\n2. Swap D and A: A=1, D=8.\n3. Swap A and D: A=8, D=1.\n4. Swap B and A: A=9, B=8.\n5. B=8+3=11. A=9.\n6. Remove 9 from A: A=0.\n\n0"
+    },
+    {
+      "category": "state",
+      "item": 15,
+      "ok": true,
+      "expected": "8",
+      "seconds": 1.2,
+      "tokens": 127,
+      "finish": "stop",
+      "reply": "Start: A=3, D=9, B=2.\n1. Move 2 from B to D: B=0, D=11.\n2. Swap A and B: A=0, B=3.\n3. Move 6 from D to B: D=5, B=9.\n4. Add 3 to D: D=8.\n5. Add 6 to A: A=6.\n6. Swap B and D: B=8, D=9.\n\n8"
+    },
+    {
+      "category": "state",
+      "item": 16,
+      "ok": true,
+      "expected": "15",
+      "seconds": 1.3,
+      "tokens": 118,
+      "finish": "stop",
+      "reply": "Start: D=2, A=7, B=3.\n1. A=9.\n2. Swap D and B: D=3, B=2.\n3. Move 6 from A to D: A=3, D=9.\n4. Move 1 from A to B: A=2, B=3.\n5. Double B: B=6.\n6. Move 9 from D to B: D=0, B=15.\n\n15"
+    },
+    {
+      "category": "state",
+      "item": 17,
+      "ok": true,
+      "expected": "1",
+      "seconds": 1.2,
+      "tokens": 123,
+      "finish": "stop",
+      "reply": "Start: C=5, D=6, B=5.\n1. Remove 1 from B: B=4.\n2. Swap C and B: C=4, B=5.\n3. Add 6 to C: C=10.\n4. Move 3 from B to C: B=2, C=13.\n5. Remove 5 from D: D=1.\n6. Swap C and D: C=1, D=13.\n\n1"
+    },
+    {
+      "category": "state",
+      "item": 18,
+      "ok": true,
+      "expected": "15",
+      "seconds": 1.0,
+      "tokens": 103,
+      "finish": "stop",
+      "reply": "Start: D=5, B=9, C=2.\n1. Double D: D=10.\n2. Add 1 to B: B=10.\n3. Add 6 to C: C=8.\n4. Double B: B=20.\n5. Move 5 from C to D: C=3, D=15.\n6. Double C: C=6.\n\n15"
+    },
+    {
+      "category": "state",
+      "item": 19,
+      "ok": true,
+      "expected": "7",
+      "seconds": 1.1,
+      "tokens": 131,
+      "finish": "stop",
+      "reply": "Start: C=6, A=7, B=8.\n1. Add 6 to B: B=14.\n2. Swap C and B: C=14, B=6.\n3. Add 1 to B: B=7.\n4. Remove 7 from A: A=0.\n5. Move 4 from C to A: C=10, A=4.\n6. Move 9 from C to A: C=1, A=13.\n\nB is 7.\n\n7"
+    },
+    {
+      "category": "state",
+      "item": 20,
+      "ok": true,
+      "expected": "5",
+      "seconds": 1.2,
+      "tokens": 116,
+      "finish": "stop",
+      "reply": "Start: C=8, D=7, B=3.\n1. Double B: B=6.\n2. Move 7 from C to D: C=1, D=14.\n3. Remove 6 from B: B=0.\n4. Add 5 to C: C=6.\n5. Swap B and C: B=6, C=0.\n6. Remove 9 from D: D=5.\n\n5"
+    },
+    {
+      "category": "constraint",
+      "item": 1,
+      "ok": true,
+      "expected": "2",
+      "seconds": 1.4,
+      "tokens": 114,
+      "finish": "stop",
+      "reply": "Ana is last (position 4). Ben is not in 2 or 3, so Ben is in position 1. Then Fay and Cara occupy positions 2 and 3, and they must be next to each other (satisfied). Ana and Fay must be next to each other: Ana is in 4, so Fay must be in 3. Then Cara is in 2.\n\n2"
+    },
+    {
+      "category": "constraint",
+      "item": 2,
+      "ok": true,
+      "expected": "2",
+      "seconds": 1.7,
+      "tokens": 273,
+      "finish": "stop",
+      "reply": "Let's solve. Constraints: Cara < Fay, Fay < Ben, Ben and Fay adjacent, so Fay immediately before Ben. Cara < Eve. Eve not in position 2.\n\nCara before Fay before Ben, with Fay and Ben adjacent. Options: Cara, Fay, Ben in positions with Fay immediately before Ben.\n- Cara 1, Fay 2, Ben 3, Eve 4: Cara(1) < Eve(4) \u2713, Eve not 2 \u2713.\n- Cara 1, Fay 3, Ben 4, Eve 2: Eve in 2 \u2717.\n- Cara 2, Fay 3, Ben 4, Eve 1: Cara(2) < Eve(1)? \u2717.\n\nSo Fay is in position 2.\n\n2"
+    },
+    {
+      "category": "constraint",
+      "item": 3,
+      "ok": true,
+      "expected": "1",
+      "seconds": 0.8,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "1"
+    },
+    {
+      "category": "constraint",
+      "item": 4,
+      "ok": true,
+      "expected": "3",
+      "seconds": 1.9,
+      "tokens": 299,
+      "finish": "stop",
+      "reply": "Ana is last (position 4). Remaining positions 1,2,3 for Cara, Fay, Dan.\nCara not in 1. Dan not in 3. Fay and Dan adjacent, Fay and Cara adjacent.\nOptions: Cara in 2 or 3.\nIf Cara in 2: Fay must be adjacent to Cara, so Fay in 1 or 3. Dan adjacent to Fay.\n- Fay 1, Dan 3: Dan not in 3, invalid.\n- Fay 3, Dan 1: Fay and Dan adjacent? positions 1 and 3, no. Invalid.\nIf Cara in 3: Fay adjacent to Cara, Fay in 2 (since 4 is Ana). Dan in 1. Fay and Dan adjacent (2 and 1): yes. Dan not in 3: yes. Cara not in 1: yes.\n\n3"
+    },
+    {
+      "category": "constraint",
+      "item": 5,
+      "ok": true,
+      "expected": "2",
+      "seconds": 1.1,
+      "tokens": 66,
+      "finish": "stop",
+      "reply": "Eve is last (position 4). Ana is next to Eve, so Ana is in position 3. Ben is not in 2 or 3, so Ben is in position 1. Dan is in position 2.\n\n2"
+    },
+    {
+      "category": "constraint",
+      "item": 6,
+      "ok": true,
+      "expected": "2",
+      "seconds": 1.6,
+      "tokens": 91,
+      "finish": "stop",
+      "reply": "Cara is last (position 4). Dan and Cara are adjacent, so Dan is in position 3. Ana is before Dan, so Ana is in position 1 or 2. Ben is not in position 2, so position 2 must be Ana, and Ben is in position 1.\n\n2"
+    },
+    {
+      "category": "constraint",
+      "item": 7,
+      "ok": true,
+      "expected": "2",
+      "seconds": 1.0,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "2"
+    },
+    {
+      "category": "constraint",
+      "item": 8,
+      "ok": true,
+      "expected": "2",
+      "seconds": 1.7,
+      "tokens": 251,
+      "finish": "stop",
+      "reply": "Let's solve. Positions 1-4.\n\nConstraints: Ana before Eve; Dan before Ana; Dan not in 2; Fay not in 3; Dan and Fay adjacent.\n\nDan not in 2, and Dan before Ana, so Dan in 1 or 3 (Dan can't be 4 since Ana must be after him).\nCase Dan=1: Fay adjacent to Dan \u2192 Fay in 2. Then Ana and Eve in 3,4 with Ana before Eve: Ana=3, Eve=4. Check Fay not in 3: ok. Valid.\nCase Dan=3: Ana must be after 3 \u2192 Ana=4, Eve must be after Ana, impossible.\n\nSo Dan=1, Fay=2.\n\n2"
+    },
+    {
+      "category": "constraint",
+      "item": 9,
+      "ok": false,
+      "expected": "3",
+      "seconds": 1.0,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "2"
+    },
+    {
+      "category": "constraint",
+      "item": 10,
+      "ok": true,
+      "expected": "4",
+      "seconds": 0.8,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "4"
+    },
+    {
+      "category": "constraint",
+      "item": 11,
+      "ok": true,
+      "expected": "3",
+      "seconds": 2.1,
+      "tokens": 264,
+      "finish": "stop",
+      "reply": "Let's solve.\n\nCara not in 2, Cara before Ana and Fay before Cara. So Cara is at least position 3 (since Fay before Cara, Cara \u2265 2, and not 2). Cara at 3 or 4. Cara before Ana, so Cara \u2264 3. So Cara = 3, Ana = 4 (Ana after Cara, positions 4 only). Fay before Cara: Fay in 1 or 2. Ben next to Cara: Ben in position 2 or 4; 4 is Ana, so Ben = 2. Then Fay = 1.\n\nCheck: Fay 1, Ben 2, Cara 3, Ana 4. Ana not in 3 \u2713. Cara and Ben adjacent \u2713. Cara not in 2 \u2713.\n\n3"
+    },
+    {
+      "category": "constraint",
+      "item": 12,
+      "ok": true,
+      "expected": "1",
+      "seconds": 2.4,
+      "tokens": 259,
+      "finish": "stop",
+      "reply": "Let's solve.\n\nConstraints: Fay and Eve adjacent. Cara before Fay, Fay before Dan. Fay not in 2, Cara not in 2, Eve not in 4.\n\nFay must be at position 3 or later (since Cara is before Fay and Fay not in 2, Fay \u2265 3). Fay before Dan means Fay \u2264 3, so Fay = 3. Dan = 4. Cara before Fay and not in 2, so Cara = 1. Eve = 2 (adjacent to Fay, not in 4).\n\nCheck: Fay(3) and Eve(2) adjacent, Eve not in 4, Cara(1) not in 2, Cara before Fay, Fay before Dan(4), Fay not in 2. All satisfied.\n\n1"
+    },
+    {
+      "category": "constraint",
+      "item": 13,
+      "ok": true,
+      "expected": "2",
+      "seconds": 1.3,
+      "tokens": 105,
+      "finish": "stop",
+      "reply": "Dan is 4. Ben not 1. Ben and Eve adjacent, Ben before Eve. Ben in {2,3}. If Ben 2, Eve 3, Cara 1. Valid. If Ben 3, Eve 4 but Dan is 4. Invalid. So Ben is 2.\n\n2"
+    },
+    {
+      "category": "constraint",
+      "item": 14,
+      "ok": true,
+      "expected": "3",
+      "seconds": 1.3,
+      "tokens": 121,
+      "finish": "stop",
+      "reply": "Cara is last (position 4). Remaining positions 1-3 for Dan, Ben, Fay. Ben before Dan, Dan before Fay, so order Ben, Dan, Fay: Ben 1, Dan 2, Fay 3. Dan not in 4 ok. Fay and Dan adjacent: positions 2 and 3, yes.\n\n3"
+    },
+    {
+      "category": "constraint",
+      "item": 15,
+      "ok": true,
+      "expected": "2",
+      "seconds": 2.2,
+      "tokens": 120,
+      "finish": "stop",
+      "reply": "Eve is last (position 4). Dan is not in 2 or 3, so Dan is in 1. Then Ana must be next to Dan, so Ana is in 2. Cara is in 3.\n\nCheck: Dan 1, Ana 2, Cara 3, Eve 4. Ana before Eve: yes. Ana and Dan adjacent: yes.\n\n2"
+    },
+    {
+      "category": "constraint",
+      "item": 16,
+      "ok": true,
+      "expected": "4",
+      "seconds": 1.8,
+      "tokens": 259,
+      "finish": "stop",
+      "reply": "Let's solve. Positions 1-4. Dan before Ben, Ben before Cara. Cara and Ben adjacent, Ben and Eve adjacent.\n\nDan < Ben < Cara, with Ben adjacent to Cara, so Cara = Ben+1. Ben adjacent to Eve too. Ben can't be at position 1 (Dan must be before him). Ben at 2: Dan at 1, Cara at 3, Eve at 1 or 3 \u2014 both taken. Fail. Ben at 3: Cara at 4, Dan at 1 or 2, Eve adjacent to Ben at 2 or 4; 4 is Cara, so Eve at 2, Dan at 1. Check Dan not in 4: fine.\n\nCara is in position 4.\n\n4"
+    },
+    {
+      "category": "constraint",
+      "item": 17,
+      "ok": true,
+      "expected": "4",
+      "seconds": 2.8,
+      "tokens": 180,
+      "finish": "stop",
+      "reply": "Let's solve. Fay is before Ana, Ana before Dan, so order is Fay < Ana < Dan among these three. Fay not in 1, so Fay in 2 or 3 (Ana after Fay, Dan after Ana, so Fay at most 2). Fay = 2, Ana = 3, Dan = 4, Ben = 1. Check: Ben not in 2 \u2713, Ana not in 4 \u2713, Fay before Ana \u2713, Fay not in 1 \u2713, Ana before Dan \u2713.\n\n4"
+    },
+    {
+      "category": "constraint",
+      "item": 18,
+      "ok": true,
+      "expected": "3",
+      "seconds": 1.2,
+      "tokens": 68,
+      "finish": "stop",
+      "reply": "Dan is last (position 4). Cara is directly before Dan, so Cara is in position 3. Eve is not in 2 or 4, so Eve is in position 1, and Ana is in position 2.\n\n3"
+    },
+    {
+      "category": "constraint",
+      "item": 19,
+      "ok": true,
+      "expected": "3",
+      "seconds": 2.1,
+      "tokens": 236,
+      "finish": "stop",
+      "reply": "Ben is last (position 4). Fay and Ana are adjacent, Ana and Cara are adjacent, and Fay is not in position 3.\n\nPositions 1-3 hold Cara, Ana, Fay. Ana must be adjacent to both Fay and Cara, so Ana is in position 2 (middle). Then Cara and Fay occupy positions 1 and 3. Fay is not in position 3, so Fay is in position 1 and Cara is in position 3.\n\nCheck: Ana not in 1 \u2713, Ben last \u2713, Fay(1) and Ana(2) adjacent \u2713, Ana(2) and Cara(3) adjacent \u2713, Fay not in 3 \u2713.\n\n3"
+    },
+    {
+      "category": "constraint",
+      "item": 20,
+      "ok": true,
+      "expected": "2",
+      "seconds": 1.0,
+      "tokens": 85,
+      "finish": "stop",
+      "reply": "Ana is at position 4. Positions 3 can't be Fay or Eve, so position 3 is Cara. Then Cara and Fay are adjacent, so Fay is at position 2 (since position 4 is Ana). Eve is at position 1.\n\n2"
+    },
+    {
+      "category": "compliance",
+      "item": 1,
+      "ok": true,
+      "expected": "cedar,birch,alder",
+      "seconds": 0.8,
+      "tokens": 11,
+      "finish": "stop",
+      "reply": "cedar,birch,alder"
+    },
+    {
+      "category": "compliance",
+      "item": 2,
+      "ok": true,
+      "expected": "vast blue salty",
+      "seconds": 1.1,
+      "tokens": 10,
+      "finish": "stop",
+      "reply": "Vast blue expanse"
+    },
+    {
+      "category": "compliance",
+      "item": 3,
+      "ok": true,
+      "expected": "Chile",
+      "seconds": 1.1,
+      "tokens": 52,
+      "finish": "stop",
+      "reply": "Sweden? No, that has an e... wait, \"Sweden\" contains no 'a'. S-w-e-d-e-n. Correct.\n\nSweden"
+    },
+    {
+      "category": "compliance",
+      "item": 4,
+      "ok": true,
+      "expected": "vast blue salty",
+      "seconds": 1.6,
+      "tokens": 9,
+      "finish": "stop",
+      "reply": "Vast endless blue"
+    },
+    {
+      "category": "compliance",
+      "item": 5,
+      "ok": true,
+      "expected": "PARIS",
+      "seconds": 1.1,
+      "tokens": 6,
+      "finish": "stop",
+      "reply": "PARIS"
+    },
+    {
+      "category": "compliance",
+      "item": 6,
+      "ok": true,
+      "expected": "vast blue salty",
+      "seconds": 0.9,
+      "tokens": 10,
+      "finish": "stop",
+      "reply": "Vast blue expanse"
+    },
+    {
+      "category": "compliance",
+      "item": 7,
+      "ok": true,
+      "expected": "85",
+      "seconds": 0.7,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "85"
+    },
+    {
+      "category": "compliance",
+      "item": 8,
+      "ok": true,
+      "expected": "the seven quiet river runs far",
+      "seconds": 1.2,
+      "tokens": 10,
+      "finish": "stop",
+      "reply": "we seven have gone home today"
+    },
+    {
+      "category": "compliance",
+      "item": 9,
+      "ok": true,
+      "expected": "cedar,birch,alder",
+      "seconds": 1.3,
+      "tokens": 11,
+      "finish": "stop",
+      "reply": "cedar,birch,alder"
+    },
+    {
+      "category": "compliance",
+      "item": 10,
+      "ok": false,
+      "expected": "vast blue salty cold deep",
+      "seconds": 1.3,
+      "tokens": 17,
+      "finish": "stop",
+      "reply": "Vast blue endless waves breathing deeply"
+    },
+    {
+      "category": "compliance",
+      "item": 11,
+      "ok": true,
+      "expected": "red green blue",
+      "seconds": 1.0,
+      "tokens": 6,
+      "finish": "stop",
+      "reply": "red blue green"
+    },
+    {
+      "category": "compliance",
+      "item": 12,
+      "ok": true,
+      "expected": "vast blue salty cold deep",
+      "seconds": 1.3,
+      "tokens": 14,
+      "finish": "stop",
+      "reply": "Vast blue endless waves rolling"
+    },
+    {
+      "category": "compliance",
+      "item": 13,
+      "ok": false,
+      "expected": "the blue quiet river runs far",
+      "seconds": 1.0,
+      "tokens": 14,
+      "finish": "stop",
+      "reply": "the blue sky stretched endlessly"
+    },
+    {
+      "category": "compliance",
+      "item": 14,
+      "ok": false,
+      "expected": "Chile",
+      "seconds": 1.1,
+      "tokens": 50,
+      "finish": "stop",
+      "reply": "Sweden\n\nWait, that contains an 'a'? No, S-w-e-d-e-n has no 'a'. Let me restate: Sweden"
+    },
+    {
+      "category": "compliance",
+      "item": 15,
+      "ok": true,
+      "expected": "{\"animal\":\"raven\",\"x\":7,\"total\":23}",
+      "seconds": 0.8,
+      "tokens": 23,
+      "finish": "stop",
+      "reply": "{\"animal\": \"raven\", \"x\": 7, \"total\": 23}"
+    },
+    {
+      "category": "compliance",
+      "item": 16,
+      "ok": true,
+      "expected": "cedar,birch,alder",
+      "seconds": 0.8,
+      "tokens": 11,
+      "finish": "stop",
+      "reply": "cedar,birch,alder"
+    },
+    {
+      "category": "compliance",
+      "item": 17,
+      "ok": false,
+      "expected": "vast blue salty cold deep",
+      "seconds": 0.9,
+      "tokens": 18,
+      "finish": "stop",
+      "reply": "Vast blue waves endlessly rolling forward"
+    },
+    {
+      "category": "compliance",
+      "item": 18,
+      "ok": true,
+      "expected": "red green blue",
+      "seconds": 1.0,
+      "tokens": 6,
+      "finish": "stop",
+      "reply": "red blue green"
+    },
+    {
+      "category": "compliance",
+      "item": 19,
+      "ok": true,
+      "expected": "vast blue salty cold",
+      "seconds": 1.1,
+      "tokens": 12,
+      "finish": "stop",
+      "reply": "Vast blue endless expanse"
+    },
+    {
+      "category": "compliance",
+      "item": 20,
+      "ok": true,
+      "expected": "cedar,birch,alder",
+      "seconds": 1.4,
+      "tokens": 11,
+      "finish": "stop",
+      "reply": "cedar,birch,alder"
+    },
+    {
+      "category": "abstention",
+      "item": 1,
+      "ok": true,
+      "expected": "3",
+      "seconds": 2.0,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "3"
+    },
+    {
+      "category": "abstention",
+      "item": 2,
+      "ok": true,
+      "expected": "UNKNOWN",
+      "seconds": 0.7,
+      "tokens": 9,
+      "finish": "stop",
+      "reply": "UNKNOWN"
+    },
+    {
+      "category": "abstention",
+      "item": 3,
+      "ok": true,
+      "expected": "5",
+      "seconds": 1.0,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "5"
+    },
+    {
+      "category": "abstention",
+      "item": 4,
+      "ok": true,
+      "expected": "UNKNOWN",
+      "seconds": 1.2,
+      "tokens": 9,
+      "finish": "stop",
+      "reply": "UNKNOWN"
+    },
+    {
+      "category": "abstention",
+      "item": 5,
+      "ok": true,
+      "expected": "UNKNOWN",
+      "seconds": 1.0,
+      "tokens": 9,
+      "finish": "stop",
+      "reply": "UNKNOWN"
+    },
+    {
+      "category": "abstention",
+      "item": 6,
+      "ok": true,
+      "expected": "27",
+      "seconds": 0.9,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "27"
+    },
+    {
+      "category": "abstention",
+      "item": 7,
+      "ok": true,
+      "expected": "UNKNOWN",
+      "seconds": 1.0,
+      "tokens": 9,
+      "finish": "stop",
+      "reply": "UNKNOWN"
+    },
+    {
+      "category": "abstention",
+      "item": 8,
+      "ok": true,
+      "expected": "28",
+      "seconds": 1.0,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "28"
+    },
+    {
+      "category": "abstention",
+      "item": 9,
+      "ok": true,
+      "expected": "6",
+      "seconds": 1.1,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "6"
+    },
+    {
+      "category": "abstention",
+      "item": 10,
+      "ok": true,
+      "expected": "UNKNOWN",
+      "seconds": 0.8,
+      "tokens": 9,
+      "finish": "stop",
+      "reply": "UNKNOWN"
+    },
+    {
+      "category": "abstention",
+      "item": 11,
+      "ok": true,
+      "expected": "24",
+      "seconds": 1.0,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "24"
+    },
+    {
+      "category": "abstention",
+      "item": 12,
+      "ok": true,
+      "expected": "12",
+      "seconds": 1.0,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "12"
+    },
+    {
+      "category": "abstention",
+      "item": 13,
+      "ok": true,
+      "expected": "9",
+      "seconds": 0.7,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "9"
+    },
+    {
+      "category": "abstention",
+      "item": 14,
+      "ok": true,
+      "expected": "UNKNOWN",
+      "seconds": 1.0,
+      "tokens": 9,
+      "finish": "stop",
+      "reply": "UNKNOWN"
+    },
+    {
+      "category": "abstention",
+      "item": 15,
+      "ok": true,
+      "expected": "18",
+      "seconds": 0.9,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "18"
+    },
+    {
+      "category": "abstention",
+      "item": 16,
+      "ok": true,
+      "expected": "UNKNOWN",
+      "seconds": 0.8,
+      "tokens": 9,
+      "finish": "stop",
+      "reply": "UNKNOWN"
+    },
+    {
+      "category": "abstention",
+      "item": 17,
+      "ok": true,
+      "expected": "UNKNOWN",
+      "seconds": 0.8,
+      "tokens": 9,
+      "finish": "stop",
+      "reply": "UNKNOWN"
+    },
+    {
+      "category": "abstention",
+      "item": 18,
+      "ok": true,
+      "expected": "36",
+      "seconds": 1.0,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "36"
+    },
+    {
+      "category": "abstention",
+      "item": 19,
+      "ok": true,
+      "expected": "6",
+      "seconds": 1.3,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "6"
+    },
+    {
+      "category": "abstention",
+      "item": 20,
+      "ok": true,
+      "expected": "8",
+      "seconds": 1.1,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "8"
+    },
+    {
+      "category": "trap",
+      "item": 1,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 1.1,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 2,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 1.0,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 3,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 0.9,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 4,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 1.0,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 5,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 0.9,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 6,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 1.0,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 7,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 0.8,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 8,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 1.2,
+      "tokens": 62,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 9,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 1.1,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 10,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 1.0,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 11,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 0.7,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 12,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 0.9,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 13,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 1.1,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 14,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 0.8,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "retrieval",
+      "item": 1,
+      "ok": true,
+      "expected": "196",
+      "seconds": 1.0,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "196"
+    },
+    {
+      "category": "retrieval",
+      "item": 2,
+      "ok": true,
+      "expected": "982",
+      "seconds": 0.9,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "982"
+    },
+    {
+      "category": "retrieval",
+      "item": 3,
+      "ok": true,
+      "expected": "786",
+      "seconds": 2.3,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "786"
+    },
+    {
+      "category": "retrieval",
+      "item": 4,
+      "ok": true,
+      "expected": "423",
+      "seconds": 1.6,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "423"
+    },
+    {
+      "category": "retrieval",
+      "item": 5,
+      "ok": true,
+      "expected": "665",
+      "seconds": 1.3,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "665"
+    },
+    {
+      "category": "retrieval",
+      "item": 6,
+      "ok": true,
+      "expected": "338",
+      "seconds": 1.3,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "338"
+    },
+    {
+      "category": "retrieval",
+      "item": 7,
+      "ok": true,
+      "expected": "623",
+      "seconds": 1.3,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "623"
+    },
+    {
+      "category": "retrieval",
+      "item": 8,
+      "ok": true,
+      "expected": "134",
+      "seconds": 0.9,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "134"
+    }
+  ]
+}

@@ -1,0 +1,4 @@
+I'm working out the first query to find customers with at least one completed order, making sure to handle cases where revenue might be zero and grouping by customer ID rather than name to avoid duplicate name issues.
+
+For Q2, I'll group by product id and name to handle ties, limiting to 3 results. Q3 calls for a NOT EXISTS clause, while Q4 needs to filter orders to 2025 using strftime on the date, exclude zero revenue totals, and round the summed values to two decimal places.
+

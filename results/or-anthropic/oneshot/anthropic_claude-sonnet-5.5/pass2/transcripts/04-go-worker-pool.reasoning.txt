@@ -1,0 +1,8 @@
+I'm thinking through the concurrency design: deriving a cancelable context, capping worker count to the number of tasks, and having each worker check for cancellation before pulling the next task to run. For error handling, I plan to use a mutex or sync.Once to capture only the first error and trigger cancellation, while making sure that if cancellation itself caused a task to fail, the function returns ctx.Err() instead.
+
+I'm also working out the edge case where the parent context gets canceled after all tasks already completed successfully -- in that case results should still be returned rather than an error, so I need to track whether every task actually finished before deciding whether to surface ctx.Err().
+
+For pre-canceled contexts, I want workers to check ctx.Err() before claiming the next task index, and I'm making that check and the index claim happen under the same mutex as setting the failure flag, so that once a failure is recorded no new task can start concurrently.
+
+I also need to validate workers<1 as an error before anything else, even for empty task lists, and confirm that an empty tasks slice simply returns an empty result slice. Since each goroutine writes to its own distinct result index and wg.Wait() establishes the happens-before relationship, the results are safely visible afterward.
+

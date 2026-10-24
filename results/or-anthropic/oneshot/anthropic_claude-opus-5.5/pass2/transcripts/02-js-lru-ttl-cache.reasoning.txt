@@ -1,0 +1,4 @@
+I need to implement the map-based cache carefully, using delete-then-reinsert to mark entries as most-recently-used, keeping in mind keys() returns reverse insertion order. I'm also thinking through edge cases like a zero or negative TTL meaning immediate expiration, and deciding whether setting an already-expired entry should still store it or just clear the existing key to avoid needlessly evicting a live entry.
+
+I'm also working through eviction logic on insert (purge expired first, then evict LRU if still over capacity), how to compute expiry timestamps with Infinity support, validating TTL and capacity inputs to throw appropriate errors for NaN or non-integers, and making sure get/size/keys all correctly purge expired entries and update recency.
+

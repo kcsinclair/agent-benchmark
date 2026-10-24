@@ -1,0 +1,8 @@
+I need to design this carefully: derive a cancellable context, use a semaphore channel to limit worker concurrency, and have the dispatcher select between acquiring the semaphore or context cancellation for each task. I also need to double-check context cancellation after acquiring the semaphore, since a race could otherwise let a task start even after an earlier error triggered cancellation.
+
+For error handling, I'll use a mutex to record only the first error before triggering cancellation. For the final return, I need to decide precedence between a recorded task error and the parent context's own cancellation, since a task might itself return context.Canceled — I want the outcome to prioritize whichever cancellation actually caused the failure rather than picking an arbitrary error.
+
+I'll simplify: at the end, if firstErr is nil but the parent context was cancelled, treat that as the overall error since it means tasks were skipped or interrupted—no need for the extra AfterFunc goroutine, just defer cancel. For dispatching, I'll bound goroutine creation per task using the semaphore, validate the worker count upfront, and have the dispatcher select on context cancellation to stop early.
+
+In each task goroutine, I'll release the semaphore and mark done via defer, skip execution entirely if the context is already cancelled, otherwise call the task and either record the error or store the result into its own index—safe since indexes are distinct until wg.Wait() completes. I'll skip nil tasks and now write the actual implementation.
+

@@ -1,0 +1,1026 @@
+{
+  "model": "anthropic/claude-sonnet-5.5",
+  "seed": 1,
+  "results": [
+    {
+      "category": "state",
+      "item": 1,
+      "ok": true,
+      "expected": "8",
+      "seconds": 1.3,
+      "tokens": 73,
+      "finish": "stop",
+      "reply": "Start: C=5, A=7, B=5.\n1. B=4.\n2. A=14.\n3. A=11.\n4. C=4, B=5.\n5. Swap: C=5, B=4.\n6. B=8.\n\n8"
+    },
+    {
+      "category": "state",
+      "item": 2,
+      "ok": true,
+      "expected": "26",
+      "seconds": 1.4,
+      "tokens": 73,
+      "finish": "stop",
+      "reply": "Start: C=6, D=5, B=7.\n1. C=10.\n2. D=0, B=12.\n3. C=13.\n4. C=26.\n5. B=17.\n6. Swap: C=17, B=26.\n\n26"
+    },
+    {
+      "category": "state",
+      "item": 3,
+      "ok": true,
+      "expected": "4",
+      "seconds": 2.8,
+      "tokens": 135,
+      "finish": "stop",
+      "reply": "4"
+    },
+    {
+      "category": "state",
+      "item": 4,
+      "ok": true,
+      "expected": "3",
+      "seconds": 1.5,
+      "tokens": 85,
+      "finish": "stop",
+      "reply": "Start: B=5, A=7, C=9.\n1. A=14.\n2. B=2.\n3. A=7.\n4. Swap C and B: B=9, C=2.\n5. A=3.\n6. Swap A and B: A=9, B=3.\n\n**3**"
+    },
+    {
+      "category": "state",
+      "item": 5,
+      "ok": true,
+      "expected": "36",
+      "seconds": 2.8,
+      "tokens": 89,
+      "finish": "stop",
+      "reply": "36"
+    },
+    {
+      "category": "state",
+      "item": 6,
+      "ok": true,
+      "expected": "11",
+      "seconds": 2.6,
+      "tokens": 109,
+      "finish": "stop",
+      "reply": "11"
+    },
+    {
+      "category": "state",
+      "item": 7,
+      "ok": true,
+      "expected": "14",
+      "seconds": 1.4,
+      "tokens": 110,
+      "finish": "stop",
+      "reply": "Start: C=4, D=7, A=5.\n1. Swap C and A: C=5, A=4.\n2. Swap again: C=4, A=5.\n3. Remove 3 from C: C=1.\n4. Swap: C=5, A=1.\n5. Remove 1 from C: C=4.\n6. Double D: 14.\n\n14"
+    },
+    {
+      "category": "state",
+      "item": 8,
+      "ok": true,
+      "expected": "11",
+      "seconds": 1.7,
+      "tokens": 136,
+      "finish": "stop",
+      "reply": "Start: C=5, B=5, A=4.\n1. Move 5 from B to C: C=10, B=0.\n2. Add 1 to C: C=11.\n3. Add 2 to A: A=6.\n4. Add 1 to B: B=1.\n5. Remove 1 from B: B=0.\n6. Move 4 from A to B: A=2, B=4.\n\nC is unchanged by the last four steps.\n\n11"
+    },
+    {
+      "category": "state",
+      "item": 9,
+      "ok": true,
+      "expected": "7",
+      "seconds": 2.0,
+      "tokens": 76,
+      "finish": "stop",
+      "reply": "Start: B=6, A=9, D=5.\n1. B=7.\n2. Swap: A=7, B=9.\n3. B=18.\n4. B=0.\n5. B=5.\n6. B=8.\n\nA=7.\n\n**7**"
+    },
+    {
+      "category": "state",
+      "item": 10,
+      "ok": true,
+      "expected": "5",
+      "seconds": 2.5,
+      "tokens": 106,
+      "finish": "stop",
+      "reply": "5"
+    },
+    {
+      "category": "state",
+      "item": 11,
+      "ok": true,
+      "expected": "4",
+      "seconds": 2.2,
+      "tokens": 90,
+      "finish": "stop",
+      "reply": "B starts at 3.\n1. Remove 3: B = 0.\n2. Double: B = 0.\n3. Swapping C and D does not change B.\n4. Double: B = 0.\n5. Add 4: B = 4.\n6. Doubling D does not change B.\n\n**4**"
+    },
+    {
+      "category": "state",
+      "item": 12,
+      "ok": true,
+      "expected": "13",
+      "seconds": 2.9,
+      "tokens": 124,
+      "finish": "stop",
+      "reply": "13"
+    },
+    {
+      "category": "state",
+      "item": 13,
+      "ok": true,
+      "expected": "1",
+      "seconds": 1.3,
+      "tokens": 92,
+      "finish": "stop",
+      "reply": "Start: C=6, A=8, D=5.\n1. D=2.\n2. A=10.\n3. D=1.\n4. C=3, D=4.\n5. Swap D and A: D=10, A=4.\n6. Move 2 from C to A: C=1, A=6.\n\n**1**"
+    },
+    {
+      "category": "state",
+      "item": 14,
+      "ok": true,
+      "expected": "0",
+      "seconds": 1.4,
+      "tokens": 103,
+      "finish": "stop",
+      "reply": "Start: A=8, B=9, D=2.\n1. D=1.\n2. Swap D and A: A=1, D=8.\n3. Swap A and D: A=8, D=1.\n4. Swap B and A: A=9, B=8.\n5. B=11.\n6. A = 9-9 = 0.\n\n**0**"
+    },
+    {
+      "category": "state",
+      "item": 15,
+      "ok": true,
+      "expected": "8",
+      "seconds": 1.6,
+      "tokens": 129,
+      "finish": "stop",
+      "reply": "Start: A=3, D=9, B=2.\n1. Move 2 from B to D: B=0, D=11.\n2. Swap A and B: A=0, B=3.\n3. Move 6 from D to B: D=5, B=9.\n4. Add 3 to D: D=8.\n5. Add 6 to A: A=6.\n6. Swap B and D: B=8, D=9.\n\n**8**"
+    },
+    {
+      "category": "state",
+      "item": 16,
+      "ok": true,
+      "expected": "15",
+      "seconds": 1.7,
+      "tokens": 118,
+      "finish": "stop",
+      "reply": "Start: D=2, A=7, B=3.\n1. A=9.\n2. Swap D and B: D=3, B=2.\n3. Move 6 from A to D: A=3, D=9.\n4. Move 1 from A to B: A=2, B=3.\n5. Double B: B=6.\n6. Move 9 from D to B: D=0, B=15.\n\n15"
+    },
+    {
+      "category": "state",
+      "item": 17,
+      "ok": true,
+      "expected": "1",
+      "seconds": 1.5,
+      "tokens": 97,
+      "finish": "stop",
+      "reply": "Start: C=5, D=6, B=5.\n1. B=4.\n2. Swap C and B: C=4, B=5.\n3. C=10.\n4. Move 3 from B to C: B=2, C=13.\n5. D=1.\n6. Swap C and D: C=1, D=13.\n\n1"
+    },
+    {
+      "category": "state",
+      "item": 18,
+      "ok": true,
+      "expected": "15",
+      "seconds": 1.6,
+      "tokens": 78,
+      "finish": "stop",
+      "reply": "D=5, B=9, C=2.\n1. D=10.\n2. B=10.\n3. C=8.\n4. B=20.\n5. Move 5 from C to D: C=3, D=15.\n6. C=6.\n\nD=15\n\n**15**"
+    },
+    {
+      "category": "state",
+      "item": 19,
+      "ok": true,
+      "expected": "7",
+      "seconds": 2.8,
+      "tokens": 114,
+      "finish": "stop",
+      "reply": "7"
+    },
+    {
+      "category": "state",
+      "item": 20,
+      "ok": true,
+      "expected": "5",
+      "seconds": 2.7,
+      "tokens": 103,
+      "finish": "stop",
+      "reply": "5"
+    },
+    {
+      "category": "constraint",
+      "item": 1,
+      "ok": true,
+      "expected": "2",
+      "seconds": 2.7,
+      "tokens": 85,
+      "finish": "stop",
+      "reply": "2"
+    },
+    {
+      "category": "constraint",
+      "item": 2,
+      "ok": true,
+      "expected": "2",
+      "seconds": 4.1,
+      "tokens": 213,
+      "finish": "stop",
+      "reply": "2"
+    },
+    {
+      "category": "constraint",
+      "item": 3,
+      "ok": true,
+      "expected": "1",
+      "seconds": 3.4,
+      "tokens": 96,
+      "finish": "stop",
+      "reply": "1"
+    },
+    {
+      "category": "constraint",
+      "item": 4,
+      "ok": true,
+      "expected": "3",
+      "seconds": 2.7,
+      "tokens": 91,
+      "finish": "stop",
+      "reply": "3"
+    },
+    {
+      "category": "constraint",
+      "item": 5,
+      "ok": true,
+      "expected": "2",
+      "seconds": 1.5,
+      "tokens": 72,
+      "finish": "stop",
+      "reply": "Eve is in position 4. Ana must be next to Eve, so Ana is in position 3. Ben cannot be in position 2 or 3, so Ben is in position 1. That leaves Dan in position 2.\n\n2"
+    },
+    {
+      "category": "constraint",
+      "item": 6,
+      "ok": true,
+      "expected": "2",
+      "seconds": 2.0,
+      "tokens": 181,
+      "finish": "stop",
+      "reply": "Cara is in position 4. Dan is next to Cara, so Dan is in position 3. Ana is before Dan, so Ana is in position 1 or 2. Ben is not in position 2, so Ben is in position 1 (the only spots left are 1 and 2). That leaves Ana in position 2.\n\nCheck: Ben 1, Ana 2, Dan 3, Cara 4. Ana is before Dan, Ben is not in 2, Cara is last, Ana is not in 4, and Dan is next to Cara. All conditions hold.\n\n2"
+    },
+    {
+      "category": "constraint",
+      "item": 7,
+      "ok": true,
+      "expected": "2",
+      "seconds": 1.4,
+      "tokens": 69,
+      "finish": "stop",
+      "reply": "Fay is last (position 4), so Ana must be position 3. Ben and Cara then fill positions 1 and 2, and Ben is before Cara, so Ben is 1 and Cara is 2.\n\n2"
+    },
+    {
+      "category": "constraint",
+      "item": 8,
+      "ok": true,
+      "expected": "2",
+      "seconds": 4.9,
+      "tokens": 203,
+      "finish": "stop",
+      "reply": "2"
+    },
+    {
+      "category": "constraint",
+      "item": 9,
+      "ok": true,
+      "expected": "3",
+      "seconds": 1.5,
+      "tokens": 95,
+      "finish": "stop",
+      "reply": "Ben is in position 4, and Ana is next to Ben, so Ana is in position 3.\n\nCheck the remaining condition: Dan and Eve fill positions 1 and 2, and Eve is not in position 2, so Eve is in position 1 and Dan in position 2. This works.\n\n3"
+    },
+    {
+      "category": "constraint",
+      "item": 10,
+      "ok": true,
+      "expected": "4",
+      "seconds": 1.9,
+      "tokens": 122,
+      "finish": "stop",
+      "reply": "Eve is last, so she is in position 4.\n\nBen is adjacent to both Ana and Cara, and Ana is before Cara. If Ben were in position 1, he could only be next to one person, so that doesn't work. If Ben is in position 2, Ana is in 1 and Cara is in 3. That fits every clue, and Eve in 4 is after Ben.\n\n4"
+    },
+    {
+      "category": "constraint",
+      "item": 11,
+      "ok": true,
+      "expected": "3",
+      "seconds": 3.2,
+      "tokens": 137,
+      "finish": "stop",
+      "reply": "3"
+    },
+    {
+      "category": "constraint",
+      "item": 12,
+      "ok": true,
+      "expected": "1",
+      "seconds": 10.2,
+      "tokens": 147,
+      "finish": "stop",
+      "reply": "1"
+    },
+    {
+      "category": "constraint",
+      "item": 13,
+      "ok": true,
+      "expected": "2",
+      "seconds": 2.2,
+      "tokens": 135,
+      "finish": "stop",
+      "reply": "Dan is in position 4. Ben and Eve are adjacent with Ben before Eve, and Ben is not in position 1. The remaining positions are 1, 2 and 3.\n\nIf Ben is in 2, Eve is in 3 and Cara is in 1. This works.\n\nIf Ben is in 3, Eve would have to be in 4, but Dan is there. This fails.\n\nSo Ben is in position 2.\n\n2"
+    },
+    {
+      "category": "constraint",
+      "item": 14,
+      "ok": true,
+      "expected": "3",
+      "seconds": 1.8,
+      "tokens": 97,
+      "finish": "stop",
+      "reply": "Cara is in position 4. Ben, Dan and Fay fill positions 1 to 3.\n\nBen is before Dan, Dan is before Fay, and Fay and Dan are adjacent. That gives the order Ben, Dan, Fay, so Fay is in position 3.\n\n**3**"
+    },
+    {
+      "category": "constraint",
+      "item": 15,
+      "ok": true,
+      "expected": "2",
+      "seconds": 2.7,
+      "tokens": 77,
+      "finish": "stop",
+      "reply": "2"
+    },
+    {
+      "category": "constraint",
+      "item": 16,
+      "ok": true,
+      "expected": "4",
+      "seconds": 2.9,
+      "tokens": 134,
+      "finish": "stop",
+      "reply": "4"
+    },
+    {
+      "category": "constraint",
+      "item": 17,
+      "ok": true,
+      "expected": "4",
+      "seconds": 3.3,
+      "tokens": 154,
+      "finish": "stop",
+      "reply": "4"
+    },
+    {
+      "category": "constraint",
+      "item": 18,
+      "ok": true,
+      "expected": "3",
+      "seconds": 1.2,
+      "tokens": 80,
+      "finish": "stop",
+      "reply": "Dan is in position 4, and Cara is next to Dan, so Cara is in position 3. Eve can't be in position 2 or 4, so Eve is in position 1, which leaves Ana in position 2. This satisfies every condition.\n\n3"
+    },
+    {
+      "category": "constraint",
+      "item": 19,
+      "ok": true,
+      "expected": "3",
+      "seconds": 2.4,
+      "tokens": 72,
+      "finish": "stop",
+      "reply": "3"
+    },
+    {
+      "category": "constraint",
+      "item": 20,
+      "ok": true,
+      "expected": "2",
+      "seconds": 9.5,
+      "tokens": 75,
+      "finish": "stop",
+      "reply": "2"
+    },
+    {
+      "category": "compliance",
+      "item": 1,
+      "ok": true,
+      "expected": "cedar,birch,alder",
+      "seconds": 1.3,
+      "tokens": 11,
+      "finish": "stop",
+      "reply": "cedar,birch,alder"
+    },
+    {
+      "category": "compliance",
+      "item": 2,
+      "ok": true,
+      "expected": "vast blue salty",
+      "seconds": 1.1,
+      "tokens": 9,
+      "finish": "stop",
+      "reply": "Vast blue restless"
+    },
+    {
+      "category": "compliance",
+      "item": 3,
+      "ok": true,
+      "expected": "Chile",
+      "seconds": 2.7,
+      "tokens": 53,
+      "finish": "stop",
+      "reply": "Peru"
+    },
+    {
+      "category": "compliance",
+      "item": 4,
+      "ok": true,
+      "expected": "vast blue salty",
+      "seconds": 1.2,
+      "tokens": 9,
+      "finish": "stop",
+      "reply": "Vast blue restless"
+    },
+    {
+      "category": "compliance",
+      "item": 5,
+      "ok": true,
+      "expected": "PARIS",
+      "seconds": 1.0,
+      "tokens": 6,
+      "finish": "stop",
+      "reply": "PARIS"
+    },
+    {
+      "category": "compliance",
+      "item": 6,
+      "ok": true,
+      "expected": "vast blue salty",
+      "seconds": 1.1,
+      "tokens": 9,
+      "finish": "stop",
+      "reply": "Vast blue restless"
+    },
+    {
+      "category": "compliance",
+      "item": 7,
+      "ok": true,
+      "expected": "85",
+      "seconds": 1.1,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "85"
+    },
+    {
+      "category": "compliance",
+      "item": 8,
+      "ok": true,
+      "expected": "the seven quiet river runs far",
+      "seconds": 1.5,
+      "tokens": 13,
+      "finish": "stop",
+      "reply": "the seven dogs ran very fast"
+    },
+    {
+      "category": "compliance",
+      "item": 9,
+      "ok": true,
+      "expected": "cedar,birch,alder",
+      "seconds": 1.2,
+      "tokens": 11,
+      "finish": "stop",
+      "reply": "cedar,birch,alder"
+    },
+    {
+      "category": "compliance",
+      "item": 10,
+      "ok": true,
+      "expected": "vast blue salty cold deep",
+      "seconds": 1.4,
+      "tokens": 15,
+      "finish": "stop",
+      "reply": "Vast blue restless shimmering endless"
+    },
+    {
+      "category": "compliance",
+      "item": 11,
+      "ok": true,
+      "expected": "red green blue",
+      "seconds": 1.1,
+      "tokens": 6,
+      "finish": "stop",
+      "reply": "red blue green"
+    },
+    {
+      "category": "compliance",
+      "item": 12,
+      "ok": true,
+      "expected": "vast blue salty cold deep",
+      "seconds": 1.4,
+      "tokens": 15,
+      "finish": "stop",
+      "reply": "Vast restless shimmering deep blue"
+    },
+    {
+      "category": "compliance",
+      "item": 13,
+      "ok": true,
+      "expected": "the blue quiet river runs far",
+      "seconds": 1.4,
+      "tokens": 12,
+      "finish": "stop",
+      "reply": "the blue bird sang every morning"
+    },
+    {
+      "category": "compliance",
+      "item": 14,
+      "ok": true,
+      "expected": "Chile",
+      "seconds": 3.2,
+      "tokens": 102,
+      "finish": "stop",
+      "reply": "Peru"
+    },
+    {
+      "category": "compliance",
+      "item": 15,
+      "ok": true,
+      "expected": "{\"animal\":\"raven\",\"x\":7,\"total\":23}",
+      "seconds": 1.5,
+      "tokens": 20,
+      "finish": "stop",
+      "reply": "{\"animal\":\"raven\",\"x\":7,\"total\":23}"
+    },
+    {
+      "category": "compliance",
+      "item": 16,
+      "ok": true,
+      "expected": "cedar,birch,alder",
+      "seconds": 1.5,
+      "tokens": 11,
+      "finish": "stop",
+      "reply": "cedar,birch,alder"
+    },
+    {
+      "category": "compliance",
+      "item": 17,
+      "ok": true,
+      "expected": "vast blue salty cold deep",
+      "seconds": 1.5,
+      "tokens": 15,
+      "finish": "stop",
+      "reply": "Vast restless shimmering deep blue"
+    },
+    {
+      "category": "compliance",
+      "item": 18,
+      "ok": true,
+      "expected": "red green blue",
+      "seconds": 1.2,
+      "tokens": 6,
+      "finish": "stop",
+      "reply": "red blue green"
+    },
+    {
+      "category": "compliance",
+      "item": 19,
+      "ok": true,
+      "expected": "vast blue salty cold",
+      "seconds": 1.3,
+      "tokens": 13,
+      "finish": "stop",
+      "reply": "Vast blue restless shimmering"
+    },
+    {
+      "category": "compliance",
+      "item": 20,
+      "ok": true,
+      "expected": "cedar,birch,alder",
+      "seconds": 1.2,
+      "tokens": 11,
+      "finish": "stop",
+      "reply": "cedar,birch,alder"
+    },
+    {
+      "category": "abstention",
+      "item": 1,
+      "ok": true,
+      "expected": "3",
+      "seconds": 1.3,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "3"
+    },
+    {
+      "category": "abstention",
+      "item": 2,
+      "ok": true,
+      "expected": "UNKNOWN",
+      "seconds": 1.4,
+      "tokens": 9,
+      "finish": "stop",
+      "reply": "UNKNOWN"
+    },
+    {
+      "category": "abstention",
+      "item": 3,
+      "ok": true,
+      "expected": "5",
+      "seconds": 1.4,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "5"
+    },
+    {
+      "category": "abstention",
+      "item": 4,
+      "ok": true,
+      "expected": "UNKNOWN",
+      "seconds": 1.5,
+      "tokens": 9,
+      "finish": "stop",
+      "reply": "UNKNOWN"
+    },
+    {
+      "category": "abstention",
+      "item": 5,
+      "ok": true,
+      "expected": "UNKNOWN",
+      "seconds": 11.3,
+      "tokens": 9,
+      "finish": "stop",
+      "reply": "UNKNOWN"
+    },
+    {
+      "category": "abstention",
+      "item": 6,
+      "ok": true,
+      "expected": "27",
+      "seconds": 8.5,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "27"
+    },
+    {
+      "category": "abstention",
+      "item": 7,
+      "ok": true,
+      "expected": "UNKNOWN",
+      "seconds": 1.6,
+      "tokens": 9,
+      "finish": "stop",
+      "reply": "UNKNOWN"
+    },
+    {
+      "category": "abstention",
+      "item": 8,
+      "ok": true,
+      "expected": "28",
+      "seconds": 1.2,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "28"
+    },
+    {
+      "category": "abstention",
+      "item": 9,
+      "ok": true,
+      "expected": "6",
+      "seconds": 1.1,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "6"
+    },
+    {
+      "category": "abstention",
+      "item": 10,
+      "ok": true,
+      "expected": "UNKNOWN",
+      "seconds": 1.1,
+      "tokens": 9,
+      "finish": "stop",
+      "reply": "UNKNOWN"
+    },
+    {
+      "category": "abstention",
+      "item": 11,
+      "ok": true,
+      "expected": "24",
+      "seconds": 1.3,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "24"
+    },
+    {
+      "category": "abstention",
+      "item": 12,
+      "ok": true,
+      "expected": "12",
+      "seconds": 1.2,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "12"
+    },
+    {
+      "category": "abstention",
+      "item": 13,
+      "ok": true,
+      "expected": "9",
+      "seconds": 8.3,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "9"
+    },
+    {
+      "category": "abstention",
+      "item": 14,
+      "ok": true,
+      "expected": "UNKNOWN",
+      "seconds": 1.3,
+      "tokens": 9,
+      "finish": "stop",
+      "reply": "UNKNOWN"
+    },
+    {
+      "category": "abstention",
+      "item": 15,
+      "ok": true,
+      "expected": "18",
+      "seconds": 1.2,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "18"
+    },
+    {
+      "category": "abstention",
+      "item": 16,
+      "ok": true,
+      "expected": "UNKNOWN",
+      "seconds": 1.2,
+      "tokens": 9,
+      "finish": "stop",
+      "reply": "UNKNOWN"
+    },
+    {
+      "category": "abstention",
+      "item": 17,
+      "ok": true,
+      "expected": "UNKNOWN",
+      "seconds": 8.4,
+      "tokens": 9,
+      "finish": "stop",
+      "reply": "UNKNOWN"
+    },
+    {
+      "category": "abstention",
+      "item": 18,
+      "ok": true,
+      "expected": "36",
+      "seconds": 1.2,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "36"
+    },
+    {
+      "category": "abstention",
+      "item": 19,
+      "ok": true,
+      "expected": "6",
+      "seconds": 1.3,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "6"
+    },
+    {
+      "category": "abstention",
+      "item": 20,
+      "ok": true,
+      "expected": "8",
+      "seconds": 1.4,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "8"
+    },
+    {
+      "category": "trap",
+      "item": 1,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 2.1,
+      "tokens": 53,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 2,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 1.1,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 3,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 1.0,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 4,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 1.0,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 5,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 8.4,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 6,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 1.3,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 7,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 0.8,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 8,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 2.4,
+      "tokens": 74,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 9,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 1.4,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 10,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 1.0,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 11,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 1.4,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 12,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 1.1,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 13,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 1.3,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "trap",
+      "item": 14,
+      "ok": true,
+      "expected": "[redacted: hand-authored trap bank]",
+      "seconds": 0.9,
+      "tokens": 3,
+      "finish": "stop",
+      "reply": "[redacted: hand-authored trap bank]"
+    },
+    {
+      "category": "retrieval",
+      "item": 1,
+      "ok": true,
+      "expected": "196",
+      "seconds": 1.8,
+      "tokens": 73,
+      "finish": "stop",
+      "reply": "Hosts in the east region are srv-386 and srv-437.\n\n- srv-386 recorded an uptime of 196 days.\n- srv-437 only has a planned uptime target of 797 days, which does not count.\n\n**196**"
+    },
+    {
+      "category": "retrieval",
+      "item": 2,
+      "ok": true,
+      "expected": "982",
+      "seconds": 1.7,
+      "tokens": 73,
+      "finish": "stop",
+      "reply": "Two hosts are in the east region: srv-335 and srv-438.\n\n- srv-335 recorded an uptime of 982 days.\n- srv-438 only has a planned uptime target of 920 days, which does not count.\n\n982"
+    },
+    {
+      "category": "retrieval",
+      "item": 3,
+      "ok": true,
+      "expected": "786",
+      "seconds": 2.6,
+      "tokens": 73,
+      "finish": "stop",
+      "reply": "Two hosts are in the south region: srv-204 and srv-686.\n\n- srv-204 recorded an uptime of 786 days.\n- srv-686 only has a planned uptime target of 826 days, which does not count.\n\n786"
+    },
+    {
+      "category": "retrieval",
+      "item": 4,
+      "ok": true,
+      "expected": "423",
+      "seconds": 8.9,
+      "tokens": 76,
+      "finish": "stop",
+      "reply": "Two hosts are located in the west region: srv-137 and srv-563.\n\n- srv-137 recorded an uptime of 423 days.\n- srv-563 only has a planned uptime target of 278 days, which does not count.\n\n**423**"
+    },
+    {
+      "category": "retrieval",
+      "item": 5,
+      "ok": true,
+      "expected": "665",
+      "seconds": 9.3,
+      "tokens": 71,
+      "finish": "stop",
+      "reply": "The hosts in the west region are srv-384 and srv-491.\n\n- srv-384 recorded an uptime of 665 days.\n- srv-491 only has a planned uptime target of 200 days, which does not count.\n\n665"
+    },
+    {
+      "category": "retrieval",
+      "item": 6,
+      "ok": true,
+      "expected": "338",
+      "seconds": 8.8,
+      "tokens": 75,
+      "finish": "stop",
+      "reply": "Two hosts are in the north region: srv-131 and srv-516.\n\n- srv-131 recorded an uptime of 338 days.\n- srv-516 only has a planned uptime target of 296 days, which does not count.\n\n**338**"
+    },
+    {
+      "category": "retrieval",
+      "item": 7,
+      "ok": true,
+      "expected": "623",
+      "seconds": 1.7,
+      "tokens": 68,
+      "finish": "stop",
+      "reply": "Hosts in the north region are srv-227 and srv-436.\n\nsrv-227 recorded an uptime of 623 days. srv-436 only has a planned uptime target of 333 days, which does not count.\n\n623"
+    },
+    {
+      "category": "retrieval",
+      "item": 8,
+      "ok": true,
+      "expected": "134",
+      "seconds": 1.7,
+      "tokens": 74,
+      "finish": "stop",
+      "reply": "Two hosts are located in the north region: srv-204 and srv-490.\n\n- srv-204 recorded an uptime of 134 days.\n- srv-490 only has a planned uptime target of 680 days, which does not count.\n\n134"
+    }
+  ]
+}

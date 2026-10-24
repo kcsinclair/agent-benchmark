@@ -1,0 +1,39 @@
+{
+  "model": "anthropic/claude-opus-5.5",
+  "served_model": "anthropic/claude-opus-5.5",
+  "provider": "Anthropic",
+  "request_id": "gen-1790207481-NVfOUmQT2CYKHSpZp273",
+  "server": "https://openrouter.ai/api",
+  "finish_reason": "stop",
+  "native_finish_reason": "end_turn",
+  "mode": "think=on (this endpoint mandates reasoning)",
+  "decode": {
+    "max_tokens": 16384,
+    "temperature": 0.0,
+    "thinking": "think=on (this endpoint mandates reasoning)"
+  },
+  "usage": {
+    "prompt_tokens": 908,
+    "completion_tokens": 3166,
+    "total_tokens": 4074,
+    "cost": 0.066952,
+    "is_byok": false,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+    },
+    "cost_details": {
+      "upstream_inference_cost": 0.066952,
+      "upstream_inference_prompt_cost": 0.003632,
+      "upstream_inference_completions_cost": 0.06332
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 1121,
+      "image_tokens": 0,
+      "audio_tokens": 0
+    }
+  },
+  "seconds": 30.2
+}

@@ -1,0 +1,391 @@
+{
+  "wall_seconds": 291.7,
+  "track": "agent",
+  "settings": {
+    "temperature": 0.0,
+    "max_tokens": 8192,
+    "max_turns": 12,
+    "think": "off",
+    "repeat": 3,
+    "server": "https://openrouter.ai/api",
+    "provider": "Anthropic"
+  },
+  "results": [
+    {
+      "model": "anthropic/claude-opus-5.5",
+      "track": "agent",
+      "load_seconds": null,
+      "passes": [
+        {
+          "pass": 1,
+          "dir": "/opt/agent-benchmark/results/or-anthropic/agent/anthropic_claude-opus-5.5/pass1",
+          "problems": [
+            {
+              "problem": "01-python-parse-duration",
+              "turns": 2,
+              "tool_calls": 1,
+              "bad_calls": 0,
+              "files": [
+                "parse_duration.py"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 1338,
+              "stop": "stopped after 2 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.040936,
+              "provider": "Anthropic",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 13.9,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "02-js-lru-ttl-cache",
+              "turns": 2,
+              "tool_calls": 1,
+              "bad_calls": 0,
+              "files": [
+                "cache.mjs"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 2186,
+              "stop": "stopped after 2 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.060584,
+              "provider": "Anthropic",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 20.4,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "03-sql-analytics",
+              "turns": 2,
+              "tool_calls": 4,
+              "bad_calls": 0,
+              "files": [
+                "q1.sql",
+                "q2.sql",
+                "q3.sql",
+                "q4.sql"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 1591,
+              "stop": "stopped after 2 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.04958,
+              "provider": "Anthropic",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 15.3,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "04-go-worker-pool",
+              "turns": 2,
+              "tool_calls": 1,
+              "bad_calls": 0,
+              "files": [
+                "pool.go"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 2527,
+              "stop": "stopped after 2 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.06561600000000001,
+              "provider": "Anthropic",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 24.2,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "05-python-scheduler",
+              "turns": 2,
+              "tool_calls": 1,
+              "bad_calls": 0,
+              "files": [
+                "scheduler.py"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 1230,
+              "stop": "stopped after 2 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.038676,
+              "provider": "Anthropic",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 14.7,
+              "missing": [],
+              "extra": []
+            }
+          ],
+          "seconds": 88.5,
+          "cost_usd": 0.2554,
+          "score": 68,
+          "max": 68
+        },
+        {
+          "pass": 2,
+          "dir": "/opt/agent-benchmark/results/or-anthropic/agent/anthropic_claude-opus-5.5/pass2",
+          "problems": [
+            {
+              "problem": "01-python-parse-duration",
+              "turns": 2,
+              "tool_calls": 1,
+              "bad_calls": 0,
+              "files": [
+                "parse_duration.py"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 1582,
+              "stop": "stopped after 2 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.04554,
+              "provider": "Anthropic",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 16.9,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "02-js-lru-ttl-cache",
+              "turns": 2,
+              "tool_calls": 1,
+              "bad_calls": 0,
+              "files": [
+                "cache.mjs"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 2478,
+              "stop": "stopped after 2 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.066252,
+              "provider": "Anthropic",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 24.9,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "03-sql-analytics",
+              "turns": 2,
+              "tool_calls": 4,
+              "bad_calls": 0,
+              "files": [
+                "q1.sql",
+                "q2.sql",
+                "q3.sql",
+                "q4.sql"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 1693,
+              "stop": "stopped after 2 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.051616,
+              "provider": "Anthropic",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 16.1,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "04-go-worker-pool",
+              "turns": 2,
+              "tool_calls": 1,
+              "bad_calls": 0,
+              "files": [
+                "pool.go"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 2418,
+              "stop": "stopped after 2 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.063528,
+              "provider": "Anthropic",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 23.2,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "05-python-scheduler",
+              "turns": 2,
+              "tool_calls": 1,
+              "bad_calls": 0,
+              "files": [
+                "scheduler.py"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 1417,
+              "stop": "stopped after 2 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.042424,
+              "provider": "Anthropic",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 16.7,
+              "missing": [],
+              "extra": []
+            }
+          ],
+          "seconds": 97.8,
+          "cost_usd": 0.2694,
+          "score": 68,
+          "max": 68
+        },
+        {
+          "pass": 3,
+          "dir": "/opt/agent-benchmark/results/or-anthropic/agent/anthropic_claude-opus-5.5/pass3",
+          "problems": [
+            {
+              "problem": "01-python-parse-duration",
+              "turns": 2,
+              "tool_calls": 1,
+              "bad_calls": 0,
+              "files": [
+                "parse_duration.py"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 1439,
+              "stop": "stopped after 2 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.043056,
+              "provider": "Anthropic",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 14.6,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "02-js-lru-ttl-cache",
+              "turns": 2,
+              "tool_calls": 1,
+              "bad_calls": 0,
+              "files": [
+                "cache.mjs"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 2534,
+              "stop": "stopped after 2 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.06829199999999999,
+              "provider": "Anthropic",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 23.9,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "03-sql-analytics",
+              "turns": 2,
+              "tool_calls": 4,
+              "bad_calls": 0,
+              "files": [
+                "q1.sql",
+                "q2.sql",
+                "q3.sql",
+                "q4.sql"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 1533,
+              "stop": "stopped after 2 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.048404,
+              "provider": "Anthropic",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 16.4,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "04-go-worker-pool",
+              "turns": 2,
+              "tool_calls": 1,
+              "bad_calls": 0,
+              "files": [
+                "pool.go"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 2757,
+              "stop": "stopped after 2 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.07074,
+              "provider": "Anthropic",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 27.1,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "05-python-scheduler",
+              "turns": 2,
+              "tool_calls": 1,
+              "bad_calls": 0,
+              "files": [
+                "scheduler.py"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 1229,
+              "stop": "stopped after 2 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.038748000000000005,
+              "provider": "Anthropic",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 14.1,
+              "missing": [],
+              "extra": []
+            }
+          ],
+          "seconds": 96.1,
+          "cost_usd": 0.2692,
+          "score": 68,
+          "max": 68
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+I'm designing the cache structure using a map that tracks insertion order for recency, with entries storing value and expiry. For touch operations I remove and reinsert; for size and keys I'm purging expired entries first before returning results, and handling the edge case of setting an already-expired TTL.
+
+I'm weighing eviction strategy: whether to always purge expired entries before evicting LRU on overflow, and worrying this scan could be O(n) at full capacity rather than O(1), considering if a heap-based expiry tracker would be worth the added complexity.
+
+I decide to use a min-heap keyed on expiry time with lazy invalidation — entries become stale when replaced or deleted, and the heap rebuilds once stale entries pile up too much, keeping purge operations amortized O(log n). I'm working out the size getter and how expiry timestamps get computed from TTL values, including edge cases like infinite or NaN TTLs.
+
+Now I'm sketching the set flow: computing timestamp once, deleting any existing key, inserting the new entry, pushing to the heap if it has finite expiry, then purging and evicting oldest entries if over capacity. For get, I check expiration before returning the value and move the key to the end to mark it as recently used, while also handling the heap rebuild by filtering out stale entries and re-heapifying.
+
+I'm also validating that capacity must be a positive integer, which naturally rejects Infinity or missing constructor arguments. Writing heap helper functions...
+

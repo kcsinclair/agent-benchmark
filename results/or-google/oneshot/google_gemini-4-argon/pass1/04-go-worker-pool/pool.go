@@ -1,0 +1,95 @@
+package main
+
+import (
+	"context"
+	"errors"
+	"sync"
+)
+
+// Task is one unit of work.
+type Task func(ctx context.Context) (any, error)
+
+// Run executes tasks with at most `workers` running concurrently and returns
+// their results in the same order as the input slice.
+func Run(ctx context.Context, tasks []Task, workers int) ([]any, error) {
+	if workers < 1 {
+		return nil, errors.New("workers must be at least 1")
+	}
+	if len(tasks) == 0 {
+		return []any{}, nil
+	}
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
+
+	taskCtx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	results := make([]any, len(tasks))
+	sem := make(chan struct{}, workers)
+
+	var (
+		wg       sync.WaitGroup
+		errOnce  sync.Once
+		firstErr error
+	)
+
+	recordErr := func(err error) {
+		errOnce.Do(func() {
+			firstErr = err
+			cancel()
+		})
+	}
+
+loop:
+	for i, task := range tasks {
+		// Check if context is already cancelled before attempting to acquire semaphore.
+		if taskCtx.Err() != nil {
+			recordErr(ctx.Err())
+			break
+		}
+
+		// Acquire a worker slot or abort if context is cancelled while waiting.
+		select {
+		case <-taskCtx.Done():
+			recordErr(ctx.Err())
+			break loop
+		case sem <- struct{}{}:
+		}
+
+		// Double-check context after acquiring semaphore in case both channel
+		// cases were ready simultaneously and `sem` was randomly chosen.
+		if taskCtx.Err() != nil {
+			<-sem
+			recordErr(ctx.Err())
+			break
+		}
+
+		wg.Add(1)
+		go func(idx int, t Task) {
+			defer wg.Done()
+			defer func() { <-sem }()
+
+			res, err := t(taskCtx)
+			if err != nil {
+				recordErr(err)
+				return
+			}
+			results[idx] = res
+		}(i, task)
+	}
+
+	wg.Wait()
+
+	// Catch the case where the parent context was cancelled after all tasks were
+	// dispatched, even if all tasks happened to return nil errors.
+	if firstErr == nil && ctx.Err() != nil {
+		firstErr = ctx.Err()
+	}
+
+	if firstErr != nil {
+		return nil, firstErr
+	}
+
+	return results, nil
+}

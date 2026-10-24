@@ -1,0 +1,6 @@
+I need to carefully design the duration-parsing regex so that the minutes component ("m") doesn't accidentally match the "m" in milliseconds ("ms"), using a negative lookahead to distinguish "5m" from "250ms".
+
+For precision, I'm planning to parse each numeric component using Fraction rather than float so sums like 250ms come out exactly right, then convert to float only at the end. I also need to handle edge cases like strings with no valid components, negative zero, and potential overflow for huge numbers by converting it into a ValueError instead of letting OverflowError leak through.
+
+I should also make sure booleans get rejected as TypeError while actual string subclasses pass through fine, then write the regex with named groups for each time unit.
+

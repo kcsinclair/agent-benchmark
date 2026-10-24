@@ -1,0 +1,72 @@
+## q1.sql
+
+```sql
+SELECT
+  c.name AS customer_name,
+  ROUND(COALESCE(SUM(oi.quantity * p.unit_price), 0), 2) AS revenue
+FROM customers c
+JOIN orders o
+  ON o.customer_id = c.id
+ AND o.status = 'completed'
+LEFT JOIN order_items oi ON oi.order_id = o.id
+LEFT JOIN products p ON p.id = oi.product_id
+GROUP BY c.id, c.name
+ORDER BY revenue DESC, customer_name ASC;
+```
+
+## q2.sql
+
+```sql
+SELECT
+  p.name AS product_name,
+  SUM(oi.quantity) AS units_sold
+FROM products p
+JOIN order_items oi ON oi.product_id = p.id
+JOIN orders o
+  ON o.id = oi.order_id
+ AND o.status = 'completed'
+GROUP BY p.id, p.name
+HAVING SUM(oi.quantity) > 0
+ORDER BY units_sold DESC, product_name ASC
+LIMIT 3;
+```
+
+## q3.sql
+
+```sql
+SELECT
+  c.name AS customer_name,
+  c.country AS country
+FROM customers c
+WHERE NOT EXISTS (
+  SELECT 1 FROM orders o WHERE o.customer_id = c.id
+)
+ORDER BY customer_name ASC;
+```
+
+## q4.sql
+
+```sql
+SELECT
+  strftime('%Y-%m', o.ordered_at) AS month,
+  ROUND(SUM(oi.quantity * p.unit_price), 2) AS revenue
+FROM orders o
+JOIN order_items oi ON oi.order_id = o.id
+JOIN products p ON p.id = oi.product_id
+WHERE o.status = 'completed'
+  AND strftime('%Y', o.ordered_at) = '2025'
+GROUP BY strftime('%Y-%m', o.ordered_at)
+HAVING SUM(oi.quantity * p.unit_price) <> 0
+ORDER BY month ASC;
+```
+
+## Design notes
+
+- **q1:** I group by `c.id` rather than name, so two customers with the same name are not merged.
+  - A completed order that has no line items still qualifies the customer. That is why the item and product joins are `LEFT JOIN` with `COALESCE`, which reports those customers with revenue `0.00`.
+- **q2:** I group by product id so products that share a name stay separate.
+  - The `HAVING SUM(...) > 0` excludes products whose only completed lines have zero quantity, treating those as "no sales". If zero-quantity lines should count as sales, remove that line.
+- **q3:** `NOT EXISTS` avoids the `NULL` problem that `NOT IN` has, and it counts orders of any status.
+- **q4:** `strftime` handles plain ISO dates and also datetimes such as `'2025-03-14 10:00:00'`.
+  - Months with no completed revenue produce no rows.
+  - Months whose revenue sums to zero are removed by `HAVING`.

@@ -1,0 +1,54 @@
+Here are the four files. Each one is a single `SELECT`.
+
+**q1.sql**
+```sql
+SELECT c.name AS customer_name,
+       ROUND(COALESCE(SUM(oi.quantity * p.unit_price), 0), 2) AS revenue
+FROM customers c
+JOIN orders o ON o.customer_id = c.id AND o.status = 'completed'
+LEFT JOIN order_items oi ON oi.order_id = o.id
+LEFT JOIN products p ON p.id = oi.product_id
+GROUP BY c.id, c.name
+ORDER BY revenue DESC, customer_name ASC;
+```
+
+**q2.sql**
+```sql
+SELECT p.name AS product_name,
+       SUM(oi.quantity) AS units_sold
+FROM order_items oi
+JOIN orders o ON o.id = oi.order_id AND o.status = 'completed'
+JOIN products p ON p.id = oi.product_id
+GROUP BY p.id, p.name
+ORDER BY units_sold DESC, product_name ASC
+LIMIT 3;
+```
+
+**q3.sql**
+```sql
+SELECT c.name AS customer_name,
+       c.country AS country
+FROM customers c
+WHERE NOT EXISTS (SELECT 1 FROM orders o WHERE o.customer_id = c.id)
+ORDER BY c.name ASC;
+```
+
+**q4.sql**
+```sql
+SELECT strftime('%Y-%m', o.ordered_at) AS month,
+       ROUND(SUM(oi.quantity * p.unit_price), 2) AS revenue
+FROM orders o
+JOIN order_items oi ON oi.order_id = o.id
+JOIN products p ON p.id = oi.product_id
+WHERE o.status = 'completed'
+  AND strftime('%Y', o.ordered_at) = '2025'
+GROUP BY strftime('%Y-%m', o.ordered_at)
+HAVING SUM(oi.quantity * p.unit_price) <> 0
+ORDER BY month ASC;
+```
+
+Design choices:
+- **q1:** It groups by `c.id`, so two customers who share a name still get separate rows. The `LEFT JOIN`s and `COALESCE` keep a customer whose completed order has no items, with revenue 0.00.
+- **q2:** Only completed orders are joined, so products with no completed sales never appear. Ties on units sold are broken by product name.
+- **q3:** `NOT EXISTS` checks orders of any status, so only customers with zero order rows are returned.
+- **q4:** The year filter uses `strftime('%Y', ...)`, which still works if the date has a time part. The `HAVING` clause drops months whose revenue is zero, and months with no completed orders never appear because there are no rows to group.

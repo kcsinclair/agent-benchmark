@@ -1,0 +1,2 @@
+I'm implementing weighted interval scheduling: sorting jobs by end time, using binary search to find the latest compatible job for each one, and building a dp array where each entry is the max of skipping or taking the job plus the best compatible solution. For reconstruction I'll walk back through the dp choices, and I'm weighing whether to return the dp total directly or recompute the sum from the chosen jobs for consistency.
+

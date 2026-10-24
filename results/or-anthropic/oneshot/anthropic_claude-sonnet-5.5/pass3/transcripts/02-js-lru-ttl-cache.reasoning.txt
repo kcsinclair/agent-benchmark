@@ -1,0 +1,6 @@
+I'm working out the design using an ordered map where the most recently accessed entry sits at the end, with get operations moving entries by deleting and re-inserting them. I need to handle size and key listing by purging expired entries first, and I'm figuring out the tricky edge case of what happens when a set call with a zero or negative TTL is added while the cache is at capacity.
+
+I decide the simplest, least surprising approach is to just remove any existing key and skip storing an already-expired entry entirely, rather than inserting it and risking eviction of a live LRU entry — this keeps observable behavior equivalent without unnecessary evictions. I also note I need to fall back to a default TTL if the given value is NaN or undefined.
+
+For implementation details: validate capacity as a positive integer (rejecting non-integers like Infinity with a RangeError), compute expiry as now() plus ttl so Infinity ttl means never expiring, and call now() once per operation for consistency. I'll purge expired entries by iterating the map directly and deleting as I go, evict the oldest via the map's insertion order, and handle key replacement by deleting the old entry first so it naturally moves to the end without needing extra eviction logic — while get on an expired entry deletes it and returns undefined, and has() doesn't affect recency.
+

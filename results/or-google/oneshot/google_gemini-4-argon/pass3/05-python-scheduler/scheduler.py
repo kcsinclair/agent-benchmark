@@ -1,0 +1,66 @@
+# scheduler.py
+from bisect import bisect_right
+
+
+def best_schedule(jobs: list[tuple[float, float, float]]) -> tuple[float, list[int]]:
+    """
+    Solves the Weighted Interval Scheduling problem in O(n log n) time.
+    
+    Parameters:
+        jobs: A list of (start, end, weight) tuples.
+        
+    Returns:
+        A tuple (total_weight, chosen_indices) where total_weight is the maximum
+        achievable sum of weights as a float, and chosen_indices is a list of
+        original indices of the chosen jobs sorted by start time.
+    """
+    n = len(jobs)
+    if n == 0:
+        return 0.0, []
+
+    # Sort jobs by end time ascending (and start time ascending for ties)
+    # Keep track of original index: (end, start, weight, original_index)
+    sorted_jobs = sorted(
+        (end, start, float(weight), i) for i, (start, end, weight) in enumerate(jobs)
+    )
+
+    ends = [job[0] for job in sorted_jobs]
+
+    # dp[k] stores the max weight using a subset of the first k sorted jobs (1-indexed)
+    dp = [0.0] * (n + 1)
+    # prev[k] stores the 1-based index of the last compatible job for sorted_jobs[k-1]
+    prev = [0] * (n + 1)
+
+    for k in range(1, n + 1):
+        end, start, weight, _ = sorted_jobs[k - 1]
+        
+        # Find the number of jobs with end_time <= start.
+        # Searching inside [0, k - 1) since current job is at index k - 1.
+        p = bisect_right(ends, start, 0, k - 1)
+        prev[k] = p
+        
+        val_with = dp[p] + weight
+        val_without = dp[k - 1]
+        
+        if val_with > val_without:
+            dp[k] = val_with
+        else:
+            dp[k] = val_without
+
+    # Backtrack iteratively to reconstruct the chosen subset of jobs
+    chosen = []
+    k = n
+    while k > 0:
+        # If dp[k] strictly beats dp[k - 1], job k - 1 must have been taken
+        if dp[k] > dp[k - 1]:
+            _, start, _, orig_idx = sorted_jobs[k - 1]
+            chosen.append((start, orig_idx))
+            k = prev[k]
+        else:
+            k -= 1
+
+    # Sort chosen jobs by start time ascending, breaking ties by original index ascending
+    chosen.sort()
+    chosen_indices = [orig_idx for _, orig_idx in chosen]
+
+    return float(dp[n]), chosen_indices

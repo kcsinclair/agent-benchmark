@@ -1,0 +1,4 @@
+I'm thinking through edge cases: customers with completed orders but no items need a LEFT JOIN with COALESCE to avoid nulls, and grouping should be by customer id to avoid name duplicates. For products, I need to group by product id and consider whether to filter out zero-quantity sales using HAVING on the summed quantity.
+
+For the 2025 revenue query, I'll filter dates using strftime on the year and filter for non-zero revenue with HAVING SUM <> 0, then order by rounded revenue.
+

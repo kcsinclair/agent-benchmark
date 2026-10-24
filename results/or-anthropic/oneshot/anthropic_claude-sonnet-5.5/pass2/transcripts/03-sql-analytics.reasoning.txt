@@ -1,0 +1,4 @@
+I need four SQL files, starting with query 1: customers with at least one completed order, including those with zero revenue since orders could have no items. I'll use a left join from orders to items with COALESCE to handle nulls, grouping by customer id rather than name to avoid duplicate name issues.
+
+For query 2, I'm handling ties alphabetically with a limit of 3, grouping by product id, and keeping an inner join so products with no completed sales don't appear. Query 3 uses a NOT EXISTS clause, and query 4 filters for 2025 months with non-zero revenue using HAVING on a rounded sum, matching the year string from ordered_at and grouping by month.
+

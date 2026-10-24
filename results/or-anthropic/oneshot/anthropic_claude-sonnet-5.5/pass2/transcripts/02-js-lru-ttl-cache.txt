@@ -1,0 +1,163 @@
+```js
+// cache.mjs
+export class LruTtlCache {
+  #capacity;
+  #defaultTtlMs;
+  #now;
+  // Map insertion order: first = least recently used, last = most recently used.
+  #map = new Map();
+  // Min-heap (by expiry) of entries with finite expiry. Removed entries are
+  // flagged `dead` and discarded lazily when they reach the top (or on compaction).
+  #heap = [];
+
+  constructor({ capacity, defaultTtlMs = Infinity, now = () => Date.now() } = {}) {
+    if (!Number.isInteger(capacity) || capacity < 1) {
+      throw new RangeError('capacity must be an integer >= 1');
+    }
+    this.#capacity = capacity;
+    this.#defaultTtlMs = defaultTtlMs;
+    this.#now = now;
+  }
+
+  set(key, value, ttlMs) {
+    const t = this.#now();
+    const existing = this.#map.get(key);
+    if (existing) this.#remove(existing);
+
+    const expiry = t + (ttlMs ?? this.#defaultTtlMs);
+    const entry = { key, value, expiry, dead: false };
+    this.#map.set(key, entry);
+    if (expiry !== Infinity) this.#heapPush(entry);
+
+    if (this.#map.size > this.#capacity) {
+      this.#purgeExpired(t); // expired entries go first
+      while (this.#map.size > this.#capacity) {
+        const lru = this.#map.values().next().value;
+        this.#remove(lru);
+      }
+    }
+    this.#maybeCompact();
+    return this;
+  }
+
+  get(key) {
+    const entry = this.#map.get(key);
+    if (!entry) return undefined;
+    if (this.#isExpired(entry, this.#now())) {
+      this.#remove(entry);
+      return undefined;
+    }
+    // Move to most-recently-used position.
+    this.#map.delete(key);
+    this.#map.set(key, entry);
+    return entry.value;
+  }
+
+  has(key) {
+    const entry = this.#map.get(key);
+    if (!entry) return false;
+    if (this.#isExpired(entry, this.#now())) {
+      this.#remove(entry);
+      return false;
+    }
+    return true;
+  }
+
+  delete(key) {
+    const entry = this.#map.get(key);
+    if (!entry) return false;
+    const expired = this.#isExpired(entry, this.#now());
+    this.#remove(entry);
+    return !expired; // an already-expired entry was logically gone
+  }
+
+  get size() {
+    this.#purgeExpired(this.#now());
+    return this.#map.size;
+  }
+
+  keys() {
+    this.#purgeExpired(this.#now());
+    return [...this.#map.keys()].reverse();
+  }
+
+  // ---- internals ----
+
+  #isExpired(entry, t) {
+    return entry.expiry !== Infinity && t >= entry.expiry;
+  }
+
+  #remove(entry) {
+    entry.dead = true;
+    this.#map.delete(entry.key);
+  }
+
+  #purgeExpired(t) {
+    const heap = this.#heap;
+    while (heap.length > 0) {
+      const top = heap[0];
+      if (top.dead) {
+        this.#heapPop();
+      } else if (t >= top.expiry) {
+        this.#heapPop();
+        this.#remove(top);
+      } else {
+        break;
+      }
+    }
+  }
+
+  #maybeCompact() {
+    if (this.#heap.length <= 2 * this.#capacity + 32) return;
+    const live = this.#heap.filter((e) => !e.dead);
+    this.#heap = [];
+    for (const e of live) this.#heapPush(e);
+  }
+
+  #heapPush(entry) {
+    const h = this.#heap;
+    let i = h.length;
+    h.push(entry);
+    while (i > 0) {
+      const p = (i - 1) >> 1;
+      if (h[p].expiry <= h[i].expiry) break;
+      [h[p], h[i]] = [h[i], h[p]];
+      i = p;
+    }
+  }
+
+  #heapPop() {
+    const h = this.#heap;
+    const last = h.pop();
+    if (h.length === 0) return;
+    h[0] = last;
+    let i = 0;
+    const n = h.length;
+    for (;;) {
+      const l = 2 * i + 1;
+      const r = l + 1;
+      let m = i;
+      if (l < n && h[l].expiry < h[m].expiry) m = l;
+      if (r < n && h[r].expiry < h[m].expiry) m = r;
+      if (m === i) break;
+      [h[m], h[i]] = [h[i], h[m]];
+      i = m;
+    }
+  }
+}
+```
+
+**Design**
+- **Recency:** a `Map` holds the entries. The first key is the least recently used and the last is the most recently used. `get` and `set` move an entry to the end by deleting and re-inserting it.
+- **Expiry:** each entry stores an absolute `expiry` time of `now() + ttl`. It counts as expired when `now() >= expiry`, and `Infinity` never expires. A `ttlMs` of 0 or less gives an entry that is already expired.
+- **Clock:** the injected `now()` is the only time source, and each operation reads it once.
+- **Eviction on `set`:** the new entry is inserted first. If the cache is then over capacity, all expired entries are purged, which includes the new one if its TTL was 0 or negative. If the cache is still over capacity, the least recently used entry is evicted.
+- **Finding expired entries cheaply:** a min-heap keyed by expiry holds only entries with a finite TTL.
+  - `size`, `keys` and the over-capacity path of `set` pop expired entries off the heap instead of scanning the whole map.
+  - Entries that were deleted, replaced or evicted are flagged `dead` and dropped lazily when they reach the top of the heap.
+  - The heap is rebuilt when it grows past about twice the capacity, so repeated overwrites cannot leak memory.
+  - `get`, `has` and `delete` are O(1). `set` is O(log n) when it pushes a finite-TTL entry onto the heap, and amortized O(log n) when it also purges.
+- **`delete` on an expired entry:** it removes the entry but returns `false`, because the entry was already logically gone. The spec doesn't say which to return, so this was my choice.
+- **Constructor:** a missing options object, or a capacity that is not an integer ≥ 1 (including `Infinity`), throws `RangeError`.
+
+I haven't run this against a test suite.

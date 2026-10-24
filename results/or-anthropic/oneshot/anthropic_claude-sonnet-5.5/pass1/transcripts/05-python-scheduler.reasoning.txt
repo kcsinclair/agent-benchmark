@@ -1,0 +1,4 @@
+I'm setting up classic weighted interval scheduling: sort jobs by end time, then use binary search on end times to find the latest non-overlapping job for each one, building up the dp array from there.
+
+For reconstruction, I trace back through the take flags to collect which jobs were chosen, then sort them by start time and index for the final output. I'll return the dp value as the total weight, accepting minor float imprecision as acceptable.
+

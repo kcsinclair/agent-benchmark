@@ -1,0 +1,8 @@
+I'm working out the concurrency design: using a semaphore channel to cap worker count, dispatching goroutines per task while checking for context cancellation, then capturing the first error to trigger cancellation and waiting for all goroutines before deciding what to return.
+
+I'm untangling the priority between a task's own error and a parent context cancellation—deciding that if the parent context is already cancelled when an error surfaces, I should record the parent's error instead of the task's, then after all goroutines finish, fall back to returning the parent's cancellation error if no task-level error was recorded.
+
+For preventing not-yet-started tasks from launching, I'm guarding dispatch with a mutex and a "stopped" flag so once an error is recorded, no new goroutines get spawned, accepting that a task already in the dispatch pipeline may still start but will see a cancelled context immediately.
+
+Now I'm sizing the semaphore based on the number of tasks and writing the worker loop with a select on the context's done channel and a deferred semaphore release.
+

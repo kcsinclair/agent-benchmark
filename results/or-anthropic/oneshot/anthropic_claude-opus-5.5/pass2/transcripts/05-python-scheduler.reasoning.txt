@@ -1,0 +1,4 @@
+I'm sorting jobs by end time, using binary search to find the latest compatible job for each start, then building the DP array iteratively and reconstructing the chosen jobs. I'm double-checking the example totals to make sure the weighted sum comes out correctly, and confirming that when take and skip give equal value, either choice works fine.
+
+For the final answer, I'll return the sum of the chosen weights (computed directly from the selected jobs) rather than trusting floating-point accumulation order in the DP array, since that's safest for consistency with a grader comparing claimed weight. During reconstruction, I trace backward using the same comparison logic used to fill the DP table, tracking a boolean choice array so it's exact, and I compute each job's predecessor index via binary search over end times to find all jobs finishing at or before its start.
+

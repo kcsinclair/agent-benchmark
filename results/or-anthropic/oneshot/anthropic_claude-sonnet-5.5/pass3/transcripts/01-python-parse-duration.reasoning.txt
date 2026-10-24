@@ -1,0 +1,4 @@
+I need to handle the ambiguity between "m" for minutes and "ms" for milliseconds carefully, using a negative lookahead so "m" isn't matched when followed by "s".
+
+I should strip whitespace, require at least one matched component, and reject bare signs. For precision I'll sum components using Fraction arithmetic before converting to float, so decimal values like 2h15m30s500ms compute exactly, and I'll catch potential OverflowError for huge inputs and convert it to a ValueError.
+

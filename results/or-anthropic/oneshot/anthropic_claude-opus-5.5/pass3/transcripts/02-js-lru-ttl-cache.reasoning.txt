@@ -1,0 +1,10 @@
+I'm using a Map for recency ordering, where deleting and re-inserting a key moves it to the end as most recent. For expiry, I'm computing now+ttl and treating Infinity ttl as never expiring, zero as immediately expired, and being careful that NaN ttl values don't accidentally cause incorrect expiration behavior.
+
+I'm deciding whether to validate ttl strictly, throwing a TypeError for non-numeric or NaN values, while letting Infinity and -Infinity resolve naturally through the expiry comparison. For eviction, I'm thinking through whether a set on an already-expired entry should still count toward capacity, and considering purging expired entries only when the map exceeds capacity to avoid scanning on every insert, though I'm weighing whether that keeps eviction close to amortized O(1).
+
+To avoid scanning the whole map every time capacity is exceeded, I'm considering tracking a lower-bound "earliestExpiry" value—skip the expired-entry scan entirely if now() hasn't reached that bound yet, and only recompute the true minimum after an actual scan, so scans only happen when something could plausibly have expired.
+
+For size and keys, I'll purge expired entries first before returning results, and have get/has delete expired entries lazily. Setting a key with a TTL of zero or less should effectively remove it immediately, even if it briefly causes an over-capacity purge.
+
+For capacity validation, I need it to be a positive integer (so Infinity is rejected), and I should also validate that `now` is a function and `defaultTtlMs` is numeric before writing the implementation.
+

@@ -10,8 +10,10 @@
 | Qwen3.8-27B-UD-Q4_K_M | leia | - | **68/68** | 57 · 68 · 68 | - | - | - | 20260826-131420 |
 | Qwen3VL-8B-Uncensored-HauhauCS-Aggressive-Q4_K_M | leia | - | 31/68 | 31 · 31 · 45 | 84/102 | 41/68 | - | 20260805-085620 |
 | anthropic/claude-haiku-4.5 | or-anthropic | Anthropic | 64/68 | 64 · 64 · 64 | 73/102 | 48/68 | $0.5610 | 20260904-114641 |
+| anthropic/claude-haiku-5.5 | or-anthropic | Anthropic | **68/68** | 68 · 68 · 68 | 97/102 | **68/68** | $0.0708 | 20261024-193959 |
 | anthropic/claude-opus-5.5 | or-anthropic | Anthropic | **68/68** | 68 · 68 · 68 | **102/102** | **68/68** | $3.3087 | 20260924-101157 |
 | anthropic/claude-sonnet-5 | openrouter | Anthropic | **68/68** | 68 | **102/102** | **68/68** | $0.4937 | 20260813-191603 |
+| anthropic/claude-sonnet-5.5 | or-anthropic | Anthropic | **68/68** | 68 · 68 · 68 | **102/102** | **68/68** | $1.6444 | 20261024-190518 |
 | deepseek/deepseek-v4.1-flash | or-wafer | Wafer | **68/68** | 63 · 68 · 68 | 71/102 | 60/68 | $0.0435 | 20260924-090355 |
 | gemma-4-26B-A4B-it-UD-Q8_K_XL | leia | - | 54/68 | 54 · 54 · 54 | 83/102 | 57/68 | - | 20260903-124638 |
 | gemma-4-26B-A4B-it-qat-UD-Q4_K_XL | leia | - | 65/68 | 54 · 65 · 65 | 81/102 | **68/68** | - | 20260801-135040 |
@@ -21,6 +23,7 @@
 | google/gemini-2.5-flash | or-google | Google | 52/68 | 52 · 52 · 63 | 73/102 | 46/68 | $0.1120 | 20260903-185127 |
 | google/gemini-3.7-flash | or-google | Google | **68/68** | 65 · 68 · 68 | **102/102** | **68/68** | $0.7851 | 20260903-182047 |
 | google/gemini-3.8-flash | or-google | Google | 40/68 | 40 · 40 · 40 | **102/102** | 20/68 | $1.7186 | 20260905-143306 |
+| google/gemini-4-argon | or-google | Google | **68/68** | 68 · 68 · 68 | **102/102** | **68/68** | $1.0184 | 20261024-181154 |
 | google/gemma-4-26b-a4b-it | or-deepinfra | DeepInfra | 54/68 | 54 · 54 · 65 | 82/102 | **68/68** | $0.0384 | 20260903-185026 |
 | google/gemma-4-26b-a4b-it | or-parasail | Parasail | 57/68 | 52 · 57 · 64 | 83/102 | 0/68 | $0.0387 | 20260903-185029 |
 | google/gemma-4-31b-it | openrouter | Novita | 65/68 | 65 | 81/102 | 54/68 | $0.0175 | 20260813-205809 |

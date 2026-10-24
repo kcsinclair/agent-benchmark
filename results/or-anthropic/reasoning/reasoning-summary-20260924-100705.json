@@ -1,0 +1,182 @@
+{
+  "wall_seconds": 856.1,
+  "track": "reasoning",
+  "settings": {
+    "temperature": 0.0,
+    "max_tokens": 2048,
+    "think": "off",
+    "repeat": 3,
+    "seed": 1,
+    "server": "https://openrouter.ai/api",
+    "categories": [
+      "state",
+      "constraint",
+      "compliance",
+      "abstention",
+      "trap",
+      "retrieval"
+    ],
+    "provider": "Anthropic"
+  },
+  "results": [
+    {
+      "model": "anthropic/claude-opus-5.5",
+      "load_seconds": null,
+      "passes": [
+        {
+          "pass": 1,
+          "dir": "/opt/agent-benchmark/results/or-anthropic/reasoning/anthropic_claude-opus-5.5/pass1",
+          "totals": {
+            "state": {
+              "right": 20,
+              "count": 20,
+              "seconds": 74.9,
+              "failed": 0,
+              "cost_usd": 0.0398
+            },
+            "constraint": {
+              "right": 20,
+              "count": 20,
+              "seconds": 67.7,
+              "failed": 0,
+              "cost_usd": 0.0421
+            },
+            "compliance": {
+              "right": 20,
+              "count": 20,
+              "seconds": 47.6,
+              "failed": 0,
+              "cost_usd": 0.0162
+            },
+            "abstention": {
+              "right": 20,
+              "count": 20,
+              "seconds": 35.1,
+              "failed": 0,
+              "cost_usd": 0.0173
+            },
+            "trap": {
+              "right": 14,
+              "count": 14,
+              "seconds": 36.3,
+              "failed": 0,
+              "cost_usd": 0.0134
+            },
+            "retrieval": {
+              "right": 8,
+              "count": 8,
+              "seconds": 18.3,
+              "failed": 0,
+              "cost_usd": 0.4942
+            }
+          },
+          "right": 102,
+          "count": 102,
+          "cost_usd": 0.623
+        },
+        {
+          "pass": 2,
+          "dir": "/opt/agent-benchmark/results/or-anthropic/reasoning/anthropic_claude-opus-5.5/pass2",
+          "totals": {
+            "state": {
+              "right": 20,
+              "count": 20,
+              "seconds": 73.5,
+              "failed": 0,
+              "cost_usd": 0.0385
+            },
+            "constraint": {
+              "right": 20,
+              "count": 20,
+              "seconds": 68.3,
+              "failed": 0,
+              "cost_usd": 0.0417
+            },
+            "compliance": {
+              "right": 20,
+              "count": 20,
+              "seconds": 51.6,
+              "failed": 0,
+              "cost_usd": 0.0191
+            },
+            "abstention": {
+              "right": 20,
+              "count": 20,
+              "seconds": 36.8,
+              "failed": 0,
+              "cost_usd": 0.0171
+            },
+            "trap": {
+              "right": 14,
+              "count": 14,
+              "seconds": 38.1,
+              "failed": 0,
+              "cost_usd": 0.0132
+            },
+            "retrieval": {
+              "right": 8,
+              "count": 8,
+              "seconds": 23.1,
+              "failed": 0,
+              "cost_usd": 0.4953
+            }
+          },
+          "right": 102,
+          "count": 102,
+          "cost_usd": 0.6249
+        },
+        {
+          "pass": 3,
+          "dir": "/opt/agent-benchmark/results/or-anthropic/reasoning/anthropic_claude-opus-5.5/pass3",
+          "totals": {
+            "state": {
+              "right": 20,
+              "count": 20,
+              "seconds": 74.1,
+              "failed": 0,
+              "cost_usd": 0.0392
+            },
+            "constraint": {
+              "right": 20,
+              "count": 20,
+              "seconds": 69.9,
+              "failed": 0,
+              "cost_usd": 0.0409
+            },
+            "compliance": {
+              "right": 20,
+              "count": 20,
+              "seconds": 48.5,
+              "failed": 0,
+              "cost_usd": 0.0149
+            },
+            "abstention": {
+              "right": 20,
+              "count": 20,
+              "seconds": 37.3,
+              "failed": 0,
+              "cost_usd": 0.0172
+            },
+            "trap": {
+              "right": 14,
+              "count": 14,
+              "seconds": 37.0,
+              "failed": 0,
+              "cost_usd": 0.0131
+            },
+            "retrieval": {
+              "right": 8,
+              "count": 8,
+              "seconds": 15.8,
+              "failed": 0,
+              "cost_usd": 0.4942
+            }
+          },
+          "right": 102,
+          "count": 102,
+          "cost_usd": 0.6195
+        }
+      ]
+    }
+  ]
+}

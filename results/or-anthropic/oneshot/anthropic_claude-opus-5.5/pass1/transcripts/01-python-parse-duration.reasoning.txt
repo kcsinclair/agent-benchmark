@@ -1,0 +1,4 @@
+I need to handle the "ms" ambiguity carefully—since "m" alone followed by "s" without a number would be invalid, "ms" should always parse as milliseconds. I'm building a regex to match a number followed by a unit (ms, h, m, or s), and making sure whitespace and digit stripping handle unicode correctly.
+
+I'm also thinking through edge cases like invalid signs ("--1h"), negative zero, and ensuring unit ordering strictly increases (h < m < s < ms). For overflow with extremely long digit strings converting to infinity via float(), I'll just leave that behavior as-is rather than adding extra validation, since it's an unlikely edge case.
+

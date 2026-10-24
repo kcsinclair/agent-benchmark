@@ -1,0 +1,391 @@
+{
+  "wall_seconds": 329.3,
+  "track": "agent",
+  "settings": {
+    "temperature": 0.0,
+    "max_tokens": 8192,
+    "max_turns": 12,
+    "think": "off",
+    "repeat": 3,
+    "server": "https://openrouter.ai/api",
+    "provider": "Google"
+  },
+  "results": [
+    {
+      "model": "google/gemini-4-argon",
+      "track": "agent",
+      "load_seconds": null,
+      "passes": [
+        {
+          "pass": 1,
+          "dir": "/opt/agent-benchmark/results/or-google/agent/google_gemini-4-argon/pass1",
+          "problems": [
+            {
+              "problem": "01-python-parse-duration",
+              "turns": 2,
+              "tool_calls": 1,
+              "bad_calls": 0,
+              "files": [
+                "parse_duration.py"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 496,
+              "stop": "stopped after 2 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.009578,
+              "provider": "Google",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 11.0,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "02-js-lru-ttl-cache",
+              "turns": 2,
+              "tool_calls": 1,
+              "bad_calls": 0,
+              "files": [
+                "cache.mjs"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 1387,
+              "stop": "stopped after 2 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.019034,
+              "provider": "Google",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 23.6,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "03-sql-analytics",
+              "turns": 2,
+              "tool_calls": 4,
+              "bad_calls": 0,
+              "files": [
+                "q1.sql",
+                "q2.sql",
+                "q3.sql",
+                "q4.sql"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 1043,
+              "stop": "stopped after 2 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.015588000000000001,
+              "provider": "Google",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 18.1,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "04-go-worker-pool",
+              "turns": 2,
+              "tool_calls": 1,
+              "bad_calls": 0,
+              "files": [
+                "pool.go"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 1283,
+              "stop": "stopped after 2 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.017554,
+              "provider": "Google",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 22.2,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "05-python-scheduler",
+              "turns": 2,
+              "tool_calls": 1,
+              "bad_calls": 0,
+              "files": [
+                "scheduler.py"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 1562,
+              "stop": "stopped after 2 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.020358,
+              "provider": "Google",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 22.5,
+              "missing": [],
+              "extra": []
+            }
+          ],
+          "seconds": 97.4,
+          "cost_usd": 0.0821,
+          "score": 68,
+          "max": 68
+        },
+        {
+          "pass": 2,
+          "dir": "/opt/agent-benchmark/results/or-google/agent/google_gemini-4-argon/pass2",
+          "problems": [
+            {
+              "problem": "01-python-parse-duration",
+              "turns": 2,
+              "tool_calls": 1,
+              "bad_calls": 0,
+              "files": [
+                "parse_duration.py"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 796,
+              "stop": "stopped after 2 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.012398,
+              "provider": "Google",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 17.3,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "02-js-lru-ttl-cache",
+              "turns": 2,
+              "tool_calls": 1,
+              "bad_calls": 0,
+              "files": [
+                "cache.mjs"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 3847,
+              "stop": "stopped after 2 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.043629999999999995,
+              "provider": "Google",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 55.5,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "03-sql-analytics",
+              "turns": 2,
+              "tool_calls": 4,
+              "bad_calls": 0,
+              "files": [
+                "q1.sql",
+                "q2.sql",
+                "q3.sql",
+                "q4.sql"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 1083,
+              "stop": "stopped after 2 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.015986,
+              "provider": "Google",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 18.0,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "04-go-worker-pool",
+              "turns": 2,
+              "tool_calls": 1,
+              "bad_calls": 0,
+              "files": [
+                "pool.go"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 1808,
+              "stop": "stopped after 2 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.022808,
+              "provider": "Google",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 26.0,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "05-python-scheduler",
+              "turns": 2,
+              "tool_calls": 1,
+              "bad_calls": 0,
+              "files": [
+                "scheduler.py"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 686,
+              "stop": "stopped after 2 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.011592,
+              "provider": "Google",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 18.4,
+              "missing": [],
+              "extra": []
+            }
+          ],
+          "seconds": 135.2,
+          "cost_usd": 0.1064,
+          "score": 68,
+          "max": 68
+        },
+        {
+          "pass": 3,
+          "dir": "/opt/agent-benchmark/results/or-google/agent/google_gemini-4-argon/pass3",
+          "problems": [
+            {
+              "problem": "01-python-parse-duration",
+              "turns": 2,
+              "tool_calls": 1,
+              "bad_calls": 0,
+              "files": [
+                "parse_duration.py"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 487,
+              "stop": "stopped after 2 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.009458,
+              "provider": "Google",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 9.4,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "02-js-lru-ttl-cache",
+              "turns": 2,
+              "tool_calls": 1,
+              "bad_calls": 0,
+              "files": [
+                "cache.mjs"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 1378,
+              "stop": "stopped after 2 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.018952,
+              "provider": "Google",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 20.8,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "03-sql-analytics",
+              "turns": 2,
+              "tool_calls": 4,
+              "bad_calls": 0,
+              "files": [
+                "q1.sql",
+                "q2.sql",
+                "q3.sql",
+                "q4.sql"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 984,
+              "stop": "stopped after 2 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.014995999999999999,
+              "provider": "Google",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 15.4,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "04-go-worker-pool",
+              "turns": 2,
+              "tool_calls": 1,
+              "bad_calls": 0,
+              "files": [
+                "pool.go"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 1256,
+              "stop": "stopped after 2 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.017284,
+              "provider": "Google",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 21.4,
+              "missing": [],
+              "extra": []
+            },
+            {
+              "problem": "05-python-scheduler",
+              "turns": 2,
+              "tool_calls": 1,
+              "bad_calls": 0,
+              "files": [
+                "scheduler.py"
+              ],
+              "rejected_paths": [],
+              "unknown_tools": [],
+              "tokens": 1161,
+              "stop": "stopped after 2 turn(s)",
+              "prose_only": false,
+              "native_calls": 0,
+              "cost": 0.016508000000000002,
+              "provider": "Google",
+              "truncated_turns": 0,
+              "empty_replies": 0,
+              "seconds": 19.7,
+              "missing": [],
+              "extra": []
+            }
+          ],
+          "seconds": 86.7,
+          "cost_usd": 0.0772,
+          "score": 68,
+          "max": 68
+        }
+      ]
+    }
+  ]
+}

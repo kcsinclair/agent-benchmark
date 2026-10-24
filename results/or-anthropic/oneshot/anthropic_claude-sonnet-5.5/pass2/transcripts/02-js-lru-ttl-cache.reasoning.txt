@@ -1,0 +1,10 @@
+I'm designing the cache structure using a Map to preserve insertion order, treating the front as least-recently-used and the end as most-recently-used, with entries storing value and expiry. I'm working out validation logic for the capacity argument, making sure non-integer or sub-1 values raise errors, and handling edge cases like missing constructor arguments.
+
+For the set operation, I'm reasoning through TTL math and how to handle zero or infinite TTLs, deciding to delete an existing key before reinserting to properly update order. I'm weighing whether to scan for expired entries on every set versus trying to keep eviction closer to O(1), noting the tradeoff between a simple full scan and a more complex structure like a min-heap for tracking expirations.
+
+I'm leaning toward implementing a small binary heap of expiry times paired with entries, using identity checks to lazily invalidate stale heap entries, and periodically compacting the heap by rebuilding it from the live map to avoid unbounded memory growth. Given the extra effort, I decide it's worth building this heap-based approach for better amortized performance.
+
+For get, after updating recency I just re-set the same entry back into the map so it stays valid in the heap, then return the value. For has, I do the same lookup without the touch. For delete, I'm weighing whether an expired-but-not-yet-purged entry should count as "removed" — I think returning false makes more semantic sense since it's logically already gone, even though I still clean it up internally. For set, I compute the expiry from ttl (or default), remove any existing entry for that key first, then insert the fresh entry into the map and push it onto the heap if it has a finite expiry, checking afterward if capacity is exceeded.
+
+After inserting, I purge expired entries first, and if still over capacity, evict the least-recently-used key — confirming the new entry can't accidentally be the one evicted since it's always last. For size and keys, I purge expired entries before reporting results, trusting the heap to track all finite-expiry entries so nothing stale lingers. Writing heap code...
+

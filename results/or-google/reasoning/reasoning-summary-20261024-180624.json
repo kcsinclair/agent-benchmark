@@ -1,0 +1,182 @@
+{
+  "wall_seconds": 1947.6,
+  "track": "reasoning",
+  "settings": {
+    "temperature": 0.0,
+    "max_tokens": 2048,
+    "think": "off",
+    "repeat": 3,
+    "seed": 1,
+    "server": "https://openrouter.ai/api",
+    "categories": [
+      "state",
+      "constraint",
+      "compliance",
+      "abstention",
+      "trap",
+      "retrieval"
+    ],
+    "provider": "Google"
+  },
+  "results": [
+    {
+      "model": "google/gemini-4-argon",
+      "load_seconds": null,
+      "passes": [
+        {
+          "pass": 1,
+          "dir": "/opt/agent-benchmark/results/or-google/reasoning/google_gemini-4-argon/pass1",
+          "totals": {
+            "state": {
+              "right": 20,
+              "count": 20,
+              "seconds": 115.0,
+              "failed": 0,
+              "cost_usd": 0.0265
+            },
+            "constraint": {
+              "right": 20,
+              "count": 20,
+              "seconds": 381.9,
+              "failed": 0,
+              "cost_usd": 0.0216
+            },
+            "compliance": {
+              "right": 20,
+              "count": 20,
+              "seconds": 109.3,
+              "failed": 0,
+              "cost_usd": 0.0227
+            },
+            "abstention": {
+              "right": 20,
+              "count": 20,
+              "seconds": 103.4,
+              "failed": 0,
+              "cost_usd": 0.0067
+            },
+            "trap": {
+              "right": 14,
+              "count": 14,
+              "seconds": 80.1,
+              "failed": 0,
+              "cost_usd": 0.004
+            },
+            "retrieval": {
+              "right": 8,
+              "count": 8,
+              "seconds": 119.1,
+              "failed": 0,
+              "cost_usd": 0.156
+            }
+          },
+          "right": 102,
+          "count": 102,
+          "cost_usd": 0.2375
+        },
+        {
+          "pass": 2,
+          "dir": "/opt/agent-benchmark/results/or-google/reasoning/google_gemini-4-argon/pass2",
+          "totals": {
+            "state": {
+              "right": 20,
+              "count": 20,
+              "seconds": 122.4,
+              "failed": 0,
+              "cost_usd": 0.0289
+            },
+            "constraint": {
+              "right": 20,
+              "count": 20,
+              "seconds": 144.3,
+              "failed": 0,
+              "cost_usd": 0.0218
+            },
+            "compliance": {
+              "right": 20,
+              "count": 20,
+              "seconds": 239.4,
+              "failed": 0,
+              "cost_usd": 0.0203
+            },
+            "abstention": {
+              "right": 20,
+              "count": 20,
+              "seconds": 61.4,
+              "failed": 0,
+              "cost_usd": 0.0069
+            },
+            "trap": {
+              "right": 14,
+              "count": 14,
+              "seconds": 41.5,
+              "failed": 0,
+              "cost_usd": 0.0036
+            },
+            "retrieval": {
+              "right": 8,
+              "count": 8,
+              "seconds": 49.0,
+              "failed": 0,
+              "cost_usd": 0.1572
+            }
+          },
+          "right": 102,
+          "count": 102,
+          "cost_usd": 0.2387
+        },
+        {
+          "pass": 3,
+          "dir": "/opt/agent-benchmark/results/or-google/reasoning/google_gemini-4-argon/pass3",
+          "totals": {
+            "state": {
+              "right": 20,
+              "count": 20,
+              "seconds": 76.6,
+              "failed": 0,
+              "cost_usd": 0.0263
+            },
+            "constraint": {
+              "right": 20,
+              "count": 20,
+              "seconds": 71.7,
+              "failed": 0,
+              "cost_usd": 0.0205
+            },
+            "compliance": {
+              "right": 20,
+              "count": 20,
+              "seconds": 84.7,
+              "failed": 0,
+              "cost_usd": 0.0202
+            },
+            "abstention": {
+              "right": 20,
+              "count": 20,
+              "seconds": 54.4,
+              "failed": 0,
+              "cost_usd": 0.0069
+            },
+            "trap": {
+              "right": 14,
+              "count": 14,
+              "seconds": 36.2,
+              "failed": 0,
+              "cost_usd": 0.0039
+            },
+            "retrieval": {
+              "right": 8,
+              "count": 8,
+              "seconds": 53.8,
+              "failed": 0,
+              "cost_usd": 0.0848
+            }
+          },
+          "right": 102,
+          "count": 102,
+          "cost_usd": 0.1626
+        }
+      ]
+    }
+  ]
+}

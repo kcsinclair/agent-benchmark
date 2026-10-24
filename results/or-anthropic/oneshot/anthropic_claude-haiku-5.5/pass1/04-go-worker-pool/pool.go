@@ -1,0 +1,94 @@
+package main
+
+import (
+	"context"
+	"errors"
+	"fmt"
+	"sync"
+)
+
+// Task is one unit of work.
+type Task func(ctx context.Context) (any, error)
+
+// Run executes tasks with at most `workers` running concurrently and returns
+// their results in the same order as the input slice.
+func Run(ctx context.Context, tasks []Task, workers int) ([]any, error) {
+	if workers < 1 {
+		return nil, fmt.Errorf("pool: workers must be >= 1, got %d", workers)
+	}
+	if len(tasks) == 0 {
+		return []any{}, nil
+	}
+	if ctx == nil {
+		ctx = context.Background()
+	}
+
+	// Derived context: cancelled on first task error or parent cancellation.
+	runCtx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	results := make([]any, len(tasks))
+
+	var (
+		mu       sync.Mutex
+		firstErr error
+	)
+	setErr := func(err error) {
+		mu.Lock()
+		if firstErr == nil {
+			firstErr = err
+			cancel()
+		}
+		mu.Unlock()
+	}
+
+	// Feeder: sends indices to workers, stops when runCtx is done.
+	indices := make(chan int)
+	go func() {
+		defer close(indices)
+		for i := range tasks {
+			select {
+			case indices <- i:
+			case <-runCtx.Done():
+				return
+			}
+		}
+	}()
+
+	var wg sync.WaitGroup
+	wg.Add(workers)
+	for w := 0; w < workers; w++ {
+		go func() {
+			defer wg.Done()
+			for i := range indices {
+				// Do not start a task if we are already cancelled.
+				if runCtx.Err() != nil {
+					return
+				}
+				val, err := tasks[i](runCtx)
+				if err != nil {
+					setErr(err)
+					return
+				}
+				results[i] = val
+			}
+		}()
+	}
+	wg.Wait()
+
+	mu.Lock()
+	err := firstErr
+	mu.Unlock()
+
+	if err != nil {
+		return nil, err
+	}
+	// If the parent was cancelled, report it even if no task errored.
+	if ctxErr := ctx.Err(); ctxErr != nil {
+		return nil, ctxErr
+	}
+	return results, nil
+}
+
+// Ensure errors import is used for wrapping helpers if extended.
+var _ = errors.New

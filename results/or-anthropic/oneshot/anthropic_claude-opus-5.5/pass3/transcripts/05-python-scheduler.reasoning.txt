@@ -1,0 +1,4 @@
+I'm setting up the standard weighted interval scheduling approach: sort jobs by end time, binary search for compatible predecessors, then build the DP array and reconstruct the solution. I verify against the example that picking jobs (0,6,8) and (6,11,5) gives the correct total of 13, checking a few alternative combinations to confirm none beat it.
+
+For reconstruction I track a boolean choice array during the forward pass rather than recomputing comparisons afterward, ensuring exact consistency, then sort the chosen jobs by start time and index before returning them.
+

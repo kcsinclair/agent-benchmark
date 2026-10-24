@@ -1,0 +1,50 @@
+# parse_duration.py
+import re
+from fractions import Fraction
+
+_NUM = r"([0-9]+(?:\.[0-9]+)?)"
+
+_PATTERN = re.compile(
+    r"(-)?"
+    rf"(?:{_NUM}h)?"
+    rf"(?:{_NUM}m(?!s))?"   # 'm' must not be the start of 'ms'
+    rf"(?:{_NUM}s)?"
+    rf"(?:{_NUM}ms)?"
+)
+
+# Multipliers in seconds, matching the order of the numeric groups (2..5).
+_FACTORS = (
+    Fraction(3600),
+    Fraction(60),
+    Fraction(1),
+    Fraction(1, 1000),
+)
+
+
+def parse_duration(text: str) -> float:
+    """Parse a duration string such as '1h30m' or '-2h15m30s500ms'
+    and return the total number of seconds as a float."""
+    if not isinstance(text, str):
+        raise TypeError("parse_duration expects a str, got %s" % type(text).__name__)
+
+    s = text.strip()
+    match = _PATTERN.fullmatch(s)
+    if match is None:
+        raise ValueError("invalid duration string: %r" % (text,))
+
+    values = match.groups()[1:]
+    if all(v is None for v in values):
+        raise ValueError("duration must contain at least one component: %r" % (text,))
+
+    total = Fraction(0)
+    for value, factor in zip(values, _FACTORS):
+        if value is not None:
+            total += Fraction(value) * factor
+
+    if match.group(1):
+        total = -total
+
+    try:
+        return float(total)
+    except OverflowError:
+        raise ValueError("duration out of range: %r" % (text,))

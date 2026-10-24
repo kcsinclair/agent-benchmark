@@ -1,0 +1,4 @@
+I'm designing the dispatcher with a cancellable context and semaphore to limit concurrency, launching goroutines per task while checking for cancellation before each acquire, and recording the first error to trigger cancellation before waiting for all workers to finish.
+
+For the final error decision, I want the recorder to prioritize context cancellation if it happened, otherwise use the actual task error — with a mutex-protected check so I set firstErr to ctx.Err() when the context is already done, falling back to the raw error otherwise, and doing a final check after the wait in case cancellation happened last. I'm also reasoning that tasks not yet started should never begin once cancellation occurs.
+

@@ -1,0 +1,4 @@
+This is the classic weighted interval scheduling setup: sort by end time, use binary search to find the last compatible job for each start, then build the DP table iteratively and reconstruct the solution. I'm testing the approach against the example combinations to verify the optimal weight sum, being careful about floating-point comparisons when weights tie during the DP.
+
+For reconstruction, I track a take/skip flag per job matching the exact comparison used in the forward pass (strict greater-than for taking), then walk backward from index n, and finally I'll sort the chosen jobs by start time (with index as tiebreaker) for the output.
+

@@ -1,0 +1,40 @@
+{
+  "model": "anthropic/claude-sonnet-5.5",
+  "served_model": "anthropic/claude-sonnet-5.5",
+  "provider": "Anthropic",
+  "request_id": "gen-1792831707-AnRf2nkfiaCHvW96ADnQ",
+  "server": "https://openrouter.ai/api",
+  "finish_reason": "stop",
+  "native_finish_reason": "end_turn",
+  "mode": "think=on (this endpoint mandates reasoning)",
+  "decode": {
+    "max_tokens": 16384,
+    "temperature": null,
+    "temperature_note": "not accepted by this model; field omitted",
+    "thinking": "think=on (this endpoint mandates reasoning)"
+  },
+  "usage": {
+    "prompt_tokens": 1064,
+    "completion_tokens": 1239,
+    "total_tokens": 2303,
+    "cost": 0.014518,
+    "is_byok": false,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+    },
+    "cost_details": {
+      "upstream_inference_cost": 0.014518,
+      "upstream_inference_prompt_cost": 0.002128,
+      "upstream_inference_completions_cost": 0.01239
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 304,
+      "image_tokens": 0,
+      "audio_tokens": 0
+    }
+  },
+  "seconds": 8.5
+}

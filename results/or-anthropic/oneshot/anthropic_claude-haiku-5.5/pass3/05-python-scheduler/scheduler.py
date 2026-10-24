@@ -1,0 +1,68 @@
+# scheduler.py
+"""
+Weighted interval scheduling in O(n log n).
+
+Approach:
+  * Sort job indices by end time.
+  * For each job i (in end-time order), compute p(i): the number of jobs
+    whose end <= start_i, found by binary search over the sorted end times.
+    Those jobs are exactly the ones compatible with job i that finish before it
+    starts (touching is allowed, so end <= start is the compatibility test).
+  * DP: best[k] = max total weight using only the first k jobs (by end time).
+      best[k] = max(best[k-1], weight_k + best[p(k)])
+    Keep a parallel "take" flag to reconstruct the solution iteratively.
+  * Backtrack from k = n to recover one optimal subset, then sort the chosen
+    indices by (start, index).
+
+All steps are iterative; there is no recursion, so n = 200,000 is safe.
+Only the standard library is used, and importing has no side effects.
+"""
+
+from bisect import bisect_right
+
+
+def best_schedule(jobs: list[tuple[float, float, float]]) -> tuple[float, list[int]]:
+    n = len(jobs)
+    if n == 0:
+        return (0.0, [])
+
+    # Order job indices by end time (ties broken by index for determinism).
+    order = sorted(range(n), key=lambda i: (jobs[i][1], i))
+    ends = [jobs[i][1] for i in order]
+
+    # p[k] = number of jobs (in end-sorted order) with end <= start of job order[k].
+    # Those are exactly the prefix of the sorted order that is compatible with it.
+    p = [0] * n
+    for k in range(n):
+        start = jobs[order[k]][0]
+        p[k] = bisect_right(ends, start)
+
+    # Since end-sorted order is consistent (job k ends no later than job k+1),
+    # p[k] <= k always holds, so the DP only references earlier positions.
+
+    # best[k] = optimal weight using the first k jobs in end-sorted order.
+    best = [0.0] * (n + 1)
+    take = [False] * (n + 1)
+    for k in range(1, n + 1):
+        w = jobs[order[k - 1]][2]
+        with_job = w + best[p[k - 1]]
+        without_job = best[k - 1]
+        if with_job > without_job:
+            best[k] = with_job
+            take[k] = True
+        else:
+            best[k] = without_job
+            take[k] = False
+
+    # Iterative backtrack to recover the chosen set.
+    chosen = []
+    k = n
+    while k > 0:
+        if take[k]:
+            chosen.append(order[k - 1])
+            k = p[k - 1]
+        else:
+            k -= 1
+
+    chosen.sort(key=lambda i: (jobs[i][0], i))
+    return (float(best[n]), chosen)

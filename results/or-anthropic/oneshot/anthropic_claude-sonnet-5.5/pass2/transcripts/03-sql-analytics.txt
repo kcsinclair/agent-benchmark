@@ -1,0 +1,54 @@
+Here are the four files. Each is a single `SELECT`.
+
+## `q1.sql`
+```sql
+SELECT c.name AS customer_name,
+       ROUND(COALESCE(SUM(oi.quantity * p.unit_price), 0), 2) AS revenue
+FROM customers c
+JOIN orders o              ON o.customer_id = c.id AND o.status = 'completed'
+LEFT JOIN order_items oi   ON oi.order_id = o.id
+LEFT JOIN products p       ON p.id = oi.product_id
+GROUP BY c.id, c.name
+ORDER BY revenue DESC, customer_name ASC;
+```
+
+## `q2.sql`
+```sql
+SELECT p.name AS product_name,
+       SUM(oi.quantity) AS units_sold
+FROM order_items oi
+JOIN orders o   ON o.id = oi.order_id AND o.status = 'completed'
+JOIN products p ON p.id = oi.product_id
+GROUP BY p.id, p.name
+ORDER BY units_sold DESC, product_name ASC
+LIMIT 3;
+```
+
+## `q3.sql`
+```sql
+SELECT c.name AS customer_name,
+       c.country AS country
+FROM customers c
+WHERE NOT EXISTS (SELECT 1 FROM orders o WHERE o.customer_id = c.id)
+ORDER BY customer_name ASC;
+```
+
+## `q4.sql`
+```sql
+SELECT strftime('%Y-%m', o.ordered_at) AS month,
+       ROUND(SUM(oi.quantity * p.unit_price), 2) AS revenue
+FROM orders o
+JOIN order_items oi ON oi.order_id = o.id
+JOIN products p     ON p.id = oi.product_id
+WHERE o.status = 'completed'
+  AND strftime('%Y', o.ordered_at) = '2025'
+GROUP BY strftime('%Y-%m', o.ordered_at)
+HAVING SUM(oi.quantity * p.unit_price) <> 0
+ORDER BY month ASC;
+```
+
+Design notes:
+- **q1:** The query starts from completed orders, so cancelled and pending orders never contribute. The `LEFT JOIN`s keep a customer whose completed order has no items, with revenue 0. It groups by `c.id`, so two customers with the same name stay separate rows.
+- **q2:** Grouping is by product id, and the name is the tiebreaker in the `ORDER BY`. The inner joins drop products with no completed sales.
+- **q3:** `NOT EXISTS` checks every order status. It avoids the `NOT IN` pitfalls and is safe even if the data contained NULLs.
+- **q4:** Months with no completed revenue produce no group at all. The `HAVING` clause also excludes months whose revenue sums to exactly zero. The year filter uses `strftime`, so it works whether `ordered_at` is a plain date or includes a time.
